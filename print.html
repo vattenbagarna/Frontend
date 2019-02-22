@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="sv" dir="ltr">
+
+<head>
+	<meta charset="utf-8">
+	<title>Startsida</title>
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Fira+Sans:300,400" rel="stylesheet">
+	<link rel="stylesheet" href="css/print.css">
+	<script src="js/getKey.js"></script>
+	<script src="js/loadGoogleMapsAPI.js"></script>
+</head>
+
+<body onload="getKey();">
+
+	<div id="printMap" style="width:100%;height:50vh;"></div>
+
+	<div class="wrap">
+		<table>
+			<tr>
+				<th>Pumpstation</th>
+				<th>RSK nr</th>
+				<th>Höjd</th>
+				<th>Diameter </th>
+				<th class="right">Kostnad</th>
+			</tr>
+			<tr>
+				<td>Drän 60-150</td>
+				<td>588 7122</td>
+				<td>150 cm</td>
+				<td>60 cm</td>
+				<td class="right">5000kr</td>
+			</tr>
+		</table>
+		<br></br>
+		<table>
+			<tr>
+				<th>Slamavskiljare (antalet hushåll)</th>
+				<th>RSK nr</th>
+				<th>Våtvolym</th>
+				<th class="right">Kostnad</th>
+			</tr>
+			<tr>
+				<td>1(BDT)</td>
+				<td>561 6255</td>
+				<td>1,2 m³</td>
+				<td class="right">2500kr</td>
+			</tr>
+			<tr>
+				<td>2</td>
+				<td>561 6143</td>
+				<td>4 m³</td>
+				<td class="right">4800kr</td>
+			</tr>
+		</table>
+		<br></br>
+		<table>
+			<tr>
+				<th>BioTank (antal hushåll)</th>
+				<th>RSK nr</th>
+				<th>Tillbehör</th>
+				<th class="right">Kostnad</th>
+			</tr>
+			<tr>
+				<td>BioTank 1 hushåll</td>
+				<td>561 9990</td>
+				<td>Förlängningsrör Halsförlängare Ø 600 x 500 mm. RSK nr: 561 6125</td>
+				<td class="right">7700kr</td>
+			</tr>
+		</table>
+		<br></br>
+		<table>
+			<tr>
+				<th>Kompaktbädd BDT+KL</th>
+				<th>RSK nr</th>
+				<th>Antal hushåll</th>
+				<th>Total yta</th>
+				<th>Består av</th>
+				<th class="right">Kostnad</th>
+			</tr>
+			<tr>
+				<td>BAGA Easy kompaktbädd (paket)</td>
+				<td>566 1891</td>
+				<td>3,4 m²</td>
+				<td>1499kr</td>
+				<td>BAGA Easy grundpaket + kompaktbädd </td>
+				<td class="right">1499kr</td>
+			</tr>
+		</table>
+		<br></br>
+		<table>
+			<tr>
+				<th> Total Kostnad </th>
+			</tr>
+			<tr>
+				<td class="right"> 8000kr </td>
+			</tr>
+		</table>
+	</div>
+	<script>
+		function myMap() {
+			var mapProp = {
+				center: new google.maps.LatLng(56.16156, 15.58661),
+				zoom: 12,
+			};
+			var map = new google.maps.Map(document.getElementById("printMap"), mapProp);
+		}
+	</script>
+</body>
+
+</html>
