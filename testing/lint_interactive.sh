@@ -22,6 +22,6 @@ if [ $? -eq 1 ]; then
         exit 1
     fi
 else
-echo -e "$bold$green==> LINT COMPLETED WITHOUT ERRORS$reset"
-exit 0
+    echo -e "$bold$green==> LINT COMPLETED WITHOUT ERRORS$reset"
+    exit 0
 fi

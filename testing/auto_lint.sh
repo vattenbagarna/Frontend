@@ -8,6 +8,7 @@ red="\e[91m"
 
 echo -e "$bold$yellow==> STARTING ESLINT$reset"
 npm run lint
+
 if [ $? -eq 1 ]; then
     echo -e "$bold$red==> ESLINT FAILED$reset"
     echo -e "$bold If possible eslint will now try and auto-fix theese issues$reset"
