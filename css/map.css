@@ -1,0 +1,101 @@
+/*
+*  =============================================================================
+*  MAP
+*  =============================================================================
+*/
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+}
+
+.wrap-all {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    font-family: 'Fira Sans', sans-serif;
+}
+
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 25%;
+    height: 100%;
+    text-align: center;
+}
+
+.map {
+    width: 75%;
+}
+
+.map iframe {
+    width: 100%;
+    height: 100%;
+}
+
+.projekt-titel {
+    font-weight: 300;
+}
+
+.desc {
+    text-align: left;
+    padding: 1rem;
+    font-weight: 300;
+}
+
+.obj-list {
+
+}
+
+.obj-row {
+    display: flex;
+    justify-content: space-around;
+}
+
+.obj {
+    margin: 1rem;
+    height: 80px;
+    width: 80px;
+    box-shadow: 1px 1px 4px rgba(102, 102, 102, 0.4);
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.obj i {
+    font-size: 2.5rem;
+}
+
+.buttons {
+    margin: 1rem;
+}
+
+.fancy-light-button {
+    margin: 0.8rem 0;
+    padding: 0.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 2px solid #3867d6;
+    color: #3867d6;
+    border-radius: 8px;
+}
+
+.link {
+    text-decoration: none;
+}
+
+.fancy-button {
+    margin: 0.8rem 0;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    border-radius: 8px;
+    background: #3867d6;
+    color: #fff;
+}
