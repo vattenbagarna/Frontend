@@ -17,9 +17,22 @@ L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token="
     id: "mapbox.streets"
 }).addTo(map);
 
+const myIcon = L.icon({
+    iconUrl: "img/pump.png",
+    iconSize: [38, 45],
+    iconAnchor: [10, 45],
+    popupAnchor: [1, -45],
+});
+
+const polyline = new L.Polyline([]).addTo(map);
+
 function addMarker(e) {
-    const marker = L.marker(e.latlng).addTo(map);
+    const marker = L.marker(e.latlng, {icon: myIcon}).addTo(map);
     marker.bindPopup(e.latlng.toString() + ", " + active).openPopup();
+
+    marker.on("click", function(event) {
+        polyline.addLatLng(event.latlng);
+    });
 }
 
 const button = document.getElementsByClassName("obj");
