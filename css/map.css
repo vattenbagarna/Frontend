@@ -62,6 +62,10 @@ body {
     cursor: pointer;
 }
 
+.active {
+    border: 1px solid blue;
+}
+
 .buttons {
     margin: 1rem;
 }

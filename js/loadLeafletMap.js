@@ -26,7 +26,7 @@ const myIcon = L.icon({
 
 const polyline = new L.Polyline([]).addTo(map);
 
-function addMarker (e) {
+function addMarker(e) {
 
     const marker = new L.marker(e.latlng, {
         "icon": myIcon
@@ -35,10 +35,10 @@ function addMarker (e) {
     marker.bindPopup(`${e.latlng.toString()}, ${active}`).openPopup();
 }
 
-const obj = document.getElementsByClassName("obj");
+const item = document.getElementsByClassName("item");
 
-for (let i = 0; i < obj.length; i++) {
-    obj[i].addEventListener("click", (event) => {
+for (let i = 0; i < item.length; i++) {
+    item[i].addEventListener("click", (event) => {
         map.on("click", addMarker);
         active = event.srcElement.id;
     });
@@ -64,3 +64,19 @@ document.getElementById("pipe").addEventListener("click", (event) => {
         });
     });
 });
+
+
+function activeObj() {
+    const obj = document.getElementsByClassName("obj");
+
+    for (var i = 0; i < obj.length; i++) {
+        obj[i].addEventListener("click", function() {
+            var current = document.getElementsByClassName("active");
+            if (current.length > 0) {
+                current[0].className = current[0].className.replace(" active", "");
+            }
+            this.className += " active";
+        });
+    }
+}
+activeObj();
