@@ -28,8 +28,9 @@ body {
     text-align: center;
 }
 
-.map {
+#map {
     width: 75%;
+    height: 100%;
 }
 
 .map iframe {
