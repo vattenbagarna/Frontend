@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="sv" dir="ltr">
-
 <head>
 	<meta charset="utf-8">
 	<title>Karta</title>
@@ -9,50 +8,36 @@
 	<link rel="stylesheet" href="css/map.css">
 	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css" integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA==" crossorigin="" />
 </head>
-
 <body>
-
 	<div class="wrap-all">
-
 		<div class="sidebar">
-
 			<div class="wrappa-items">
 				<h1 class="projekt-titel">Projekt 1</h1>
 				<hr>
 				<h2 class="desc">Lägg till objekt på kartan</h2>
-
 				<div class="obj-list">
-
 					<div class="obj-row">
-
-						<div class="obj">
-							<i class="material-icons">local_gas_station</i>
+						<div id="vattenpump1" class="obj">
+							<i id="vattenpump1" class="material-icons">local_gas_station</i>
 						</div>
-
-						<div class="obj">
-							<i class="material-icons">local_gas_station</i>
+						<div id="vattenpump2" class="obj">
+							<i id="vattenpump2" class="material-icons">local_gas_station</i>
 						</div>
-
-						<div class="obj">
-							<i class="material-icons">local_gas_station</i>
+						<div id="vattenpump3" class="obj">
+							<i id="vattenpump3" class="material-icons">local_gas_station</i>
 						</div>
 					</div>
-
 					<div class="obj-row">
-
 						<div class="obj">
 							<i class="material-icons">tune</i>
 						</div>
-
-						<div class="obj">
+						<div id="pipe" class="tools">
 							<i class="material-icons">transform</i>
 						</div>
-
 						<div class="obj">
 							<i class="material-icons">gesture</i>
 						</div>
 					</div>
-
 					<div class="obj-row">
 
 						<div class="tools">
@@ -69,7 +54,6 @@
 					</div>
 				</div>
 			</div>
-
 			<div class="buttons">
 				<a href="list.html" class="link">
                         <div class="fancy-light-button">
@@ -81,12 +65,10 @@
                     </a>
 			</div>
 		</div>
-
 		<div class="map" id="map"></div>
 	</div>
 	<script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js" integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg==" crossorigin=""></script>
 	<script type="module" src="js/loadLeafletMap.js"></script>
 	<script type="module" src="js/getKey.js"></script>
 </body>
-
 </html>

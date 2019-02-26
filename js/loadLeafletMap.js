@@ -27,42 +27,40 @@ const myIcon = L.icon({
 const polyline = new L.Polyline([]).addTo(map);
 
 function addMarker (e) {
-    const marker = L.marker(e.latlng, {
+
+    const marker = new L.marker(e.latlng, {
         "icon": myIcon
     }).addTo(map);
 
     marker.bindPopup(`${e.latlng.toString()}, ${active}`).openPopup();
-
-    marker.on("click", (event) => {
-        polyline.addLatLng(event.latlng);
-    });
 }
 
 const obj = document.getElementsByClassName("obj");
 
-for (var i = 0; i < obj.length; i++) {
+for (let i = 0; i < obj.length; i++) {
     obj[i].addEventListener("click", (event) => {
+        map.on("click", addMarker);
         active = event.srcElement.id;
     });
 }
 
-map.on("click", addMarker);
 
-polyline.on("click", loadPipe);
+document.getElementById("delete").addEventListener("click", (event) => {
+    map.off("click", addMarker);
 
-function loadPipe (e) {
-    this.bindPopup("<b>Pipe</b><br><button id=\"removebtn\">remove</button").openPopup();
-}
-
-
-const button = document.getElementsByClassName("obj");
-
-for (var i = 0; i < button.length; i++) {
-    button[i].addEventListener("click", (event) => {
-        active = event.srcElement.id;
+    map.eachLayer((layer) => {
+        layer.on("click", (e) => {
+            e.target.remove();
+        });
     });
-}
+});
 
-function removepipe (element) {
-    element.remove();
-}
+document.getElementById("pipe").addEventListener("click", (event) => {
+    map.off("click", addMarker);
+
+    map.eachLayer((layer) => {
+        layer.on("click", (e) => {
+            polyline.addLatLng(e.latlng);
+        });
+    });
+});
