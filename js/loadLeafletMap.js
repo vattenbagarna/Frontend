@@ -1,41 +1,51 @@
+/* global document, L */
+
 import {
     key
 } from "./getKey.js";
 
 let active = "";
 let startPolyline = null;
+let polyline = [];
 
 // Initialize the map
 const map = L.map("map", {
     "center": [51.505, -0.09],
-    "zoom": 5,
-    "editable": true
+    "editable": true,
+    "zoom": 15
 });
 
-L.tileLayer(`https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=${key}`, {
-    "attribution": "Map data &copy; <a href='https://www.openstreetmap.org/'>OpenStreetMap</a> contributors, <a href='https://creativecommons.org/licenses/by-sa/2.0/'>CC-BY-SA</a>, Imagery © <a href='https://www.mapbox.com/'>Mapbox</a>",
-    "accessToken": key,
-    "maxZoom": 25,
-    "id": "mapbox.streets"
-}).addTo(map);
+L.tileLayer(
+    `https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=${key}`, {
+        "accessToken": key,
+        "attribution": "Map data &copy; <a href='https://www.openstreetmap" +
+            ".org/'>OpenStreetMap</a> contributors, <a href='https://" +
+            "creativecommons.org/" +
+            "licenses/by-sa/2.0/'>CC-BY-SA</a>, Imagery © <a href='" +
+            "https://www.mapbox.com/'>Mapbox</a>",
+        "id": "mapbox.streets",
+        "maxZoom": 20
+    }
+).addTo(map);
 
 const myIcon = L.icon({
-    "iconUrl": "img/pump.png",
-    "iconSize": [38, 45],
     "iconAnchor": [10, 45],
+    "iconSize": [38, 45],
+    "iconUrl": "img/pump.png",
     "popupAnchor": [1, -45]
 });
 
-let polyline = [];
-
-
-function addMarker(e) {
-
-    const marker = new L.marker(e.latlng, {
+/**
+ * Adds a marker to the map.
+ * @param {object} event event.
+ * @returns {void}
+ */
+function addMarker(event) {
+    const marker = new L.Marker(event.latlng, {
         "icon": myIcon
     }).addTo(map);
 
-    marker.bindPopup(`${e.latlng.toString()}, ${active}`).openPopup();
+    marker.bindPopup(`${event.latlng.toString()}, ${active}`).openPopup();
 }
 
 const item = document.getElementsByClassName("item");
@@ -55,7 +65,7 @@ for (let i = 0; i < item.length; i++) {
 }
 
 
-document.getElementById("delete").addEventListener("click", (event) => {
+document.getElementById("delete").addEventListener("click", () => {
     map.off("click", addMarker);
 
     for (var i = 0; i < polyline.length; i++) {
@@ -72,6 +82,11 @@ function remove(e) {
     e.target.removeFrom(map);
 }
 
+/**
+ * Draws polylines.
+ * @param {object} event event.
+ * @returns {void}
+ */
 function redraw(event) {
     if (startPolyline != null) {
         let temp = new L.Polyline([startPolyline, event.latlng], {
@@ -87,11 +102,14 @@ function redraw(event) {
 
         polyline.push(temp);
         polyline[polyline.length - 1].addTo(map);
+
+        startPolyline = null;
+    } else {
+        startPolyline = event.latlng;
     }
-    startPolyline = event.latlng;
 }
 
-document.getElementById("pipe").addEventListener("click", (event) => {
+document.getElementById("pipe").addEventListener("click", () => {
     map.off("click", addMarker);
 
     for (var i = 0; i < polyline.length; i++) {
@@ -108,14 +126,20 @@ document.getElementById("pipe").addEventListener("click", (event) => {
 });
 
 
+/**
+ * Changes classname on active button.
+ * @returns {void}
+ */
 function activeObj() {
     const obj = document.getElementsByClassName("obj");
 
-    for (var i = 0; i < obj.length; i++) {
-        obj[i].addEventListener("click", function() {
-            var current = document.getElementsByClassName("active");
+    for (let i = 0; i < obj.length; i++) {
+        obj[i].addEventListener("click", function activeClassName() {
+            const current = document.getElementsByClassName("active");
+
             if (current.length > 0) {
-                current[0].className = current[0].className.replace(" active", "");
+                current[0].className =
+                    current[0].className.replace(" active", "");
             }
             this.className += " active";
         });
