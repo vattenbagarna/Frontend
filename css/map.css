@@ -43,7 +43,7 @@ body {
     justify-content: space-around;
 }
 
-.obj {
+.obj, .tools {
     margin: 1rem;
     height: 80px;
     width: 80px;
@@ -54,8 +54,16 @@ body {
     justify-content: center;
 }
 
-.obj i {
+.obj i, .tools i {
     font-size: 2.5rem;
+}
+
+.obj:hover, .tools:hover {
+    cursor: pointer;
+}
+
+.active {
+    border: 1px solid blue;
 }
 
 .buttons {

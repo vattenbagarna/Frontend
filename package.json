@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/vattenbagarna/Frontend#readme",
   "dependencies": {
-    "eslint": "^5.14.1"
+    "eslint": "^5.14.1",
+    "leaflet-editable": "^1.2.0"
   }
 }

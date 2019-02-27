@@ -3,11 +3,13 @@ import {
 } from "./getKey.js";
 
 let active = "";
+let startPolyline = null;
 
 // Initialize the map
 const map = L.map("map", {
     "center": [51.505, -0.09],
-    "zoom": 10,
+    "zoom": 1,
+    "editable": true
 });
 
 L.tileLayer(`https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=${key}`, {
@@ -25,44 +27,79 @@ const myIcon = L.icon({
 });
 
 const polyline = new L.Polyline([]).addTo(map);
+var polyline2 = new L.Polyline([]).addTo(map);
 
-function addMarker (e) {
-    const marker = L.marker(e.latlng, {
+
+function addMarker(e) {
+
+    const marker = new L.marker(e.latlng, {
         "icon": myIcon
     }).addTo(map);
 
     marker.bindPopup(`${e.latlng.toString()}, ${active}`).openPopup();
-
-    marker.on("click", (event) => {
-        polyline.addLatLng(event.latlng);
-    });
 }
 
-const obj = document.getElementsByClassName("obj");
+const item = document.getElementsByClassName("item");
 
-for (var i = 0; i < obj.length; i++) {
-    obj[i].addEventListener("click", (event) => {
+for (let i = 0; i < item.length; i++) {
+    item[i].addEventListener("click", (event) => {
+        map.on("click", addMarker);
         active = event.srcElement.id;
     });
 }
 
-map.on("click", addMarker);
 
-polyline.on("click", loadPipe);
+document.getElementById("delete").addEventListener("click", (event) => {
+    map.off("click", addMarker);
 
-function loadPipe (e) {
-    this.bindPopup("<b>Pipe</b><br><button id=\"removebtn\">remove</button").openPopup();
-}
-
-
-const button = document.getElementsByClassName("obj");
-
-for (var i = 0; i < button.length; i++) {
-    button[i].addEventListener("click", (event) => {
-        active = event.srcElement.id;
+    map.eachLayer((layer) => {
+        layer.on("click", (e) => {
+            e.target.remove();
+        });
     });
+});
+
+function redraw(event) {
+    /*polyline.remove();
+    polyline2.remove();
+    polyline2 = new L.Polyline(polyline._latlngs).addTo(map);
+    polyline2.enableEdit();
+    */
+    if(startPolyline != null) {
+        var x = (startPolyline.lat + event.latlng.lat) / 2;
+        var y = (startPolyline.lng + event.latlng.lng) / 2;
+        var middle = {"lat": x, "lng": y};
+        console.log(middle);
+        console.log(startPolyline);
+        var polyline3 = new L.Polyline([startPolyline, middle ,event.latlng]).addTo(map);
+        console.log(event.latlng);
+        polyline3.enableEdit();
+    }
+    startPolyline = event.latlng;
 }
 
-function removepipe (element) {
-    element.remove();
+document.getElementById("pipe").addEventListener("click", (event) => {
+    map.off("click", addMarker);
+
+    map.eachLayer((layer) => {
+        layer.on("click", (e) => {
+            redraw(e);
+        });
+    });
+});
+
+
+function activeObj() {
+    const obj = document.getElementsByClassName("obj");
+
+    for (var i = 0; i < obj.length; i++) {
+        obj[i].addEventListener("click", function() {
+            var current = document.getElementsByClassName("active");
+            if (current.length > 0) {
+                current[0].className = current[0].className.replace(" active", "");
+            }
+            this.className += " active";
+        });
+    }
 }
+activeObj();
