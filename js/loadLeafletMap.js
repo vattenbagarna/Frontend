@@ -9,9 +9,9 @@ let startPolyline = null;
 
 // Initialize the map
 const map = L.map("map", {
-    "center": [51.505, -0.09],
+    "center": [59.334591, 18.063240],
     "editable": true,
-    "zoom": 1
+    "zoom": 10
 });
 
 L.tileLayer(
