@@ -39,6 +39,7 @@ for (let i = 0; i < item.length; i++) {
     item[i].addEventListener("click", (event) => {
         map.eachLayer((layer) => {
             layer.off("click", remove);
+            layer.off("click", redraw);
         });
 
         map.on("click", addMarker);
@@ -59,6 +60,7 @@ document.getElementById("pipe").addEventListener("click", () => {
 
     map.eachLayer((layer) => {
         layer.off("click", remove);
+        layer.closePopup();
     });
 
     map.eachLayer((layer) => {
@@ -90,7 +92,12 @@ function addMarker(event) {
     }).addTo(map).
     on("drag", movePipe);
 
-    marker.bindPopup(`${event.latlng.toString()}, ${active}`).openPopup();
+    marker.bindPopup(`<select name="model">
+    <option value="?"><b>${active}</b></option>
+    <option value="?">vattenpump2</option>
+    <option value="?">vattenpump3</option>
+    <option value="?">vattenpump4</option>
+  </select><br><b>Typ:</b> BPS 200<br><b>RSK:</b> 5890162<br><b>ArtikelNr:</b> BPS200<br><b>slang:</b> 32<br><b>invGanga:</b> g 32<br><b>Fas:</b> 1<br><b>Volt:</b> 230<br><b>Motoreffekt:</b> 0.2<br><b>Markström:</b> 1<br><b>varvtal:</b> 2900<br><b>kabeltyp:</b> H05RNF/H07RNF<br><b>kabellängd:</b> 10<br><b>vikt:</b> 5`).openPopup();
 }
 
 function movePipe(event) {
@@ -123,6 +130,7 @@ function remove(e) {
  * @returns {void}
  */
 function redraw(event) {
+    event.target.closePopup();
     if (startPolyline != null) {
         const temp = new L.polyline([startPolyline.latlng, event.latlng], {
             "edit_with_drag": true,
