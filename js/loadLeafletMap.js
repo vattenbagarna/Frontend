@@ -10,9 +10,9 @@ let polylines = [];
 
 // Initialize the map
 const map = L.map("map", {
-    "center": [51.505, -0.09],
+    "center": [59.334591, 18.063240],
     "editable": true,
-    "zoom": 15
+    "zoom": 10
 });
 
 L.tileLayer(`https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=${key}`, {
@@ -38,17 +38,17 @@ const myIcon = L.icon({
  * @param {object} event event.
  * @returns {void}
  */
-function addMarker (event) {
+function addMarker(event) {
     const marker = new L.Marker(event.latlng, {
         "draggable": "true",
         "icon": myIcon
     }).addTo(map).
-        on("drag", movePipe);
+    on("drag", movePipe);
 
     marker.bindPopup(`${event.latlng.toString()}, ${active}`).openPopup();
 }
 
-function movePipe (event) {
+function movePipe(event) {
     let newLatlng;
 
     for (let i = 0; i < polylines.length; i++) {
@@ -96,7 +96,7 @@ document.getElementById("delete").addEventListener("click", () => {
     });
 });
 
-function remove (e) {
+function remove(e) {
     polylines = arrayRemove(polylines, e.target);
     e.target.removeFrom(map);
 }
@@ -106,7 +106,7 @@ function remove (e) {
  * @param {object} event event.
  * @returns {void}
  */
-function redraw (event) {
+function redraw(event) {
     if (startPolyline != null) {
         const temp = new L.polyline([startPolyline.latlng, event.latlng], {
             "edit_with_drag": true,
@@ -135,7 +135,7 @@ function redraw (event) {
                 polylines[polylines.length - 1].bindPopup(`Distance from previous point: ${
                     previousPoint.distanceTo(latLng).toFixed(2)
                 } meter(s)`).addTo(map).
-                    openPopup();
+                openPopup();
             }
             previousPoint = latLng;
         });
@@ -168,11 +168,11 @@ document.getElementById("pipe").addEventListener("click", () => {
  * Changes classname on active button.
  * @returns {void}
  */
-function activeObj () {
+function activeObj() {
     const obj = document.getElementsByClassName("obj");
 
     for (let i = 0; i < obj.length; i++) {
-        obj[i].addEventListener("click", function activeClassName () {
+        obj[i].addEventListener("click", function activeClassName() {
             const current = document.getElementsByClassName("active");
 
             if (current.length > 0) {
@@ -186,7 +186,7 @@ function activeObj () {
 activeObj();
 
 
-function arrayRemove (arr, value) {
+function arrayRemove(arr, value) {
 
     return arr.filter((ele) => ele != value);
 
