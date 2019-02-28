@@ -16,7 +16,8 @@ const map = L.map("map", {
 });
 
 L.tileLayer(
-    `https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=${key}`, {
+    `https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=${key}`,
+    {
         "accessToken": key,
         "attribution": "Map data &copy; <a href='https://www.openstreetmap" +
             ".org/'>OpenStreetMap</a> contributors, <a href='https://" +
@@ -40,7 +41,7 @@ const myIcon = L.icon({
  * @param {object} event event.
  * @returns {void}
  */
-function addMarker(event) {
+function addMarker (event) {
     const marker = new L.Marker(event.latlng, {
         "icon": myIcon
     }).addTo(map);
@@ -48,38 +49,26 @@ function addMarker(event) {
     marker.bindPopup(`${event.latlng.toString()}, ${active}`).openPopup();
 }
 
-const item = document.getElementsByClassName("item");
+/**
+ * Removes specified item from array
+ * @param {array} arr arr
+ * @param {object} value value
+ * @returns {array} new array
+ */
+function arrayRemove (arr, value) {
 
-for (let i = 0; i < item.length; i++) {
-    item[i].addEventListener("click", (event) => {
-        map.eachLayer((layer) => {
-            layer.off("click", remove);
-        });
+    return arr.filter((ele) => ele !== value);
 
-        map.on("click", addMarker);
-        for (var i = 0; i < polyline.length; i++) {
-            polyline[i].editingDrag.addHooks();
-        }
-        active = event.srcElement.id;
-    });
 }
 
-
-document.getElementById("delete").addEventListener("click", () => {
-    map.off("click", addMarker);
-
-    for (var i = 0; i < polyline.length; i++) {
-        polyline[i].editingDrag.removeHooks();
-    }
-    map.eachLayer((layer) => {
-        layer.off("click", redraw);
-        layer.on("click", remove);
-    });
-});
-
-function remove(e) {
-    polyline = arrayRemove(polyline, e.target);
-    e.target.removeFrom(map);
+/**
+ * Removes items from the map.
+ * @param {object} event event
+ * @returns {void}
+ */
+function remove (event) {
+    polyline = arrayRemove(polyline, event.target);
+    event.target.removeFrom(map);
 }
 
 /**
@@ -87,16 +76,16 @@ function remove(e) {
  * @param {object} event event.
  * @returns {void}
  */
-function redraw(event) {
-    if (startPolyline != null) {
-        let temp = new L.Polyline([startPolyline, event.latlng], {
-            edit_with_drag: true,
-            vertices: {
-                first: false,
-                last: false,
-                middle: true,
-                insert: true,
-                destroy: true
+function redraw (event) {
+    if (startPolyline !== null) {
+        const temp = new L.Polyline([startPolyline, event.latlng], {
+            "edit_with_drag": true,
+            "vertices": {
+                "destroy": true,
+                "first": false,
+                "insert": true,
+                "last": false,
+                "middle": true
             }
         });
 
@@ -109,10 +98,39 @@ function redraw(event) {
     }
 }
 
+const item = document.getElementsByClassName("item");
+
+for (let i = 0; i < item.length; i++) {
+    item[i].addEventListener("click", (event) => {
+        map.eachLayer((layer) => {
+            layer.off("click", remove);
+        });
+
+        map.on("click", addMarker);
+        for (let i = 0; i < polyline.length; i++) {
+            polyline[i].editingDrag.addHooks();
+        }
+        active = event.srcElement.id;
+    });
+}
+
+
+document.getElementById("delete").addEventListener("click", () => {
+    map.off("click", addMarker);
+
+    for (let i = 0; i < polyline.length; i++) {
+        polyline[i].editingDrag.removeHooks();
+    }
+    map.eachLayer((layer) => {
+        layer.off("click", redraw);
+        layer.on("click", remove);
+    });
+});
+
 document.getElementById("pipe").addEventListener("click", () => {
     map.off("click", addMarker);
 
-    for (var i = 0; i < polyline.length; i++) {
+    for (let i = 0; i < polyline.length; i++) {
         polyline[i].editingDrag.addHooks();
     }
 
@@ -130,11 +148,11 @@ document.getElementById("pipe").addEventListener("click", () => {
  * Changes classname on active button.
  * @returns {void}
  */
-function activeObj() {
+function activeObj () {
     const obj = document.getElementsByClassName("obj");
 
     for (let i = 0; i < obj.length; i++) {
-        obj[i].addEventListener("click", function activeClassName() {
+        obj[i].addEventListener("click", function activeClassName () {
             const current = document.getElementsByClassName("active");
 
             if (current.length > 0) {
@@ -146,12 +164,3 @@ function activeObj() {
     }
 }
 activeObj();
-
-
-function arrayRemove(arr, value) {
-
-    return arr.filter(function(ele) {
-        return ele != value;
-    });
-
-}
