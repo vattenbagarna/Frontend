@@ -6,7 +6,7 @@ import {
 
 let active = "";
 let startPolyline = null;
-let polyline = [];
+let polylines = [];
 
 // Initialize the map
 const map = L.map("map", {
@@ -15,18 +15,16 @@ const map = L.map("map", {
     "zoom": 15
 });
 
-L.tileLayer(
-    `https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=${key}`, {
-        "accessToken": key,
-        "attribution": "Map data &copy; <a href='https://www.openstreetmap" +
-            ".org/'>OpenStreetMap</a> contributors, <a href='https://" +
-            "creativecommons.org/" +
-            "licenses/by-sa/2.0/'>CC-BY-SA</a>, Imagery © <a href='" +
-            "https://www.mapbox.com/'>Mapbox</a>",
-        "id": "mapbox.streets",
-        "maxZoom": 20
-    }
-).addTo(map);
+L.tileLayer(`https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=${key}`, {
+    "accessToken": key,
+    "attribution": "Map data &copy; <a href='https://www.openstreetmap" +
+        ".org/'>OpenStreetMap</a> contributors, <a href='https://" +
+        "creativecommons.org/" +
+        "licenses/by-sa/2.0/'>CC-BY-SA</a>, Imagery © <a href='" +
+        "https://www.mapbox.com/'>Mapbox</a>",
+    "id": "mapbox.streets",
+    "maxZoom": 25
+}).addTo(map);
 
 const myIcon = L.icon({
     "iconAnchor": [10, 45],
@@ -40,12 +38,33 @@ const myIcon = L.icon({
  * @param {object} event event.
  * @returns {void}
  */
-function addMarker(event) {
+function addMarker (event) {
     const marker = new L.Marker(event.latlng, {
+        "draggable": "true",
         "icon": myIcon
-    }).addTo(map);
+    }).addTo(map).
+        on("drag", movePipe);
 
     marker.bindPopup(`${event.latlng.toString()}, ${active}`).openPopup();
+}
+
+function movePipe (event) {
+    let newLatlng;
+
+    for (let i = 0; i < polylines.length; i++) {
+        if (event.target._leaflet_id == polylines[i].connected_with.first) {
+            newLatlng = polylines[i].getLatLngs();
+            newLatlng.shift();
+            newLatlng.unshift(event.latlng);
+
+            polylines[i].setLatLngs(newLatlng);
+        } else if (event.target._leaflet_id == polylines[i].connected_with.last) {
+            newLatlng = polylines[i].getLatLngs();
+            newLatlng.pop();
+            newLatlng.push(event.latlng);
+            polylines[i].setLatLngs(newLatlng);
+        }
+    }
 }
 
 const item = document.getElementsByClassName("item");
@@ -57,8 +76,8 @@ for (let i = 0; i < item.length; i++) {
         });
 
         map.on("click", addMarker);
-        for (var i = 0; i < polyline.length; i++) {
-            polyline[i].editingDrag.addHooks();
+        for (let i = 0; i < polylines.length; i++) {
+            polylines[i].editingDrag.addHooks();
         }
         active = event.srcElement.id;
     });
@@ -68,8 +87,8 @@ for (let i = 0; i < item.length; i++) {
 document.getElementById("delete").addEventListener("click", () => {
     map.off("click", addMarker);
 
-    for (var i = 0; i < polyline.length; i++) {
-        polyline[i].editingDrag.removeHooks();
+    for (let i = 0; i < polylines.length; i++) {
+        polylines[i].editingDrag.removeHooks();
     }
     map.eachLayer((layer) => {
         layer.off("click", redraw);
@@ -77,8 +96,8 @@ document.getElementById("delete").addEventListener("click", () => {
     });
 });
 
-function remove(e) {
-    polyline = arrayRemove(polyline, e.target);
+function remove (e) {
+    polylines = arrayRemove(polylines, e.target);
     e.target.removeFrom(map);
 }
 
@@ -87,33 +106,52 @@ function remove(e) {
  * @param {object} event event.
  * @returns {void}
  */
-function redraw(event) {
+function redraw (event) {
     if (startPolyline != null) {
-        let temp = new L.Polyline([startPolyline, event.latlng], {
-            edit_with_drag: true,
-            vertices: {
-                first: false,
-                last: false,
-                middle: true,
-                insert: true,
-                destroy: true
+        const temp = new L.polyline([startPolyline.latlng, event.latlng], {
+            "edit_with_drag": true,
+            "vertices": {
+                "first": false,
+                "last": false,
+                "middle": true,
+                "insert": true,
+                "destroy": true
             }
         });
 
-        polyline.push(temp);
-        polyline[polyline.length - 1].addTo(map);
+        temp.connected_with = {
+            "first": startPolyline.id,
+            "last": event.sourceTarget._leaflet_id
+        };
 
+        polylines.push(temp);
+
+
+        // Få längden på polylines fungerar bara när man placerar ut den första gången
+        let previousPoint;
+
+        temp.getLatLngs().forEach((latLng) => {
+            if (previousPoint) {
+                polylines[polylines.length - 1].bindPopup(`Distance from previous point: ${
+                    previousPoint.distanceTo(latLng).toFixed(2)
+                } meter(s)`).addTo(map).
+                    openPopup();
+            }
+            previousPoint = latLng;
+        });
         startPolyline = null;
     } else {
-        startPolyline = event.latlng;
+        startPolyline = [];
+        startPolyline.latlng = event.latlng;
+        startPolyline.id = event.sourceTarget._leaflet_id;
     }
 }
 
 document.getElementById("pipe").addEventListener("click", () => {
     map.off("click", addMarker);
 
-    for (var i = 0; i < polyline.length; i++) {
-        polyline[i].editingDrag.addHooks();
+    for (let i = 0; i < polylines.length; i++) {
+        polylines[i].editingDrag.addHooks();
     }
 
     map.eachLayer((layer) => {
@@ -130,11 +168,11 @@ document.getElementById("pipe").addEventListener("click", () => {
  * Changes classname on active button.
  * @returns {void}
  */
-function activeObj() {
+function activeObj () {
     const obj = document.getElementsByClassName("obj");
 
     for (let i = 0; i < obj.length; i++) {
-        obj[i].addEventListener("click", function activeClassName() {
+        obj[i].addEventListener("click", function activeClassName () {
             const current = document.getElementsByClassName("active");
 
             if (current.length > 0) {
@@ -148,10 +186,8 @@ function activeObj() {
 activeObj();
 
 
-function arrayRemove(arr, value) {
+function arrayRemove (arr, value) {
 
-    return arr.filter(function(ele) {
-        return ele != value;
-    });
+    return arr.filter((ele) => ele != value);
 
 }
