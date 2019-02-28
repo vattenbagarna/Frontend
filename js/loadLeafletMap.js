@@ -33,6 +33,51 @@ const myIcon = L.icon({
     "popupAnchor": [1, -45]
 });
 
+const item = document.getElementsByClassName("item");
+
+for (let i = 0; i < item.length; i++) {
+    item[i].addEventListener("click", (event) => {
+        map.eachLayer((layer) => {
+            layer.off("click", remove);
+        });
+
+        map.on("click", addMarker);
+        for (let i = 0; i < polylines.length; i++) {
+            polylines[i].editingDrag.addHooks();
+        }
+        active = event.srcElement.id;
+    });
+}
+
+
+document.getElementById("pipe").addEventListener("click", () => {
+    map.off("click", addMarker);
+
+    for (let i = 0; i < polylines.length; i++) {
+        polylines[i].editingDrag.addHooks();
+    }
+
+    map.eachLayer((layer) => {
+        layer.off("click", remove);
+    });
+
+    map.eachLayer((layer) => {
+        layer.on("click", redraw);
+    });
+});
+
+document.getElementById("delete").addEventListener("click", () => {
+    map.off("click", addMarker);
+
+    for (let i = 0; i < polylines.length; i++) {
+        polylines[i].editingDrag.removeHooks();
+    }
+    map.eachLayer((layer) => {
+        layer.off("click", redraw);
+        layer.on("click", remove);
+    });
+});
+
 /**
  * Adds a marker to the map.
  * @param {object} event event.
@@ -66,35 +111,6 @@ function movePipe(event) {
         }
     }
 }
-
-const item = document.getElementsByClassName("item");
-
-for (let i = 0; i < item.length; i++) {
-    item[i].addEventListener("click", (event) => {
-        map.eachLayer((layer) => {
-            layer.off("click", remove);
-        });
-
-        map.on("click", addMarker);
-        for (let i = 0; i < polylines.length; i++) {
-            polylines[i].editingDrag.addHooks();
-        }
-        active = event.srcElement.id;
-    });
-}
-
-
-document.getElementById("delete").addEventListener("click", () => {
-    map.off("click", addMarker);
-
-    for (let i = 0; i < polylines.length; i++) {
-        polylines[i].editingDrag.removeHooks();
-    }
-    map.eachLayer((layer) => {
-        layer.off("click", redraw);
-        layer.on("click", remove);
-    });
-});
 
 function remove(e) {
     polylines = arrayRemove(polylines, e.target);
@@ -146,22 +162,6 @@ function redraw(event) {
         startPolyline.id = event.sourceTarget._leaflet_id;
     }
 }
-
-document.getElementById("pipe").addEventListener("click", () => {
-    map.off("click", addMarker);
-
-    for (let i = 0; i < polylines.length; i++) {
-        polylines[i].editingDrag.addHooks();
-    }
-
-    map.eachLayer((layer) => {
-        layer.off("click", remove);
-    });
-
-    map.eachLayer((layer) => {
-        layer.on("click", redraw);
-    });
-});
 
 
 /**
