@@ -9,6 +9,11 @@
     "lint": "./node_modules/.bin/eslint ./",
     "lint-fix": "./node_modules/.bin/eslint --fix ./"
   },
+  "precommit.silent": false,
+  "precommit.colors": true,
+  "pre-commit": [
+      "lint-hook"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/vattenbagarna/Frontend.git"
@@ -21,5 +26,8 @@
   "homepage": "https://github.com/vattenbagarna/Frontend#readme",
   "dependencies": {
     "eslint": "^5.14.1"
+  },
+  "devDependencies": {
+    "pre-commit": "^1.2.2"
   }
 }
