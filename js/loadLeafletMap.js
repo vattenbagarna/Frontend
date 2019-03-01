@@ -7,7 +7,8 @@ import {
 let active = "";
 let startPolyline = null;
 let polylines = [];
-let markers = [];
+const markers = [];
+let saveJSON;
 
 // Initialize the map
 const map = L.map("map", {
@@ -79,14 +80,64 @@ document.getElementById("delete").addEventListener("click", () => {
 });
 
 document.getElementsByClassName("test")[0].addEventListener("click", () => {
+    const jsonArray = [];
+    let temp;
+
     for (let i = 0; i < polylines.length; i++) {
-        console.log(polylines[i].toGeoJSON());
+        temp = {
+            "type": "polyline",
+            "coordinates": polylines[i]._latlngs,
+            "options": polylines[i].options,
+            "connected_with": polylines[i].connected_with
+        };
+        jsonArray.push(temp);
     }
 
     for (let i = 0; i < markers.length; i++) {
-        console.log(markers[i].toGeoJSON());
+        temp = {
+            "type": "marker",
+            "coordinates": markers[i]._latlng,
+            "options": markers[i].options
+        };
+        jsonArray.push(temp);
     }
 
+    const myJSON = JSON.stringify(jsonArray);
+
+    console.log(myJSON);
+
+    const savedData = JSON.parse(data);
+
+    for (let i = 0; i < savedData.length; i++) {
+        let newObj;
+
+        switch (savedData[i].type) {
+        case "marker":
+            const myIcon = L.icon(savedData[i].options.icon.options);
+
+            savedData[i].options.icon = myIcon;
+            newObj = new L.Marker(savedData[i].coordinates, savedData[i].options).addTo(map).
+                on("drag", movePipe);
+
+            newObj.bindPopup(`<select name="model">
+		<option value="?"><b>vattenpump1</b></option>
+		<option value="?">vattenpump2</option>
+		<option value="?">vattenpump3</option>
+		<option value="?">vattenpump4</option>
+		</select><br><b>Typ:</b> BPS 200<br><b>RSK:</b> 5890162<br><b>ArtikelNr:</b> BPS200<br><b>slang:</b> 32<br><b>invGanga:</b> g 32<br><b>Fas:</b> 1<br><b>Volt:</b> 230<br><b>Motoreffekt:</b> 0.2<br><b>Markström:</b> 1<br><b>varvtal:</b> 2900<br><b>kabeltyp:</b> H05RNF/H07RNF<br><b>kabellängd:</b> 10<br><b>vikt:</b> 5`).openPopup();
+
+            markers.push(newObj);
+            break;
+        case "polyline":
+            newObj = new L.polyline(savedData[i].coordinates, savedData[i].options);
+            newObj.connected_with = savedData[i].connected_with;
+
+            polylines.push(newObj);
+            polylines[polylines.length - 1].addTo(map);
+            break;
+
+        }
+    }
 
 });
 
@@ -95,12 +146,12 @@ document.getElementsByClassName("test")[0].addEventListener("click", () => {
  * @param {object} event event.
  * @returns {void}
  */
-function addMarker(event) {
+function addMarker (event) {
     const temp = new L.Marker(event.latlng, {
         "draggable": "true",
         "icon": myIcon
     }).addTo(map).
-    on("drag", movePipe);
+        on("drag", movePipe);
 
     temp.bindPopup(`<select name="model">
     <option value="?"><b>${active}</b></option>
@@ -112,13 +163,7 @@ function addMarker(event) {
     markers.push(temp);
 }
 
-
-/**
- * Adds a marker to the map.
- * @param {object} event event.
- * @returns {void}
- */
-function movePipe(event) {
+function movePipe (event) {
     let newLatlng;
 
     for (let i = 0; i < polylines.length; i++) {
@@ -137,13 +182,8 @@ function movePipe(event) {
     }
 }
 
-/**
- * Adds a marker to the map.
- * @param {object} event event.
- * @returns {void}
- */
-function remove(e) {
-    polylines = arrayRemove(polylines, e.target); // körs varje gång man tar bort ett object även om det inte är en polyline
+function remove (e) {
+    polylines = arrayRemove(polylines, e.target); // Körs varje gång man tar bort ett object även om det inte är en polyline
     e.target.removeFrom(map);
 }
 
@@ -152,11 +192,11 @@ function remove(e) {
  * @param {object} event event.
  * @returns {void}
  */
-function redraw(event) {
+function redraw (event) {
     event.target.closePopup();
     for (let i = 0; i < polylines.length; i++) {
         polylines[i].editingDrag.removeHooks();
-        polylines[i].on('click', redraw);
+        polylines[i].on("click", redraw);
     }
 
     if (startPolyline != null) {
@@ -182,18 +222,18 @@ function redraw(event) {
 
         // Få längden på polylines fungerar bara när man placerar ut den första gången
         /*
-		let previousPoint;
-
-        temp.getLatLngs().forEach((latLng) => {
-            if (previousPoint) {
-                polylines[polylines.length - 1].bindPopup(`Distance from previous point: ${
-                    previousPoint.distanceTo(latLng).toFixed(2)
-                } meter(s)`).addTo(map).
-                openPopup();
-            }
-            previousPoint = latLng;
-        });
-		*/
+         * Let previousPoint;
+         *
+         * temp.getLatLngs().forEach((latLng) => {
+         * if (previousPoint) {
+         * polylines[polylines.length - 1].bindPopup(`Distance from previous point: ${
+         * previousPoint.distanceTo(latLng).toFixed(2)
+         * } meter(s)`).addTo(map).
+         * openPopup();
+         * }
+         * previousPoint = latLng;
+         * });
+         */
         startPolyline = null;
     } else {
         startPolyline = [];
@@ -207,11 +247,11 @@ function redraw(event) {
  * Changes classname on active button.
  * @returns {void}
  */
-function activeObj() {
+function activeObj () {
     const obj = document.getElementsByClassName("obj");
 
     for (let i = 0; i < obj.length; i++) {
-        obj[i].addEventListener("click", function activeClassName() {
+        obj[i].addEventListener("click", function activeClassName () {
             const current = document.getElementsByClassName("active");
 
             if (current.length > 0) {
@@ -224,12 +264,7 @@ function activeObj() {
 }
 activeObj();
 
-/**
- * Adds a marker to the map.
- * @param {object} event event.
- * @returns {void}
- */
-function arrayRemove(arr, value) {
+function arrayRemove (arr, value) {
 
     return arr.filter((ele) => ele != value);
 
