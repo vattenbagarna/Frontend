@@ -7,6 +7,7 @@ import {
 let active = "";
 let startPolyline = null;
 let polylines = [];
+let markers = [];
 
 // Initialize the map
 const map = L.map("map", {
@@ -78,9 +79,15 @@ document.getElementById("delete").addEventListener("click", () => {
 });
 
 document.getElementsByClassName("test")[0].addEventListener("click", () => {
-    map.eachLayer((layer) => {
-        console.log(layer);
-    });
+    for (let i = 0; i < polylines.length; i++) {
+        console.log(polylines[i].toGeoJSON());
+    }
+
+    for (let i = 0; i < markers.length; i++) {
+        console.log(markers[i].toGeoJSON());
+    }
+
+
 });
 
 /**
@@ -89,18 +96,20 @@ document.getElementsByClassName("test")[0].addEventListener("click", () => {
  * @returns {void}
  */
 function addMarker(event) {
-    const marker = new L.Marker(event.latlng, {
+    const temp = new L.Marker(event.latlng, {
         "draggable": "true",
         "icon": myIcon
     }).addTo(map).
     on("drag", movePipe);
 
-    marker.bindPopup(`<select name="model">
+    temp.bindPopup(`<select name="model">
     <option value="?"><b>${active}</b></option>
     <option value="?">vattenpump2</option>
     <option value="?">vattenpump3</option>
     <option value="?">vattenpump4</option>
-  </select><br><b>Typ:</b> BPS 200<br><b>RSK:</b> 5890162<br><b>ArtikelNr:</b> BPS200<br><b>slang:</b> 32<br><b>invGanga:</b> g 32<br><b>Fas:</b> 1<br><b>Volt:</b> 230<br><b>Motoreffekt:</b> 0.2<br><b>Markström:</b> 1<br><b>varvtal:</b> 2900<br><b>kabeltyp:</b> H05RNF/H07RNF<br><b>kabellängd:</b> 10<br><b>vikt:</b> 5`).openPopup();
+	</select><br><b>Typ:</b> BPS 200<br><b>RSK:</b> 5890162<br><b>ArtikelNr:</b> BPS200<br><b>slang:</b> 32<br><b>invGanga:</b> g 32<br><b>Fas:</b> 1<br><b>Volt:</b> 230<br><b>Motoreffekt:</b> 0.2<br><b>Markström:</b> 1<br><b>varvtal:</b> 2900<br><b>kabeltyp:</b> H05RNF/H07RNF<br><b>kabellängd:</b> 10<br><b>vikt:</b> 5`).openPopup();
+
+    markers.push(temp);
 }
 
 
@@ -162,8 +171,6 @@ function redraw(event) {
             }
         });
 
-
-
         temp.connected_with = {
             "first": startPolyline.id,
             "last": event.sourceTarget._leaflet_id
@@ -171,7 +178,6 @@ function redraw(event) {
 
         polylines.push(temp);
         polylines[polylines.length - 1].addTo(map);
-        console.log("last");
 
 
         // Få längden på polylines fungerar bara när man placerar ut den första gången
@@ -190,7 +196,6 @@ function redraw(event) {
 		*/
         startPolyline = null;
     } else {
-        console.log("first");
         startPolyline = [];
         startPolyline.latlng = event.latlng;
         startPolyline.id = event.sourceTarget._leaflet_id;
