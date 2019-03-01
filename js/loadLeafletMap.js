@@ -50,7 +50,6 @@ for (let i = 0; i < item.length; i++) {
     });
 }
 
-
 document.getElementById("pipe").addEventListener("click", () => {
     map.off("click", addMarker);
 
@@ -61,9 +60,7 @@ document.getElementById("pipe").addEventListener("click", () => {
     map.eachLayer((layer) => {
         layer.off("click", remove);
         layer.closePopup();
-    });
 
-    map.eachLayer((layer) => {
         layer.on("click", redraw);
     });
 });
@@ -100,6 +97,12 @@ function addMarker(event) {
   </select><br><b>Typ:</b> BPS 200<br><b>RSK:</b> 5890162<br><b>ArtikelNr:</b> BPS200<br><b>slang:</b> 32<br><b>invGanga:</b> g 32<br><b>Fas:</b> 1<br><b>Volt:</b> 230<br><b>Motoreffekt:</b> 0.2<br><b>Markström:</b> 1<br><b>varvtal:</b> 2900<br><b>kabeltyp:</b> H05RNF/H07RNF<br><b>kabellängd:</b> 10<br><b>vikt:</b> 5`).openPopup();
 }
 
+
+/**
+ * Adds a marker to the map.
+ * @param {object} event event.
+ * @returns {void}
+ */
 function movePipe(event) {
     let newLatlng;
 
@@ -119,8 +122,13 @@ function movePipe(event) {
     }
 }
 
+/**
+ * Adds a marker to the map.
+ * @param {object} event event.
+ * @returns {void}
+ */
 function remove(e) {
-    polylines = arrayRemove(polylines, e.target);
+    polylines = arrayRemove(polylines, e.target); // körs varje gång man tar bort ett object även om det inte är en polyline
     e.target.removeFrom(map);
 }
 
@@ -131,6 +139,11 @@ function remove(e) {
  */
 function redraw(event) {
     event.target.closePopup();
+    for (let i = 0; i < polylines.length; i++) {
+        polylines[i].editingDrag.removeHooks();
+        polylines[i].on('click', redraw);
+    }
+
     if (startPolyline != null) {
         const temp = new L.polyline([startPolyline.latlng, event.latlng], {
             "edit_with_drag": true,
@@ -143,16 +156,21 @@ function redraw(event) {
             }
         });
 
+
+
         temp.connected_with = {
             "first": startPolyline.id,
             "last": event.sourceTarget._leaflet_id
         };
 
         polylines.push(temp);
+        polylines[polylines.length - 1].addTo(map);
+        console.log("last");
 
 
         // Få längden på polylines fungerar bara när man placerar ut den första gången
-        let previousPoint;
+        /*
+		let previousPoint;
 
         temp.getLatLngs().forEach((latLng) => {
             if (previousPoint) {
@@ -163,8 +181,10 @@ function redraw(event) {
             }
             previousPoint = latLng;
         });
+		*/
         startPolyline = null;
     } else {
+        console.log("first");
         startPolyline = [];
         startPolyline.latlng = event.latlng;
         startPolyline.id = event.sourceTarget._leaflet_id;
@@ -193,7 +213,11 @@ function activeObj() {
 }
 activeObj();
 
-
+/**
+ * Adds a marker to the map.
+ * @param {object} event event.
+ * @returns {void}
+ */
 function arrayRemove(arr, value) {
 
     return arr.filter((ele) => ele != value);
