@@ -80,6 +80,12 @@ document.getElementById("delete").addEventListener("click", () => {
     });
 });
 
+document.getElementsByClassName("test")[0].addEventListener("click", () => {
+    map.eachLayer((layer) => {
+        console.log(layer);
+    });
+});
+
 /**
  * Adds a marker to the map.
  * @param {object} event event.
