@@ -40,8 +40,7 @@ tr:nth-child(even) {
     width: 100%;
 }
 
-@media print
-{
+@media print {
     table {
         border: none !important;
     }

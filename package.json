@@ -25,14 +25,9 @@
   },
   "homepage": "https://github.com/vattenbagarna/Frontend#readme",
   "dependencies": {
-<<<<<<< HEAD
-    "eslint": "^5.14.1",
-    "leaflet-editable": "^1.2.0"
-=======
     "eslint": "^5.14.1"
   },
   "devDependencies": {
     "pre-commit": "^1.2.2"
->>>>>>> master
   }
 }
