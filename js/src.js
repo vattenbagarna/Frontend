@@ -259,6 +259,10 @@ export const object = {
                     break;
             }
         }
+    },
+
+    search: () => {
+        var searchControl = L.esri.Geocoding.geosearch().addTo(map);
     }
 
 };

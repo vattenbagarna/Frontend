@@ -17,6 +17,8 @@ export const map = L.map("map", {
     "zoom": 10
 });
 
+object.search();
+
 L.tileLayer(
     `https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=${key}`, {
         "accessToken": key,
