@@ -57,3 +57,7 @@ document.getElementById("save/load").addEventListener("click", () => {
     object.save();
     object.load();
 });
+
+document.getElementById("totalDistance").addEventListener("click", () => {
+    object.totalDistance();
+});

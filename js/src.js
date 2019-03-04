@@ -249,7 +249,7 @@ export const object = {
                     savedData[i].options.icon = icon;
                     newObj = new L.Marker(savedData[i].coordinates,
                         savedData[i].options).addTo(map).
-                    on("drag", object.movePipe);
+                        on("drag", object.movePipe);
                     newObj._leaflet_id = savedData[i].id;
 
                     newObj.bindPopup(popupPump).openPopup();
@@ -269,7 +269,32 @@ export const object = {
     },
 
     search: () => {
-        var searchControl = L.esri.Geocoding.geosearch().addTo(map);
+        L.esri.Geocoding.geosearch().addTo(map);
+    },
+
+
+    totalDistance: () => {
+        var totalDistance = 0;
+        var tempDistance = 0;
+        var firstPoint;
+        var secondPoint;
+
+        for (var i = 0; i < polylines.length; i++) {
+            var tempPolyline = polylines[i]._latlngs;
+
+            if (tempPolyline.length == 2) {
+                tempDistance = tempPolyline[0].distanceTo(tempPolyline[1]);
+                totalDistance += tempDistance;
+            } else if (tempPolyline.length > 2) {
+                for (var k = 0; k < tempPolyline.length - 1; k++) {
+                    firstPoint = tempPolyline[k];
+                    secondPoint = tempPolyline[k + 1];
+                    tempDistance = L.latLng(firstPoint).distanceTo(secondPoint);
+                    totalDistance += tempDistance;
+                }
+            }
+        }
+        console.log(totalDistance);
     }
 
 };
