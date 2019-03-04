@@ -1,7 +1,7 @@
 /* global L, data */
 let startPolyline = null;
-let polylines = [];
-const markers = [];
+let polylines = L.layerGroup();
+let markers = L.layerGroup();
 const popupPump =
     `<select name="model">
 <option value="?"><b>vattenpump1</b></option>
@@ -43,11 +43,8 @@ export const object = {
      */
     redraw: (event) => {
         event.target.closePopup();
-        for (let i = 0; i < polylines.length; i++) {
-            polylines[i].on("click", object.redraw);
-        }
 
-        if (startPolyline !== null) {
+        if (startPolyline != null) {
             const temp = new L.polyline([startPolyline.latlng, event.latlng], {
                 "edit_with_drag": true,
                 "vertices": {
@@ -64,14 +61,12 @@ export const object = {
                 "last": event.sourceTarget._leaflet_id
             };
 
-            polylines.push(temp);
-            polylines[polylines.length - 1].addTo(map);
-
-            polylines[polylines.length - 1].editingDrag.removeHooks();
+            polylines.addLayer(temp).addTo(map);
+            temp.editingDrag.removeHooks();
 
 
             // Få längden på polylines fungerar bara när man placerar ut den första gången
-
+            /*
             let previousPoint;
 
             temp.getLatLngs().forEach((latLng) => {
@@ -84,6 +79,7 @@ export const object = {
                 }
                 previousPoint = latLng;
             });
+			*/
             startPolyline = null;
         } else {
             startPolyline = [];
@@ -100,44 +96,44 @@ export const object = {
         const temp = new L.Marker(event.latlng, {
             "draggable": "true",
             "icon": myIcon
-        }).addTo(map).on("drag", object.movePipe);
+        }).addTo(map).bindPopup(popupPump).openPopup().on(
+            "drag", object.movePipe);
 
-        temp.bindPopup(popupPump).openPopup();
-
-        markers.push(temp);
+        markers.addLayer(temp);
     },
     /**
      *
      *
      */
     movePipe: (event) => {
-        for (let i = 0; i < polylines.length; i++) {
-            if (event.target._leaflet_id === polylines[i].connected_with
+        polylines.eachLayer((polyline) => {
+            if (event.target._leaflet_id === polyline.connected_with
                 .first) {
-                let newLatlng = polylines[i].getLatLngs();
+                let newLatlng = polyline.getLatLngs();
 
                 newLatlng.shift();
                 newLatlng.unshift(event.latlng);
 
-                polylines[i].setLatLngs(newLatlng);
-            } else if (event.target._leaflet_id === polylines[i].connected_with
-                .last) {
-                let newLatlng = polylines[i].getLatLngs();
+                polyline.setLatLngs(newLatlng);
+            } else if (event.target._leaflet_id ===
+                polyline.connected_with
+                    .last) {
+                let newLatlng = polyline.getLatLngs();
 
                 newLatlng.pop();
                 newLatlng.push(event.latlng);
-                polylines[i].setLatLngs(newLatlng);
+                polyline.setLatLngs(newLatlng);
             }
-        }
+        });
     },
     /**
      *
      *
      */
     editPolylines: () => {
-        for (let i = 0; i < polylines.length; i++) {
-            polylines[i].editingDrag.addHooks();
-        }
+        polylines.eachLayer((polyline) => {
+            polyline.editingDrag.addHooks();
+        });
     },
     /**
      * Changes classname on active button.
@@ -153,7 +149,8 @@ export const object = {
 
                 if (current.length > 0) {
                     current[0].className =
-                        current[0].className.replace(" active",
+                        current[0].className.replace(
+                            " active",
                             "");
                 }
                 this.className += " active";
@@ -166,22 +163,13 @@ export const object = {
      *
      */
 
-    arrayRemove: (arr, value) => {
-        return arr.filter((ele) => ele != value);
-    },
-    /**
-     *
-     *
-     */
-
     clearMapsEvents: () => {
-        for (let i = 0; i < polylines.length; i++) {
-            polylines[i].editingDrag.removeHooks();
-        }
+        polylines.eachLayer((polyline) => {
+            polyline.editingDrag.removeHooks();
+        });
 
         map.off("click", object.addMarker);
         map.closePopup();
-
         map.eachLayer((layer) => {
             layer.off("click", object.remove);
             layer.off("click", object.redraw);
@@ -193,9 +181,11 @@ export const object = {
      */
 
     remove: (event) => {
-        // Körs varje gång man tar bort ett object även om det inte är en polyline
-        polylines = object.arrayRemove(polylines, event.target);
-        event.target.removeFrom(map);
+        if (polylines.hasLayer(event.sourceTarget)) {
+            polylines.removeLayer(event.sourceTarget);
+        } else if (markers.hasLayer(event.sourceTarget)) {
+            markers.removeLayer(event.sourceTarget);
+        }
     },
     /**
      *
@@ -205,27 +195,27 @@ export const object = {
     save: () => {
         const jsonArray = [];
 
-        for (let i = 0; i < polylines.length; i++) {
+        polylines.eachLayer((polyline) => {
             let temp = {
-                "coordinates": polylines[i]._latlngs,
+                "coordinates": polyline._latlngs,
                 "type": "polyline",
-                "connected_with": polylines[i].connected_with,
-                "options": polylines[i].options,
+                "connected_with": polyline.connected_with,
+                "options": polyline.options,
             };
 
             jsonArray.push(temp);
-        }
+        });
 
-        for (let i = 0; i < markers.length; i++) {
+        markers.eachLayer((marker) => {
             let temp = {
-                "coordinates": markers[i]._latlng,
+                "coordinates": marker._latlng,
                 "type": "marker",
-                "options": markers[i].options,
-                "id": markers[i]._leaflet_id
+                "options": marker.options,
+                "id": marker._leaflet_id
             };
 
             jsonArray.push(temp);
-        }
+        });
 
         const myJSON = JSON.stringify(jsonArray);
 
@@ -241,6 +231,9 @@ export const object = {
         let icon;
         let newObj;
 
+
+        /**********************/
+
         for (let i = 0; i < savedData.length; i++) {
             switch (savedData[i].type) {
                 case "marker":
@@ -249,7 +242,7 @@ export const object = {
                     savedData[i].options.icon = icon;
                     newObj = new L.Marker(savedData[i].coordinates,
                         savedData[i].options).addTo(map).
-                    on("drag", object.movePipe);
+                        on("drag", object.movePipe);
                     newObj._leaflet_id = savedData[i].id;
 
                     newObj.bindPopup(popupPump).openPopup();
