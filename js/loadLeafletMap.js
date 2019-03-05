@@ -19,17 +19,14 @@ export const map = L.map("map", {
 
 object.search();
 
-L.tileLayer(
-    `https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=${key}`, {
-        "accessToken": key,
-        "attribution": "Map data &copy; <a href='https://www.openstreetmap" +
-            ".org/'>OpenStreetMap</a> contributors, <a href='https://" +
-            "creativecommons.org/" +
-            "licenses/by-sa/2.0/'>CC-BY-SA</a>, Imagery © <a href='" +
-            "https://www.mapbox.com/'>Mapbox</a>",
-        "id": "mapbox.streets",
-        "maxZoom": 25
-    }).addTo(map);
+const scri = document.createElement("script");
+
+scri.src = `https://maps.googleapis.com/maps/api/js?key=${key}`;
+document.head.appendChild(scri).addEventListener("load", map);
+
+var roads = L.gridLayer.googleMutant({
+    type: 'satellite'	// valid values are 'roadmap', 'satellite', 'terrain' and 'hybrid'
+}).addTo(map);
 
 for (let i = 0; i < document.getElementsByClassName("item").length; i++) {
     document.getElementsByClassName("item")[i].addEventListener("click", () => {

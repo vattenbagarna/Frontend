@@ -268,7 +268,6 @@ export const object = {
 
     totalDistance: () => {
         var totalDistance = 0;
-        var tempDistance = 0;
         var firstPoint;
         var secondPoint;
 
@@ -276,14 +275,12 @@ export const object = {
             var tempPolyline = polyline._latlngs;
 
             if (tempPolyline.length == 2) {
-                tempDistance = tempPolyline[0].distanceTo(tempPolyline[1]);
-                totalDistance += tempDistance;
+                totalDistance += tempPolyline[0].distanceTo(tempPolyline[1]);
             } else if (tempPolyline.length > 2) {
                 for (var i = 0; i < tempPolyline.length - 1; i++) {
                     firstPoint = tempPolyline[i];
                     secondPoint = tempPolyline[i + 1];
-                    tempDistance = L.latLng(firstPoint).distanceTo(secondPoint);
-                    totalDistance += tempDistance;
+                    totalDistance += L.latLng(firstPoint).distanceTo(secondPoint);
                 }
             }
         });
