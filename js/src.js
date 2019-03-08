@@ -1,7 +1,13 @@
 /* global L, data */
 let startPolyline = null;
+
+let polygon = null;
+let latLngs;
+let guideline = null;
+
 let polylines = L.layerGroup();
 let markers = L.layerGroup();
+let polygons = L.layerGroup();
 const popupPump =
     `<select name="model">
 <option value="?"><b>vattenpump1</b></option>
@@ -37,6 +43,65 @@ const myIcon = L.icon({
 
 export const object = {
     /**
+     * Adds a marker to the map.
+     * @param {object} event event.
+     * @returns {void}
+     */
+    addMarker: (event) => {
+        const temp = new L.Marker(event.latlng, {
+            "draggable": "true",
+            "icon": myIcon
+        }).bindPopup(popupPump).on(
+            "drag", object.movePipe);
+
+        markers.addLayer(temp).addTo(map);
+    },
+
+    addHouse: (event) => {
+        if (polygon != null) {
+            polygon.bindPopup("<b> This is a House </b>");
+            polygon.addLatLng(event.latlng);
+            polygons.addLayer(polygon).addTo(map);
+
+            let coord = guideline.getLatLngs();
+
+            coord.shift();
+            coord.unshift(event.latlng);
+        } else {
+            latLngs = [event.latlng];
+            polygon = L.polygon(latLngs, {
+                color: 'red',
+                fillColor: '#f03',
+                fillOpacity: 0.5,
+                weight: 1.5
+            });
+
+            guideline = L.polyline([event.latlng, event.latlng], {
+                dashArray: '5, 10'
+            }).addTo(map);
+
+            map.on('mousemove', (e) => {
+                let coord = guideline.getLatLngs();
+
+                coord.pop();
+                coord.push(e.latlng);
+                guideline.setLatLngs(coord);
+            });
+        }
+    },
+
+    showMouseCoord: (event) => {
+        if (guideline == null) {
+            guideline = L.polyline(event.latlng, {
+                dashArray: '5, 10'
+            }).addTo(map);
+        } else {
+            guideline.bindTooltip("lat:" + event.latlng.lat +
+                ", lng:" + event.latlng.lng).openTooltip(
+                event.latlng);
+        }
+    },
+    /**
      * Draws polylines.
      * @param {object} event event.
      * @returns {void}
@@ -45,7 +110,9 @@ export const object = {
         event.target.closePopup();
 
         if (startPolyline != null) {
-            const temp = new L.polyline([startPolyline.latlng, event.latlng], {
+            const temp = new L.polyline([startPolyline.latlng,
+                event.latlng
+            ], {
                 "edit_with_drag": true,
                 "vertices": {
                     "destroy": true,
@@ -63,23 +130,6 @@ export const object = {
 
             polylines.addLayer(temp).addTo(map);
             temp.editingDrag.removeHooks();
-
-
-            // Få längden på polylines fungerar bara när man placerar ut den första gången
-            /*
-            let previousPoint;
-
-            temp.getLatLngs().forEach((latLng) => {
-                if (previousPoint) {
-                    polylines[polylines.length - 1].bindPopup(
-                        `Distance from previous point: ${
-                            previousPoint.distanceTo(latLng).toFixed(2)
-                        } meter(s)`
-                    ).addTo(map).openPopup();
-                }
-                previousPoint = latLng;
-            });
-			*/
             startPolyline = null;
         } else {
             startPolyline = [];
@@ -88,27 +138,14 @@ export const object = {
         }
     },
     /**
-     * Adds a marker to the map.
-     * @param {object} event event.
-     * @returns {void}
-     */
-    addMarker: (event) => {
-        const temp = new L.Marker(event.latlng, {
-            "draggable": "true",
-            "icon": myIcon
-        }).addTo(map).bindPopup(popupPump).openPopup().on(
-            "drag", object.movePipe);
-
-        markers.addLayer(temp);
-    },
-    /**
      *
      *
      */
     movePipe: (event) => {
         polylines.eachLayer((polyline) => {
-            if (event.target._leaflet_id === polyline.connected_with
-                .first) {
+            if (event.target._leaflet_id ===
+                polyline.connected_with
+                    .first) {
                 let newLatlng = polyline.getLatLngs();
 
                 newLatlng.shift();
@@ -140,7 +177,8 @@ export const object = {
      * @returns {void}
      */
     activeObj: () => {
-        const obj = document.getElementsByClassName("obj");
+        const obj = document.getElementsByClassName(
+            "obj");
 
         for (let i = 0; i < obj.length; i++) {
             obj[i].addEventListener("click", function activeClassName() {
@@ -169,11 +207,29 @@ export const object = {
         });
 
         map.off("click", object.addMarker);
+
+        if (guideline != null) {
+            map.off('click', object.addPolygone);
+            map.off('mousemove');
+            guideline.remove();
+            guideline = null;
+            polygon = null;
+        }
+        document.getElementById("map").style.cursor = "grab";
+
         map.closePopup();
         map.eachLayer((layer) => {
             layer.off("click", object.remove);
             layer.off("click", object.redraw);
         });
+    },
+
+    stopEdit: () => {
+        if (guideline != null) {
+            guideline.remove();
+            guideline = null;
+            polygon = null;
+        }
     },
     /**
      *
@@ -181,11 +237,9 @@ export const object = {
      */
 
     remove: (event) => {
-        if (polylines.hasLayer(event.sourceTarget)) {
-            polylines.removeLayer(event.sourceTarget);
-        } else if (markers.hasLayer(event.sourceTarget)) {
-            markers.removeLayer(event.sourceTarget);
-        }
+        polylines.removeLayer(event.sourceTarget);
+        markers.removeLayer(event.sourceTarget);
+        polygons.removeLayer(event.sourceTarget);
     },
     /**
      *
@@ -231,17 +285,16 @@ export const object = {
         let icon;
         let newObj;
 
-
-        /**********************/
-
         for (let i = 0; i < savedData.length; i++) {
             switch (savedData[i].type) {
                 case "marker":
-                    icon = L.icon(savedData[i].options.icon.options);
+                    icon = L.icon(savedData[i].options.icon
+                        .options);
 
                     savedData[i].options.icon = icon;
                     newObj = new L.Marker(savedData[i].coordinates,
-                        savedData[i].options).addTo(map).
+                        savedData[i].options).addTo(
+                        map).
                         on("drag", object.movePipe);
                     newObj._leaflet_id = savedData[i].id;
 
@@ -250,12 +303,15 @@ export const object = {
                     markers.push(newObj);
                     break;
                 case "polyline":
-                    newObj = new L.polyline(savedData[i].coordinates,
-                        savedData[i].options);
-                    newObj.connected_with = savedData[i].connected_with;
+                    newObj = new L.polyline(savedData[i]
+                        .coordinates,
+                    savedData[i].options);
+                    newObj.connected_with = savedData[i]
+                        .connected_with;
 
                     polylines.push(newObj);
-                    polylines[polylines.length - 1].addTo(map);
+                    polylines[polylines.length - 1].addTo(
+                        map);
                     break;
             }
         }
@@ -275,12 +331,19 @@ export const object = {
             var tempPolyline = polyline._latlngs;
 
             if (tempPolyline.length == 2) {
-                totalDistance += tempPolyline[0].distanceTo(tempPolyline[1]);
+                totalDistance += tempPolyline[0]
+                    .distanceTo(
+                        tempPolyline[1]);
             } else if (tempPolyline.length > 2) {
-                for (var i = 0; i < tempPolyline.length - 1; i++) {
+                for (var i = 0; i <
+                    tempPolyline.length - 1; i++
+                ) {
                     firstPoint = tempPolyline[i];
-                    secondPoint = tempPolyline[i + 1];
-                    totalDistance += L.latLng(firstPoint).distanceTo(secondPoint);
+                    secondPoint = tempPolyline[
+                        i + 1];
+                    totalDistance += L.latLng(
+                        firstPoint).distanceTo(
+                        secondPoint);
                 }
             }
         });
