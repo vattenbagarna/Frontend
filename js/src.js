@@ -4,19 +4,13 @@ let startPolyline = null;
 let polygon = null;
 let latLngs;
 let guideline = null;
+let mouseCoord = null;
 
 let polylines = L.layerGroup();
 let markers = L.layerGroup();
 let polygons = L.layerGroup();
 const popupPump =
-    `<select name="model">
-<option value="?"><b>vattenpump1</b></option>
-<option value="?">vattenpump2</option>
-<option value="?">vattenpump3</option>
-<option value="?">vattenpump4</option>
-</select><br>
-<b>Typ:</b> BPS 200<br>
-<b>RSK:</b> 5890162<br>
+    `<b>RSK:</b> 5890162<br>
 <b>ArtikelNr:</b> BPS200<br>
 <b>slang:</b> 32<br>
 <b>invGanga:</b> g 32<br>
@@ -47,19 +41,23 @@ export const object = {
      * @param {object} event event.
      * @returns {void}
      */
+    'activeObjName': "",
+    'activeObjImg': "",
+
     addMarker: (event) => {
         const temp = new L.Marker(event.latlng, {
-            "draggable": "true",
-            "icon": myIcon
-        }).bindPopup(popupPump).on(
-            "drag", object.movePipe);
+                "draggable": "true",
+                "icon": myIcon
+            }).bindPopup(
+                `<b>typ:</b>${object.activeObjName}<br> ${popupPump}`)
+            .on(
+                "drag", object.movePipe);
 
         markers.addLayer(temp).addTo(map);
     },
 
     addHouse: (event) => {
         if (polygon != null) {
-            polygon.bindPopup("<b> This is a House </b>");
             polygon.addLatLng(event.latlng);
             polygons.addLayer(polygon).addTo(map);
 
@@ -80,26 +78,16 @@ export const object = {
                 dashArray: '5, 10'
             }).addTo(map);
 
-            map.on('mousemove', (e) => {
-                let coord = guideline.getLatLngs();
-
-                coord.pop();
-                coord.push(e.latlng);
-                guideline.setLatLngs(coord);
-            });
+            map.on('mousemove', object.showGuideLine);
         }
     },
 
-    showMouseCoord: (event) => {
-        if (guideline == null) {
-            guideline = L.polyline(event.latlng, {
-                dashArray: '5, 10'
-            }).addTo(map);
-        } else {
-            guideline.bindTooltip("lat:" + event.latlng.lat +
-                ", lng:" + event.latlng.lng).openTooltip(
-                event.latlng);
-        }
+    showGuideLine: (event) => {
+        let coord = guideline.getLatLngs();
+
+        coord.pop();
+        coord.push(event.latlng);
+        guideline.setLatLngs(coord);
     },
     /**
      * Draws polylines.
@@ -145,7 +133,7 @@ export const object = {
         polylines.eachLayer((polyline) => {
             if (event.target._leaflet_id ===
                 polyline.connected_with
-                    .first) {
+                .first) {
                 let newLatlng = polyline.getLatLngs();
 
                 newLatlng.shift();
@@ -154,7 +142,7 @@ export const object = {
                 polyline.setLatLngs(newLatlng);
             } else if (event.target._leaflet_id ===
                 polyline.connected_with
-                    .last) {
+                .last) {
                 let newLatlng = polyline.getLatLngs();
 
                 newLatlng.pop();
@@ -177,11 +165,10 @@ export const object = {
      * @returns {void}
      */
     activeObj: () => {
-        const obj = document.getElementsByClassName(
-            "obj");
+        const obj = document.getElementsByClassName("obj");
 
         for (let i = 0; i < obj.length; i++) {
-            obj[i].addEventListener("click", function activeClassName() {
+            obj[i].addEventListener("click", function() {
                 const current = document.getElementsByClassName(
                     "active");
 
@@ -210,7 +197,7 @@ export const object = {
 
         if (guideline != null) {
             map.off('click', object.addPolygone);
-            map.off('mousemove');
+            map.off('mousemove', object.showGuideLine);
             guideline.remove();
             guideline = null;
             polygon = null;
@@ -225,9 +212,10 @@ export const object = {
     },
 
     stopEdit: () => {
-        if (guideline != null) {
+        if (guideline != null && polygon != null) {
+            map.off('mousemove', object.showGuideLine);
             guideline.remove();
-            guideline = null;
+            polygon.bindPopup("<b> This is a House </b>");
             polygon = null;
         }
     },
@@ -292,29 +280,42 @@ export const object = {
                         .options);
 
                     savedData[i].options.icon = icon;
-                    newObj = new L.Marker(savedData[i].coordinates,
+                    newObj = L.Marker(savedData[i].coordinates,
                         savedData[i].options).addTo(
                         map).
-                        on("drag", object.movePipe);
+                    on("drag", object.movePipe);
                     newObj._leaflet_id = savedData[i].id;
 
                     newObj.bindPopup(popupPump).openPopup();
 
-                    markers.push(newObj);
+                    markers.addLayer(newObj);
                     break;
                 case "polyline":
-                    newObj = new L.polyline(savedData[i]
+                    newObj = L.polyline(savedData[i]
                         .coordinates,
-                    savedData[i].options);
+                        savedData[i].options);
                     newObj.connected_with = savedData[i]
                         .connected_with;
 
-                    polylines.push(newObj);
-                    polylines[polylines.length - 1].addTo(
-                        map);
+                    polylines.addLayer(newObj).addTo(map);
                     break;
             }
         }
+    },
+
+    showMouseCoord: (event) => {
+        if (mouseCoord == null) {
+            mouseCoord = L.polyline(event.latlng).addTo(map);
+        } else {
+            mouseCoord.bindTooltip("lat:" + event.latlng.lat +
+                ", lng:" + event.latlng.lng).openTooltip(
+                event.latlng);
+        }
+    },
+
+    hideMouseCoord: (event) => {
+        mouseCoord.remove();
+        mouseCoord = null;
     },
 
     search: () => {

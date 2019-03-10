@@ -43,27 +43,56 @@ body {
     justify-content: space-around;
 }
 
-.obj, .tools {
+.obj {
     margin: 1rem;
-    height: 80px;
-    width: 80px;
+    height: 150px;
+    width: 150px;
     box-shadow: 1px 1px 4px rgba(102, 102, 102, 0.4);
     border-radius: 5px;
+    border: 2px solid white;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.obj i, .tools i {
+.tools {
+    height: 80px;
+    width: 80px;
+}
+
+.obj i {
     font-size: 2.5rem;
 }
 
-.obj:hover, .tools:hover {
+.obj img {
+    height: 90%;
+}
+
+.obj:hover {
     cursor: pointer;
 }
 
+.leaflet-control-custom {
+    background-color: white;
+    width: 30px;
+    height: 30px;
+}
+
+.leaflet-control-custom:hover {
+    cursor: pointer;
+}
+
+.leaflet-control-custom i {
+    font-size: 30px;
+    color: #696969;
+}
+
 .active {
-    border: 1px solid blue;
+    border: 2px solid blue;
+}
+
+.active2 {
+    border: 2px solid blue !important;
 }
 
 .buttons {

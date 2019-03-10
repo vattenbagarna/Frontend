@@ -9,14 +9,10 @@ import {
 
 // Initialize the map
 export const map = L.map("map", {
-    "center": [59.334591, 18.063240],
+    "center": [56.208640, 15.632630],
     "editable": true,
-    "zoom": 10,
-    "renderer": L.canvas()
+    "zoom": 18
 });
-
-object.activeObj();
-object.search();
 
 const script = document.createElement("script");
 
@@ -24,8 +20,7 @@ script.src = `https://maps.googleapis.com/maps/api/js?key=${key}`;
 document.head.appendChild(script);
 
 var roadmap = L.gridLayer.googleMutant({
-    type: "roadmap",
-    renderer: L.canvas()
+    type: "roadmap"
 }).addTo(map);
 
 var satellite = L.gridLayer.googleMutant({
@@ -37,23 +32,67 @@ var baseMaps = {
     "Satellit": satellite
 };
 
+function customControl(iconName) {
+    var myCustomControl = L.Control.extend({
+        options: {
+            position: 'topleft'
+        },
+        onAdd: function(map) {
+            var container = L.DomUtil.create('div',
+                'leaflet-bar leaflet-control leaflet-control-custom'
+            );
+            L.DomEvent.disableClickPropagation(container);
+            container.id = iconName;
+            let icon = L.DomUtil.create('i');
+            icon.className = 'material-icons';
+            icon.innerHTML = iconName;
+            container.appendChild(icon);
+
+            return container;
+        }
+    });
+
+    map.addControl(new myCustomControl());
+}
+
 L.control.layers(baseMaps).addTo(map);
+customControl('format_shapes');
+customControl('control_camera');
+customControl('linear_scale');
+customControl('delete');
+object.search();
+object.activeObj();
+
 
 for (let i = 0; i < document.getElementsByClassName("item").length; i++) {
     document.getElementsByClassName("item")[i].addEventListener("click", () => {
+        object.activeObjName =
+            document.getElementsByClassName("item")[i].id;
         map.on("click", object.addMarker);
-        map.on('mousemove', object.showMouseCoord);
-
         document.getElementById("map").style.cursor = "pointer";
     });
 }
 
+document.getElementById('control_camera').addEventListener('click', () => {
+    if (map.hasEventListeners('mousemove', object.showMouseCoord)) {
+        map.off('mousemove', object.showMouseCoord);
+        object.hideMouseCoord();
+        document.getElementById('control_camera').className =
+            document.getElementById(
+                'control_camera').className.replace(
+                " active2", "");
+    } else {
+        map.on('mousemove', object.showMouseCoord);
+        document.getElementById('control_camera').className +=
+            " active2";
+    }
+});
+
 document.getElementById("house").addEventListener('click', () => {
     map.on('click', object.addHouse);
-    map.on('mousemove', object.showMouseCoord);
     document.getElementById("map").style.cursor = "pointer";
 
-    document.addEventListener("keydown", function(event) {
+    document.addEventListener("keydown", (event) => {
         if (event.keyCode == 27) {
             object.stopEdit();
         }
@@ -66,7 +105,7 @@ document.getElementById("pipe").addEventListener("click", () => {
     });
 });
 
-document.getElementById("editPolylines").addEventListener('click', () => {
+document.getElementById("format_shapes").addEventListener('click', () => {
     object.editPolylines();
 });
 
@@ -81,6 +120,6 @@ document.getElementById("save/load").addEventListener("click", () => {
     object.load();
 });
 
-document.getElementById("totalDistance").addEventListener("click", () => {
+document.getElementById("linear_scale").addEventListener("click", () => {
     object.totalDistance();
 });
