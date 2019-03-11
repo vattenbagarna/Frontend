@@ -168,7 +168,7 @@ export const object = {
         const obj = document.getElementsByClassName("obj");
 
         for (let i = 0; i < obj.length; i++) {
-            obj[i].addEventListener("click", function() {
+            obj[i].parentElement.addEventListener("click", function() {
                 const current = document.getElementsByClassName(
                     "active");
 
@@ -194,9 +194,9 @@ export const object = {
         });
 
         map.off("click", object.addMarker);
+        map.off('click', object.addPolygone);
 
         if (guideline != null) {
-            map.off('click', object.addPolygone);
             map.off('mousemove', object.showGuideLine);
             guideline.remove();
             guideline = null;
@@ -281,21 +281,18 @@ export const object = {
 
                     savedData[i].options.icon = icon;
                     newObj = L.Marker(savedData[i].coordinates,
-                        savedData[i].options).addTo(
-                        map).
-                    on("drag", object.movePipe);
-                    newObj._leaflet_id = savedData[i].id;
+                        savedData[i].options).addTo(map).on("drag",
+                        object.movePipe);
 
+                    newObj._leaflet_id = savedData[i].id;
                     newObj.bindPopup(popupPump).openPopup();
 
                     markers.addLayer(newObj);
                     break;
                 case "polyline":
                     newObj = L.polyline(savedData[i]
-                        .coordinates,
-                        savedData[i].options);
-                    newObj.connected_with = savedData[i]
-                        .connected_with;
+                        .coordinates, savedData[i].options);
+                    newObj.connected_with = savedData[i].connected_with;
 
                     polylines.addLayer(newObj).addTo(map);
                     break;
@@ -313,7 +310,7 @@ export const object = {
         }
     },
 
-    hideMouseCoord: (event) => {
+    hideMouseCoord: () => {
         mouseCoord.remove();
         mouseCoord = null;
     },

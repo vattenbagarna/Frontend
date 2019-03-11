@@ -37,13 +37,15 @@ function customControl(iconName) {
         options: {
             position: 'topleft'
         },
-        onAdd: function(map) {
+        onAdd: () => {
             var container = L.DomUtil.create('div',
                 'leaflet-bar leaflet-control leaflet-control-custom'
             );
+
             L.DomEvent.disableClickPropagation(container);
             container.id = iconName;
             let icon = L.DomUtil.create('i');
+
             icon.className = 'material-icons';
             icon.innerHTML = iconName;
             container.appendChild(icon);
@@ -63,16 +65,32 @@ customControl('delete');
 object.search();
 object.activeObj();
 
+let acc = document.getElementsByClassName("accordion");
 
-for (let i = 0; i < document.getElementsByClassName("item").length; i++) {
-    document.getElementsByClassName("item")[i].addEventListener("click", () => {
-        object.activeObjName =
-            document.getElementsByClassName("item")[i].id;
-        map.on("click", object.addMarker);
-        document.getElementById("map").style.cursor = "pointer";
+for (let i = 0; i < acc.length; i++) {
+    acc[i].addEventListener("click", function() {
+        this.classList.toggle("activeAccordion");
+        var panel = this.nextElementSibling;
+        if (panel.style.maxHeight) {
+            panel.style.maxHeight = null;
+        } else {
+            panel.style.maxHeight = panel.scrollHeight + "px";
+        }
     });
 }
 
+
+for (let i = 0; i < document.getElementsByClassName("item").length; i++) {
+    document.getElementsByClassName("item")[i].parentElement.addEventListener(
+        "click", () => {
+            object.activeObjName =
+                document.getElementsByClassName("item")[i].id;
+            map.on("click", object.addMarker);
+            document.getElementById("map").style.cursor = "pointer";
+        });
+}
+
+//shit code, skulle behövas skrivas om.
 document.getElementById('control_camera').addEventListener('click', () => {
     if (map.hasEventListeners('mousemove', object.showMouseCoord)) {
         map.off('mousemove', object.showMouseCoord);
@@ -106,10 +124,12 @@ document.getElementById("pipe").addEventListener("click", () => {
 });
 
 document.getElementById("format_shapes").addEventListener('click', () => {
+    object.clearMapsEvents();
     object.editPolylines();
 });
 
 document.getElementById("delete").addEventListener("click", () => {
+    object.clearMapsEvents();
     map.eachLayer((layer) => {
         layer.on("click", object.remove);
     });
@@ -121,5 +141,6 @@ document.getElementById("save/load").addEventListener("click", () => {
 });
 
 document.getElementById("linear_scale").addEventListener("click", () => {
+    object.clearMapsEvents();
     object.totalDistance();
 });

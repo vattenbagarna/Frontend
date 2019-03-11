@@ -18,8 +18,9 @@ body {
     flex-direction: column;
     justify-content: space-between;
     width: 25%;
-    height: 100%;
+    height: 100vh;
     text-align: center;
+    overflow: hidden;
 }
 
 .map {
@@ -28,6 +29,7 @@ body {
 
 .projekt-titel {
     font-weight: 300;
+    height: 3vh;
 }
 
 .desc {
@@ -36,36 +38,106 @@ body {
     font-weight: 300;
 }
 
-.obj-list {}
+.obj-list {
+    height: 75vh;
+    overflow-y: auto;
+    outline: 0;
+}
 
 .obj-row {
     display: flex;
     justify-content: space-around;
 }
 
+.obj-list button::-moz-focus-inner {
+    border: 0;
+}
+
+.accordion {
+    background-color: #3867d6;
+    color: #fff;
+    cursor: pointer;
+    padding: 2rem;
+    margin-bottom: 5px;
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.activeAccordion, .accordion:hover {
+    background-color: #4775e0;
+}
+
+.accordion:after {
+    content: '\002B';
+    color: #fff;
+    font-weight: bold;
+    float: right;
+    margin-left: 5px;
+}
+
+.activeAccordion:after {
+    content: "\2212";
+}
+
+.panel {
+    background-color: white;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+}
+
 .obj {
+    padding-right: 10px;
+}
+
+.obj-container {
+    display: flex;
+    color: #444;
+    cursor: pointer;
+    width: 100%;
+    height: 120px;
+    margin-bottom: 1rem;
+    border-top: 2px solid #eee;
+    border-bottom: 2px solid #eee;
+    text-align: left;
+    outline: none;
+    font-size: 15px;
+}
+
+.obj-desc {
+    margin: auto 4.5rem;
+}
+
+.tools {
     margin: 1rem;
-    height: 150px;
-    width: 150px;
+    height: 60px;
+    background-color: #fff;
     box-shadow: 1px 1px 4px rgba(102, 102, 102, 0.4);
     border-radius: 5px;
-    border: 2px solid white;
+    border: 2px solid #fff;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.tools {
-    height: 80px;
-    width: 80px;
-}
-
-.obj i {
+.tools i {
     font-size: 2.5rem;
+    padding-left: 0.5rem;
 }
 
 .obj img {
-    height: 90%;
+    height: 88%;
+    max-width: 80px !important;
+    align-self: center;
+    width: auto;
+    margin-left: auto;
+    margin-right: auto;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    display: block;
 }
 
 .obj:hover {
@@ -88,11 +160,12 @@ body {
 }
 
 .active {
-    border: 2px solid blue;
+    border-bottom: 2px solid #3867d6;
+    border-top: 2px solid #3867d4;
 }
 
 .active2 {
-    border: 2px solid blue !important;
+    border: 2px solid #3867d6 !important;
 }
 
 .buttons {
@@ -100,8 +173,8 @@ body {
 }
 
 .fancy-light-button {
-    margin: 0.8rem 0;
-    padding: 0.8rem;
+    margin: 0.5rem 0;
+    padding: 0.5rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -115,7 +188,7 @@ body {
 }
 
 .fancy-button {
-    margin: 0.8rem 0;
+    margin: 0.2rem 0;
     padding: 1rem;
     display: flex;
     align-items: center;
