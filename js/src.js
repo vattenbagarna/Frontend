@@ -27,14 +27,6 @@ import {
     map
 } from "./loadLeafletMap.js";
 
-
-const myIcon = L.icon({
-    "iconAnchor": [10, 45],
-    "iconSize": [38, 45],
-    "iconUrl": "img/pump.png",
-    "popupAnchor": [1, -45]
-});
-
 export const object = {
     /**
      * Adds a marker to the map.
@@ -42,14 +34,14 @@ export const object = {
      * @returns {void}
      */
     'activeObjName': "",
-    'activeObjImg': "",
+    'activeIcon': "",
 
     addMarker: (event) => {
         const temp = new L.Marker(event.latlng, {
                 "draggable": "true",
-                "icon": myIcon
+                "icon": object.activeIcon
             }).bindPopup(
-                `<b>typ:</b>${object.activeObjName}<br> ${popupPump}`)
+                `<b>${object.activeObjName}<br>`)
             .on(
                 "drag", object.movePipe);
 
@@ -68,8 +60,8 @@ export const object = {
         } else {
             latLngs = [event.latlng];
             polygon = L.polygon(latLngs, {
-                color: 'red',
-                fillColor: '#f03',
+                color: 'blue',
+                fillColor: '#3388ff',
                 fillOpacity: 0.5,
                 weight: 1.5
             });
@@ -169,19 +161,49 @@ export const object = {
 
         for (let i = 0; i < obj.length; i++) {
             obj[i].parentElement.addEventListener("click", function() {
-                const current = document.getElementsByClassName(
+                let current = document.getElementsByClassName(
                     "active");
-
                 if (current.length > 0) {
                     current[0].className =
                         current[0].className.replace(
                             " active",
                             "");
                 }
+
+                current = document.getElementsByClassName(
+                    "active3");
+                if (current.length > 0) {
+                    current[0].className = current[0].className
+                        .replace(
+                            " active3",
+                            "");
+                }
+
                 this.className += " active";
                 object.clearMapsEvents();
             });
         }
+    },
+
+    activeCustomControl: (event) => {
+
+        let current = document.getElementsByClassName("active");
+
+        if (current.length > 0) {
+            current[0].className = current[0].className.replace(
+                " active",
+                "");
+        }
+
+        current = document.getElementsByClassName("active3");
+
+        if (current.length > 0) {
+            current[0].className = current[0].className.replace(
+                " active3",
+                "");
+        }
+
+        event.srcElement.parentElement.className += " active3";
     },
     /**
      *
@@ -311,8 +333,10 @@ export const object = {
     },
 
     hideMouseCoord: () => {
-        mouseCoord.remove();
-        mouseCoord = null;
+        if (mouseCoord != null) {
+            mouseCoord.remove();
+            mouseCoord = null;
+        }
     },
 
     search: () => {

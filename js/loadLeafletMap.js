@@ -58,9 +58,9 @@ function customControl(iconName) {
 }
 
 L.control.layers(baseMaps).addTo(map);
-customControl('format_shapes');
+customControl('timeline');
 customControl('control_camera');
-customControl('linear_scale');
+customControl('bar_chart');
 customControl('delete');
 object.search();
 object.activeObj();
@@ -71,6 +71,7 @@ for (let i = 0; i < acc.length; i++) {
     acc[i].addEventListener("click", function() {
         this.classList.toggle("activeAccordion");
         var panel = this.nextElementSibling;
+
         if (panel.style.maxHeight) {
             panel.style.maxHeight = null;
         } else {
@@ -79,30 +80,105 @@ for (let i = 0; i < acc.length; i++) {
     });
 }
 
+//inte det snyggaste kanske
+let onStart = () => {
+    for (let i = 0; i < document.getElementsByClassName("pumpstationer").length; i++) {
+        let elements = document.getElementsByClassName("pumpstationer");
 
-for (let i = 0; i < document.getElementsByClassName("item").length; i++) {
-    document.getElementsByClassName("item")[i].parentElement.addEventListener(
-        "click", () => {
-            object.activeObjName =
-                document.getElementsByClassName("item")[i].id;
+        elements[i].parentElement.addEventListener("click", () => {
+            object.activeObjName = elements[i].id;
+            object.activeIcon = L.icon({
+                iconAnchor: [36.5, 19.5],
+                iconSize: [73, 39],
+                iconUrl: `img/symbol_elementbrunn.png`,
+                popupAnchor: [0, -19.5]
+            });
             map.on("click", object.addMarker);
             document.getElementById("map").style.cursor = "pointer";
         });
+    }
+
+    for (let i = 0; i < document.getElementsByClassName("slamavskiljare").length; i++) {
+        let elements = document.getElementsByClassName("slamavskiljare");
+
+        elements[i].parentElement.addEventListener("click", () => {
+            object.activeObjName = elements[i].id;
+            object.activeIcon = L.icon({
+                iconAnchor: [19.5, 19.5],
+                iconSize: [39, 39],
+                iconUrl: `img/symbol_slamavskiljare.png`,
+                popupAnchor: [0, -19.5]
+            });
+            map.on("click", object.addMarker);
+            document.getElementById("map").style.cursor = "pointer";
+        });
+    }
+
+
+    for (let i = 0; i < document.getElementsByClassName("kompaktbädd").length; i++) {
+        let elements = document.getElementsByClassName("kompaktbädd");
+
+        elements[i].parentElement.addEventListener("click", () => {
+            object.activeObjName = elements[i].id;
+            object.activeIcon = L.icon({
+                iconAnchor: [36.5, 19.5],
+                iconSize: [73, 39],
+                iconUrl: `img/symbol_utjämningsbrunn.png`,
+                popupAnchor: [0, -19.5]
+            });
+            map.on("click", object.addMarker);
+            document.getElementById("map").style.cursor = "pointer";
+        });
+    }
+
+    for (let i = 0; i < document.getElementsByClassName("fettavskiljare").length; i++) {
+        let elements = document.getElementsByClassName("fettavskiljare");
+
+        elements[i].parentElement.addEventListener("click", () => {
+            object.activeObjName = elements[i].id;
+            object.activeIcon = L.icon({
+                iconAnchor: [19.5, 19.5],
+                iconSize: [39, 39],
+                iconUrl: `img/symbol_fettavskiljare.png`,
+                popupAnchor: [0, -19.5]
+            });
+            map.on("click", object.addMarker);
+            document.getElementById("map").style.cursor = "pointer";
+        });
+    }
+
+    for (let i = 0; i < document.getElementsByClassName("oljeavskiljare").length; i++) {
+        let elements = document.getElementsByClassName("oljeavskiljare");
+
+        elements[i].parentElement.addEventListener("click", () => {
+            object.activeObjName = elements[i].id;
+            object.activeIcon = L.icon({
+                "iconAnchor": [19.5, 19.5],
+                "iconSize": [39, 39],
+                "iconUrl": `img/symbol_oljeavskiljare.png`,
+                "popupAnchor": [0, -19.5]
+            });
+            map.on("click", object.addMarker);
+            document.getElementById("map").style.cursor = "pointer";
+        });
+    }
 }
+onStart();
 
 //shit code, skulle behövas skrivas om.
-document.getElementById('control_camera').addEventListener('click', () => {
+document.getElementById('control_camera').addEventListener('click', (event) => {
     if (map.hasEventListeners('mousemove', object.showMouseCoord)) {
         map.off('mousemove', object.showMouseCoord);
-        object.hideMouseCoord();
-        document.getElementById('control_camera').className =
-            document.getElementById(
-                'control_camera').className.replace(
+
+        event.srcElement.parentElement.className =
+            event.srcElement.parentElement.className.replace(
                 " active2", "");
+
+        object.hideMouseCoord();
     } else {
         map.on('mousemove', object.showMouseCoord);
-        document.getElementById('control_camera').className +=
-            " active2";
+
+        event.srcElement.parentElement.className += " active2";
     }
 });
 
@@ -123,13 +199,15 @@ document.getElementById("pipe").addEventListener("click", () => {
     });
 });
 
-document.getElementById("format_shapes").addEventListener('click', () => {
+document.getElementById("timeline").addEventListener('click', (event) => {
     object.clearMapsEvents();
+    object.activeCustomControl(event);
     object.editPolylines();
 });
 
-document.getElementById("delete").addEventListener("click", () => {
+document.getElementById("delete").addEventListener("click", (event) => {
     object.clearMapsEvents();
+    object.activeCustomControl(event);
     map.eachLayer((layer) => {
         layer.on("click", object.remove);
     });
@@ -140,7 +218,8 @@ document.getElementById("save/load").addEventListener("click", () => {
     object.load();
 });
 
-document.getElementById("linear_scale").addEventListener("click", () => {
+document.getElementById("bar_chart").addEventListener("click", (event) => {
     object.clearMapsEvents();
+    object.activeCustomControl(event);
     object.totalDistance();
 });
