@@ -162,7 +162,8 @@ let onStart = () => {
             document.getElementById("map").style.cursor = "pointer";
         });
     }
-}
+};
+
 onStart();
 
 //shit code, skulle behövas skrivas om.

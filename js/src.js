@@ -38,10 +38,10 @@ export const object = {
 
     addMarker: (event) => {
         const temp = new L.Marker(event.latlng, {
-                "draggable": "true",
-                "icon": object.activeIcon
-            }).bindPopup(
-                `<b>${object.activeObjName}<br>`)
+            "draggable": "true",
+            "icon": object.activeIcon
+        }).bindPopup(
+            `<b>${object.activeObjName}<br>`)
             .on(
                 "drag", object.movePipe);
 
@@ -125,7 +125,7 @@ export const object = {
         polylines.eachLayer((polyline) => {
             if (event.target._leaflet_id ===
                 polyline.connected_with
-                .first) {
+                    .first) {
                 let newLatlng = polyline.getLatLngs();
 
                 newLatlng.shift();
@@ -134,7 +134,7 @@ export const object = {
                 polyline.setLatLngs(newLatlng);
             } else if (event.target._leaflet_id ===
                 polyline.connected_with
-                .last) {
+                    .last) {
                 let newLatlng = polyline.getLatLngs();
 
                 newLatlng.pop();
@@ -163,6 +163,7 @@ export const object = {
             obj[i].parentElement.addEventListener("click", function() {
                 let current = document.getElementsByClassName(
                     "active");
+
                 if (current.length > 0) {
                     current[0].className =
                         current[0].className.replace(
@@ -186,7 +187,6 @@ export const object = {
     },
 
     activeCustomControl: (event) => {
-
         let current = document.getElementsByClassName("active");
 
         if (current.length > 0) {
