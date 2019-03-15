@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="sv" dir="ltr">
+	<head>
+		<meta charset="utf-8">
+		<title>Beräkningsida</title>
+		<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+		<link href="https://fonts.googleapis.com/css?family=Fira+Sans:300,400" rel="stylesheet">
+		<link rel="stylesheet" href="css/calculations.css">
+	</head>
+	<body>
+		<div class="wrap">
+			<div class="title">
+				<h1 class="h-title">Beräkningsida</h1>
+			</div>
+			<div class="container">
+				<form class="form-inline">
+					<label for="length">Längd L</label>
+					<input type="text" id="length" name="length" placeholder="Längd">
+					<b>m</b>
+					<label for="height">Statisk höjd H</label>
+					<input type="text" id="height" name="height" placeholder="Höjd">
+					<b>m</b>
+					<label for="Material">Material</label>
+					<select id="material" name="material">
+						<option value="PEM/PE-80">PEM/PE-80</option>
+						<option value="?">?</option>
+						<option value="?">?</option>
+					</select>
+					<label id="dimension">dimension</label>
+					<select id="dimension" name="dimension">
+						<option value="0.32">32 (std. Dim.)</option>
+						<option value="0.42">42 (std. Dim.)</option>
+						<option value="0.72">72 (std. Dim.)</option>
+						<option value="0.105">105 (std. Dim.)</option>
+					</select>
+					<label>
+						<input type="radio" name="PN" value="PN6,3" checked="checked">PN6,3
+					</label>
+					<label>
+						<input type="radio" name="PN" value="PN10">PN10
+					</label>
+					<label for="flow">Flöde</label>
+					<input type="text" id="flow" name="flow" placeholder="0">
+					<b>l/s</b>
+					<input type="button" name="submit" id="submit" value="Punkförsluster">
+				</form>
+				<form class="form-inline results">
+					<label for="waterSpeed">Vattenhastighet</label>
+					<input disabled="disabled" type="text" id="waterSpeed" name="waterSpeed" placeholder="0">
+					<b>m/s</b>
+					<label for="StaticPressure">Statisk tryck</label>
+					<input disabled="disabled" type="text" id="StaticPressure" name="StaticPressure" placeholder="0">
+					<b>m</b>
+					<label for="loss">förluster</label>
+					<input disabled="disabled" type="text" id="loss" name="loss" placeholder="0">
+					<b>m</b>
+					<label for="TotalPressure">Total tryck</label>
+					<input disabled="disabled" type="text" id="TotalPressure" name="TotalPressure" placeholder="0">
+					<b>m</b>
+				</form>
+			</div>
+		</body>
+		<script src="js/flowCalc.js"></script>
+	</html>
