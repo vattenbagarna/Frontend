@@ -465,6 +465,7 @@ export const object = {
                 }
             };
             polyline.getLength();
+            console.log(totalDistance);
         });
     }
 };
