@@ -38,10 +38,10 @@ export const object = {
 
     addMarker: (event) => {
         const temp = new L.Marker(event.latlng, {
-            "draggable": "true",
-            "icon": object.activeIcon
-        }).bindPopup(
-            `<b>${object.activeObjName}<br>`)
+                "draggable": "true",
+                "icon": object.activeIcon
+            }).bindPopup(
+                `<b>${object.activeObjName}<br>`)
             .on(
                 "drag", object.movePipe);
 
@@ -126,7 +126,7 @@ export const object = {
         polylines.eachLayer((polyline) => {
             if (event.target._leaflet_id ===
                 polyline.connected_with
-                    .first) {
+                .first) {
                 let newLatlng = polyline.getLatLngs();
 
                 newLatlng.shift();
@@ -135,7 +135,7 @@ export const object = {
                 polyline.setLatLngs(newLatlng);
             } else if (event.target._leaflet_id ===
                 polyline.connected_with
-                    .last) {
+                .last) {
                 let newLatlng = polyline.getLatLngs();
 
                 newLatlng.pop();
@@ -203,13 +203,64 @@ export const object = {
                 " active3",
                 "");
         }
-
-        event.srcElement.parentElement.className += " active3";
+        if (event.target.localName == 'div') {
+            event.target.className += " active3";
+        } else {
+            event.target.parentElement.className += " active3";
+        }
     },
     /**
      *
      *
      */
+
+    hideMouseCoord: () => {
+        if (mouseCoord != null) {
+            mouseCoord.remove();
+            mouseCoord = null;
+        }
+    },
+
+    search: () => {
+        L.esri.Geocoding.geosearch().addTo(map);
+    },
+
+
+    totalDistance: () => {
+        var totalDistance = 0;
+        var thisPipeDistance = 0;
+        var firstPoint;
+        var secondPoint;
+
+        polylines.eachLayer((polyline) => {
+            polyline.getLength = function() {
+                var tempPolyline = polyline._latlngs;
+
+                if (tempPolyline.length == 2) {
+                    thisPipeDistance = tempPolyline[0].distanceTo(
+                        tempPolyline[1]);
+                    totalDistance += thisPipeDistance;
+                    polyline.bindPopup("Längd: " + Math.round(
+                            thisPipeDistance * 100) /
+                        100 + "m");
+                } else if (tempPolyline.length > 2) {
+                    for (var i = 0; i < tempPolyline.length -
+                        1; i++) {
+                        firstPoint = tempPolyline[i];
+                        secondPoint = tempPolyline[i + 1];
+                        thisPipeDistance += L.latLng(
+                            firstPoint).distanceTo(
+                            secondPoint);
+                    }
+                    totalDistance += thisPipeDistance;
+                    polyline.bindPopup("Längd: " + Math.round(
+                            thisPipeDistance * 100) /
+                        100 + "m");
+                }
+            }
+            polyline.getLength();
+        });
+    },
 
     clearMapsEvents: () => {
         polylines.eachLayer((polyline) => {
@@ -333,45 +384,5 @@ export const object = {
                 ", lng:" + event.latlng.lng).openTooltip(
                 event.latlng);
         }
-    },
-
-    hideMouseCoord: () => {
-        if (mouseCoord != null) {
-            mouseCoord.remove();
-            mouseCoord = null;
-        }
-    },
-
-    search: () => {
-        L.esri.Geocoding.geosearch().addTo(map);
-    },
-
-
-    totalDistance: () => {
-        var totalDistance = 0;
-        var thisPipeDistance = 0;
-        var firstPoint;
-        var secondPoint;
-
-        polylines.eachLayer((polyline) => {
-            polyline.getLength = function () {
-                var tempPolyline = polyline._latlngs;
-
-                if (tempPolyline.length == 2) {
-                    thisPipeDistance = tempPolyline[0].distanceTo(tempPolyline[1]);
-                    totalDistance += thisPipeDistance;
-                    polyline.bindPopup("Längd: " + Math.round(thisPipeDistance * 100) / 100 + "m");
-                } else if (tempPolyline.length > 2) {
-                    for (var i = 0; i < tempPolyline.length - 1; i++) {
-                        firstPoint = tempPolyline[i];
-                        secondPoint = tempPolyline[i + 1];
-                        thisPipeDistance += L.latLng(firstPoint).distanceTo(secondPoint);
-                    }
-                    totalDistance += thisPipeDistance;
-                    polyline.bindPopup("Längd: " + Math.round(thisPipeDistance * 100) / 100 + "m");
-                }
-            }
-            polyline.getLength();
-        });
     }
 };
