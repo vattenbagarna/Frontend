@@ -21,6 +21,7 @@ body {
     min-width: 350px;
     height: 100%;
     text-align: center;
+    border-right: 2px solid #1280c4;
 }
 
 .map {
@@ -46,6 +47,18 @@ body {
     height: 78vh;
     overflow-y: scroll;
     outline: 0;
+}
+
+.obj-list::-webkit-scrollbar {
+    width: 0.5em;
+}
+
+.obj-list::-webkit-scrollbar-track {
+    background: #0c6399;
+}
+
+.obj-list::-webkit-scrollbar-thumb {
+    background: #2794d8;
 }
 
 .obj-row {
