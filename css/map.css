@@ -1,9 +1,3 @@
-/*
-*  =============================================================================
-*  MAP
-*  =============================================================================
-*/
-
 html,
 body {
     margin: 0;
@@ -24,21 +18,23 @@ body {
     flex-direction: column;
     justify-content: space-between;
     width: 25%;
-    height: 100%;
+    height: 100vh;
     text-align: center;
+    overflow: hidden;
+    background: #3867d6;
 }
 
 .map {
-    width: 75%;
-}
-
-.map iframe {
-    width: 100%;
-    height: 100%;
+    width: 80%;
 }
 
 .projekt-titel {
-    font-weight: 300;
+    font-weight: 350;
+    color: black;
+    background: white;
+    height: 3vh;
+    margin: 0;
+    padding: 20px;
 }
 
 .desc {
@@ -48,41 +44,150 @@ body {
 }
 
 .obj-list {
-
+    height: 78vh;
+    overflow-y: auto;
+    outline: 0;
+    background-color: #3867d6;
 }
 
 .obj-row {
     display: flex;
     justify-content: space-around;
+    background-color: #3867d6;
+}
+
+.obj-list button::-moz-focus-inner {
+    border: 0;
+}
+
+.accordion {
+    background-color: #3867d6;
+    color: #fff;
+    cursor: pointer;
+    padding: 2rem;
+    width: 100%;
+    border: none;
+    /*border-bottom: 1px solid rgb(160, 160, 255);*/
+    outline: none;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.activeAccordion, .accordion:hover {
+    background-color: #4775e0;
+}
+
+.accordion:after {
+    content: '\002B';
+    color: #fff;
+    font-weight: bold;
+    float: right;
+    margin-left: 5px;
+}
+
+.activeAccordion:after {
+    content: "\2212";
+}
+
+.panel {
+    background-color: white;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease-out;
+}
+
+.obj-container {
+    display: flex;
+    color: #444;
+    cursor: pointer;
+    width: 100%;
+    height: 120px;
+    border-top: 2px solid #eee;
+    border-bottom: 2px solid #eee;
+    text-align: left;
+    outline: none;
+    font-size: 15px;
 }
 
 .obj {
+    padding-right: 10px;
+}
+
+.obj:hover {
+    cursor: pointer;
+}
+
+.obj img {
+    max-height: 88%;
+    max-width: 80px !important;
+    align-self: center;
+    width: auto;
+    margin-left: auto;
+    margin-right: auto;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    display: block;
+}
+
+.obj-desc {
+    margin: auto 0;
+}
+
+.tools {
     margin: 1rem;
-    height: 80px;
-    width: 80px;
+    height: 60px;
+    min-width: 3.5rem;
+    background-color: #fff;
     box-shadow: 1px 1px 4px rgba(102, 102, 102, 0.4);
     border-radius: 5px;
+    border: 2px solid #fff;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.obj i {
+.tools i {
     font-size: 2.5rem;
+    padding-left: 0.5rem;
+}
+
+.leaflet-control-custom {
+    background-color: white;
+    width: 30px;
+    height: 30px;
+}
+
+.leaflet-control-custom:hover {
+    cursor: pointer;
+}
+
+.leaflet-control-custom i {
+    font-size: 30px;
+    color: #696969;
+}
+
+.active {
+    border-bottom: 2px solid black;
+    border-top: 2px solid black;
+}
+
+.active2, .active3 {
+    border: 2px solid #3867d6 !important;
 }
 
 .buttons {
-    margin: 1rem;
+    margin: 0.8rem;
 }
 
 .fancy-light-button {
-    margin: 0.8rem 0;
-    padding: 0.8rem;
+    margin: 0.5rem 0;
+    padding: 0.5rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border: 2px solid #3867d6;
-    color: #3867d6;
+    border: 2px solid white;
+    background-color: white;
+    color: black;
     border-radius: 8px;
 }
 
@@ -91,11 +196,11 @@ body {
 }
 
 .fancy-button {
-    margin: 0.8rem 0;
+    margin: 0.2rem 0;
     padding: 1rem;
     display: flex;
     align-items: center;
     border-radius: 8px;
-    background: #3867d6;
-    color: #fff;
+    background: white;
+    color: black;
 }

@@ -12,7 +12,7 @@
   "precommit.silent": false,
   "precommit.colors": true,
   "pre-commit": [
-      "lint-hook"
+    "lint-hook"
   ],
   "repository": {
     "type": "git",
