@@ -18,8 +18,9 @@ export const map = L.map("map", {
 });
 
 // Creates script link to Google Maps javascript API with our key
-// and then append it to map.html.
+// then append it to head of map.html.
 const script = document.createElement("script");
+
 script.src = `https://maps.googleapis.com/maps/api/js?key=${key}`;
 document.head.appendChild(script);
 
@@ -46,8 +47,9 @@ let gridlayers = () => {
         "Karta": roadmap,
         "Satellit": satellite
     };
+
     L.control.layers(baseMaps).addTo(map);
-}
+};
 
 /**
  * customControl - Create the custom buttons on the top left side under
@@ -77,6 +79,7 @@ let customControl = (iconName) => {
 
             // Creates a new 'i' html element and displays a material icon
             let icon = L.DomUtil.create('i');
+
             icon.className = 'material-icons';
             icon.innerHTML = iconName;
             //appends it to the div we created earlier
@@ -87,10 +90,9 @@ let customControl = (iconName) => {
         }
     });
 
-    // adds our customControl we created above to the maps controls and
-    // displays it on the map
+    // adds our customControl we created above to the maps controls and displays it on the map
     map.addControl(new myCustomControl());
-}
+};
 
 /**
  * Adds functionality to the sidebar accordions
@@ -117,13 +119,13 @@ let accordions = () => {
             }
         });
     }
-}
+};
 
 /**
- * addMarkerOnClick - Description
+ * addMarkerOnClick - Displays a marker on the map with its custom icon
  *
- * @param {type} elements Description
- * @param {type} icon    Description
+ * @param {array} elements All elements with the same class
+ * @param {L.icon} icon    Leaflet icon @see {@link https://leafletjs.com/reference-1.4.0.html#icon}
  *
  * @returns {void}
  */
@@ -141,7 +143,7 @@ let addMarkerOnClick = (elements, icon) => {
             document.getElementById("map").style.cursor = "pointer";
         });
     }
-}
+};
 
 /**
  * addHouseOnClick - On click the user draws polygons on the map and a house
@@ -163,7 +165,7 @@ let addHouseOnClick = () => {
             }
         });
     });
-}
+};
 
 /**
  * addPipeOnClick - Adds a polyline (pipe) between two objects after the
@@ -182,7 +184,7 @@ let addPipeOnClick = () => {
             layer.on("click", object.redraw);
         });
     });
-}
+};
 
 /**
  * editpipesOnClick - Make it possible to bend pipes (polylines) by dragging
@@ -197,7 +199,7 @@ let editpipesOnClick = () => {
         object.activeCustomControl(event);
         object.editPolylines();
     });
-}
+};
 
 /**
  * toggleMouseCoordOnClick - On click show or hide (toggle) toolbar next to the
@@ -210,33 +212,29 @@ let toggleMouseCoordOnClick = () => {
     // Add a click event listener to element
     document.getElementById('control_camera').addEventListener('click', (
         event) => {
-
         let target = event.target;
-        let parent = target.parentElement;
-        let child = target.firstChild;
 
-        // Toggle css class 'active2' to element. Switches each time user
-        // clicks on button
+        // Toggle css class 'active2' to element. Switches each time user clicks on button
         document.getElementById('control_camera').classList.toggle(
             'active2');
 
         // If the user clicks on the border of i element and by mistake select
         // the parent element instead
         if (target.localName == 'div') {
+            let child = target.firstChild;
+
             // If button is already pressed
             if (child.active == true) {
                 // Mark button as not active
                 child.active = false;
-                // Disable showMouseCoord function when user moves the mouse
-                // over the map
+                // Disable showMouseCoord function when user moves the mouse over the map
                 map.off('mousemove', object.showMouseCoord);
                 // Hide toolbar
                 object.hideMouseCoord();
             } else {
                 // Mark button as active
                 child.active = true;
-                // Call showMouseCoord function everytime user moves the mouse
-                // over the map
+                // Call showMouseCoord function everytime user moves the mouse over the map
                 map.on('mousemove', object.showMouseCoord);
             }
             //else if the user clicks on the icon ('i') element
@@ -250,7 +248,7 @@ let toggleMouseCoordOnClick = () => {
             map.on('mousemove', object.showMouseCoord);
         }
     });
-}
+};
 
 /**
  * getDistanceOnClick - Displays distance of each pipe (polyline) on the map
@@ -265,7 +263,7 @@ let getDistanceOnClick = () => {
         object.activeCustomControl(event);
         object.totalDistance();
     });
-}
+};
 
 
 /**
@@ -286,19 +284,20 @@ let deleteOnClick = () => {
             layer.on("click", object.remove);
         });
     });
-}
+};
 
 /**
  * saveload - not completed yet...
  *
  * @returns {?} ???
- */
+
 let saveload = () => {
     document.getElementById("save/load").addEventListener("click", () => {
         object.save();
         object.load();
     });
-}
+};
+*/
 
 
 /**
@@ -360,9 +359,9 @@ let onLoad = () => {
     addPipeOnClick();
     addHouseOnClick();
 
-    editPolylines();
+    editpipesOnClick();
     toggleMouseCoordOnClick();
-    getDistanceOnClick()
+    getDistanceOnClick();
     deleteOnClick();
 };
 

@@ -28,20 +28,15 @@ import {
 } from "./loadLeafletMap.js";
 
 export const object = {
-    /**
-     * Adds a marker to the map.
-     * @param {object} event event.
-     * @returns {void}
-     */
     'activeObjName': "",
     'activeIcon': "",
 
     addMarker: (event) => {
         const temp = new L.Marker(event.latlng, {
-                "draggable": "true",
-                "icon": object.activeIcon
-            }).bindPopup(
-                `<b>${object.activeObjName}<br>`)
+            "draggable": "true",
+            "icon": object.activeIcon
+        }).bindPopup(
+            `<b>${object.activeObjName}<br>`)
             .on(
                 "drag", object.movePipe);
 
@@ -126,7 +121,7 @@ export const object = {
         polylines.eachLayer((polyline) => {
             if (event.target._leaflet_id ===
                 polyline.connected_with
-                .first) {
+                    .first) {
                 let newLatlng = polyline.getLatLngs();
 
                 newLatlng.shift();
@@ -135,7 +130,7 @@ export const object = {
                 polyline.setLatLngs(newLatlng);
             } else if (event.target._leaflet_id ===
                 polyline.connected_with
-                .last) {
+                    .last) {
                 let newLatlng = polyline.getLatLngs();
 
                 newLatlng.pop();
@@ -227,7 +222,7 @@ export const object = {
 
 
     totalDistance: () => {
-        var totalDistance = 0;
+        //var totalDistance = 0;
         var thisPipeDistance = 0;
         var firstPoint;
         var secondPoint;
@@ -239,9 +234,9 @@ export const object = {
                 if (tempPolyline.length == 2) {
                     thisPipeDistance = tempPolyline[0].distanceTo(
                         tempPolyline[1]);
-                    totalDistance += thisPipeDistance;
+                    //totalDistance += thisPipeDistance;
                     polyline.bindPopup("Längd: " + Math.round(
-                            thisPipeDistance * 100) /
+                        thisPipeDistance * 100) /
                         100 + "m");
                 } else if (tempPolyline.length > 2) {
                     for (var i = 0; i < tempPolyline.length -
@@ -252,12 +247,12 @@ export const object = {
                             firstPoint).distanceTo(
                             secondPoint);
                     }
-                    totalDistance += thisPipeDistance;
+                    //totalDistance += thisPipeDistance;
                     polyline.bindPopup("Längd: " + Math.round(
-                            thisPipeDistance * 100) /
+                        thisPipeDistance * 100) /
                         100 + "m");
                 }
-            }
+            };
             polyline.getLength();
         });
     },
