@@ -23,6 +23,7 @@ const popupPump =
 <b>kabellängd:</b> 10<br>
 <b>vikt:</b> 5`;
 
+//imports the map object
 import {
     map
 } from "./loadLeafletMap.js";
@@ -244,8 +245,11 @@ export const object = {
                 " active3",
                 "");
         }
-
-        event.srcElement.parentElement.className += " active3";
+        if (event.target.localName == 'div') {
+            event.target.className += " active3";
+        } else {
+            event.target.parentElement.className += " active3";
+        }
     },
 
     /**
@@ -253,6 +257,7 @@ export const object = {
      *
      * @returns {void}
      */
+
     clearMapsEvents: () => {
         //Gets each polylines and removes the "editing hooks".
         polylines.eachLayer((polyline) => {
