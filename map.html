@@ -5,8 +5,8 @@
 	<title>Karta</title>
 	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css?family=Fira+Sans:300,400" rel="stylesheet">
-	<link rel="stylesheet" href="css/map.css">
 	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css" integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA==" crossorigin="" />
+	<link rel="stylesheet" href="css/map.css">
 </head>
 <body>
 	<div class="wrap-all">
@@ -103,18 +103,20 @@
 
 					<button class="accordion desc">Verktyg</button>
 						<div class="panel">
-							<div class="obj-row">
-								<div class="tools">
-									<i class="material-icons obj"></i>
+							<div class="obj-container" id="pipe">
+								<div class="obj obj-icon">
+									<i class="material-icons obj-icon">transform</i>
 								</div>
-								<div id="save/load" class="tools">
-									<i class="material-icons obj"></i>
+								<div class="obj-desc">
+									placera ut rör
 								</div>
-								<div id="pipe" class="tools">
-									<i class="material-icons obj">transform</i>
+							</div>
+							<div class="obj-container" id="house">
+								<div class="obj obj-icon">
+									<i class="material-icons obj-icon">home</i>
 								</div>
-								<div id="house" class="tools">
-									<i id="house" class="material-icons obj">home</i>
+								<div class="obj-desc">
+									placera ut hus
 								</div>
 							</div>
 						</div>
@@ -122,7 +124,7 @@
 			</div>
 
 			<div class="buttons">
-				<a href="list.html" class="link">
+				<a class="link">
                         <div class="fancy-light-button">
                                 <span>SE OBJEKTDATA</span><i class="material-icons">chevron_right</i>
                         </div>
