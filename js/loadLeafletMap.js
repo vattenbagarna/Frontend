@@ -317,9 +317,9 @@ let onLoad = () => {
 
     addMarkerOnClick(document.getElementsByClassName('pumpstationer'),
         L.icon({
-            iconAnchor: [36.5, 19.5],
-            iconSize: [73, 39],
-            iconUrl: `img/symbol_elementbrunn.png`,
+            iconAnchor: [19.5, 19.5],
+            iconSize: [39, 39],
+            iconUrl: `img/pump.png`,
             popupAnchor: [0, -19.5]
         }));
 
