@@ -13,8 +13,19 @@ body {
     text-align: center;
 }
 
+.button-link {
+    text-decoration: none;
+}
+
 .button {
-    line-height: 2;
+    width: 250px;
+    margin: auto;
+    border-radius: 5px;
+    background: #1280c4;
+    color: #fff;
     padding: 1rem;
-    border: 1px solid red;
+}
+
+.disabled {
+    background: grey;
 }
