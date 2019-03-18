@@ -17,19 +17,19 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    width: 25%;
-    height: 100vh;
+    width: 22%;
+    min-width: 350px;
+    height: 100%;
     text-align: center;
-    overflow: hidden;
-    background: #3867d6;
+    border-right: 2px solid #1280c4;
 }
 
 .map {
-    width: 80%;
+    width: 78%;
 }
 
 .projekt-titel {
-    font-weight: 350;
+    font-weight: 300;
     color: black;
     background: white;
     height: 3vh;
@@ -45,40 +45,49 @@ body {
 
 .obj-list {
     height: 78vh;
-    overflow-y: auto;
+    overflow-y: scroll;
     outline: 0;
-    background-color: #3867d6;
+}
+
+.obj-list::-webkit-scrollbar {
+    width: 0.5em;
+}
+
+.obj-list::-webkit-scrollbar-track {
+    background: #0c6399;
+}
+
+.obj-list::-webkit-scrollbar-thumb {
+    background: #2794d8;
 }
 
 .obj-row {
     display: flex;
     justify-content: space-around;
-    background-color: #3867d6;
+    background-color: #1280c4;
 }
 
 .obj-list button::-moz-focus-inner {
-    border: 0;
+    border: none;
 }
 
 .accordion {
-    background-color: #3867d6;
-    color: #fff;
-    cursor: pointer;
-    padding: 2rem;
     width: 100%;
+    padding: 1.5rem;
+    color: #fff;
+    background: #1280c4;
+    cursor: pointer;
+    font-weight: 400;
+    font-size: 1rem;
     border: none;
-    /*border-bottom: 1px solid rgb(160, 160, 255);*/
-    outline: none;
-    font-size: 15px;
-    font-weight: bold;
 }
 
 .activeAccordion, .accordion:hover {
-    background-color: #4775e0;
+    background-color: light#1280c4;
 }
 
 .accordion:after {
-    content: '\002B';
+    content: '+';
     color: #fff;
     font-weight: bold;
     float: right;
@@ -90,27 +99,26 @@ body {
 }
 
 .panel {
-    background-color: white;
+    background: #eee;
+    padding: 1px 0;
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.4s ease-out;
 }
 
 .obj-container {
-    display: flex;
-    color: #444;
-    cursor: pointer;
     width: 100%;
     height: 120px;
-    border-top: 2px solid #eee;
-    border-bottom: 2px solid #eee;
+    margin: 0.3rem 0;
+    background: #fff;
+    display: flex;
     text-align: left;
+    cursor: pointer;
     outline: none;
     font-size: 15px;
-}
-
-.obj {
-    padding-right: 10px;
+    color: #444;
+    border-top: 1px solid rgba(255, 255, 255, 0);
+    border-bottom: 1px solid rgba(255, 255, 255, 0);
 }
 
 .obj:hover {
@@ -127,6 +135,12 @@ body {
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
     display: block;
+}
+
+.obj-icon {
+    padding: 0.8rem;
+    font-size: 2.2rem;
+    align-self: center;
 }
 
 .obj-desc {
@@ -167,16 +181,18 @@ body {
 }
 
 .active {
-    border-bottom: 2px solid black;
-    border-top: 2px solid black;
+    border-top: 1px solid #1280c4;
+    border-bottom: 1px solid #1280c4;
+    box-shadow: 0 0 4px #1280c4;
 }
 
 .active2, .active3 {
-    border: 2px solid #3867d6 !important;
+    border: 2px solid #1280c4 !important;
 }
 
 .buttons {
     margin: 0.8rem;
+    border-top: 1px #eee solid;
 }
 
 .fancy-light-button {
@@ -185,7 +201,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border: 2px solid white;
+    border: 2px solid #1280c4;
     background-color: white;
     color: black;
     border-radius: 8px;
@@ -196,11 +212,11 @@ body {
 }
 
 .fancy-button {
-    margin: 0.2rem 0;
+    margin: 0.5rem 0;
     padding: 1rem;
     display: flex;
     align-items: center;
     border-radius: 8px;
-    background: white;
-    color: black;
+    background: #1280c4;
+    color: #fff;
 }
