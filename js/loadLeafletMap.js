@@ -1,14 +1,22 @@
 /* global L */
 
-// Imports functions from underlying functionality from src.js file that uses the leaflet library
-import {
-    object
-} from "./src.js";
-
 // Imports Google maps javascript api key from getKey.js file
 import {
     key
 } from "./getKey.js";
+
+// Imports functions from underlying functionality from add.js file that uses the leaflet library
+import {
+    add
+} from "./add.js";
+
+import {
+    edit
+} from "./edit.js";
+
+import {
+    show
+} from "./show.js";
 
 // Initialize the map with center coordinates on BAGA HQ and zoom 18.
 export const map = L.map("map", {
@@ -135,11 +143,11 @@ let addMarkerOnClick = (elements, icon) => {
         // Add a click event listenr
         elements[i].parentElement.addEventListener("click", () => {
             // Set markers info and icon
-            object.activeObjName = elements[i].id;
-            object.activeIcon = icon;
+            add.activeObjName = elements[i].id;
+            add.activeIcon = icon;
 
             // Call addMarker function in src.js
-            map.on("click", object.addMarker);
+            map.on("click", add.marker);
             document.getElementById("map").style.cursor = "pointer";
         });
     }
@@ -147,7 +155,7 @@ let addMarkerOnClick = (elements, icon) => {
 
 /**
  * addHouseOnClick - On click the user draws polygons on the map and a house
- * 					 object are created
+ * 					 add are created
  *
  * @returns {void}
  */
@@ -155,13 +163,13 @@ let addHouseOnClick = () => {
     // Add click event listener on house button in sidebar
     document.getElementById("house").addEventListener('click', () => {
         // Call addHouse function everytime user clicks on map
-        map.on('click', object.addHouse);
+        map.on('click', add.house);
         document.getElementById("map").style.cursor = "pointer";
 
         // Call stopEdit function when user keydown on 'esc' key
         document.addEventListener("keydown", (event) => {
             if (event.keyCode == 27) {
-                object.stopEdit();
+                edit.stopDrawingHouse();
             }
         });
     });
@@ -180,8 +188,8 @@ let addPipeOnClick = () => {
         // On each layer of the map => this means all markers, all polylines
         // and all polygons but not the map itself
         map.eachLayer((layer) => {
-            // On click on object call redraw function
-            layer.on("click", object.redraw);
+            // On click on add call addPipe function
+            layer.on("click", add.pipe);
         });
     });
 };
@@ -195,9 +203,9 @@ let addPipeOnClick = () => {
 let editpipesOnClick = () => {
     // Adds a click event listener on edit pipes button
     document.getElementById("timeline").addEventListener('click', (event) => {
-        object.clearMapsEvents();
-        object.activeCustomControl(event);
-        object.editPolylines();
+        edit.clearMapsEvents();
+        show.activeCustomControl(event);
+        edit.polylines();
     });
 };
 
@@ -228,24 +236,24 @@ let toggleMouseCoordOnClick = () => {
                 // Mark button as not active
                 child.active = false;
                 // Disable showMouseCoord function when user moves the mouse over the map
-                map.off('mousemove', object.showMouseCoord);
+                map.off('mousemove', show.mouseCoordOnMap);
                 // Hide toolbar
-                object.hideMouseCoord();
+                show.hideMouseCoord();
             } else {
                 // Mark button as active
                 child.active = true;
                 // Call showMouseCoord function everytime user moves the mouse over the map
-                map.on('mousemove', object.showMouseCoord);
+                map.on('mousemove', show.mouseCoordOnMap);
             }
             //else if the user clicks on the icon ('i') element
             // Then it is the same procedure as above
         } else if (target.active == true) {
             target.active = false;
-            map.off('mousemove', object.showMouseCoord);
-            object.hideMouseCoord();
+            map.off('mousemove', show.mouseCoordOnMap);
+            show.hideMouseCoord();
         } else {
             target.active = true;
-            map.on('mousemove', object.showMouseCoord);
+            map.on('mousemove', show.mouseCoordOnMap);
         }
     });
 };
@@ -259,15 +267,15 @@ let toggleMouseCoordOnClick = () => {
 let getDistanceOnClick = () => {
     // Adds a click event listener on delete button
     document.getElementById("bar_chart").addEventListener("click", (event) => {
-        object.clearMapsEvents();
-        object.activeCustomControl(event);
-        object.totalDistance();
+        edit.clearMapsEvents();
+        show.activeCustomControl(event);
+        show.polylineLengths();
     });
 };
 
 
 /**
- * deleteOnClick - Make it possible to delete object on tha map by clicking
+ * deleteOnClick - Make it possible to delete add on tha map by clicking
  * 				   (This is the fourth custom button on the left side of the map)
  *
  * @returns {void}
@@ -275,13 +283,13 @@ let getDistanceOnClick = () => {
 let deleteOnClick = () => {
     // Adds a click event listener on delete button
     document.getElementById("delete").addEventListener("click", (event) => {
-        object.clearMapsEvents();
-        object.activeCustomControl(event);
+        edit.clearMapsEvents();
+        show.activeCustomControl(event);
         // On each layer of the map => this means all markers, all polylines
         // and all polygons but not the map itself
         map.eachLayer((layer) => {
-            // On click on object call remove function
-            layer.on("click", object.remove);
+            // On click on add call remove function
+            layer.on("click", edit.remove);
         });
     });
 };
@@ -293,8 +301,8 @@ let deleteOnClick = () => {
 
 let saveload = () => {
     document.getElementById("save/load").addEventListener("click", () => {
-        object.save();
-        object.load();
+        add.save();
+        add.load();
     });
 };
 */
@@ -312,8 +320,8 @@ let onLoad = () => {
     customControl('control_camera');
     customControl('bar_chart');
     customControl('delete');
-    object.search();
-    object.activeObj();
+    add.search();
+    show.activeObj();
 
     addMarkerOnClick(document.getElementsByClassName('pumpstationer'),
         L.icon({
