@@ -275,14 +275,17 @@ export const object = {
         map.off("click", object.addMarker);
         map.off('click', object.addPolygone);
 
+        //If polylines has been edited
         if (isEdit == true) {
             var i = 0;
 
+            //for each element in polylines
             polylines.eachLayer((polyline) => {
+            //if amount of points has changed
             if (polyline._latlngs.length != tempPolylineArray[i]) {
+                //Calculates new length of pipe
                 object.calcLengthFromPipe(polyline);
                 polyline.bindPopup("Längd: " + Math.round(polyline.getLength * 100) / 100 + "m");
-                console.log(polyline.getLength);
             }
             i++;
             });
@@ -490,6 +493,12 @@ export const object = {
         });
     },
 
+    /**
+     * calcLengthFromPipe - Gets an individual polyline and calculates the length.
+     *
+     * @param {array} array
+     * @returns {void}
+     */
     calcLengthFromPipe: (polyline) => {
         var tempPolyline = polyline._latlngs;
         var thisPipeDistance = 0;
