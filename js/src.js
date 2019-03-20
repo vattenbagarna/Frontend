@@ -5,6 +5,8 @@ let polygon = null;
 let latLngs;
 let guideline = null;
 let mouseCoord = null;
+let isEdit = null;
+let tempPolylineArray = [];
 
 let polylines = L.layerGroup();
 let markers = L.layerGroup();
@@ -135,7 +137,6 @@ export const object = {
             startPolyline.latlng = event.latlng;
             startPolyline.id = event.sourceTarget._leaflet_id;
         }
-        object.totalDistance();
     },
 
     /**
@@ -177,9 +178,14 @@ export const object = {
      * @returns {void}
      */
     editPolylines: () => {
+        tempPolylineArray = [];
+
         polylines.eachLayer((polyline) => {
             polyline.editingDrag.addHooks();
+            tempPolylineArray.push(polyline._latlngs.length);
         });
+
+        isEdit = true;
     },
 
     /**
@@ -261,12 +267,31 @@ export const object = {
     clearMapsEvents: () => {
         //Gets each polylines and removes the "editing hooks".
         polylines.eachLayer((polyline) => {
+            polyline.closePopup();
             polyline.editingDrag.removeHooks();
         });
 
         //Turn off click events for markers and polylines.
         map.off("click", object.addMarker);
         map.off('click', object.addPolygone);
+
+        //If polylines has been edited
+        if (isEdit == true) {
+            var i = 0;
+
+            //for each element in polylines
+            polylines.eachLayer((polyline) => {
+            //if amount of points has changed
+            if (polyline._latlngs.length != tempPolylineArray[i]) {
+                //Calculates new length of pipe
+                object.calcLengthFromPipe(polyline);
+                polyline.bindPopup("Längd: " + Math.round(polyline.getLength * 100) / 100 + "m");
+            }
+            i++;
+            });
+
+            isEdit = null;
+        }
 
         //remove guideline from polygon.
         if (guideline != null) {
@@ -283,8 +308,6 @@ export const object = {
             layer.off("click", object.remove);
             layer.off("click", object.redraw);
         });
-
-        object.totalDistance();
     },
 
     /**
@@ -448,7 +471,6 @@ export const object = {
 
         //loop each polyline and adds a function to each.
         polylines.eachLayer((polyline) => {
-            polyline.getLength = function () {
                 var tempPolyline = polyline._latlngs;
 
                 //if polyline only has 2 points
@@ -457,7 +479,7 @@ export const object = {
                     thisPipeDistance = tempPolyline[0].distanceTo(tempPolyline[1]);
                     totalDistance += thisPipeDistance;
                     //bind a popup with length for current polyline
-                    polyline.bindPopup("Längd: " + Math.round(thisPipeDistance * 100) / 100 + "m");
+                    polyline.bindPopup("Längd: " + Math.round(thisPipeDistance * 100) / 100 + "m", {autoClose: false}).openPopup();
                 //if polylines have more than 2 points
                 } else if (tempPolyline.length > 2) {
                     for (var i = 0; i < tempPolyline.length - 1; i++) {
@@ -466,11 +488,31 @@ export const object = {
                         thisPipeDistance += L.latLng(firstPoint).distanceTo(secondPoint);
                     }
                     totalDistance += thisPipeDistance;
-                    polyline.bindPopup("Längd: " + Math.round(thisPipeDistance * 100) / 100 + "m");
+                    polyline.bindPopup("Längd: " + Math.round(thisPipeDistance * 100) / 100 + "m", {autoClose: false}).openPopup();
                 }
-            };
-            polyline.getLength();
-            console.log(totalDistance);
         });
+    },
+
+    /**
+     * calcLengthFromPipe - Gets an individual polyline and calculates the length.
+     *
+     * @param {array} array
+     * @returns {void}
+     */
+    calcLengthFromPipe: (polyline) => {
+        var tempPolyline = polyline._latlngs;
+        var thisPipeDistance = 0;
+
+        if (tempPolyline.length == 2) {
+            polyline.getLength = tempPolyline[0].distanceTo(tempPolyline[1]);
+        } else if (tempPolyline.length > 2) {
+            for (var i = 0; i < tempPolyline.length - 1; i++) {
+                var firstPoint = tempPolyline[i];
+                var secondPoint = tempPolyline[i + 1];
+                thisPipeDistance += L.latLng(firstPoint).distanceTo(secondPoint);
+            }
+            polyline.getLength = thisPipeDistance;
+        }
+        //console.log(polyline.getLength);
     }
 };
