@@ -12,7 +12,8 @@ export let polygons = L.layerGroup();
 
 //imports the map object
 import {
-    map
+    map,
+    pipeChoice
 } from "./loadLeafletMap.js";
 
 import {
@@ -97,6 +98,7 @@ export const add = {
      */
     pipe: (event) => {
         let target = event.target;
+        let temp;
 
         target.closePopup();
 
@@ -105,16 +107,32 @@ export const add = {
             if (target.getLength) {
                 let endPoint = addBranchConnection(startPolyline, event, target);
 
-                const temp = new L.polyline([startPolyline.latlng, endPoint.latlng], {
-                    edit_with_drag: true,
-                    vertices: {
-                        destroy: true,
-                        first: false,
-                        last: false,
-                        insert: true,
-                        middle: true,
-                    }
-                });
+                if (pipeChoice == "pipe") {
+                    temp = new L.polyline([startPolyline.latlng, endPoint.latlng], {
+                        edit_with_drag: true,
+                        vertices: {
+                            destroy: true,
+                            first: false,
+                            last: false,
+                            insert: true,
+                            middle: true,
+                        }
+                    });
+                } else if (pipeChoice == "stemPipe") {
+                    temp = new L.polyline([startPolyline.latlng, endPoint.latlng], {
+                        weight: 5,
+                        color: "red",
+                        edit_with_drag: true,
+                        vertices: {
+                            destroy: true,
+                            first: false,
+                            last: false,
+                            insert: true,
+                            middle: true,
+                        }
+                    });
+                }
+
 
                 temp.connected_with = {
                     first: startPolyline.id,
@@ -128,16 +146,32 @@ export const add = {
                 startPolyline = null;
                 calcLengthFromPipe(temp);
             } else {
-                const temp = new L.polyline([startPolyline.latlng, event.latlng], {
-                    edit_with_drag: true,
-                    vertices: {
-                        destroy: true,
-                        first: false,
-                        last: false,
-                        insert: true,
-                        middle: true,
-                    }
-                });
+                if (pipeChoice == "pipe") {
+                    temp = new L.polyline([startPolyline.latlng, event.latlng], {
+                        edit_with_drag: true,
+                        vertices: {
+                            destroy: true,
+                            first: false,
+                            last: false,
+                            insert: true,
+                            middle: true,
+                        }
+                    });
+                } else if (pipeChoice == "stemPipe") {
+                    temp = new L.polyline([startPolyline.latlng, event.latlng], {
+                        weight: 5,
+                        color: "red",
+                        edit_with_drag: true,
+                        vertices: {
+                            destroy: true,
+                            first: false,
+                            last: false,
+                            insert: true,
+                            middle: true,
+                        }
+                    });
+                }
+
 
                 temp.connected_with = {
                     first: startPolyline.id,

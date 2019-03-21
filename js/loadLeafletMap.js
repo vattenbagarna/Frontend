@@ -18,6 +18,8 @@ import {
     show
 } from "./show.js";
 
+export let pipeChoice = null;
+
 // Initialize the map with center coordinates on BAGA HQ and zoom 18.
 export const map = L.map("map", {
     "center": [56.208640, 15.632630],
@@ -187,9 +189,17 @@ let addPipeOnClick = () => {
     document.getElementById("pipe").addEventListener("click", () => {
         // On each layer of the map => this means all markers, all polylines
         // and all polygons but not the map itself
+        pipeChoice = "pipe";
         map.eachLayer((layer) => {
             // On click on add call addPipe function
             layer.on("click", add.pipe);
+        });
+    });
+
+    document.getElementById("stempipe").addEventListener("click", () => {
+        pipeChoice = "stemPipe";
+        map.eachLayer((layer) => {
+            layer.on("click", add.pipe)
         });
     });
 };
