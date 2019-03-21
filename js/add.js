@@ -120,6 +120,7 @@ export const add = {
                     });
                 } else if (pipeChoice == "stemPipe") {
                     temp = new L.polyline([startPolyline.latlng, endPoint.latlng], {
+                        id: "stemPipe",
                         weight: 5,
                         color: "red",
                         edit_with_drag: true,
@@ -159,6 +160,7 @@ export const add = {
                     });
                 } else if (pipeChoice == "stemPipe") {
                     temp = new L.polyline([startPolyline.latlng, event.latlng], {
+                        id: "stemPipe",
                         weight: 5,
                         color: "red",
                         edit_with_drag: true,
@@ -274,8 +276,9 @@ let addBranchConnection = (startPolyline, event, target) => {
     branchMarker.on('click', add.pipe);
 
     target.connected_with.last = branchMarker._leaflet_id;
-    if (target.options.color == "red") {
+    if (target.options.id == "stemPipe") {
         temp = new L.polyline([event.latlng, endPoint.latlng], {
+            id: "stempipe",
             weight: 5,
             color: "red",
             edit_with_drag: true,
