@@ -251,6 +251,7 @@ let addBranchConnection = (startPolyline, event, target) => {
         latlng: newLetlng.pop(),
         id: target.connected_with.last
     };
+    let temp;
 
     newLetlng.push(event.latlng);
     target.setLatLngs(newLetlng);
@@ -273,17 +274,31 @@ let addBranchConnection = (startPolyline, event, target) => {
     branchMarker.on('click', add.pipe);
 
     target.connected_with.last = branchMarker._leaflet_id;
-
-    const temp = new L.polyline([event.latlng, endPoint.latlng], {
-        edit_with_drag: true,
-        vertices: {
-            destroy: true,
-            first: false,
-            last: false,
-            insert: true,
-            middle: true,
-        }
-    });
+    if (target.options.color == "red") {
+        temp = new L.polyline([event.latlng, endPoint.latlng], {
+            weight: 5,
+            color: "red",
+            edit_with_drag: true,
+            vertices: {
+                destroy: true,
+                first: false,
+                last: false,
+                insert: true,
+                middle: true,
+            }
+        });
+    } else {
+        temp = new L.polyline([event.latlng, endPoint.latlng], {
+            edit_with_drag: true,
+            vertices: {
+                destroy: true,
+                first: false,
+                last: false,
+                insert: true,
+                middle: true,
+            }
+        });
+    }
 
     temp.connected_with = {
         first: target.connected_with.last,
