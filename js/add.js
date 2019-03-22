@@ -278,7 +278,7 @@ let addBranchConnection = (startPolyline, event, target) => {
     target.connected_with.last = branchMarker._leaflet_id;
     if (target.options.id == "stemPipe") {
         temp = new L.polyline([event.latlng, endPoint.latlng], {
-            id: "stempipe",
+            id: "stemPipe",
             weight: 5,
             color: "red",
             edit_with_drag: true,

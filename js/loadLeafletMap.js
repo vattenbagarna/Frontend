@@ -169,7 +169,7 @@ let addHouseOnClick = () => {
         document.getElementById("map").style.cursor = "pointer";
 
         // Call stopEdit function when user keydown on 'esc' key
-        document.addEventListener("keydown", (event) => {
+        document.addEventListener("keypress", (event) => {
             if (event.keyCode == 27) {
                 edit.stopDrawingHouse();
             }
