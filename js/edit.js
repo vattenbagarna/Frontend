@@ -106,7 +106,8 @@ export const edit = {
                 if (polyline._latlngs.length != tempPolylineArray[i]) {
                     //Calculates new length of pipe
                     calcLengthFromPipe(polyline);
-                    polyline.bindPopup("Längd: " + Math.round(polyline.getLength * 100) / 100 +
+                    polyline.bindTooltip("Längd: " + Math.round(polyline.getLength * 100) /
+                        100 +
                         "m");
                 }
                 i++;

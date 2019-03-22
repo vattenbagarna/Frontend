@@ -9,7 +9,8 @@ import {
 } from "./loadLeafletMap.js";
 
 import {
-    polylines
+    polylines,
+    clearStartPolyline
 } from "./add.js";
 
 import {
@@ -138,9 +139,10 @@ export const show = {
                 thisPipeDistance = tempPolyline[0].distanceTo(tempPolyline[1]);
                 //totalDistance += thisPipeDistance;
                 //bind a popup with length for current polyline
-                polyline.bindPopup("Längd: " + Math.round(thisPipeDistance * 100) / 100 + "m", {
-                    autoClose: false
-                }).openPopup();
+                polyline.bindTooltip("Längd: " + Math.round(thisPipeDistance * 100) / 100 +
+                    "m", {
+                        autoClose: false
+                    }).openTooltip();
                 //if polylines have more than 2 points
             } else if (tempPolyline.length > 2) {
                 for (var i = 0; i < tempPolyline.length - 1; i++) {
@@ -149,10 +151,33 @@ export const show = {
                     thisPipeDistance += L.latLng(firstPoint).distanceTo(secondPoint);
                 }
                 //totalDistance += thisPipeDistance;
-                polyline.bindPopup("Längd: " + Math.round(thisPipeDistance * 100) / 100 + "m", {
-                    autoClose: false
-                }).openPopup();
+                polyline.bindTooltip("Längd: " + Math.round(thisPipeDistance * 100) / 100 +
+                    "m", {
+                        autoClose: false
+                    }).openTooltip();
             }
         });
+    },
+
+    openModal: () => {
+        let modal = document.getElementById("myModal");
+        var span = document.getElementsByClassName("close")[0];
+
+        // Open the modal
+        modal.style.display = 'block';
+
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = () => {
+            modal.style.display = "none";
+            clearStartPolyline();
+        }
+
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = (event) => {
+            if (event.target == modal) {
+                modal.style.display = "none";
+                clearStartPolyline();
+            }
+        }
     },
 };
