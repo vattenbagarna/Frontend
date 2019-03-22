@@ -199,7 +199,7 @@ let addPipeOnClick = () => {
     document.getElementById("stempipe").addEventListener("click", () => {
         pipeChoice = "stemPipe";
         map.eachLayer((layer) => {
-            layer.on("click", add.pipe)
+            layer.on("click", add.pipe);
         });
     });
 };
