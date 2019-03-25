@@ -92,9 +92,11 @@ export const edit = {
                 .latlng(polygon._latlngs[0][0])
                 .run(function(error, result, response) {
                     map.off('mousemove', add.guideLine);
-                    polygon.bindPopup(response.address.Match_addr + housePopup);
-                    guideline.remove();
-                    clear();
+                    if (response != null) {
+                        polygon.bindPopup(response.address.Match_addr + housePopup);
+                        guideline.remove();
+                        clear();
+                    }
                 });
         }
     },
