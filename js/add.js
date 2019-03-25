@@ -37,10 +37,10 @@ export const add = {
     marker: (event) => {
         //Create marker object
         const temp = new L.Marker(event.latlng, {
-                "draggable": "true",
-                "icon": add.activeIcon
-            }).bindPopup(
-                `<b>${add.activeObjName}<br>`)
+            "draggable": "true",
+            "icon": add.activeIcon
+        }).bindPopup(
+            `<b>${add.activeObjName}<br>`)
             .on(
                 "drag", edit.moveMarker);
 
@@ -146,6 +146,14 @@ export const add = {
 
                 show.openModal();
 
+
+                document.getElementById("tilt").addEventListener("keyup", (event) => {
+                    if (event.keyCode === 13) {
+                        event.preventDefault();
+                        document.getElementById("pipeSpecifications").click();
+                    }
+                });
+
                 document.getElementById("pipeSpecifications").onclick = () => {
                     let modal = document.getElementById("myModal");
                     let dimension = document.getElementById("dimension");
@@ -158,19 +166,18 @@ export const add = {
                     temp.tilt = tilt.value;
                     temp.bindPopup(
                         `<b>Rör</b><br>
-						<label>Inner Dimension</label>
-						<input type="text" id="dimension" name="dimension" placeholder="${temp.dimension}">
-						<label>Lutning</label>
-						<input type="text" id="tilt" name="tilt" placeholder="${temp.tilt}">
-						<input type="button" value="Skicka">`
+			<label>Inner Dimension</label>
+			<input type="number" id="dimension" name="dimension" placeholder="${temp.dimension}">
+			<label>Lutning</label>
+			<input type="number" id="tilt" name="tilt" placeholder="${temp.tilt}">
+			<input type="button" value="Skicka">`
                     );
                     temp.editingDrag.removeHooks();
                     temp.on('click', add.pipe);
 
                     startPolyline = null;
                     calcLengthFromPipe(temp);
-                }
-
+                };
             } else {
                 if (pipeChoice == "pipe") {
                     temp = new L.polyline([startPolyline.latlng, event.latlng], {
@@ -206,6 +213,14 @@ export const add = {
                 };
 
                 show.openModal();
+
+                document.getElementById("tilt").addEventListener("keyup", (event) => {
+                    if (event.keyCode === 13) {
+                        event.preventDefault();
+                        document.getElementById("pipeSpecifications").click();
+                    }
+                });
+
                 document.getElementById("pipeSpecifications").onclick = () => {
                     let modal = document.getElementById("myModal");
                     let dimension = document.getElementById("dimension");
@@ -218,18 +233,18 @@ export const add = {
                     temp.tilt = tilt.value;
                     temp.bindPopup(
                         `<b>Rör</b><br>
-						<label>Inner Dimension</label>
-						<input type="text" id="dimension" name="dimension" placeholder="${temp.dimension}">
-						<label>Lutning</label>
-						<input type="text" id="tilt" name="tilt" placeholder="${temp.tilt}">
-						<input type="button" value="Skicka">`
+			<label>Inner Dimension</label>
+			<input type="number" id="dimension" name="dimension" placeholder="${temp.dimension}">
+			<label>Lutning</label>
+			<input type="number" id="tilt" name="tilt" placeholder="${temp.tilt}">
+			<input type="button" value="Skicka">`
                     );
                     temp.editingDrag.removeHooks();
                     temp.on('click', add.pipe);
 
                     startPolyline = null;
                     calcLengthFromPipe(temp);
-                }
+                };
             }
         } else if (target.getLength) {
             startPolyline = [];
@@ -305,15 +320,15 @@ let addBranchConnection = (startPolyline, event, target) => {
     let url = 'https://cdn4.iconfinder.com/data/icons/bathroom-accessory-outline/32/14-512.png';
 
     let branchMarker = new L.Marker(event.latlng, {
-            draggable: true,
-            icon: L.icon({
-                iconAnchor: [19.5, 19.5],
-                iconSize: [39, 39],
-                iconUrl: url,
-                popupAnchor: [0, -19.5]
-            })
-        }).bindPopup(
-            `<b>Förgrening<br>`)
+        draggable: true,
+        icon: L.icon({
+            iconAnchor: [19.5, 19.5],
+            iconSize: [39, 39],
+            iconUrl: url,
+            popupAnchor: [0, -19.5]
+        })
+    }).bindPopup(
+        `<b>Förgrening<br>`)
         .on("drag", edit.moveMarker);
 
     markers.addLayer(branchMarker).addTo(map);
@@ -357,9 +372,9 @@ let addBranchConnection = (startPolyline, event, target) => {
     temp.bindPopup(
         `<b>Rör</b><br>
 		<label>Inner Dimension</label>
-		<input type="text" id="dimension" name="dimension" placeholder="${temp.dimension}">
+		<input type="number" id="dimension" name="dimension" placeholder="${temp.dimension}">
 		<label>Lutning</label>
-		<input type="text" id="tilt" name="tilt" placeholder="${temp.tilt}">
+		<input type="number" id="tilt" name="tilt" placeholder="${temp.tilt}">
 		<input type="button" value="Skicka">`
     );
     polylines.addLayer(temp).addTo(map);
