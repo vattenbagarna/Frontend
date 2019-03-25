@@ -1,6 +1,21 @@
 /* global L, data */
 export let isEdit = null;
 let tempPolylineArray = [];
+let housePopup = `
+    <div class="housePopup">
+    <select>
+    <option value="Hus">Hus</option>
+    <option value="Garage">Garage</option>
+    <option value="Restaurang">Restaurang</option>
+    <option value="Sommarstuga">Sommarstuga</option>
+    </select>
+
+    <form action="">
+    Personer per hushåll: <input type="text" name="per" value="5"><br>
+    Vatten per person/dygn: <input type="text" name="cons" value="150L"><br>
+    <input type="submit" value="Ändra">
+    </form>
+    </div>`;
 
 //imports the map object
 import {
@@ -73,10 +88,16 @@ export const edit = {
     stopDrawingHouse: () => {
         //if user is still drawing a polygon, stop it.
         if (guideline != null && polygon != null) {
-            map.off('mousemove', add.guideLine);
-            guideline.remove();
-            polygon.bindPopup("<b> This is a House </b>");
-            clear();
+            L.esri.Geocoding.reverseGeocode()
+                .latlng(polygon._latlngs[0][0])
+                .run(function(error, result, response) {
+                    map.off('mousemove', add.guideLine);
+                    if (response != null) {
+                        polygon.bindPopup(response.address.Match_addr + housePopup);
+                        guideline.remove();
+                        clear();
+                    }
+                });
         }
     },
 
@@ -106,7 +127,8 @@ export const edit = {
                 if (polyline._latlngs.length != tempPolylineArray[i]) {
                     //Calculates new length of pipe
                     calcLengthFromPipe(polyline);
-                    polyline.bindPopup("Längd: " + Math.round(polyline.getLength * 100) / 100 +
+                    polyline.bindTooltip("Längd: " + Math.round(polyline.getLength * 100) /
+                        100 +
                         "m");
                 }
                 i++;
