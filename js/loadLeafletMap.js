@@ -373,6 +373,14 @@ let onLoad = () => {
             "popupAnchor": [0, -19.5]
         }));
 
+    addMarkerOnClick(document.getElementsByClassName("endpoint"),
+        L.icon({
+            "iconAnchor": [19.5, 19.5],
+            "iconSize": [39, 39],
+            "iconUrl": `img/endpoint.png`,
+            "popupAnchor": [0, -19.5]
+        }));
+
 
     addPipeOnClick();
     addHouseOnClick();
