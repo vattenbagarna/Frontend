@@ -2,59 +2,6 @@
 let startPolyline = null;
 
 let latLngs;
-let options = {
-    marker: (activeIcon) => {
-        return {
-            draggable: true,
-            icon: activeIcon
-        };
-    },
-
-    house: {
-        color: 'blue',
-        fillColor: '#3388ff',
-        fillOpacity: 0.5,
-        weight: 1.5
-    },
-
-    pipe: {
-        edit_with_drag: true,
-        vertices: {
-            destroy: true,
-            first: false,
-            last: false,
-            insert: true,
-            middle: true,
-        }
-    },
-
-    stemPipe: {
-        id: "stemPipe",
-        weight: 5,
-        color: "red",
-        edit_with_drag: true,
-        vertices: {
-            destroy: true,
-            first: false,
-            last: false,
-            insert: true,
-            middle: true,
-        }
-    },
-};
-
-let popup = {
-    pipe: (dimension, tilt) => {
-        return `<b>Rör</b><br>
-<label>Inner Dimension</label>
-<input type="number" id="dimension" name="dimension" placeholder="${dimension}">
-<label>Lutning</label>
-<input type="number" id="tilt" name="tilt" placeholder="${tilt}">
-<input type="button" value="Skicka">`;
-    },
-    branch: `<b>Förgrening<br>`,
-
-};
 
 export let polygon = null;
 export let guideline = null;
@@ -89,7 +36,10 @@ export const add = {
      */
     marker: (event) => {
         //Create marker object
-        const temp = new L.Marker(event.latlng, options.marker(add.activeIcon)).bindPopup(
+        const temp = new L.Marker(event.latlng, {
+            "draggable": "true",
+            "icon": add.activeIcon
+        }).bindPopup(
             `<b>${add.activeObjName}<br>`)
             .on(
                 "drag", edit.moveMarker);
@@ -115,7 +65,12 @@ export const add = {
             coord.unshift(event.latlng);
         } else {
             latLngs = [event.latlng];
-            polygon = L.polygon(latLngs, options.house);
+            polygon = L.polygon(latLngs, {
+                color: 'blue',
+                fillColor: '#3388ff',
+                fillOpacity: 0.5,
+                weight: 1.5
+            });
 
             guideline = L.polyline([event.latlng, event.latlng], {
                 dashArray: '5, 10'
@@ -154,23 +109,101 @@ export const add = {
         //If startPolyline is null create the first point
         if (startPolyline != null) {
             if (target.getLength) {
-                let newLine = addBranchConnection(startPolyline, event, target);
+                let endPoint = addBranchConnection(startPolyline, event, target);
 
                 if (pipeChoice == "pipe") {
-                    temp = new L.polyline([startPolyline.latlng, newLine.latlng], options.pipe);
+                    temp = new L.polyline([startPolyline.latlng, endPoint.latlng], {
+                        edit_with_drag: true,
+                        vertices: {
+                            destroy: true,
+                            first: false,
+                            last: false,
+                            insert: true,
+                            middle: true,
+                        }
+                    });
                 } else if (pipeChoice == "stemPipe") {
-                    temp = new L.polyline([startPolyline.latlng, newLine.latlng], options.stemPipe);
+                    temp = new L.polyline([startPolyline.latlng, endPoint.latlng], {
+                        id: "stemPipe",
+                        weight: 5,
+                        color: "red",
+                        edit_with_drag: true,
+                        vertices: {
+                            destroy: true,
+                            first: false,
+                            last: false,
+                            insert: true,
+                            middle: true,
+                        }
+                    });
                 }
+
 
                 temp.connected_with = {
                     first: startPolyline.id,
-                    last: newLine.id
+                    last: endPoint.id
+                };
+
+                show.openModal();
+
+
+                document.getElementById("tilt").addEventListener("keyup", (event) => {
+                    if (event.keyCode === 13) {
+                        event.preventDefault();
+                        document.getElementById("pipeSpecifications").click();
+                    }
+                });
+
+                document.getElementById("pipeSpecifications").onclick = () => {
+                    let modal = document.getElementById("myModal");
+                    let dimension = document.getElementById("dimension");
+                    let tilt = document.getElementById("tilt");
+
+                    modal.style.display = "none";
+                    polylines.addLayer(temp).addTo(map);
+
+                    temp.dimension = dimension.value;
+                    temp.tilt = tilt.value;
+                    temp.bindPopup(
+                        `<b>Rör</b><br>
+			<label>Inner Dimension</label>
+			<input type="number" id="dimension" name="dimension" placeholder="${temp.dimension}">
+			<label>Lutning</label>
+			<input type="number" id="tilt" name="tilt" placeholder="${temp.tilt}">
+			<input type="button" value="Skicka">`
+                    );
+                    temp.editingDrag.removeHooks();
+                    temp.on('click', add.pipe);
+
+                    startPolyline = null;
+                    calcLengthFromPipe(temp);
                 };
             } else {
                 if (pipeChoice == "pipe") {
-                    temp = new L.polyline([startPolyline.latlng, event.latlng], options.pipe);
+                    temp = new L.polyline([startPolyline.latlng, event.latlng], {
+                        edit_with_drag: true,
+                        vertices: {
+                            destroy: true,
+                            first: false,
+                            last: false,
+                            insert: true,
+                            middle: true,
+                        }
+                    });
                 } else if (pipeChoice == "stemPipe") {
-                    temp = new L.polyline([startPolyline.latlng, event.latlng], options.stemPipe);
+                    temp = new L.polyline([startPolyline.latlng, event.latlng], {
+                        id: "stemPipe",
+                        weight: 5,
+                        color: "red",
+                        edit_with_drag: true,
+                        vertices: {
+                            destroy: true,
+                            first: false,
+                            last: false,
+                            insert: true,
+                            middle: true,
+                        }
+                    });
                 }
 
 
@@ -178,35 +211,41 @@ export const add = {
                     first: startPolyline.id,
                     last: event.sourceTarget._leaflet_id
                 };
+
+                show.openModal();
+
+                document.getElementById("tilt").addEventListener("keyup", (event) => {
+                    if (event.keyCode === 13) {
+                        event.preventDefault();
+                        document.getElementById("pipeSpecifications").click();
+                    }
+                });
+
+                document.getElementById("pipeSpecifications").onclick = () => {
+                    let modal = document.getElementById("myModal");
+                    let dimension = document.getElementById("dimension");
+                    let tilt = document.getElementById("tilt");
+
+                    modal.style.display = "none";
+                    polylines.addLayer(temp).addTo(map);
+
+                    temp.dimension = dimension.value;
+                    temp.tilt = tilt.value;
+                    temp.bindPopup(
+                        `<b>Rör</b><br>
+			<label>Inner Dimension</label>
+			<input type="number" id="dimension" name="dimension" placeholder="${temp.dimension}">
+			<label>Lutning</label>
+			<input type="number" id="tilt" name="tilt" placeholder="${temp.tilt}">
+			<input type="button" value="Skicka">`
+                    );
+                    temp.editingDrag.removeHooks();
+                    temp.on('click', add.pipe);
+
+                    startPolyline = null;
+                    calcLengthFromPipe(temp);
+                };
             }
-
-            show.openModal();
-
-            // borde vara i edit.js och bör fungera hela tiden samt lägg till esq
-            document.getElementById("tilt").addEventListener("keyup", (event) => {
-                if (event.keyCode === 13) {
-                    event.preventDefault();
-                    document.getElementById("pipeSpecifications").click();
-                }
-            });
-
-            document.getElementById("pipeSpecifications").onclick = () => {
-                let modal = document.getElementById("myModal");
-                let dimension = document.getElementById("dimension");
-                let tilt = document.getElementById("tilt");
-
-                modal.style.display = "none";
-                polylines.addLayer(temp).addTo(map);
-
-                temp.dimension = dimension.value;
-                temp.tilt = tilt.value;
-                temp.bindPopup(popup.pipe(temp.dimension, temp.tilt));
-                temp.editingDrag.removeHooks();
-                temp.on('click', add.pipe);
-
-                startPolyline = null;
-                calcLengthFromPipe(temp);
-            };
         } else if (target.getLength) {
             startPolyline = [];
             startPolyline.latlng = event.latlng;
@@ -268,30 +307,15 @@ export let calcLengthFromPipe = (polyline) => {
  * @returns {type} Description
  */
 let addBranchConnection = (startPolyline, event, target) => {
-    let targetLatlngs = target.getLatLngs();
-    let firstLatlngs;
-    let secondLatlngs;
-    let newLine;
-    let distanceMin = Infinity;
-    let segmentMin = null;
+    let newLetlng = target.getLatLngs();
+    let endPoint = {
+        latlng: newLetlng.pop(),
+        id: target.connected_with.last
+    };
+    let temp;
 
-    for (let i = 0; i < targetLatlngs.length - 1; i++) {
-        let segment = [targetLatlngs[i], targetLatlngs[i + 1]];
-        let distance = L.GeometryUtil.distanceSegment(map, event.latlng, segment[0], segment[1]);
-
-        if (distance < distanceMin) {
-            distanceMin = distance;
-            segmentMin = segment;
-        }
-    }
-
-    firstLatlngs = targetLatlngs.splice(0, targetLatlngs.indexOf(segmentMin[0]) + 1);
-    secondLatlngs = targetLatlngs.slice(targetLatlngs.indexOf(segmentMin[1]), targetLatlngs.length);
-
-    firstLatlngs.push(event.latlng);
-    target.setLatLngs(firstLatlngs);
-
-    secondLatlngs.unshift(event.latlng);
+    newLetlng.push(event.latlng);
+    target.setLatLngs(newLetlng);
 
     let url = 'https://cdn4.iconfinder.com/data/icons/bathroom-accessory-outline/32/14-512.png';
 
@@ -303,24 +327,30 @@ let addBranchConnection = (startPolyline, event, target) => {
             iconUrl: url,
             popupAnchor: [0, -19.5]
         })
-    }).bindPopup(popup.branch).on("drag", edit.moveMarker);
+    }).bindPopup(
+        `<b>Förgrening<br>`)
+        .on("drag", edit.moveMarker);
 
     markers.addLayer(branchMarker).addTo(map);
     branchMarker.on('click', add.pipe);
 
-    newLine = {
-        latlngs: secondLatlngs,
-        first: branchMarker._leaflet_id,
-        last: target.connected_with.last
-    };
     target.connected_with.last = branchMarker._leaflet_id;
-
-    let temp;
-
     if (target.options.id == "stemPipe") {
-        temp = new L.polyline(newLine.latlngs, options.stemPipe);
+        temp = new L.polyline([event.latlng, endPoint.latlng], {
+            id: "stemPipe",
+            weight: 5,
+            color: "red",
+            edit_with_drag: true,
+            vertices: {
+                destroy: true,
+                first: false,
+                last: false,
+                insert: true,
+                middle: true,
+            }
+        });
     } else {
-        temp = new L.polyline(newLine.latlngs, {
+        temp = new L.polyline([event.latlng, endPoint.latlng], {
             edit_with_drag: true,
             vertices: {
                 destroy: true,
@@ -333,8 +363,8 @@ let addBranchConnection = (startPolyline, event, target) => {
     }
 
     temp.connected_with = {
-        first: newLine.first,
-        last: newLine.last
+        first: target.connected_with.last,
+        last: endPoint.id
     };
 
     temp.dimension = target.dimension;
