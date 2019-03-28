@@ -205,8 +205,22 @@ let addPipeOnClick = () => {
 };
 
 /**
- * editpipesOnClick - Make it possible to bend pipes (polylines) by dragging
+ * doNothingonClick - Make it possible to drag and click on map with noting happening
  * 					  (This is the first custom button on the left side of the map)
+ *
+ * @returns {void}
+ */
+let doNothingonClick = () => {
+    // Adds a click event listener on mouse icon button
+    document.getElementById("mouse").addEventListener('click', (event) => {
+        edit.clearMapsEvents();
+        show.activeCustomControl(event);
+    });
+};
+
+/**
+ * editpipesOnClick - Make it possible to bend pipes (polylines) by dragging
+ * 					  (This is the second custom button on the left side of the map)
  *
  * @returns {void}
  */
@@ -222,7 +236,7 @@ let editpipesOnClick = () => {
 /**
  * toggleMouseCoordOnClick - On click show or hide (toggle) toolbar next to the
  * 							 mouse with the coordinates of current pos of mouse
- * 					  		 (This is the second custom button on the left side of the map)
+ * 					  		 (This is the third custom button on the left side of the map)
  *
  * @returns {void}
  */
@@ -270,7 +284,7 @@ let toggleMouseCoordOnClick = () => {
 
 /**
  * getDistanceOnClick - Displays distance of each pipe (polyline) on the map
- * 						(This is the third custom button on the left side of the map)
+ * 						(This is the fourth custom button on the left side of the map)
  *
  * @returns {void}
  */
@@ -286,7 +300,7 @@ let getDistanceOnClick = () => {
 
 /**
  * deleteOnClick - Make it possible to delete add on tha map by clicking
- * 				   (This is the fourth custom button on the left side of the map)
+ * 				   (This is the fifth custom button on the left side of the map)
  *
  * @returns {void}
  */
@@ -326,6 +340,7 @@ let saveload = () => {
 let onLoad = () => {
     gridlayers();
     accordions();
+    customControl('mouse');
     customControl('timeline');
     customControl('control_camera');
     customControl('bar_chart');
@@ -385,10 +400,15 @@ let onLoad = () => {
     addPipeOnClick();
     addHouseOnClick();
 
+    doNothingonClick();
     editpipesOnClick();
     toggleMouseCoordOnClick();
     getDistanceOnClick();
     deleteOnClick();
+    edit.warning.unsavedChanges();
+
+    //make the blue border appear on mouse icon button on load
+    document.getElementById('mouse').click();
 };
 
 onLoad();

@@ -1,7 +1,8 @@
 /* global L, data */
 export let isEdit = null;
 let tempPolylineArray = [];
-let housePopup = `
+let housePopup =
+    `
     <div class="housePopup">
     <select>
     <option value="Hus">Hus</option>
@@ -244,6 +245,26 @@ export const edit = {
                     break;
             }
         }
+    },
+
+    /**
+     * warning - Description
+     *
+     * @returns {type} Description
+     */
+    warning: {
+
+        /**
+         * unsavedChanges - Description
+         *
+         * @returns {type} Description
+         */
+        unsavedChanges: () => {
+            //borde bara köras om nya ändringar har gjorts
+            window.onbeforeunload = () => {
+                return "Are you sure you want to navigate away?";
+            }
+        },
     },
 
 };
