@@ -390,11 +390,25 @@ let addBranchConnection = (startPolyline, event, target) => {
     };
 };
 
+/**
+ * clear - Set varible polygon and guideLine equals null. This is called from clearMapsEvents()
+ * 		 - This function is used because export varibles is read-only
+ *
+ * @returns {void}
+ */
 export let clear = () => {
     polygon = null;
     guideline = null;
 };
 
+
+/**
+ * clearStartPolyline - Set varible startPolyline equals to null.
+ * 					  - This is called from clearMapsEvents()
+ * 		 			  - This function is used because export varibles is read-only
+ *
+ * @returns {void}
+ */
 export let clearStartPolyline = () => {
     startPolyline = null;
 };
