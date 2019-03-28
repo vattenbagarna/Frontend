@@ -1,4 +1,4 @@
-/* global L, data */
+/* global L, */
 export let isEdit = null;
 let tempPolylineArray = [];
 let housePopup = `
@@ -32,6 +32,10 @@ import {
     clear,
     calcLengthFromPipe
 } from "./add.js";
+
+import {
+    jsonData
+} from "../json/jsonSave.js";
 
 export const edit = {
     /**
@@ -181,6 +185,7 @@ export const edit = {
                 "type": "polyline",
                 "connected_with": polyline.connected_with,
                 "options": polyline.options,
+                "popup": polyline.getPopup().getContent(),
             };
 
             jsonArray.push(temp);
@@ -192,7 +197,20 @@ export const edit = {
                 "coordinates": marker._latlng,
                 "type": "marker",
                 "options": marker.options,
-                "id": marker._leaflet_id
+                "id": marker._leaflet_id,
+                "popup": marker.getPopup().getContent()
+            };
+
+            jsonArray.push(temp);
+        });
+
+        polygons.eachLayer((polygon) => {
+            let temp = {
+                "coordinates": polygon._latlngs,
+                "type": "polygon",
+                "options": polygon.options,
+                "id": polygon.id,
+                "popup": polygon.getPopup().getContent()
             };
 
             jsonArray.push(temp);
@@ -210,7 +228,8 @@ export const edit = {
      * @returns {void}
      */
     load: () => {
-        const savedData = JSON.parse(data);
+        const savedData = jsonData;
+        //const jsonLoad = JSON.parse(jsonData)
         let icon;
         let newObj;
 
@@ -223,12 +242,12 @@ export const edit = {
                         .options);
 
                     savedData[i].options.icon = icon;
-                    newObj = L.Marker(savedData[i].coordinates,
+                    newObj = new L.Marker(savedData[i].coordinates,
                         savedData[i].options).addTo(map).on("drag",
                         edit.moveMarker);
 
                     newObj._leaflet_id = savedData[i].id;
-                    //newObj.bindPopup(popupPump).openPopup();
+                    newObj.bindPopup(savedData[i].popup);
 
                     markers.addLayer(newObj);
                     break;
@@ -238,9 +257,16 @@ export const edit = {
                     newObj = L.polyline(savedData[i]
                         .coordinates, savedData[i].options);
                     newObj.connected_with = savedData[i].connected_with;
+                    newObj.bindPopup(savedData[i].popup);
 
                     //add to map
                     polylines.addLayer(newObj).addTo(map);
+                    break;
+                case "polygon":
+                    newObj = L.polygon(savedData[i].coordinates, savedData[i].options);
+                    newObj.bindPopup(savedData[i].popup);
+
+                    polygons.addLayer(newObj).addTo(map);
                     break;
             }
         }

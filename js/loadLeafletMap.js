@@ -304,6 +304,13 @@ let deleteOnClick = () => {
     });
 };
 
+let save = () => {
+    document.getElementById("save").addEventListener("click", () => {
+        edit.save();
+        edit.load();
+    });
+};
+
 /**
  * saveload - not completed yet...
  *
@@ -367,20 +374,19 @@ let onLoad = () => {
 
     addMarkerOnClick(document.getElementsByClassName("oljeavskiljare"),
         L.icon({
-            "iconAnchor": [19.5, 19.5],
-            "iconSize": [39, 39],
-            "iconUrl": `img/symbol_oljeavskiljare.png`,
-            "popupAnchor": [0, -19.5]
+            iconAnchor: [19.5, 19.5],
+            iconSize: [39, 39],
+            iconUrl: `img/symbol_oljeavskiljare.png`,
+            popupAnchor: [0, -19.5]
         }));
 
     addMarkerOnClick(document.getElementsByClassName("endpoint"),
         L.icon({
-            "iconAnchor": [19.5, 19.5],
-            "iconSize": [39, 39],
-            "iconUrl": `img/endpoint.png`,
-            "popupAnchor": [0, -19.5]
+            iconAnchor: [19.5, 19.5],
+            iconSize: [39, 39],
+            iconUrl: `img/endpointmarker.png`,
+            popupAnchor: [0, -19.5]
         }));
-
 
     addPipeOnClick();
     addHouseOnClick();
@@ -389,6 +395,7 @@ let onLoad = () => {
     toggleMouseCoordOnClick();
     getDistanceOnClick();
     deleteOnClick();
+    save();
 };
 
 onLoad();
