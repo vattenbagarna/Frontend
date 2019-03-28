@@ -21,7 +21,7 @@ import {
 export let pipeChoice = null;
 
 // Initialize the map with center coordinates on BAGA HQ and zoom 18.
-export const map = L.map("map", {
+export const map = L.map("myMap", {
     "center": [56.208640, 15.632630],
     "editable": true,
     "zoom": 18
@@ -166,7 +166,7 @@ let addHouseOnClick = () => {
     document.getElementById("house").addEventListener('click', () => {
         // Call addHouse function everytime user clicks on map
         map.on('click', add.house);
-        document.getElementById("map").style.cursor = "pointer";
+        document.getElementById("myMap").style.cursor = "pointer";
 
         // Call stopEdit function when user keydown on 'esc' key
         document.addEventListener("keypress", (event) => {
@@ -212,7 +212,7 @@ let addPipeOnClick = () => {
  */
 let doNothingonClick = () => {
     // Adds a click event listener on mouse icon button
-    document.getElementById("mouse").addEventListener('click', (event) => {
+    document.getElementById("map").addEventListener('click', (event) => {
         edit.clearMapsEvents();
         show.activeCustomControl(event);
     });
@@ -340,7 +340,7 @@ let saveload = () => {
 let onLoad = () => {
     gridlayers();
     accordions();
-    customControl('mouse');
+    customControl('map');
     customControl('timeline');
     customControl('control_camera');
     customControl('bar_chart');
@@ -408,7 +408,7 @@ let onLoad = () => {
     edit.warning.unsavedChanges();
 
     //make the blue border appear on mouse icon button on load
-    document.getElementById('mouse').click();
+    document.getElementById('map').click();
 };
 
 onLoad();
