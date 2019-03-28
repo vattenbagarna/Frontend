@@ -61,7 +61,7 @@ let popup = {
 					<tr><td>utlopp: 32, typ: inv. gänga</td></tr>
 			</table>
 		</div>
-    </li>`
+    </li>`;
     },
 
     pipe: (dimension, tilt) => {
@@ -88,8 +88,7 @@ let popup = {
         	<input type="button" class="sendCoords" value="Skicka" >
 		</div>
     </li>
-</ul>`
-
+</ul>`;
     }
 
 };

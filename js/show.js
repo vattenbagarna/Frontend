@@ -141,8 +141,8 @@ export const show = {
                 //bind a popup with length for current polyline
                 polyline.bindTooltip("Längd: " + Math.round(thisPipeDistance * 100) / 100 +
                     "m", {
-                        autoClose: false
-                    }).openTooltip();
+                    autoClose: false
+                }).openTooltip();
                 //if polylines have more than 2 points
             } else if (tempPolyline.length > 2) {
                 for (var i = 0; i < tempPolyline.length - 1; i++) {
@@ -153,8 +153,8 @@ export const show = {
                 //totalDistance += thisPipeDistance;
                 polyline.bindTooltip("Längd: " + Math.round(thisPipeDistance * 100) / 100 +
                     "m", {
-                        autoClose: false
-                    }).openTooltip();
+                    autoClose: false
+                }).openTooltip();
             }
         });
     },
