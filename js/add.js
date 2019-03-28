@@ -44,6 +44,26 @@ let options = {
 };
 
 let popup = {
+    marker: (objName) => {
+        return `<ul class='accordion2'>
+    <li>
+        <label for='cp-1'>Info</label>
+        <input type='radio' name='a' id='cp-1' checked='checked'>
+        <div class='content'>
+			<table>
+		        	<tr><td>${objName}</td></tr>
+					<tr><td>antalpumpar: 1</td></tr>
+					<tr><td>diameter: 600</td></tr>
+					<tr><td>inlopp: 110, typ: gummitätning</td></tr>
+					<tr><td>höjd: 700</td></tr>
+					<tr><td>Kabelgenomförning: 50, typ: gummitätning</td> </tr>
+					<tr><td>RSK: 5886909</td></tr>
+					<tr><td>utlopp: 32, typ: inv. gänga</td></tr>
+			</table>
+		</div>
+    </li>`
+    },
+
     pipe: (dimension, tilt) => {
         return `<b>Rör</b><br>
 <label>Inner Dimension</label>
@@ -52,7 +72,25 @@ let popup = {
 <input type="number" id="tilt" name="tilt" placeholder="${tilt}">
 <input type="button" value="Skicka">`;
     },
+
     branch: `<b>Förgrening<br>`,
+
+    changeCoord: (latlng) => {
+        return `
+    <li>
+        <label for='cp-2'>Ändra coordinater</label>
+        <input type='radio' name='a' id='cp-2'>
+        <div class='content'>
+			<b> Latitud </b>
+			<input type="text" placeholder="${latlng.lat}" >
+        	<b> Longitud </b>
+			<input type="text" placeholder="${latlng.lng}" >
+        	<input type="button" class="sendCoords" value="Skicka" >
+		</div>
+    </li>
+</ul>`
+
+    }
 
 };
 
@@ -89,10 +127,9 @@ export const add = {
      */
     marker: (event) => {
         //Create marker object
-        const temp = new L.Marker(event.latlng, options.marker(add.activeIcon)).bindPopup(
-            `<b>${add.activeObjName}<br>`)
-            .on(
-                "drag", edit.moveMarker);
+        const temp = new L.Marker(event.latlng, options.marker(add.activeIcon))
+            .bindPopup(popup.marker(add.activeObjName) + popup.changeCoord(event.latlng))
+            .on("drag", edit.moveMarker);
 
         //Adds marker to map
         markers.addLayer(temp).addTo(map);
@@ -339,14 +376,7 @@ let addBranchConnection = (startPolyline, event, target) => {
 
     temp.dimension = target.dimension;
     temp.tilt = target.tilt;
-    temp.bindPopup(
-        `<b>Rör</b><br>
-		<label>Inner Dimension</label>
-		<input type="number" id="dimension" name="dimension" placeholder="${temp.dimension}">
-		<label>Lutning</label>
-		<input type="number" id="tilt" name="tilt" placeholder="${temp.tilt}">
-		<input type="button" value="Skicka">`
-    );
+    temp.bindPopup(popup.pipe(temp.dimension, temp.tilt));
     polylines.addLayer(temp).addTo(map);
     temp.editingDrag.removeHooks();
     temp.on('click', add.pipe);
