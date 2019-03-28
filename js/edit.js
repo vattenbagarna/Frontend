@@ -263,7 +263,7 @@ export const edit = {
             //borde bara köras om nya ändringar har gjorts
             window.onbeforeunload = () => {
                 return "Are you sure you want to navigate away?";
-            }
+            };
         },
     },
 
