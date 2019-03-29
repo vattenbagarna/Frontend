@@ -82,9 +82,9 @@ let popup = {
         <input type='radio' name='a' id='cp-2'>
         <div class='content'>
 			<b> Latitud </b>
-			<input type="text" placeholder="${latlng.lat}" >
+			<input type="text" id='latitud' value=${latlng.lat}>
         	<b> Longitud </b>
-			<input type="text" placeholder="${latlng.lng}" >
+			<input type="text" id='longitud' value=${latlng.lng}>
         	<input type="button" class="sendCoords" value="Skicka" >
 		</div>
     </li>
@@ -128,7 +128,19 @@ export const add = {
         //Create marker object
         const temp = new L.Marker(event.latlng, options.marker(add.activeIcon))
             .bindPopup(popup.marker(add.activeObjName) + popup.changeCoord(event.latlng))
-            .on("drag", edit.moveMarker);
+            .on("drag", edit.moveMarker)
+            .on('click', (event) => {
+                let button = document.getElementsByClassName('sendCoords')[0];
+
+                button.addEventListener('click', () => {
+                    let lat = document.getElementById('latitud').value;
+                    let lng = document.getElementById('longitud').value;
+
+                    console.log(event.target);
+                    console.log(lat, lng);
+                    event.target.setLatLng([lat, lng]);
+                });
+            });
 
         //Adds marker to map
         markers.addLayer(temp).addTo(map);
