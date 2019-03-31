@@ -90,7 +90,7 @@ export const add = {
     marker: (event) => {
         //Create marker object
         const temp = new L.Marker(event.latlng, options.marker(add.activeIcon)).bindPopup(
-                `<b>${add.activeObjName}<br>`)
+            `<b>${add.activeObjName}<br>`)
             .on(
                 "drag", edit.moveMarker);
 

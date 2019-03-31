@@ -304,6 +304,12 @@ let deleteOnClick = () => {
     });
 };
 
+
+/**
+ * save - Description
+ *
+ * @returns {type} Description
+ */
 let save = () => {
     document.getElementById("save").addEventListener("click", () => {
         let modal = document.getElementById('saveModal');
