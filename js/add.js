@@ -129,16 +129,21 @@ export const add = {
         const temp = new L.Marker(event.latlng, options.marker(add.activeIcon))
             .bindPopup(popup.marker(add.activeObjName) + popup.changeCoord(event.latlng))
             .on("drag", edit.moveMarker)
-            .on('click', (event) => {
-                let button = document.getElementsByClassName('sendCoords')[0];
+            .on('popupopen', (event) => {
+                let button = document.getElementsByClassName('sendCoords');
 
-                button.addEventListener('click', () => {
+                button[button.length - 1].addEventListener('click', () => {
                     let lat = document.getElementById('latitud').value;
                     let lng = document.getElementById('longitud').value;
 
-                    console.log(event.target);
-                    console.log(lat, lng);
+                    event.target.closePopup();
                     event.target.setLatLng([lat, lng]);
+                    map.panTo([lat, lng]);
+                    event.target.setPopupContent(popup.marker(add.activeObjName) +
+                        popup.changeCoord({
+                            lat: lat,
+                            lng: lng
+                        }));
                 });
             });
 
