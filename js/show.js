@@ -159,9 +159,8 @@ export const show = {
         });
     },
 
-    openModal: () => {
-        let modal = document.getElementById("myModal");
-        var span = document.getElementsByClassName("close")[0];
+    openModal: (modal) => {
+        var span = modal.children[0].children[0];
 
         // Open the modal
         modal.style.display = 'block';

@@ -146,8 +146,7 @@
 			</div>
 			<div class="map" id="map"></div>
 		</div>
-		<div id="myModal" class="modal">
-			<!-- Modal content -->
+		<div id="pipeModal" class="modal">
 			<div class="modal-content">
 				<span class="close">&times;</span>
 				<b>Rör</b>
@@ -157,6 +156,20 @@
 				<label>Lutning</label>
 				<input type="number" id="tilt" name="tilt" placeholder="Luting på röret..">
 				<input type="button" id="pipeSpecifications" value="Skicka">
+			</div>
+		</div>
+		<div id="saveModal" class="modal">
+			<div class="modal-content">
+				<span class="close">&times;</span>
+				<b>Spara Projekt 1</b>
+				<br></br>
+				<label>Lägg till ny version</label>
+				<input autocomplete="off" type="text" id="newVersion" placeholder="tex 2.0"/>
+				<label>Välj version</label>
+				<select id="versions">
+					<option value="1.0">1.0</option>
+				</select>
+				<input type="button" id="saveButton" value="Spara">
 			</div>
 		</div>
 	</body>

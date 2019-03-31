@@ -221,6 +221,10 @@ body {
     color: #fff;
 }
 
+.fancy-button:hover {
+    cursor: pointer;
+}
+
 .modal {
     display: none;
     position: fixed;
@@ -235,7 +239,6 @@ body {
     background-color: rgba(0, 0, 0, 0.4);
 }
 
-/* Modal Content */
 .modal-content {
     background-color: #fefefe;
     margin: auto;
@@ -244,7 +247,6 @@ body {
     width: 20%;
 }
 
-/* The Close Button */
 .close {
     color: #aaaaaa;
     float: right;

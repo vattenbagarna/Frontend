@@ -306,8 +306,34 @@ let deleteOnClick = () => {
 
 let save = () => {
     document.getElementById("save").addEventListener("click", () => {
-        edit.save();
-        edit.load();
+        let modal = document.getElementById('saveModal');
+        let select = document.getElementById("versions");
+        let newVersion = document.getElementById('newVersion');
+
+        show.openModal(modal);
+
+        newVersion.addEventListener('input', () => {
+            let newOption = document.getElementById('newOption');
+
+            if (newOption == null) {
+                let option = document.createElement("option");
+
+                option.text = newVersion.value;
+                option.id = 'newOption';
+
+                select.add(option, select[0]);
+                select.value = option.text;
+            } else {
+                newOption.text = newVersion.value;
+            }
+        });
+
+        document.getElementById('saveButton').addEventListener('click', () => {
+            console.log(select.value);
+            edit.save();
+
+            modal.style.display = 'none';
+        });
     });
 };
 
@@ -396,6 +422,8 @@ let onLoad = () => {
     getDistanceOnClick();
     deleteOnClick();
     save();
+
+    edit.load();
 };
 
 onLoad();

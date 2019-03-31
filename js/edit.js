@@ -1,8 +1,8 @@
 /* global L, */
 export let isEdit = null;
 let tempPolylineArray = [];
-let housePopup = `
-    <div class="housePopup">
+let housePopup =
+    `<div class="housePopup">
     <select>
     <option value="Hus">Hus</option>
     <option value="Garage">Garage</option>
@@ -13,7 +13,7 @@ let housePopup = `
     <form action="">
     Personer per hushåll: <input type="text" name="per" value="5"><br>
     Vatten per person/dygn: <input type="text" name="cons" value="150L"><br>
-    <input type="submit" value="Ändra">
+    <input type="button" value="Ändra">
     </form>
     </div>`;
 
@@ -92,15 +92,17 @@ export const edit = {
     stopDrawingHouse: () => {
         //if user is still drawing a polygon, stop it.
         if (guideline != null && polygon != null) {
+            let addr;
+
             L.esri.Geocoding.reverseGeocode()
                 .latlng(polygon._latlngs[0][0])
-                .run(function(error, result, response) {
+                .run((error, result) => {
+                    addr = result.address.Match_addr;
+
+                    polygon.bindPopup(`<b>${addr}</b>` + housePopup);
                     map.off('mousemove', add.guideLine);
-                    if (response != null) {
-                        polygon.bindPopup(response.address.Match_addr + housePopup);
-                        guideline.remove();
-                        clear();
-                    }
+                    guideline.remove();
+                    clear();
                 });
         }
     },
@@ -120,7 +122,6 @@ export const edit = {
         //Turn off click events for markers and polylines.
         map.off("click", add.marker);
         map.off('click', add.polygone);
-
         //If polylines has been edited
         if (isEdit == true) {
             var i = 0;
@@ -131,7 +132,8 @@ export const edit = {
                 if (polyline._latlngs.length != tempPolylineArray[i]) {
                     //Calculates new length of pipe
                     calcLengthFromPipe(polyline);
-                    polyline.bindTooltip("Längd: " + Math.round(polyline.getLength * 100) /
+                    polyline.bindTooltip("Längd: " + Math.round(polyline.getLength *
+                            100) /
                         100 +
                         "m");
                 }
@@ -143,9 +145,7 @@ export const edit = {
 
         //remove guideline from polygon.
         if (guideline != null) {
-            map.off('mousemove', add.showGuideLine);
-            guideline.remove();
-            clear();
+            edit.stopDrawingHouse();
         }
         document.getElementById("map").style.cursor = "grab";
 

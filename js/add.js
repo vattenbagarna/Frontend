@@ -144,7 +144,7 @@ export const add = {
                     last: endPoint.id
                 };
 
-                show.openModal();
+                show.openModal(document.getElementById("pipeModal"));
 
 
                 document.getElementById("tilt").addEventListener("keyup", (event) => {
@@ -212,7 +212,7 @@ export const add = {
                     last: event.sourceTarget._leaflet_id
                 };
 
-                show.openModal();
+                show.openModal(document.getElementById("pipeModal"));
 
                 document.getElementById("tilt").addEventListener("keyup", (event) => {
                     if (event.keyCode === 13) {
@@ -222,7 +222,7 @@ export const add = {
                 });
 
                 document.getElementById("pipeSpecifications").onclick = () => {
-                    let modal = document.getElementById("myModal");
+                    let modal = document.getElementById("pipeModal");
                     let dimension = document.getElementById("dimension");
                     let tilt = document.getElementById("tilt");
 
