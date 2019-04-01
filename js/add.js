@@ -233,7 +233,7 @@ export const add = {
                 };
             }
 
-            show.openModal();
+            show.openModal(document.getElementById('pipeModal'));
 
             // borde vara i edit.js och bör fungera hela tiden samt lägg till esq
             document.getElementById("tilt").addEventListener("keyup", (event) => {
@@ -244,7 +244,7 @@ export const add = {
             });
 
             document.getElementById("pipeSpecifications").onclick = () => {
-                let modal = document.getElementById("myModal");
+                let modal = document.getElementById("pipeModal");
                 let dimension = document.getElementById("dimension");
                 let tilt = document.getElementById("tilt");
 

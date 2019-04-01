@@ -318,18 +318,44 @@ let deleteOnClick = () => {
     });
 };
 
-/**
- * saveload - not completed yet...
- *
- * @returns {?} ???
 
-let saveload = () => {
-    document.getElementById("save/load").addEventListener("click", () => {
-        add.save();
-        add.load();
+/**
+ * save - Description
+ *
+ * @returns {type} Description
+ */
+let save = () => {
+    document.getElementById("save").addEventListener("click", () => {
+        let modal = document.getElementById('saveModal');
+        let select = document.getElementById("versions");
+        let newVersion = document.getElementById('newVersion');
+
+        show.openModal(modal);
+
+        newVersion.addEventListener('input', () => {
+            let newOption = document.getElementById('newOption');
+
+            if (newOption == null) {
+                let option = document.createElement("option");
+
+                option.text = newVersion.value;
+                option.id = 'newOption';
+
+                select.add(option, select[0]);
+                select.value = option.text;
+            } else {
+                newOption.text = newVersion.value;
+            }
+        });
+
+        document.getElementById('saveButton').addEventListener('click', () => {
+            console.log(select.value);
+            edit.save();
+
+            modal.style.display = 'none';
+        });
     });
 };
-*/
 
 
 /**
@@ -382,20 +408,19 @@ let onLoad = () => {
 
     addMarkerOnClick(document.getElementsByClassName("oljeavskiljare"),
         L.icon({
-            "iconAnchor": [19.5, 19.5],
-            "iconSize": [39, 39],
-            "iconUrl": `img/symbol_oljeavskiljare.png`,
-            "popupAnchor": [0, -19.5]
+            iconAnchor: [19.5, 19.5],
+            iconSize: [39, 39],
+            iconUrl: `img/symbol_oljeavskiljare.png`,
+            popupAnchor: [0, -19.5]
         }));
 
     addMarkerOnClick(document.getElementsByClassName("endpoint"),
         L.icon({
-            "iconAnchor": [19.5, 19.5],
-            "iconSize": [39, 39],
-            "iconUrl": `img/endpoint.png`,
-            "popupAnchor": [0, -19.5]
+            iconAnchor: [19.5, 19.5],
+            iconSize: [39, 39],
+            iconUrl: `img/endpointmarker.png`,
+            popupAnchor: [0, -19.5]
         }));
-
 
     addPipeOnClick();
     addHouseOnClick();
@@ -405,6 +430,7 @@ let onLoad = () => {
     toggleMouseCoordOnClick();
     getDistanceOnClick();
     deleteOnClick();
+    save();
     edit.warning.unsavedChanges();
 
     //make the blue border appear on mouse icon button on load
