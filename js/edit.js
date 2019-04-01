@@ -30,7 +30,8 @@ import {
     polygon,
     guideline,
     clear,
-    calcLengthFromPipe
+    calcLengthFromPipe,
+    popup
 } from "./add.js";
 
 import {
@@ -65,6 +66,11 @@ export const edit = {
                 polyline.setLatLngs(newLatlng);
             }
         });
+        event.target.setPopupContent(popup.marker(add.activeObjName) +
+            popup.changeCoord({
+                lat: event.latlng.lat,
+                lng: event.latlng.lng
+            }));
     },
 
     /**
@@ -270,6 +276,26 @@ export const edit = {
                     break;
             }
         }
+    },
+
+    /**
+     * warning - Description
+     *
+     * @returns {type} Description
+     */
+    warning: {
+
+        /**
+         * unsavedChanges - Description
+         *
+         * @returns {type} Description
+         */
+        unsavedChanges: () => {
+            //borde bara köras om nya ändringar har gjorts
+            window.onbeforeunload = () => {
+                return "Are you sure you want to navigate away?";
+            };
+        },
     },
 
 };

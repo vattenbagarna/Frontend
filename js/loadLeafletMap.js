@@ -21,7 +21,7 @@ import {
 export let pipeChoice = null;
 
 // Initialize the map with center coordinates on BAGA HQ and zoom 18.
-export const map = L.map("map", {
+export const map = L.map("myMap", {
     "center": [56.208640, 15.632630],
     "editable": true,
     "zoom": 18
@@ -166,7 +166,7 @@ let addHouseOnClick = () => {
     document.getElementById("house").addEventListener('click', () => {
         // Call addHouse function everytime user clicks on map
         map.on('click', add.house);
-        document.getElementById("map").style.cursor = "pointer";
+        document.getElementById("myMap").style.cursor = "pointer";
 
         // Call stopEdit function when user keydown on 'esc' key
         document.addEventListener("keypress", (event) => {
@@ -205,8 +205,22 @@ let addPipeOnClick = () => {
 };
 
 /**
- * editpipesOnClick - Make it possible to bend pipes (polylines) by dragging
+ * doNothingonClick - Make it possible to drag and click on map with noting happening
  * 					  (This is the first custom button on the left side of the map)
+ *
+ * @returns {void}
+ */
+let doNothingonClick = () => {
+    // Adds a click event listener on mouse icon button
+    document.getElementById("map").addEventListener('click', (event) => {
+        edit.clearMapsEvents();
+        show.activeCustomControl(event);
+    });
+};
+
+/**
+ * editpipesOnClick - Make it possible to bend pipes (polylines) by dragging
+ * 					  (This is the second custom button on the left side of the map)
  *
  * @returns {void}
  */
@@ -222,7 +236,7 @@ let editpipesOnClick = () => {
 /**
  * toggleMouseCoordOnClick - On click show or hide (toggle) toolbar next to the
  * 							 mouse with the coordinates of current pos of mouse
- * 					  		 (This is the second custom button on the left side of the map)
+ * 					  		 (This is the third custom button on the left side of the map)
  *
  * @returns {void}
  */
@@ -270,7 +284,7 @@ let toggleMouseCoordOnClick = () => {
 
 /**
  * getDistanceOnClick - Displays distance of each pipe (polyline) on the map
- * 						(This is the third custom button on the left side of the map)
+ * 						(This is the fourth custom button on the left side of the map)
  *
  * @returns {void}
  */
@@ -286,7 +300,7 @@ let getDistanceOnClick = () => {
 
 /**
  * deleteOnClick - Make it possible to delete add on tha map by clicking
- * 				   (This is the fourth custom button on the left side of the map)
+ * 				   (This is the fifth custom button on the left side of the map)
  *
  * @returns {void}
  */
@@ -343,19 +357,6 @@ let save = () => {
     });
 };
 
-/**
- * saveload - not completed yet...
- *
- * @returns {?} ???
-
-let saveload = () => {
-    document.getElementById("save/load").addEventListener("click", () => {
-        add.save();
-        add.load();
-    });
-};
-*/
-
 
 /**
  * onLoad - Initialize the map functionality with html objects
@@ -365,6 +366,7 @@ let saveload = () => {
 let onLoad = () => {
     gridlayers();
     accordions();
+    customControl('map');
     customControl('timeline');
     customControl('control_camera');
     customControl('bar_chart');
@@ -423,13 +425,16 @@ let onLoad = () => {
     addPipeOnClick();
     addHouseOnClick();
 
+    doNothingonClick();
     editpipesOnClick();
     toggleMouseCoordOnClick();
     getDistanceOnClick();
     deleteOnClick();
     save();
+    edit.warning.unsavedChanges();
 
-    edit.load();
+    //make the blue border appear on mouse icon button on load
+    document.getElementById('map').click();
 };
 
 onLoad();
