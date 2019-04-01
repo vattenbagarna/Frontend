@@ -43,7 +43,7 @@ let options = {
     },
 };
 
-let popup = {
+export let popup = {
     marker: (objName) => {
         return `<ul class='accordion2'>
     <li>

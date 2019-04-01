@@ -1,7 +1,8 @@
 /* global L, data */
 export let isEdit = null;
 let tempPolylineArray = [];
-let housePopup = `
+let housePopup =
+    `
     <div class="housePopup">
     <select>
     <option value="Hus">Hus</option>
@@ -30,7 +31,8 @@ import {
     polygon,
     guideline,
     clear,
-    calcLengthFromPipe
+    calcLengthFromPipe,
+    popup
 } from "./add.js";
 
 export const edit = {
@@ -61,6 +63,11 @@ export const edit = {
                 polyline.setLatLngs(newLatlng);
             }
         });
+        event.target.setPopupContent(popup.marker(add.activeObjName) +
+            popup.changeCoord({
+                lat: event.latlng.lat,
+                lng: event.latlng.lng
+            }));
     },
 
     /**
