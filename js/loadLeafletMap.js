@@ -168,13 +168,23 @@ let addHouseOnClick = () => {
         map.on('click', add.house);
         document.getElementById("myMap").style.cursor = "pointer";
 
-        // Call stopEdit function when user keydown on 'esc' key
-        document.addEventListener("keypress", (event) => {
-            if (event.keyCode == 27) {
-                edit.stopDrawingHouse();
-            }
-        });
+        // Call stopEdit function when user keyup on 'esc' key
+        document.addEventListener("keyup", houseDrawing);
     });
+};
+
+/**
+ * houseDrawing - Description
+ *
+ * @param {type} event Description
+ *
+ * @returns {type} Description
+ */
+export let houseDrawing = (event) => {
+    if (event.keyCode == 27) {
+        console.log("?");
+        edit.stopDrawingHouse();
+    }
 };
 
 /**
@@ -431,6 +441,7 @@ let onLoad = () => {
     getDistanceOnClick();
     deleteOnClick();
     save();
+    edit.load();
     edit.warning.unsavedChanges();
 
     //make the blue border appear on mouse icon button on load

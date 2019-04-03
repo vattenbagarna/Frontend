@@ -161,15 +161,32 @@ export const show = {
 
     openModal: (modal) => {
         var span = modal.children[0].children[0];
+        let success = false;
 
         // Open the modal
         modal.style.display = 'block';
+        let firstInput = modal.getElementsByTagName('input')[0];
+        let button = modal.getElementsByTagName('input')[modal.getElementsByTagName('input')
+            .length - 1];
+
+        firstInput.focus();
 
         // When the user clicks on <span> (x), close the modal
         span.onclick = () => {
             modal.style.display = "none";
             clearStartPolyline();
         };
+
+        document.addEventListener('keyup', (event) => {
+            if (event.keyCode == 27) {
+                console.log("??");
+                modal.style.display = "none";
+                clearStartPolyline();
+            } else if (event.keyCode == 13) {
+                event.preventDefault();
+                button.click();
+            }
+        });
 
         // When the user clicks anywhere outside of the modal, close it
         window.onclick = (event) => {
@@ -178,5 +195,7 @@ export const show = {
                 clearStartPolyline();
             }
         };
+
+        return success;
     },
 };

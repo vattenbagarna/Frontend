@@ -1,3 +1,5 @@
+/* global L */
+
 // Imports Google maps javascript api key from getKey.js file
 import {
     key
