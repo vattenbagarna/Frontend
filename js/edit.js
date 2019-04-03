@@ -1,6 +1,11 @@
 /* global L, */
 export let isEdit = null;
 let tempPolylineArray = [];
+/**
+ * TBA
+ *
+ * @returns {void}
+ */
 let housePopup = (address, type, nop, flow) => {
     return `<b>${address}</b><br>
 	<div class="housePopup">
@@ -16,8 +21,8 @@ let housePopup = (address, type, nop, flow) => {
     Vatten per person/dygn: <input type="text" name="cons" value="${flow}"><br>
     <input type="button" value="Ändra">
     </form>
-    </div>`
-}
+    </div>`;
+};
 
 //imports the map object
 import {
@@ -108,10 +113,10 @@ export const edit = {
                     addr = result.address.Match_addr;
 
                     polygon.bindPopup(housePopup(addr, "Hus", 5, "150 l/person"));
-					polygon.address = addr;
-					polygon.definition = "Hus";
-					polygon.nop = 5;
-					polygon.flow = "150 l/person"
+                    polygon.address = addr;
+                    polygon.definition = "Hus";
+                    polygon.nop = 5;
+                    polygon.flow = "150 l/person";
                     map.off('mousemove', add.guideLine);
                     guideline.remove();
                     clear();
@@ -195,9 +200,9 @@ export const edit = {
                 connected_with: polyline.connected_with,
                 options: polyline.options,
                 popup: polyline.getPopup().getContent(),
-				getLength: polyline.getLength,
-				tilt: polyline.tilt,
-				dimension: polyline.dimension,
+                getLength: polyline.getLength,
+                tilt: polyline.tilt,
+                dimension: polyline.dimension,
             };
 
             jsonArray.push(temp);
@@ -211,7 +216,7 @@ export const edit = {
                 options: marker.options,
                 id: marker._leaflet_id,
                 popup: marker.getPopup().getContent(),
-				attribute: marker.attribute
+                attribute: marker.attribute
             };
 
             jsonArray.push(temp);
@@ -222,18 +227,19 @@ export const edit = {
                 coordinates: polygon._latlngs,
                 type: "polygon",
                 options: polygon.options,
-            	id: polygon.id,
+                id: polygon.id,
                 popup: polygon.getPopup().getContent(),
-				definition: polygon.definition,
-				address: polygon.address,
-				nop: polygon.nop,
-				flow: polygon.flow
+                definition: polygon.definition,
+                address: polygon.address,
+                nop: polygon.nop,
+                flow: polygon.flow
             };
 
             jsonArray.push(temp);
         });
 
         const myJSON = JSON.stringify(jsonArray);
+
         console.log(myJSON);
     },
 
@@ -262,7 +268,7 @@ export const edit = {
 
                     newObj._leaflet_id = savedData[i].id;
                     newObj.bindPopup(savedData[i].popup);
-					newObj.attribute = marker.attribute;
+                    newObj.attribute = savedData[i].attribute;
 
                     markers.addLayer(newObj);
                     break;
@@ -273,9 +279,9 @@ export const edit = {
                     newObj.connected_with = savedData[i].connected_with;
                     newObj.bindPopup(savedData[i].popup);
 
-					newObj.getLength = polyline.getLength;
-					newObj.tilt = polyline.tilt;
-					newObj.innerDiameter = polyline.dimension;
+                    newObj.getLength = savedData[i].getLength;
+                    newObj.tilt = savedData[i].tilt;
+                    newObj.innerDiameter = savedData[i].dimension;
 
                     //add to map
                     polylines.addLayer(newObj).addTo(map);
@@ -283,9 +289,9 @@ export const edit = {
                 case "polygon":
                     newObj = L.polygon(savedData[i].coordinates, savedData[i].options);
                     newObj.bindPopup(savedData[i].popup);
-					newObj.address = savedData[i].address;
-					newObj.nop = savedData[i].nop;
-					newObj.flow = savedData[i].flow;
+                    newObj.address = savedData[i].address;
+                    newObj.nop = savedData[i].nop;
+                    newObj.flow = savedData[i].flow;
 
                     polygons.addLayer(newObj).addTo(map);
                     break;

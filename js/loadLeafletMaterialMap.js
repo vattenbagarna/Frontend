@@ -6,6 +6,7 @@ let polygons = L.layerGroup();
 let newDiv;
 let boundsArray = [];
 // Imports Google maps javascript api key from getKey.js file
+
 import {
     key
 } from "./getKey.js";
@@ -61,6 +62,11 @@ let gridlayers = () => {
     L.control.layers(baseMaps).addTo(map);
 };
 
+/**
+ * TBA
+ *
+ * @returns {void}
+ */
 let getBounds = () => {
     markers.eachLayer((marker) => {
         boundsArray.push(marker._latlng);
@@ -71,15 +77,17 @@ let getBounds = () => {
     });
 
     polygons.eachLayer((polygon) => {
-        boundsArray.push(polygon._latlngs)
+        boundsArray.push(polygon._latlngs);
     });
 
     var bounds = new L.LatLngBounds(boundsArray);
+
     map.fitBounds(bounds);
-}
+};
 
 map.on("zoomend", () => {
     var i = 1;
+
     markers.eachLayer((marker) => {
         var pixelPosition = map.latLngToLayerPoint(marker._latlng);
         //console.log(pixelPosition);
@@ -90,10 +98,12 @@ map.on("zoomend", () => {
         newDiv.style.position = "absolute";
         newDiv.style.zIndex = 100000;
         var newContent = document.createTextNode(i);
+
         i = i + 1;
         newDiv.appendChild(newContent);
 
         var currentDiv = document.getElementById("mapDiv");
+
         document.body.insertBefore(newDiv, currentDiv);
     });
 });
@@ -130,65 +140,63 @@ map.on("zoomend", () => {
  *
  * @returns {void}
  **/
- let load = () => {
-	const savedData = jsonData;
-	//const jsonLoad = JSON.parse(jsonData)
-	let icon;
-	let newObj;
-	let table = document.getElementById('myMaterialTable');
-	let row = table.insertRow(-1);
+let load = () => {
+    const savedData = jsonData;
+    //const jsonLoad = JSON.parse(jsonData)
+    let icon;
+    let newObj;
+    let table = document.getElementById('myMaterialTable');
+    let row = table.insertRow(-1);
 
-	//Loop through json data.
-	for (let i = 0; i < savedData.length; i++) {
-		switch (savedData[i].type) {
-			//if marker add it to the map with its options
-			case "marker":
-				icon = L.icon(savedData[i].options.icon.options);
+    //Loop through json data.
+    for (let i = 0; i < savedData.length; i++) {
+        switch (savedData[i].type) {
+            //if marker add it to the map with its options
+            case "marker":
+                icon = L.icon(savedData[i].options.icon.options);
 
-				savedData[i].options.icon = icon;
-				newObj = new L.Marker(savedData[i].coordinates, savedData[i].options).addTo(map);
+                savedData[i].options.icon = icon;
+                newObj = new L.Marker(savedData[i].coordinates, savedData[i].options).addTo(map);
                 markers.addLayer(newObj);
 
-				row = table.insertRow(-1);
-				console.log(savedData[i]);
-				for (let x = 0; x < savedData[i].attribute.length; x++) {
-	  				row.insertCell(x).innerHTML = savedData[i].attribute[x];
-				}
-				break;
-				//if polyline
-			case "polyline":
-				//get polyline options and add it to an object
-				newObj = L.polyline(savedData[i]
-					.coordinates, savedData[i].options);
-				newObj.connected_with = savedData[i].connected_with;
+                row = table.insertRow(-1);
+                console.log(savedData[i]);
+                for (let x = 0; x < savedData[i].attribute.length; x++) {
+                    row.insertCell(x).innerHTML = savedData[i].attribute[x];
+                }
+                break;
+                //if polyline
+            case "polyline":
+                //get polyline options and add it to an object
+                newObj = L.polyline(savedData[i]
+                    .coordinates, savedData[i].options);
+                newObj.connected_with = savedData[i].connected_with;
 
-				//add to map
-				polylines.addLayer(newObj).addTo(map);
+                //add to map
+                polylines.addLayer(newObj).addTo(map);
 
-				row = table.insertRow(-1);
-	  			row.insertCell(0).innerHTML = savedData[i].options.id;
-				row.insertCell(1).innerHTML = savedData[i].getLength.toFixed(2);
-				row.insertCell(2).innerHTML = savedData[i].tilt;
-				row.insertCell(3).innerHTML = savedData[i].dimension;
+                row = table.insertRow(-1);
+                row.insertCell(0).innerHTML = savedData[i].options.id;
+                row.insertCell(1).innerHTML = savedData[i].getLength.toFixed(2);
+                row.insertCell(2).innerHTML = savedData[i].tilt;
+                row.insertCell(3).innerHTML = savedData[i].dimension;
 
-				row.insertCell(4).className = "right";
-				break;
+                row.insertCell(4).className = "right";
+                break;
 
-			case "polygon":
-				newObj = L.polygon(savedData[i].coordinates, savedData[i].options);
-				polygons.addLayer(newObj).addTo(map);
+            case "polygon":
+                newObj = L.polygon(savedData[i].coordinates, savedData[i].options);
+                polygons.addLayer(newObj).addTo(map);
 
-				row = table.insertRow(-1);
-				row.insertCell(0).innerHTML = savedData[i].definition;
-				row.insertCell(1).innerHTML = savedData[i].address;
-				row.insertCell(2).innerHTML = savedData[i].nop;
-				row.insertCell(3).innerHTML = savedData[i].flow;
-
-				let cell = row.insertCell(4).innerHTML = "";
-				break;
-		}
-	}
-}
+                row = table.insertRow(-1);
+                row.insertCell(0).innerHTML = savedData[i].definition;
+                row.insertCell(1).innerHTML = savedData[i].address;
+                row.insertCell(2).innerHTML = savedData[i].nop;
+                row.insertCell(3).innerHTML = savedData[i].flow;
+                break;
+        }
+    }
+};
 
 
 gridlayers();

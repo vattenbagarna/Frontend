@@ -362,11 +362,13 @@ let save = () => {
 
 map.on("zoomend", () => {
     let temp = zoomValue();
+
     iconSize = (map.getZoom() * 1.5) - temp;
     anchor = iconSize / 2;
     loadMarkers();
     markers.eachLayer((marker) => {
         let iconSizeArray = marker.options.icon.options.iconSize;
+
         if (iconSizeArray[0] > iconSizeArray[1]) {
             marker.options.icon.options.iconSize = [iconSize, iconSize / 2];
         } else {
@@ -380,30 +382,29 @@ map.on("zoomend", () => {
     });
 });
 
+/**
+ * TBA
+ *
+ * @returns {void}
+ */
 let zoomValue = () => {
     switch (map.getZoom()) {
         case 17:
             return 12;
-            break;
         case 16:
             return 14;
-            break;
         case 15:
             return 16;
-            break;
         case 14:
             return 20;
-            break;
         case 13:
             return 18;
-            break;
         case 12:
             return 16;
-            break;
         default:
             return 0;
     }
-}
+};
 
 
 /**
@@ -437,6 +438,11 @@ let onLoad = () => {
     document.getElementById('map').click();
 };
 
+/**
+ * TBA
+ *
+ * @returns {void}
+ */
 let loadMarkers = () => {
     addMarkerOnClick(document.getElementsByClassName('pumpstationer'),
         L.icon({
