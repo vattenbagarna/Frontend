@@ -7,7 +7,8 @@ import {
 
 // Imports functions from underlying functionality from add.js file that uses the leaflet library
 import {
-    add
+    add,
+    markers
 } from "./add.js";
 
 import {
@@ -19,6 +20,8 @@ import {
 } from "./show.js";
 
 export let pipeChoice = null;
+let iconSize = 27;
+let anchor = iconSize / 2;
 
 // Initialize the map with center coordinates on BAGA HQ and zoom 18.
 export const map = L.map("myMap", {
@@ -357,6 +360,51 @@ let save = () => {
     });
 };
 
+map.on("zoomend", () => {
+    let temp = zoomValue();
+    iconSize = (map.getZoom() * 1.5) - temp;
+    anchor = iconSize / 2;
+    loadMarkers();
+    markers.eachLayer((marker) => {
+        let iconSizeArray = marker.options.icon.options.iconSize;
+        if (iconSizeArray[0] > iconSizeArray[1]) {
+            marker.options.icon.options.iconSize = [iconSize, iconSize / 2];
+        } else {
+            marker.options.icon.options.iconSize = [iconSize, iconSize];
+        }
+        console.log(map.getZoom());
+        marker.options.icon.options.iconAnchor = [anchor, anchor];
+        marker.options.icon.options.popupAnchor = [0, anchor];
+        map.removeLayer(marker);
+        marker.addTo(map);
+    });
+});
+
+let zoomValue = () => {
+    switch (map.getZoom()) {
+        case 17:
+            return 12;
+            break;
+        case 16:
+            return 14;
+            break;
+        case 15:
+            return 16;
+            break;
+        case 14:
+            return 20;
+            break;
+        case 13:
+            return 18;
+            break;
+        case 12:
+            return 16;
+            break;
+        default:
+            return 0;
+    }
+}
+
 
 /**
  * onLoad - Initialize the map functionality with html objects
@@ -374,54 +422,6 @@ let onLoad = () => {
     add.search();
     show.activeObj();
 
-    addMarkerOnClick(document.getElementsByClassName('pumpstationer'),
-        L.icon({
-            iconAnchor: [19.5, 19.5],
-            iconSize: [39, 39],
-            iconUrl: `img/pump.png`,
-            popupAnchor: [0, -19.5]
-        }));
-
-    addMarkerOnClick(document.getElementsByClassName("slamavskiljare"),
-        L.icon({
-            iconAnchor: [19.5, 19.5],
-            iconSize: [39, 39],
-            iconUrl: `img/symbol_slamavskiljare.png`,
-            popupAnchor: [0, -19.5]
-        }));
-
-    addMarkerOnClick(document.getElementsByClassName("kompaktbädd"),
-        L.icon({
-            iconAnchor: [36.5, 19.5],
-            iconSize: [73, 39],
-            iconUrl: `img/symbol_utjämningsbrunn.png`,
-            popupAnchor: [0, -19.5]
-        }));
-
-    addMarkerOnClick(document.getElementsByClassName("fettavskiljare"),
-        L.icon({
-            iconAnchor: [19.5, 19.5],
-            iconSize: [39, 39],
-            iconUrl: `img/symbol_fettavskiljare.png`,
-            popupAnchor: [0, -19.5]
-        }));
-
-    addMarkerOnClick(document.getElementsByClassName("oljeavskiljare"),
-        L.icon({
-            iconAnchor: [19.5, 19.5],
-            iconSize: [39, 39],
-            iconUrl: `img/symbol_oljeavskiljare.png`,
-            popupAnchor: [0, -19.5]
-        }));
-
-    addMarkerOnClick(document.getElementsByClassName("endpoint"),
-        L.icon({
-            iconAnchor: [19.5, 19.5],
-            iconSize: [39, 39],
-            iconUrl: `img/endpointmarker.png`,
-            popupAnchor: [0, -19.5]
-        }));
-
     addPipeOnClick();
     addHouseOnClick();
 
@@ -437,4 +437,55 @@ let onLoad = () => {
     document.getElementById('map').click();
 };
 
+let loadMarkers = () => {
+    addMarkerOnClick(document.getElementsByClassName('pumpstationer'),
+        L.icon({
+            iconAnchor: [anchor, anchor],
+            iconSize: [iconSize, iconSize],
+            iconUrl: `img/pump.png`,
+            popupAnchor: [0, -19.5]
+        }));
+
+    addMarkerOnClick(document.getElementsByClassName("slamavskiljare"),
+        L.icon({
+            iconAnchor: [anchor, anchor],
+            iconSize: [iconSize, iconSize],
+            iconUrl: `img/symbol_slamavskiljare.png`,
+            popupAnchor: [0, -19.5]
+        }));
+
+    addMarkerOnClick(document.getElementsByClassName("kompaktbädd"),
+        L.icon({
+            iconAnchor: [anchor, anchor],
+            iconSize: [iconSize, iconSize / 2],
+            iconUrl: `img/symbol_utjämningsbrunn.png`,
+            popupAnchor: [0, -19.5]
+        }));
+
+    addMarkerOnClick(document.getElementsByClassName("fettavskiljare"),
+        L.icon({
+            iconAnchor: [anchor, anchor],
+            iconSize: [iconSize, iconSize],
+            iconUrl: `img/symbol_fettavskiljare.png`,
+            popupAnchor: [0, -19.5]
+        }));
+
+    addMarkerOnClick(document.getElementsByClassName("oljeavskiljare"),
+        L.icon({
+            iconAnchor: [anchor, anchor],
+            iconSize: [iconSize, iconSize],
+            iconUrl: `img/symbol_oljeavskiljare.png`,
+            popupAnchor: [0, -19.5]
+        }));
+
+    addMarkerOnClick(document.getElementsByClassName("endpoint"),
+        L.icon({
+            iconAnchor: [anchor, anchor],
+            iconSize: [iconSize, iconSize],
+            iconUrl: `img/endpointmarker.png`,
+            popupAnchor: [0, -19.5]
+        }));
+};
+
 onLoad();
+loadMarkers();

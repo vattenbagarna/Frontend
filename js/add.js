@@ -18,6 +18,7 @@ let options = {
     },
 
     pipe: {
+		id: "pipe",
         edit_with_drag: true,
         vertices: {
             destroy: true,
@@ -129,23 +130,12 @@ export const add = {
         const temp = new L.Marker(event.latlng, options.marker(add.activeIcon))
             .bindPopup(popup.marker(add.activeObjName) + popup.changeCoord(event.latlng))
             .on("drag", edit.moveMarker)
-            .on('popupopen', (event) => {
-                let button = document.getElementsByClassName('sendCoords');
+            .on('popupopen', updateCoords);
 
-                button[button.length - 1].addEventListener('click', () => {
-                    let lat = document.getElementById('latitud').value;
-                    let lng = document.getElementById('longitud').value;
-
-                    event.target.closePopup();
-                    event.target.setLatLng([lat, lng]);
-                    map.panTo([lat, lng]);
-                    event.target.setPopupContent(popup.marker(add.activeObjName) +
-                        popup.changeCoord({
-                            lat: lat,
-                            lng: lng
-                        }));
-                });
-            });
+			temp.attribute = [add.activeObjName, "antalpumpar: 1", "diameter: 600",
+			"inlopp: 110, typ: gummitätning", "höjd: 700",
+			"Kabelgenomförning: 50, typ: gummitätning", "RSK: 5886909",
+			"utlopp: 32, typ: inv. gänga"];
 
         //Adds marker to map
         markers.addLayer(temp).addTo(map);
@@ -287,6 +277,25 @@ export const add = {
     }
 };
 
+
+let updateCoords = (event) => {
+	let button = document.getElementsByClassName('sendCoords');
+
+	button[button.length - 1].addEventListener('click', () => {
+		let lat = document.getElementById('latitud').value;
+		let lng = document.getElementById('longitud').value;
+
+		event.target.closePopup();
+		event.target.setLatLng([lat, lng]);
+		map.panTo([lat, lng]);
+		event.target.setPopupContent(popup.marker(add.activeObjName) +
+			popup.changeCoord({
+				lat: lat,
+				lng: lng
+			}));
+	});
+}
+
 /**
  * calcLengthFromPipe - Gets an individual polyline and calculates the length.
  *
@@ -357,6 +366,8 @@ let addBranchConnection = (startPolyline, event, target) => {
             popupAnchor: [0, -19.5]
         })
     }).bindPopup(popup.branch).on("drag", edit.moveMarker);
+
+	branchMarker.attribute = ["Type: Förgrening"];
 
     markers.addLayer(branchMarker).addTo(map);
     branchMarker.on('click', add.pipe);
