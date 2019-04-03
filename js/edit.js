@@ -26,7 +26,8 @@ let housePopup = (address, type, nop, flow) => {
 
 //imports the map object
 import {
-    map
+    map,
+    houseDrawing
 } from "./loadLeafletMap.js";
 
 import {
@@ -161,6 +162,9 @@ export const edit = {
         if (guideline != null) {
             edit.stopDrawingHouse();
         }
+        document.removeEventListener('keyup', houseDrawing);
+
+
         document.getElementById("map").style.cursor = "grab";
 
         //Closes popups and turns off click events for remove and addPipe.
