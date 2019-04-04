@@ -1,98 +1,263 @@
-document.getElementById("submit").addEventListener('onclick', () => {
+/**
+    * hideFlow() - hides the input for flow and hides the submit button
+    *
+    * @returns {void}
+    */
+function hideFlow() {
+  let showFlow = document.getElementById("flow");
+  let showSubmit = document.getElementById("submit");
+
+  showSubmit.style.display = "none";
+  showFlow.style.display = "none";
+}
+hideFlow();
+
+/**
+    * Calculates the input after the submit button has been clicked
+    *
+    * @param {submit} click
+    * @returns {void}
+    */
+document.getElementById("submit").addEventListener("click", () => {
     let diameter = document.getElementById("length").value;
     let length = document.getElementById("length").value;
     let height = document.getElementById("height").value;
-    let dimension = document.getElementById("dimension").value;
+    //let dimension = document.getElementById("dimension").value;
     let flow = document.getElementById("flow").value;
 
-    console.log(darcyHeight(diameter, 0.01, length, flow, 0));
 });
 
-/*
- *
- *
- *
- *
- */
-const majorLoss = (friction, length, velocity, diameter, density) => {
-    let loss = friction * (length / diameter) * (density * (velocity *
-        velocity) / 2) / 1000;
+/**
+    * Displays the outer dimension for the different materials after the outerdimension
+    * button has been selected
+    *
+    * @param {outerdimension} click
+    * @returns {void}
+    */
+document.getElementById("outerdimension").addEventListener("click", () => {
+    let form = document.getElementsByClassName("form-inline")[0];
 
-    return loss.toFixed(2);
-};
-
-console.log(majorLoss(0.0967859, 100, 1, 0.32, 1000));
-
-
-/*
- * Calc the estimated L/s depending on how many houses and how many live in said
- * houses.
- * houses = array of houses to calc on, Qd = waste water per day, p = number of
- * people in the house, Cd = max factor per day, Cd = max factor per hour
- * */
-const estWater = (houses, Cd = 1, Ct = 1, QInd = 0) => {
-    let Qs = 0;
-
-    for (let i = 0; i < houses.length; i++) {
-        Qs += ((houses[i].Qd * houses[i].nrOfInd) / (3600 * 24)) * Cd * Ct +
-            QInd;
+    if (document.getElementById("material").value === "PEM") {
+        PEMPipe();
+        document.getElementById("selectDim").style.display = "block";
     }
-    return Qs;
-};
-
-/* To calc how much speed there will be in the pipe depending on the diameter of
- * the pipe, the friction of the pipe, as well as the fall, which should not be
- * more than 6-12 promille.
- * This function gives speed in meters/s.
- * https://sv.wikipedia.org/wiki/Darcy-Weisbachs_ekvation
- * */
-const darcyFlow3 = (dia, friction = 0.01, fall = 0) => {
-    let Q = (((3.14159 * (dia * dia)) / 4) * Math.sqrt((2 * 9.82 * dia *
-        fall) / friction));
-
-    return Q;
-};
-
-/* To calc how much speed there will be in the pipe depending on the diameter of
- * the pipe, the friction of the pipe, as well as the fall, which should not be
- * more than 6-12 promille.
- * This function gives the speed in cubic meters/s.
- * https://sv.wikipedia.org/wiki/Darcy-Weisbachs_ekvation
- * */
-const darcyFlow = (dia, friction = 0.01, fall = 0) => {
-    let Q = Math.sqrt((2 * 9.82 * dia * fall) / friction);
-
-    return Q;
-};
-
-/* Function to calc the resistance coefficient */
-const coeff = (dia, friction = 0.01, length = 5) => {
-    kt = friction * (length / dia);
-    return kt;
-};
-
-/* To calc the loss of energy when pumping up water verticaly and the pipe has
- * zero or severals bends */
-const darcyHeight = (dia, friction = 0.01, length = 5, speed = 1, nrOfBends = 0) => {
-    let HF = 0;
-
-    if (nrOfBends == 0) {
-        Hf = ((friction * length) / dia) * ((speed * speed) / (2 * 9.82));
-    } else {
-        Hf = ((friction * length) / dia + coeff(dia, friction, nrOfBends,
-            length)) * ((speed * speed) / (2 * 9.82));
+    if (document.getElementById("material").value === "PE") {
+        PEPipe();
+        document.getElementById("selectDim").style.display = "block";
     }
-    return Hf;
-};
+    if (document.getElementById("material").value === "stainless") {
+        stainlessPipe();
+        document.getElementById("selectDim").style.display = "block";
+    }
+    showStyling();
+});
 
-/* calculating the length of a pipe when it is tilted, uses pythagoras calc */
-const pythLength = (base, height) => {
-    L = Math.sqrt((height * height) + (base * base));
-    return L;
-};
+/**
+    * Displays the inner dimension for the different materials after the innerdimension
+    * button has been selected
+    *
+    * @param {innerdimension} click
+    * @returns {void}
+    */
+document.getElementById("innerdimension").addEventListener("click", () => {
+    let form = document.getElementsByClassName("form-inline")[0];
 
-/* Calculate the angle of a tilted pipe */
-const angle = (base, height) => {
-    A = (Math.atan(height / base)) * (180 / Math.PI);
-    return A;
-};
+    if (document.getElementById("material").value === "PEM") {
+        PEMPipe();
+        document.getElementById("selectDim").style.display = "block";
+    }
+    if (document.getElementById("material").value === "PE") {
+        PEPipe();
+        document.getElementById("selectDim").style.display = "block";
+    }
+    if (document.getElementById("material").value === "stainless") {
+        stainlessPipe();
+        document.getElementById("selectDim").style.display = "block";
+    }
+    showStyling();
+});
+
+/**
+    * Displays the dimension in inches for the stainless pipes after the inches
+    * button has been selected
+    *
+    * @param {inches} click
+    * @returns {void}
+    */
+document.getElementById("inches").addEventListener("click", () => {
+    let form = document.getElementsByClassName("form-inline")[0];
+
+    if (document.getElementById("material").value === "stainless") {
+        stainlessPipe();
+        document.getElementById("selectDim").style.display = "block";
+    }
+    showStyling();
+});
+
+/**
+    * Displays the associated dimension for the material after the material
+    * button has been changed
+    *
+    * @param {material} change
+    * @returns {void}
+    */
+document.getElementById("material").addEventListener("change", () => {
+
+    if (document.getElementById("material").value === "stainless") {
+        document.getElementById("inches").style.display = "block";
+        document.getElementById("inches").nextSibling.innerHTML = "Inches";
+    }
+    if (document.getElementById("material").value === "PEM" || document.getElementById("material").value === "PE") {
+        document.getElementById("inches").style.display = "none";
+        document.getElementById("inches").nextSibling.innerHTML = "";
+    }
+    hideStyling();
+});
+
+/**
+    * PEMPipe() - creates the dimensions for the PEM material
+    *
+    * @returns {void}
+    */
+function PEMPipe() {
+  let outerDimPEM = ["40 mm", "50 mm", "60 mm"];
+  let innerDimPEM = ["35.2 mm", "44 mm", "55.4 mm"];
+  let select = document.getElementById("selectDim");
+
+  for (let i = select.childNodes.length - 1; i >= 0; i--) {
+      select.removeChild(select.childNodes[i]);
+  }
+
+  if (document.getElementById("outerdimension").checked) {
+    for (let i = 0; i < select.childNodes.length; i++) {
+        select.removeChild(select.childNodes[0]);
+    }
+    for (let i = 0; i < outerDimPEM.length; i++) {
+        let option = document.createElement("option");
+        option.innerHTML = outerDimPEM[i];
+        select.appendChild(option);
+    }
+  }
+  if (document.getElementById("innerdimension").checked) {
+    for (let i = 0; i < innerDimPEM.length; i++) {
+        let option = document.createElement("option");
+        option.innerHTML = innerDimPEM[i];
+        select.appendChild(option);
+    }
+  }
+}
+
+/**
+    * PEPipe() - creates the dimensions for the PE material
+    *
+    * @returns {void}
+    */
+function PEPipe() {
+  let outerDimPE = ["110 mm", "160 mm", "180 mm", "200 mm", "225 mm", "250 mm", "315 mm", "400 mm", "450 mm", "500 mm"];
+  let innerDimPE = ["96.8 mm", "141 mm", "158.6 mm", "176.2 mm", "198.2 mm", "220.4 mm", "277.6 mm", "352.6 mm", "396.6 mm", "440.6 mm"];
+  let select = document.getElementById("selectDim");
+
+  for (let i = select.childNodes.length - 1; i >= 0; i--) {
+      select.removeChild(select.childNodes[i]);
+  }
+
+  if (document.getElementById("outerdimension").checked) {
+    for (let i = 0; i < outerDimPE.length; i++) {
+        let option = document.createElement("option");
+        option.innerHTML = outerDimPE[i];
+        select.appendChild(option);
+    }
+  }
+  if (document.getElementById("innerdimension").checked) {
+    for (let i = 0; i < innerDimPE.length; i++) {
+        let option = document.createElement("option");
+        option.innerHTML = innerDimPE[i];
+        select.appendChild(option);
+    }
+  }
+}
+
+/**
+    * stainlessPipe() - creates the dimensions for the stainless material
+    *
+    * @returns {void}
+    */
+function stainlessPipe() {
+  let inches = ['1.25 "', '1.5 "', '2 "', '2.5 "'];
+  let outerDimStain = ["42.4 mm", "48.3 mm", "60.3 mm", "76.1 mm"];
+  let innerDimStain = ["38.4 mm", "44.3 mm", "56.3 mm", "72.1 mm", "80 mm", "100 mm", "150 mm"];
+  let select = document.getElementById("selectDim");
+
+  for (let i = select.childNodes.length - 1; i >= 0; i--) {
+      select.removeChild(select.childNodes[i]);
+  }
+
+  if (document.getElementById("outerdimension").checked) {
+    for (let i = 0; i < outerDimStain.length; i++) {
+        let option = document.createElement("option");
+        option.innerHTML = outerDimStain[i];
+        select.appendChild(option);
+    }
+  }
+  if (document.getElementById("innerdimension").checked) {
+    for (let i = 0; i < innerDimStain.length; i++) {
+        let option = document.createElement("option");
+        option.innerHTML = innerDimStain[i];
+        select.appendChild(option);
+    }
+  }
+  if (document.getElementById("inches").checked) {
+    for (let i = 0; i < inches.length; i++) {
+        let option = document.createElement("option");
+        option.innerHTML = inches[i];
+        select.appendChild(option);
+    }
+  }
+}
+
+/**
+    * showStyling() - displays the input boxes
+    *
+    * @returns {void}
+    */
+function showStyling() {
+  document.getElementById("pressure1").style.display = "block";
+  document.getElementById("pressure2").style.display = "block";
+  document.getElementById("flow").style.display = "block";
+  document.getElementById("submit").style.display = "block";
+  document.getElementById("pressure1").nextSibling.innerHTML = "PN 6.3";
+  document.getElementById("pressure2").nextSibling.innerHTML = "PN 10";
+  document.getElementById("flowLabel").style.marginTop = "20px";
+  document.getElementById("flowLabel").innerHTML = "Flödeskapacitet";
+  document.getElementById("flow").style.marginRight = "10px";
+  document.getElementById("flow").nextSibling.innerHTML = "l/s";
+  document.getElementById("submit").nextSibling.innerHTML = "Punkförsluster";
+}
+
+/**
+    * hideStyling() - hides the input boxes 
+    *
+    * @returns {void}
+    */
+function hideStyling() {
+  let select = document.getElementById("selectDim");
+
+  select.style.display = "none";
+  document.getElementById("innerdimension").style.display = "block";
+  document.getElementById("outerdimension").style.display = "block";
+  document.getElementById("innerdimension").nextSibling.innerHTML = "Innediameter";
+  document.getElementById("outerdimension").nextSibling.innerHTML = "Ytterdiameter";
+  document.getElementById("pressure1").style.display = "none";
+  document.getElementById("pressure2").style.display = "none";
+  document.getElementById("pressure1").nextSibling.innerHTML = "";
+  document.getElementById("pressure2").nextSibling.innerHTML = "";
+  document.getElementById("pressure1").checked = false;
+  document.getElementById("pressure2").checked = false;
+  document.getElementById("innerdimension").checked = false;
+  document.getElementById("outerdimension").checked = false;
+  document.getElementById("flowLabel").style.display = "none";
+  document.getElementById("flow").style.display = "none";
+  document.getElementById("submit").style.display = "none";
+  document.getElementById("flowLabel").innerHTML = "";
+  document.getElementById("flow").nextSibling.innerHTML = "";
+}

@@ -37,6 +37,15 @@ input[type=text], select {
 
 input[type=radio] {
     padding: 20px;
+    display: none;
+}
+
+#selectDim {
+  display: none;
+}
+
+p {
+  margin: 0px;
 }
 
 b {
