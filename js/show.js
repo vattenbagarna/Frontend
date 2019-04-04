@@ -1,8 +1,6 @@
 /* global L */
 let mouseCoord = null;
 
-
-
 //imports the map object
 import {
     map

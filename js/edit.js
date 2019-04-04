@@ -1,50 +1,17 @@
 /* global L, */
 export let isEdit = null;
 let tempPolylineArray = [];
-/**
- * TBA
- *
- * @returns {void}
- */
-let housePopup = (address, type, nop, flow) => {
-    return `<b>${address}</b><br>
-	<div class="housePopup">
-    <select>
-    <option value="${type}">${type}</option>
-    <option value="Garage">Garage</option>
-    <option value="Restaurang">Restaurang</option>
-    <option value="Sommarstuga">Sommarstuga</option>
-    </select>
-
-    <form action="">
-    Personer per hushåll: <input type="text" name="per" value="${nop}"><br>
-    Vatten per person/dygn: <input type="text" name="cons" value="${flow}"><br>
-    <input type="button" value="Ändra">
-    </form>
-    </div>`;
-};
 
 //imports the map object
 import {
     map,
-    houseDrawing
 } from "./loadLeafletMap.js";
 
-import {
-    add,
-    polylines,
-    markers,
-    polygons,
-    polygon,
-    guideline,
-    clear,
-    calcLengthFromPipe,
-    popup
-} from "./add.js";
+import { add, polylines, markers, polygons, getLength } from "./add.js";
 
-import {
-    jsonData
-} from "../json/jsonSave.js";
+import { popup } from "./popup.js";
+
+import { jsonData } from "../json/jsonSave.js";
 
 export const edit = {
     /**
@@ -65,8 +32,7 @@ export const edit = {
                 newLatlng.unshift(event.latlng);
 
                 polyline.setLatLngs(newLatlng);
-            } else if (event.target._leaflet_id === polyline.connected_with
-                .last) {
+            } else if (event.target._leaflet_id === polyline.connected_with.last) {
                 let newLatlng = polyline.getLatLngs();
 
                 newLatlng.pop();
@@ -74,11 +40,10 @@ export const edit = {
                 polyline.setLatLngs(newLatlng);
             }
         });
-        event.target.setPopupContent(popup.marker(add.activeObjName) +
-            popup.changeCoord({
-                lat: event.latlng.lat,
-                lng: event.latlng.lng
-            }));
+        event.target.setPopupContent(popup.marker(add.activeObjName) + popup.changeCoord({
+            lat: event.latlng.lat,
+            lng: event.latlng.lng
+        }));
     },
 
     /**
@@ -88,41 +53,12 @@ export const edit = {
      * @returns {void}
      */
     polylines: () => {
-        clear();
-
         polylines.eachLayer((polyline) => {
             polyline.editingDrag.addHooks();
             tempPolylineArray.push(polyline._latlngs.length);
         });
 
         isEdit = true;
-    },
-
-    /**
-     * stopEdit - Stops the drawing of a polygon.
-     *
-     * @returns {void}
-     */
-    stopDrawingHouse: () => {
-        //if user is still drawing a polygon, stop it.
-        if (guideline != null && polygon != null) {
-            let addr;
-
-            L.esri.Geocoding.reverseGeocode()
-                .latlng(polygon._latlngs[0][0])
-                .run((error, result) => {
-                    addr = result.address.Match_addr;
-
-                    polygon.bindPopup(housePopup(addr, "Hus", 5, "150 l/person"));
-                    polygon.address = addr;
-                    polygon.definition = "Hus";
-                    polygon.nop = 5;
-                    polygon.flow = "150 l/person";
-                    map.off('mousemove', add.guideLine);
-                    guideline.remove();
-                    clear();
-                });
-        }
     },
 
     /**
@@ -143,27 +79,21 @@ export const edit = {
         //If polylines has been edited
         if (isEdit == true) {
             var i = 0;
-
             //for each element in polylines
+
             polylines.eachLayer((polyline) => {
                 //if amount of points has changed
                 if (polyline._latlngs.length != tempPolylineArray[i]) {
                     //Calculates new length of pipe
-                    calcLengthFromPipe(polyline);
-                    polyline.bindTooltip("Längd: " + Math.round(polyline.getLength * 100)/100 +"m");
+                    polyline.length = getLength(polyline);
+                    polyline.bindTooltip("Längd: " + Math.round(polyline.length * 100) /
+                        100 + "m");
                 }
                 i++;
             });
 
             isEdit = null;
         }
-
-        //remove guideline from polygon.
-        if (guideline != null) {
-            edit.stopDrawingHouse();
-        }
-        document.removeEventListener('keyup', houseDrawing);
-
 
         document.getElementById("map").style.cursor = "grab";
 
