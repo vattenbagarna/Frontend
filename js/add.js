@@ -64,16 +64,14 @@ export const add = {
         if (pipe != null) {
             point.id = event.sourceTarget._leaflet_id;
             if (target.length) {
-                point = addBranchConnection([event.latlng, point.id],
-                    event, target);
+                point = addBranchConnection(event, target);
             }
             pipe.draw(0, 0, point.id, event.latlng);
             pipe = null;
         } else {
             point.id = event.sourceTarget._leaflet_id;
             if (target.length) {
-                point = addBranchConnection([event.latlng, point.id],
-                    event, target);
+                point = addBranchConnection(event, target);
             }
             pipe = new Pipe([event.latlng], ["", ""], pipeChoice, point.id);
         }
@@ -123,7 +121,7 @@ export let getLength = (polyline) => {
  *
  * @returns {type} Description
  */
-let addBranchConnection = (pipe, event, target) => {
+let addBranchConnection = (event, target) => {
     // behövs kommenteras grundligt
     let targetLatlngs = target.getLatLngs();
     let firstLatlngs;

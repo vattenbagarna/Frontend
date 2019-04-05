@@ -12,48 +12,60 @@ import { edit } from "./edit.js";
 export let guideline = null;
 
 /**
- * Marker - Description
+ * Marker - Class for creation of marker and underlying functionality for each object
+ *
  */
 export class Marker {
     /**
-     * constructor - Description
+     * constructor - Creates a L.Marker with preconfiged attributes from options.js and popup.js
+     * 			   - @see {@link https://leafletjs.com/reference-1.4.0.html#marker}
+     * 			   - Adds functionality for drag and when popup is open
+     * 			   - Lastly displays the new marker on the map
      *
-     * @param {type} latlng     Description
-     * @param {type} attributes Description
-     * @param {type} icon       Description
+     * @param {array} latlng     Coordinates (latitude and longitude) for the new marker
+     * @param {array} attributes Specific characteristics (values) for the new marker
+     * @param {L.Icon} icon		 @see {@link https://leafletjs.com/reference-1.4.0.html#icon}
      *
-     * @returns {type} Description
+     * @returns {void}
      */
     constructor(latlng, attributes, icon) {
         this.attributes = attributes;
 
         this.marker = new L.Marker(latlng, options.marker(icon))
+            // Popup behöver uppdateras med backend
             .bindPopup(popup.marker(this.attributes[0]) + popup.changeCoord(latlng))
             .on("drag", edit.moveMarker)
             .on('popupopen', this.updateCoords);
 
-        //Adds marker to map
+        // Adds marker to map
         markers.addLayer(this.marker).addTo(map);
     }
 
     /**
-     * updateCoords - Description
+     * updateCoords - Updates markers coordinates from user input and updates popup content with
+     * 			 	- the new coordinates
      *
-     * @param {type} event Description
+     * @param {object} event
      *
-     * @returns {type} Description
+     * @returns {void}
      */
     updateCoords(event) {
-        //behövs kommenteras
+        // Get button after popup is open
         let buttons = document.getElementsByClassName('sendCoords');
 
+        // Add event listener on click on button
         buttons[buttons.length - 1].addEventListener('click', () => {
+            // Get new values after click
             let lat = document.getElementById('latitud').value;
             let lng = document.getElementById('longitud').value;
 
+            // Close active popup
             event.target.closePopup();
+            // Insert new values to active marker
             event.target.setLatLng([lat, lng]);
+            // Move center to map to new values (coordinates)
             map.panTo([lat, lng]);
+            // Update popup content with new values
             event.target.setPopupContent(popup.marker(add.activeObjName) +
                 popup.changeCoord({ lat: lat, lng: lng }));
         });
@@ -61,38 +73,41 @@ export class Marker {
 }
 
 /**
- * House - Description
+ * House - Class for creation of house and underlying functionality for each
  */
 export class House {
     /**
-     * constructor - Description
+     * constructor - Creates a L.polygon with preconfiged attributes from options.js and popup.js
+     * 			   - @see {@link https://leafletjs.com/reference-1.4.0.html#polygon}
+     * 			   - Creates a guideline with a dashed line to help user to line up the next point
+     * 			   - Guideline update it's position on mousemove
+     * 			   - Calls stopDrawListener() to listen for escape presses to stop drawing
      *
-     * @param {type} latlng     Description
-     * @param {type} attributes Description
+     * @param {array} latlng     Coordinates (latitude and longitude) for the first point
+     * 							 to the new house
+     * @param {array} attributes Specific characteristics (values) for the new house
      *
-     * @returns {type} Description
+     * @returns {void}
      */
     constructor(latlng, attributes) {
         this.attributes = attributes;
-
         this.polygon = L.polygon([latlng], options.house);
 
         guideline = L.polyline([latlng, latlng], {
             dashArray: '5, 10'
         }).addTo(map);
 
-
         map.on('mousemove', this.updateGuideLine);
-
         this.stopDrawListener();
     }
 
     /**
-     * draw - Description
+     * draw - Adds new point with coordinates and displays polygon on map.
+     * 		- Updates guideline start position to new coordinates
      *
-     * @param {type} latlng Description
+     * @param {array} latlng Coordinates (latitude and longitude) for the new point in polygon
      *
-     * @returns {type} Description
+     * @returns {void}
      */
     draw(latlng) {
         this.polygon.addLatLng(latlng);
@@ -105,7 +120,8 @@ export class House {
     }
 
     /**
-     * updateGuideLine - update the guideline coordinates from mousemove.
+     * updateGuideLine - update the guideline coordinates to mouse coordinates
+     * 				   - from mousemove.
      *
      * @param {object} event
      * @returns {void}
@@ -121,9 +137,11 @@ export class House {
     }
 
     /**
-     * stopDrawListener - Description
-     *
-     * @returns {type} Description
+     * stopDrawListener - When user clicks the 'esc' button
+     * 					- hides guideline and stops adding points to house object on click and
+     * 					- adds popup content for house with address.
+     * 					- Click event listener runs once
+     * @returns {void}
      */
     stopDrawListener() {
         // start function when user on keyup
@@ -155,18 +173,19 @@ export class House {
 }
 
 /**
- * Pipe - Description
+ * Pipe - Class for creation of pipe and underlying functionality for each
  */
 export class Pipe {
     /**
-     * constructor - Description
+     * constructor - Saves params values to object
      *
-     * @param {type} latlngs    Description
-     * @param {type} attributes Description
-     * @param {type} type       Description
-     * @param {type} id         Description
+     * @param {array} latlngs   Coordinates (latitude and longitude) for the new polyline
+     * 							latlngs -> can be one och more points (latlng)
+     * @param {let} attributes Specific characteristics (values) for the new pipe
+     * @param {let} type       0 -> pipe, 1 -> stem pipe
+     * @param {let} id         Unique number to first connected_with
      *
-     * @returns {type} Description
+     * @returns {void}
      */
     constructor(latlngs, attributes, type, id) {
         this.latlngs = latlngs;
@@ -176,14 +195,18 @@ export class Pipe {
     }
 
     /**
-     * draw - Description
+     * draw - Creates a L.polyline with preconfiged attributes from options.js and popup.js and type
+     * 		- @see {@link https://leafletjs.com/reference-1.4.0.html#polyline}
+     * 		- Set connected_with values so the object knows what is it connected to
+     * 		- Set length for new polyline
+     * 		- Displays new polyline on map
      *
-     * @param {type} dimension     Description
-     * @param {type} tilt          Description
-     * @param {type} id            Description
-     * @param {null} [latlng=null] Description
+     * @param {let} dimension     Diameter of the pipe that the user inputed
+     * @param {let} tilt          Tilt of the pipe that the user inputed
+     * @param {let} id            Unique number to last connected_with
+     * @param {array} [latlng=null] Option to push new point into new polyline
      *
-     * @returns {type} Description
+     * @returns {void}
      */
     draw(dimension, tilt, id, latlng = null) {
         this.dimension = dimension;
