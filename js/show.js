@@ -1,24 +1,19 @@
 /* global L */
 let mouseCoord = null;
 
-//imports the map object
-import {
-    map
-} from "./loadLeafletMap.js";
+// Imports the map object.
+import {map} from "./loadLeafletMap.js";
 
-import {
-    polylines,
-    clearStartPolyline
-} from "./add.js";
+// Imports polylines and clears the start polyline.
+import {polylines, clearStartPolyline} from "./add.js";
 
-import {
-    edit
-} from "./edit.js";
+// Imports the edit file.
+import {edit} from "./edit.js";
 
 export const show = {
     /**
      * activeObj - Shows which object is clicked in the sidebar menu by adding
-     * and removing the active class
+     * and removing the active class.
      *
      * @param {object} event
      * @returns {void}
@@ -26,13 +21,13 @@ export const show = {
     activeObj: () => {
         const obj = document.getElementsByClassName("obj");
 
-        //gets all buttons and adds a click event to each.
+        // Gets all buttons and adds a click event to each.
         for (let i = 0; i < obj.length; i++) {
             obj[i].parentElement.addEventListener("click", function() {
                 let current = document.getElementsByClassName(
                     "active");
 
-                //if current have the class "active" replace it with "".
+                // If current have the class "active" replace it with "".
                 if (current.length > 0) {
                     current[0].className =
                         current[0].className.replace(
@@ -49,7 +44,7 @@ export const show = {
                             "");
                 }
 
-                //clicked object gets the class active
+                // Clicked object gets the class active.
                 this.className += " active";
                 edit.clearMapsEvents();
             });
@@ -122,33 +117,30 @@ export const show = {
      * @returns {void}
      */
     polylineLengths: () => {
-        //var totalDistance = 0;
         var thisPipeDistance = 0;
         var firstPoint;
         var secondPoint;
 
-        //loop each polyline and adds a function to each.
+        // Loop each polyline and adds a function to each.
         polylines.eachLayer((polyline) => {
             var tempPolyline = polyline._latlngs;
 
-            //if polyline only has 2 points
+            // If polyline only has 2 points.
             if (tempPolyline.length == 2) {
-                //calculate current pipes length
+                // Calculate current pipe's length.
                 thisPipeDistance = tempPolyline[0].distanceTo(tempPolyline[1]);
-                //totalDistance += thisPipeDistance;
-                //bind a popup with length for current polyline
+                // Bind a popup with length for current polyline.
                 polyline.bindTooltip("Längd: " + Math.round(thisPipeDistance * 100) / 100 +
                     "m", {
                     autoClose: false
                 }).openTooltip();
-                //if polylines have more than 2 points
+                // If polylines have more than 2 points.
             } else if (tempPolyline.length > 2) {
                 for (var i = 0; i < tempPolyline.length - 1; i++) {
                     firstPoint = tempPolyline[i];
                     secondPoint = tempPolyline[i + 1];
                     thisPipeDistance += L.latLng(firstPoint).distanceTo(secondPoint);
                 }
-                //totalDistance += thisPipeDistance;
                 polyline.bindTooltip("Längd: " + Math.round(thisPipeDistance * 100) / 100 +
                     "m", {
                     autoClose: false
@@ -157,6 +149,13 @@ export const show = {
         });
     },
 
+    /**
+     * openModal - It handles the opening and closing of boxes that shows when
+     * save button and pipe specifications.
+     *
+     * @param {object} modal
+     * @returns {void}
+     */
     openModal: (modal) => {
         var span = modal.children[0].children[0];
         let success = false;
