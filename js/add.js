@@ -7,9 +7,10 @@ export let polylines = L.layerGroup();
 export let markers = L.layerGroup();
 export let polygons = L.layerGroup();
 
-//imports the map object
+// Imports the map object.
 import { map, pipeChoice } from "./loadLeafletMap.js";
 
+// Imports three classes that are used for the project.
 import { Marker, House, Pipe } from "./classes.js";
 
 export const add = {
@@ -39,7 +40,7 @@ export const add = {
      * @returns {void}
      */
     house: (event) => {
-        // Behöver kommenteras
+        // Draws houses and displays it on map.
         if (house != null) {
             house.draw(event.latlng);
         } else {
@@ -50,17 +51,16 @@ export const add = {
     /**
      * addPipe - Draws polylines on the map, polylines is also known as pipes.
      *
-     * @param {object} event event.
+     * @param {object} event
      * @returns {void}
      */
     pipe: (event) => {
-        // skriv om och förenkla
         let target = event.target;
         let point = {};
 
         target.closePopup();
 
-        //If pipe is null create the first point
+        // If pipe is null create the first point.
         if (pipe != null) {
             point.id = event.sourceTarget._leaflet_id;
             if (target.length) {
@@ -91,16 +91,17 @@ export const add = {
 };
 
 /**
- * calcLengthFromPipe - Gets an individual polyline and calculates the length.
+ * getLength - Gets an individual polyline and calculates the length.
  *
- * @param {array} array
+ * @param {L.polyline} polyline @see {@link https://leafletjs.com/reference-1.4.0.html#polyline}
  * @returns {void}
  */
 export let getLength = (polyline) => {
-    // behövs kommenteras
+    // Gets the coords.
     var tempPolyline = polyline._latlngs;
     var thisPipeDistance = 0;
 
+    // Calulates the total length according to number of points in the polyline.
     if (tempPolyline.length == 2) {
         return tempPolyline[0].distanceTo(tempPolyline[1]);
     } else if (tempPolyline.length > 2) {
@@ -115,16 +116,15 @@ export let getLength = (polyline) => {
 };
 
 /**
- * addBranchConnection - Description
+ * addBranchConnection - Connecting pipes with each other and add a branch
+ * connector between them.
  *
- * @param {type} pipe Description
- * @param {type} event         Description
- * @param {type} target        Description
+ * @param {type} event
+ * @param {type} target The element selected by the user.
  *
- * @returns {type} Description
+ * @returns {void}
  */
 let addBranchConnection = (pipe, event, target) => {
-    // behövs kommenteras grundligt
     let targetLatlngs = target.getLatLngs();
     let firstLatlngs;
     let secondLatlngs;
@@ -132,6 +132,7 @@ let addBranchConnection = (pipe, event, target) => {
     let distanceMin = Infinity;
     let segmentMin = null;
 
+    // Finds closest point where user's click when connecting two pipes.
     for (let i = 0; i < targetLatlngs.length - 1; i++) {
         let segment = [targetLatlngs[i], targetLatlngs[i + 1]];
         let distance = L.GeometryUtil.distanceSegment(map, event.latlng, segment[0], segment[1]);
@@ -152,6 +153,7 @@ let addBranchConnection = (pipe, event, target) => {
 
     let url = 'https://cdn4.iconfinder.com/data/icons/bathroom-accessory-outline/32/14-512.png';
 
+    // Creates the marker for branch connector.
     let branchMarker = new Marker(event.latlng, ["Förgrening"], L.icon({
         iconAnchor: [19.5, 19.5],
         iconSize: [39, 39],
@@ -190,9 +192,9 @@ export let clearStartPolyline = () => {
 
 
 /**
- * clearHouse - Description
+ * clearHouse - A house is marked when user cancels the drawing tool.
  *
- * @returns {type} Description
+ * @returns {void}
  */
 export let clearHouse = () => {
     house = null;
