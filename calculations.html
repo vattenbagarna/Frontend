@@ -14,10 +14,11 @@
 			</div>
 			<div class="container">
 				<form class="form-inline" autocomplete="off">
-					<label for="length">Längd L</label>
-					<input data-digits-only type="text" id="length" name="length" placeholder="Längd">&nbsp; m
-					<label for="height">Statisk höjd H</label>
-					<input data-digits-only type="text" id="height" name="height" placeholder="Höjd">&nbsp; m
+					<h3>Spillvatten</h3>
+					<label for="length">Längd</label>
+					<input data-digits-only type="number" id="length" name="length" placeholder="Längd">&nbsp; m
+					<label for="height">Statisk höjd</label>
+					<input data-digits-only type="number" id="height" name="height" placeholder="Höjd">&nbsp; m
 					<label for="material">Material</label>
 					<select id="material" name="material">
 						<option value="choose" disabled selected>Välj material</option>
@@ -25,31 +26,33 @@
 						<option value="PE">PE</option>
 						<option value="stainless">Rostfria</option>
 					</select>
-					<label name="dimension" value="ID"></label>
-						<input type="radio" id="innerdimension" name="dimension" value="ID"><p></p>
-					<label name="dimension" value="YD"></label>
-						<input type="radio" id="outerdimension" name="dimension" value="YD"><p></p>
-					<label name="dimension" value="inches"></label>
-						<input type="radio" id="inches" name="dimension" value="inches"><p></p>
+					<label name="dimension"></label>
+						<input type="radio" id="innerdimension" name="dimension"><p></p>
+					<label name="dimension"></label>
+						<input type="radio" id="outerdimension" name="dimension"><p></p>
+					<label name="dimension"></label>
+						<input type="radio" id="inches" name="dimension"><p></p>
 					<select id="selectDim">
 					</select>
-					<label name="pressureChoice" value="pressure"></label>
+					<label name="pressureChoice"></label>
 						<input type="radio" id="pressure1" name="PN" value="PN6,3"><p></p>
 					<label name="pressureChoice" value="pressure"></label>
 						<input type="radio" id="pressure2" name="PN" value="PN10"><p></p>
 					<label for="flow" id ="flowLabel"><p></p></label>
-						<input data-digits-only type="text" id="flow" name="flow" placeholder="0"><p></p>
-				<input type="button" name="submit" id="submit" value="Punkförsluster">
+						<input data-digits-only type="number" id="flow" name="flow" placeholder="0" onkeypress="enterPressed(this, event);"><p></p>
+				<input type="button" name="submit" id="submit" value="Punkförsluster" onclick="calcAll();">
 				</form>
-				<form class="form-inline results">
-					<label for="waterSpeed">Vattenhastighet</label>
-					<input disabled="disabled" type="text" id="waterSpeed" name="waterSpeed" placeholder="0">&nbsp; m/s
-					<label for="StaticPressure">Statiskt tryck</label>
-					<input disabled="disabled" type="text" id="StaticPressure" name="StaticPressure" placeholder="0">&nbsp; m
-					<label for="loss">Förluster</label>
-					<input disabled="disabled" type="text" id="loss" name="loss" placeholder="0">&nbsp; m
-					<label for="TotalPressure">Totaltryck</label>
-					<input disabled="disabled" type="text" id="TotalPressure" name="TotalPressure" placeholder="0">&nbsp; m
+				<form class="form-inline results" autocomplete="off">
+					<label for="waterSpeed">Flödeshastighet</label>
+					<input disabled="disabled" type="number" id="flowSpeed" name="flowSpeed" placeholder="0">&nbsp; m/s
+					<label for="staticPressure">Statiskt tryck</label>
+					<input disabled="disabled" type="number" id="staticPressure" name="staticPressure" placeholder="0">&nbsp; m
+					<label for="loss">Tryckförluster</label>
+					<input disabled="disabled" type="number" id="pressureLoss" name="pressureLoss" placeholder="0">&nbsp; bar
+					<label for="totalPressure">Totaltryck</label>
+					<input disabled="disabled" type="number" id="totalPressure" name="totalPressure" placeholder="0">&nbsp; m
+					<label for="capacity">Kapacitet</label>
+					<input disabled="disabled" type="number" id="capacity" name="capacity" placeholder="0">&nbsp; l/s
 				</form>
 			</div>
 		</body>

@@ -24,7 +24,7 @@
     margin-left: 5%;
 }
 
-input[type=text], select {
+input[type=number], select {
     width: 40rem;
     padding: 12px 20px;
     margin: 8px 0;

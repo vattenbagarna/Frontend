@@ -1,5 +1,5 @@
 /**
-    * hideFlow() - hides the input for flow and hides the submit button
+    * hideFlow - Hides the input for flow and hides the submit button
     *
     * @returns {void}
     */
@@ -11,20 +11,6 @@ function hideFlow() {
     showFlow.style.display = "none";
 }
 hideFlow();
-
-/**
-    * Calculates the input after the submit button has been clicked
-    *
-    * @param {submit} click
-    * @returns {void}
-    */
-// document.getElementById("submit").addEventListener("click", () => {
-//     let diameter = document.getElementById("length").value;
-//     let length = document.getElementById("length").value;
-//     let height = document.getElementById("height").value;
-//     //let dimension = document.getElementById("dimension").value;
-//     let flow = document.getElementById("flow").value;
-// });
 
 /**
     * Displays the outer dimension for the different materials after the outerdimension
@@ -108,7 +94,7 @@ document.getElementById("material").addEventListener("change", () => {
 });
 
 /**
-    * PEMPipe() - creates the dimensions for the PEM material
+    * PEMPipe - Creates the dimensions for the PEM material
     *
     * @returns {void}
     */
@@ -143,7 +129,7 @@ function PEMPipe() {
 }
 
 /**
-    * PEPipe() - creates the dimensions for the PE material
+    * PEPipe - Creates the dimensions for the PE material
     *
     * @returns {void}
     */
@@ -177,7 +163,7 @@ function PEPipe() {
 }
 
 /**
-    * stainlessPipe() - creates the dimensions for the stainless material
+    * stainlessPipe - Creates the dimensions for the stainless material
     *
     * @returns {void}
     */
@@ -218,7 +204,7 @@ function stainlessPipe() {
 }
 
 /**
-    * showStyling() - displays the input boxes
+    * showStyling - Displays the input boxes
     *
     * @returns {void}
     */
@@ -237,7 +223,7 @@ function showStyling() {
 }
 
 /**
-    * hideStyling() - hides the input boxes
+    * hideStyling - Hides the input boxes
     *
     * @returns {void}
     */
@@ -257,9 +243,336 @@ function hideStyling() {
     document.getElementById("pressure2").checked = false;
     document.getElementById("innerdimension").checked = false;
     document.getElementById("outerdimension").checked = false;
-    document.getElementById("flowLabel").style.display = "none";
     document.getElementById("flow").style.display = "none";
     document.getElementById("submit").style.display = "none";
     document.getElementById("flowLabel").innerHTML = "";
     document.getElementById("flow").nextSibling.innerHTML = "";
+}
+
+/**
+    * enterPressed - Do the calculations when enter is pressed
+    *
+    * @param {object} enter
+    * @param {event} event
+    * @returns {void}
+    */
+function enterPressed(enter, event) {
+  if (event.keyCode == 13) {
+    calcAll();
+    enter.blur();
+ }
+}
+
+/**
+    * calcAll - Calculates everything
+    *
+    * @returns {void}
+    */
+function calcAll() {
+  let height = parseFloat(document.getElementById("height").value);
+  let length = parseFloat(document.getElementById("length").value);
+  let selectedDim = parseFloat(document.getElementById("selectDim").value);
+  let wantedFlow = parseFloat(document.getElementById("flow").value);
+  let press1 = 6;
+  let press2 = 4;
+  //let h1 = 0;
+  //let h2 = 0;
+  let rho = 1000;
+  let mu = 0.015;
+
+  if (document.getElementById("inches").checked) {
+      selectedDim = convertInches(selectedDim);
+  }
+
+  let lostP = Math.round(calcP(wantedFlow, selectedDim, mu, length));
+  let rFlow = calcQPump(selectedDim, mu, length, press1, press2, height);
+  let velocity = Math.round(calcV(wantedFlow, selectedDim));
+  let convertFlow = rFlow.toFixed(2);
+  let totalP = totalPressure(lostP, height);
+
+  document.getElementById("flowSpeed").value = velocity;
+  document.getElementById("pressureLoss").value = lostP;
+  document.getElementById("capacity").value = convertFlow;
+  document.getElementById("totalPressure").value = totalP;
+
+}
+
+/* ***************************** Math  Functions ************************************* */
+/**
+    * convertInches - Converts inches to mm
+    *
+    * @param {number} selectedDim
+    * @returns {number} selectedDim
+    */
+function convertInches(selectedDim) {
+  selectedDim = selectedDim * 25.4;
+
+  return selectedDim;
+}
+/**
+  * Calculate lost pressure.
+  *
+  * @param {number} Flowcapacity
+  * @param {number} Innerdimension
+  * @param {number} MU (friction)
+  * @param {number} Pipelength
+  *
+  * @return {number} lost pressure
+  *
+  */
+function calcP(q, di, mu, l) {
+    let inDi = di; // mm
+    let pLength = l; // m
+    let avgQ = q/1000; // l/s
+    let inMu = mu; // mm
+    let rho = 1000; // kg/m3
+    let viscosity = 1e-6; // m2/s
+
+    let top = 2 * pLength * rho * avgQ * avgQ;
+    let bot = (Math.PI * Math.PI * Math.pow(inDi / 1000, 5));
+    let a =  top/bot;
+
+    let b = inMu / (3.7 * inDi);
+
+    top = 2.51 * viscosity;
+    bot = (Math.sqrt(2 / (pLength * rho)) * Math.pow(inDi / 1000, 1.5));
+    let c = top/bot;
+
+    let oldP = 100000;
+    let newP;
+    let error;
+
+    for (let i = 0; i < 20; i++) {
+        newP = a / square(log10(b + c * Math.pow(oldP, -0.5)));
+        error = newP / oldP - 1;
+        oldP = newP;
+        if (Math.abs(error) < 1e-10) {
+            break;
+        }
+    }
+    return newP / 100000;
+}
+
+/**
+  * Calculate capacity for pump pipes
+  *
+  * @param {number} Innerdiameter
+  * @param {number} MU
+  * @param {number} Rörledningens längd
+  * @param {number} Tryck vid inlopp
+  * @param {number} Tryck vid utlopp
+  * @param {number} Inloppshöjd
+  * @param {number} Utloppshöjd
+  *
+  * @return {number} capacity
+  *
+  */
+function calcQPump(di, mu, l, press1, press2, height) {
+    let Di = di / 1000;
+    let inMu = mu; // mm
+    let length = l; // m
+    //let height = h1 - h2;
+
+    let viscosity = 1e-6; // m2/s
+    let rho = 1000; // kg/m3
+
+    let deltap = (press1 - press2 + 0.0981 * (height) * rho / 1000) * 100000;
+
+    let top = -Math.PI / 2 * Math.pow(Di, 2.5);
+    let top2 = Math.sqrt(2 * deltap / (length * rho));
+    let inside = inMu / 1000 / (3.7 * Di);
+    let rightInside = (Math.pow(Di, 1.5) * Math.sqrt(2 * deltap / (length * rho)));
+    let avgQ = top * top2 * log10(inside + 2.51 * viscosity/ rightInside);
+
+    return avgQ*1000;
+}
+
+/**
+    * totalPressure - Calculates total pressure
+    *
+    * @param {number} lostP
+    * @param {number} height
+    * @returns {number} total
+    */
+function totalPressure(lostP, height) {
+    let total = lostP + height;
+
+    return total;
+}
+
+// /**
+//   * Calculate diameter for pump pipes
+//   *
+//   * @param {number} Önskad flödeskapacitet
+//   * @param {number} Innerdiameter
+//   * @param {number} Råhetstal
+//   * @param {number} Rörledningens längd
+//   * @param {number} Tryck vid inlopp
+//   * @param {number} Tryck vid utlopp
+//   * @param {number} Inloppshöjd
+//   * @param {number} Utloppshöjd
+//   *
+//   * @return {number} innerdiameter
+//   *
+//   */
+// function calcDPump(q, di, mu, l, p1, p2, h1, h2) {
+//     let avgQ = q/1000; // l/s
+//     let inDi = di; // mm
+//     let inMu = mu; // mm
+//
+//     let viscosity = 1e-6; // m2/s
+//     let rho = 1000; // kg/m3
+//
+//     let height = h1 - h2;
+//     let length = l; // m
+//
+//     let deltap;
+//     let oldD = 1;
+//     let newD;
+//     let error;
+//
+//     let deltap = (p1 - p2 + 0.0981 * (height) * rho / 1000) * 100000;
+//
+//     for (let i = 0; i < 20; i++) {
+//         let pow = -Math.pow(2, -2 / 5);
+//         let smallmu = inMu / 1000 / (3.7 * oldD);
+//         let lSqrt = Math.sqrt(2 * deltap * Math.pow(oldD, 5) / (length * rho));
+//         let long10 = smallmu + 2.51 * oldD * viscosity / lSqrt;
+//         let some = (deltap * Math.PI * log10(long10));
+//         let inpow1 = length * rho * square(avgQ) * Math.pow(deltap, 4);
+//         let inpow2 = Math.pow(-2 * Math.PI * log10(long10), 3);
+//
+//         newD = pow / some * Math.pow(inpow1 * inpow2, 1 / 5);
+//
+//         error = newD / oldD - 1;
+//         oldD = newD;
+//         if (Math.abs(error) < 1e-10) {
+//             break;
+//         }
+//     }
+//     inDi = newD * 1000;
+//
+//     return inDi;
+// }
+
+/**
+  * Calculate capacity for gravity pipes
+  *
+  * @param {number} Innerdiameter
+  * @param {number} Råhetstal
+  * @param {number} Fall %o
+  *
+  * @return {number} capacity
+  *
+  */
+function calcQGravity(di, mu, slope) {
+    let Di = di / 1000;
+    let inMu = mu; // mm
+    let height = slope;
+    let length = 1000;
+
+    let viscosity = 1e-6; // m2/s
+    let rho = 1000; // kg/m3
+
+    let p1 = 0;
+    let p2 = 0;
+
+    let deltap = (p1 - p2 + 0.0981 * (height) * rho / 1000) * 100000;
+
+    let top = -Math.PI / 2 * Math.pow(Di, 2.5);
+    let top2 = Math.sqrt(2 * deltap / (length * rho));
+    let inside = inMu / 1000 / (3.7 * Di);
+    let rightInside = (Math.pow(Di, 1.5) * Math.sqrt(2 * deltap / (length * rho)));
+    let avgQ = top * top2 * log10(inside + 2.51 * viscosity/ rightInside);
+
+    return avgQ*1000;
+}
+
+/**
+  * Calculate diameter for gravity pipes
+  *
+  * @param {number} Önskad flödeskapacitet
+  * @param {number} Råhetstal
+  * @param {number} Fall %o
+  *
+  * @return {number} innerdiameter
+  *
+  */
+function calcDGravity(q, mu, slope) {
+    let avgQ = q/1000; // l/s
+    let height = slope;
+    let inMu = mu;
+    let length = 1000;
+
+    let viscosity = 1e-6; // m2/s
+    let rho = 1000; // kg/m3
+
+    let deltap;
+    let oldD = 1;
+    let newD;
+    let error;
+
+    let p1 = 0;
+    let p2 = 0;
+
+    deltap = (p1 - p2 + 0.0981 * (height) * rho / 1000) * 100000;
+
+
+    for (let i = 0; i < 20; i++) {
+        let pow = -Math.pow(2, -2 / 5);
+        let smallmu = inMu / 1000 / (3.7 * oldD);
+        let lSqrt = Math.sqrt(2 * deltap * Math.pow(oldD, 5) / (length * rho));
+        let long10 = smallmu + 2.51 * oldD * viscosity / lSqrt;
+        let some = (deltap * Math.PI * log10(long10));
+        let inpow1 = length * rho * square(avgQ) * Math.pow(deltap, 4);
+        let inpow2 = Math.pow(-2 * Math.PI * log10(long10), 3);
+
+        newD = pow / some * Math.pow(inpow1 * inpow2, 1 / 5);
+        error = newD / oldD - 1;
+        oldD = newD;
+        if (Math.abs(error) < 1e-10) {
+            break;
+        }
+    }
+    let inDi = newD * 1000;
+
+    return inDi;
+}
+
+/**
+  * Calculate velocity
+  *
+  * @param {number} Önskad flödeskapacitet
+  * @param {number} innerdiameter
+  *
+  * @return {number} velocity
+  *
+  */
+function calcV(q, di) {
+    q /= 1000; // l/s
+    return 4 * 1000000 * q / (di * di * Math.PI);
+}
+
+/**
+  * X squared
+  *
+  * @param {number} Value to square
+  *
+  * @return {number} result of value squared
+  *
+  */
+function square(x) {
+    return Math.pow(x, 2);
+}
+
+/**
+  * X log10
+  *
+  * @param {number} Value to log10
+  *
+  * @return {number} result of value log10
+  *
+  */
+function log10(x) {
+    return Math.LOG10E * Math.log(x);
 }
