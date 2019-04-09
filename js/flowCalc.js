@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+
 /**
     * hideFlow - Hides the input for flow and hides the submit button
     *
@@ -257,10 +259,10 @@ function hideStyling() {
     * @returns {void}
     */
 function enterPressed(enter, event) {
-  if (event.keyCode == 13) {
-    calcAll();
-    enter.blur();
- }
+    if (event.keyCode == 13) {
+        calcAll();
+        enter.blur();
+    }
 }
 
 /**
@@ -269,32 +271,31 @@ function enterPressed(enter, event) {
     * @returns {void}
     */
 function calcAll() {
-  let height = parseFloat(document.getElementById("height").value);
-  let length = parseFloat(document.getElementById("length").value);
-  let selectedDim = parseFloat(document.getElementById("selectDim").value);
-  let wantedFlow = parseFloat(document.getElementById("flow").value);
-  let press1 = 6;
-  let press2 = 4;
-  //let h1 = 0;
-  //let h2 = 0;
-  let rho = 1000;
-  let mu = 0.015;
+    let height = parseFloat(document.getElementById("height").value);
+    let length = parseFloat(document.getElementById("length").value);
+    let selectedDim = parseFloat(document.getElementById("selectDim").value);
+    let wantedFlow = parseFloat(document.getElementById("flow").value);
+    let press1 = 6;
+    let press2 = 4;
+    //let h1 = 0;
+    //let h2 = 0;
+    //let rho = 1000;
+    let mu = 0.015;
 
-  if (document.getElementById("inches").checked) {
-      selectedDim = convertInches(selectedDim);
-  }
+    if (document.getElementById("inches").checked) {
+        selectedDim = convertInches(selectedDim);
+    }
 
-  let lostP = Math.round(calcP(wantedFlow, selectedDim, mu, length));
-  let rFlow = calcQPump(selectedDim, mu, length, press1, press2, height);
-  let velocity = Math.round(calcV(wantedFlow, selectedDim));
-  let convertFlow = rFlow.toFixed(2);
-  let totalP = totalPressure(lostP, height);
+    let lostP = Math.round(calcP(wantedFlow, selectedDim, mu, length));
+    let rFlow = calcQPump(selectedDim, mu, length, press1, press2, height);
+    let velocity = Math.round(calcV(wantedFlow, selectedDim));
+    let convertFlow = rFlow.toFixed(2);
+    let totalP = totalPressure(lostP, height);
 
-  document.getElementById("flowSpeed").value = velocity;
-  document.getElementById("pressureLoss").value = lostP;
-  document.getElementById("capacity").value = convertFlow;
-  document.getElementById("totalPressure").value = totalP;
-
+    document.getElementById("flowSpeed").value = velocity;
+    document.getElementById("pressureLoss").value = lostP;
+    document.getElementById("capacity").value = convertFlow;
+    document.getElementById("totalPressure").value = totalP;
 }
 
 /* ***************************** Math  Functions ************************************* */
@@ -305,9 +306,9 @@ function calcAll() {
     * @returns {number} selectedDim
     */
 function convertInches(selectedDim) {
-  selectedDim = selectedDim * 25.4;
+    selectedDim = selectedDim * 25.4;
 
-  return selectedDim;
+    return selectedDim;
 }
 /**
   * Calculate lost pressure.
@@ -465,28 +466,28 @@ function totalPressure(lostP, height) {
   * @return {number} capacity
   *
   */
-function calcQGravity(di, mu, slope) {
-    let Di = di / 1000;
-    let inMu = mu; // mm
-    let height = slope;
-    let length = 1000;
-
-    let viscosity = 1e-6; // m2/s
-    let rho = 1000; // kg/m3
-
-    let p1 = 0;
-    let p2 = 0;
-
-    let deltap = (p1 - p2 + 0.0981 * (height) * rho / 1000) * 100000;
-
-    let top = -Math.PI / 2 * Math.pow(Di, 2.5);
-    let top2 = Math.sqrt(2 * deltap / (length * rho));
-    let inside = inMu / 1000 / (3.7 * Di);
-    let rightInside = (Math.pow(Di, 1.5) * Math.sqrt(2 * deltap / (length * rho)));
-    let avgQ = top * top2 * log10(inside + 2.51 * viscosity/ rightInside);
-
-    return avgQ*1000;
-}
+// function calcQGravity(di, mu, slope) {
+//     let Di = di / 1000;
+//     let inMu = mu; // mm
+//     let height = slope;
+//     let length = 1000;
+//
+//     let viscosity = 1e-6; // m2/s
+//     let rho = 1000; // kg/m3
+//
+//     let p1 = 0;
+//     let p2 = 0;
+//
+//     let deltap = (p1 - p2 + 0.0981 * (height) * rho / 1000) * 100000;
+//
+//     let top = -Math.PI / 2 * Math.pow(Di, 2.5);
+//     let top2 = Math.sqrt(2 * deltap / (length * rho));
+//     let inside = inMu / 1000 / (3.7 * Di);
+//     let rightInside = (Math.pow(Di, 1.5) * Math.sqrt(2 * deltap / (length * rho)));
+//     let avgQ = top * top2 * log10(inside + 2.51 * viscosity/ rightInside);
+//
+//     return avgQ*1000;
+// }
 
 /**
   * Calculate diameter for gravity pipes
@@ -498,46 +499,46 @@ function calcQGravity(di, mu, slope) {
   * @return {number} innerdiameter
   *
   */
-function calcDGravity(q, mu, slope) {
-    let avgQ = q/1000; // l/s
-    let height = slope;
-    let inMu = mu;
-    let length = 1000;
-
-    let viscosity = 1e-6; // m2/s
-    let rho = 1000; // kg/m3
-
-    let deltap;
-    let oldD = 1;
-    let newD;
-    let error;
-
-    let p1 = 0;
-    let p2 = 0;
-
-    deltap = (p1 - p2 + 0.0981 * (height) * rho / 1000) * 100000;
-
-
-    for (let i = 0; i < 20; i++) {
-        let pow = -Math.pow(2, -2 / 5);
-        let smallmu = inMu / 1000 / (3.7 * oldD);
-        let lSqrt = Math.sqrt(2 * deltap * Math.pow(oldD, 5) / (length * rho));
-        let long10 = smallmu + 2.51 * oldD * viscosity / lSqrt;
-        let some = (deltap * Math.PI * log10(long10));
-        let inpow1 = length * rho * square(avgQ) * Math.pow(deltap, 4);
-        let inpow2 = Math.pow(-2 * Math.PI * log10(long10), 3);
-
-        newD = pow / some * Math.pow(inpow1 * inpow2, 1 / 5);
-        error = newD / oldD - 1;
-        oldD = newD;
-        if (Math.abs(error) < 1e-10) {
-            break;
-        }
-    }
-    let inDi = newD * 1000;
-
-    return inDi;
-}
+// function calcDGravity(q, mu, slope) {
+//     let avgQ = q/1000; // l/s
+//     let height = slope;
+//     let inMu = mu;
+//     let length = 1000;
+//
+//     let viscosity = 1e-6; // m2/s
+//     let rho = 1000; // kg/m3
+//
+//     let deltap;
+//     let oldD = 1;
+//     let newD;
+//     let error;
+//
+//     let p1 = 0;
+//     let p2 = 0;
+//
+//     deltap = (p1 - p2 + 0.0981 * (height) * rho / 1000) * 100000;
+//
+//
+//     for (let i = 0; i < 20; i++) {
+//         let pow = -Math.pow(2, -2 / 5);
+//         let smallmu = inMu / 1000 / (3.7 * oldD);
+//         let lSqrt = Math.sqrt(2 * deltap * Math.pow(oldD, 5) / (length * rho));
+//         let long10 = smallmu + 2.51 * oldD * viscosity / lSqrt;
+//         let some = (deltap * Math.PI * log10(long10));
+//         let inpow1 = length * rho * square(avgQ) * Math.pow(deltap, 4);
+//         let inpow2 = Math.pow(-2 * Math.PI * log10(long10), 3);
+//
+//         newD = pow / some * Math.pow(inpow1 * inpow2, 1 / 5);
+//         error = newD / oldD - 1;
+//         oldD = newD;
+//         if (Math.abs(error) < 1e-10) {
+//             break;
+//         }
+//     }
+//     let inDi = newD * 1000;
+//
+//     return inDi;
+// }
 
 /**
   * Calculate velocity
