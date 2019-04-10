@@ -18,7 +18,8 @@ hideFlow();
     * Displays the outer dimension for the different materials after the outerdimension
     * button has been selected
     *
-    * @param {outerdimension} click
+    * @param {object} click
+    *
     * @returns {void}
     */
 document.getElementById("outerdimension").addEventListener("click", () => {
@@ -41,7 +42,8 @@ document.getElementById("outerdimension").addEventListener("click", () => {
     * Displays the inner dimension for the different materials after the innerdimension
     * button has been selected
     *
-    * @param {innerdimension} click
+    * @param {object} click
+    *
     * @returns {void}
     */
 document.getElementById("innerdimension").addEventListener("click", () => {
@@ -64,7 +66,8 @@ document.getElementById("innerdimension").addEventListener("click", () => {
     * Displays the dimension in inches for the stainless pipes after the inches
     * button has been selected
     *
-    * @param {inches} click
+    * @param {object} click
+    *
     * @returns {void}
     */
 document.getElementById("inches").addEventListener("click", () => {
@@ -79,7 +82,8 @@ document.getElementById("inches").addEventListener("click", () => {
     * Displays the associated dimension for the material after the material
     * button has been changed
     *
-    * @param {material} change
+    * @param {object} change
+    *
     * @returns {void}
     */
 document.getElementById("material").addEventListener("change", () => {
@@ -254,8 +258,9 @@ function hideStyling() {
 /**
     * enterPressed - Do the calculations when enter is pressed
     *
-    * @param {object} enter
+    * @param {key} enter
     * @param {event} event
+    *
     * @returns {void}
     */
 function enterPressed(enter, event) {
@@ -302,8 +307,8 @@ function calcAll() {
 /**
     * convertInches - Converts inches to mm
     *
-    * @param {number} selectedDim
-    * @returns {number} selectedDim
+    * @param {number} Selected dimension
+    * @returns {number} Selected dimension in mm
     */
 function convertInches(selectedDim) {
     selectedDim = selectedDim * 25.4;
@@ -318,7 +323,7 @@ function convertInches(selectedDim) {
   * @param {number} MU (friction)
   * @param {number} Pipelength
   *
-  * @return {number} lost pressure
+  * @return {number} Lost pressure
   *
   */
 function calcP(q, di, mu, l) {
@@ -357,15 +362,14 @@ function calcP(q, di, mu, l) {
 /**
   * Calculate capacity for pump pipes
   *
-  * @param {number} Innerdiameter
+  * @param {number} Innerdimension
   * @param {number} MU
-  * @param {number} Rörledningens längd
-  * @param {number} Tryck vid inlopp
-  * @param {number} Tryck vid utlopp
-  * @param {number} Inloppshöjd
-  * @param {number} Utloppshöjd
+  * @param {number} Pipelength
+  * @param {number} Inpressure
+  * @param {number} Height
+  * @param {number} Outpressure
   *
-  * @return {number} capacity
+  * @return {number} Capacity
   *
   */
 function calcQPump(di, mu, l, inPress, height, pressOut) {
@@ -389,9 +393,10 @@ function calcQPump(di, mu, l, inPress, height, pressOut) {
 /**
     * totalPressure - Calculates total pressure
     *
-    * @param {number} lostP
-    * @param {number} height
-    * @returns {number} total
+    * @param {number} Lost pressure
+    * @param {number} Height
+    *
+    * @returns {number} Total
     */
 function totalPressure(lostPress, inPress) {
     let total = lostPress + inPress;
@@ -399,152 +404,13 @@ function totalPressure(lostPress, inPress) {
     return total;
 }
 
-// /**
-//   * Calculate diameter for pump pipes
-//   *
-//   * @param {number} Önskad flödeskapacitet
-//   * @param {number} Innerdiameter
-//   * @param {number} Råhetstal
-//   * @param {number} Rörledningens längd
-//   * @param {number} Tryck vid inlopp
-//   * @param {number} Tryck vid utlopp
-//   * @param {number} Inloppshöjd
-//   * @param {number} Utloppshöjd
-//   *
-//   * @return {number} innerdiameter
-//   *
-//   */
-// function calcDPump(q, di, mu, l, p1, p2, h1, h2) {
-//     let avgQ = q/1000; // l/s
-//     let inDi = di; // mm
-//     let inMu = mu; // mm
-//
-//     let viscosity = 1e-6; // m2/s
-//     let rho = 1000; // kg/m3
-//
-//     let height = h1 - h2;
-//     let length = l; // m
-//
-//     let deltap;
-//     let oldD = 1;
-//     let newD;
-//     let error;
-//
-//     let deltap = (p1 - p2 + 0.0981 * (height) * rho / 1000) * 100000;
-//
-//     for (let i = 0; i < 20; i++) {
-//         let pow = -Math.pow(2, -2 / 5);
-//         let smallmu = inMu / 1000 / (3.7 * oldD);
-//         let lSqrt = Math.sqrt(2 * deltap * Math.pow(oldD, 5) / (length * rho));
-//         let long10 = smallmu + 2.51 * oldD * viscosity / lSqrt;
-//         let some = (deltap * Math.PI * log10(long10));
-//         let inpow1 = length * rho * square(avgQ) * Math.pow(deltap, 4);
-//         let inpow2 = Math.pow(-2 * Math.PI * log10(long10), 3);
-//
-//         newD = pow / some * Math.pow(inpow1 * inpow2, 1 / 5);
-//
-//         error = newD / oldD - 1;
-//         oldD = newD;
-//         if (Math.abs(error) < 1e-10) {
-//             break;
-//         }
-//     }
-//     inDi = newD * 1000;
-//
-//     return inDi;
-// }
-
-/**
-  * Calculate capacity for gravity pipes
-  *
-  * @param {number} Innerdiameter
-  * @param {number} Råhetstal
-  * @param {number} Fall %o
-  *
-  * @return {number} capacity
-  *
-  */
-// function calcQGravity(di, mu, slope) {
-//     let Di = di / 1000;
-//     let inMu = mu; // mm
-//     let height = slope;
-//     let length = 1000;
-//
-//     let viscosity = 1e-6; // m2/s
-//     let rho = 1000; // kg/m3
-//
-//     let p1 = 0;
-//     let p2 = 0;
-//
-//     let deltap = (p1 - p2 + 0.0981 * (height) * rho / 1000) * 100000;
-//
-//     let top = -Math.PI / 2 * Math.pow(Di, 2.5);
-//     let top2 = Math.sqrt(2 * deltap / (length * rho));
-//     let inside = inMu / 1000 / (3.7 * Di);
-//     let rightInside = (Math.pow(Di, 1.5) * Math.sqrt(2 * deltap / (length * rho)));
-//     let avgQ = top * top2 * log10(inside + 2.51 * viscosity/ rightInside);
-//
-//     return avgQ*1000;
-// }
-
-/**
-  * Calculate diameter for gravity pipes
-  *
-  * @param {number} Önskad flödeskapacitet
-  * @param {number} Råhetstal
-  * @param {number} Fall %o
-  *
-  * @return {number} innerdiameter
-  *
-  */
-// function calcDGravity(q, mu, slope) {
-//     let avgQ = q/1000; // l/s
-//     let height = slope;
-//     let inMu = mu;
-//     let length = 1000;
-//
-//     let viscosity = 1e-6; // m2/s
-//     let rho = 1000; // kg/m3
-//
-//     let deltap;
-//     let oldD = 1;
-//     let newD;
-//     let error;
-//
-//     let p1 = 0;
-//     let p2 = 0;
-//
-//     deltap = (p1 - p2 + 0.0981 * (height) * rho / 1000) * 100000;
-//
-//
-//     for (let i = 0; i < 20; i++) {
-//         let pow = -Math.pow(2, -2 / 5);
-//         let smallmu = inMu / 1000 / (3.7 * oldD);
-//         let lSqrt = Math.sqrt(2 * deltap * Math.pow(oldD, 5) / (length * rho));
-//         let long10 = smallmu + 2.51 * oldD * viscosity / lSqrt;
-//         let some = (deltap * Math.PI * log10(long10));
-//         let inpow1 = length * rho * square(avgQ) * Math.pow(deltap, 4);
-//         let inpow2 = Math.pow(-2 * Math.PI * log10(long10), 3);
-//
-//         newD = pow / some * Math.pow(inpow1 * inpow2, 1 / 5);
-//         error = newD / oldD - 1;
-//         oldD = newD;
-//         if (Math.abs(error) < 1e-10) {
-//             break;
-//         }
-//     }
-//     let inDi = newD * 1000;
-//
-//     return inDi;
-// }
-
 /**
   * Calculate velocity
   *
-  * @param {number} Önskad flödeskapacitet
-  * @param {number} innerdiameter
+  * @param {number} Wanted flow
+  * @param {number} Innerdimension
   *
-  * @return {number} velocity
+  * @return {number} Velocity
   *
   */
 function calcV(q, di) {
@@ -557,7 +423,7 @@ function calcV(q, di) {
   *
   * @param {number} Value to square
   *
-  * @return {number} result of value squared
+  * @return {number} Result of value squared
   *
   */
 function square(x) {
@@ -569,7 +435,7 @@ function square(x) {
   *
   * @param {number} Value to log10
   *
-  * @return {number} result of value log10
+  * @return {number} Result of value log10
   *
   */
 function log10(x) {
