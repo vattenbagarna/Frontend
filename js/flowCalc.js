@@ -218,7 +218,7 @@ function showStyling() {
     document.getElementById("pressure1").nextSibling.innerHTML = "PN 6.3";
     document.getElementById("pressure2").nextSibling.innerHTML = "PN 10";
     document.getElementById("flowLabel").style.marginTop = "20px";
-    document.getElementById("flowLabel").innerHTML = "Flödeskapacitet";
+    document.getElementById("flowLabel").innerHTML = "Önskat flöde";
     document.getElementById("flow").style.marginRight = "10px";
     document.getElementById("flow").nextSibling.innerHTML = "l/s";
     document.getElementById("submit").nextSibling.innerHTML = "Punkförsluster";
@@ -275,27 +275,27 @@ function calcAll() {
     let length = parseFloat(document.getElementById("length").value);
     let selectedDim = parseFloat(document.getElementById("selectDim").value);
     let wantedFlow = parseFloat(document.getElementById("flow").value);
-    let press1 = 6;
-    let press2 = 4;
-    //let h1 = 0;
-    //let h2 = 0;
-    //let rho = 1000;
+    let inPress = parseFloat(document.getElementById("inPressure").value);
+    let pressOut = 0;
     let mu = 0.015;
 
     if (document.getElementById("inches").checked) {
         selectedDim = convertInches(selectedDim);
     }
 
-    let lostP = Math.round(calcP(wantedFlow, selectedDim, mu, length));
-    let rFlow = calcQPump(selectedDim, mu, length, press1, press2, height);
-    let velocity = Math.round(calcV(wantedFlow, selectedDim));
-    let convertFlow = rFlow.toFixed(2);
-    let totalP = totalPressure(lostP, height);
+    let lostPress = calcP(wantedFlow, selectedDim, mu, length);
+    let roundP = lostPress.toFixed(2);
+    let rFlow = calcQPump(selectedDim, mu, length, inPress, height, pressOut);
+    let roundFlow = rFlow.toFixed(2);
+    let velocity = calcV(wantedFlow, selectedDim);
+    let roundVel = velocity.toFixed(2);
+    let totalPress = totalPressure(lostPress, inPress);
+    let roundPress = totalPress.toFixed(2);
 
-    document.getElementById("flowSpeed").value = velocity;
-    document.getElementById("pressureLoss").value = lostP;
-    document.getElementById("capacity").value = convertFlow;
-    document.getElementById("totalPressure").value = totalP;
+    document.getElementById("flowSpeed").value = roundVel;
+    document.getElementById("pressureLoss").value = roundP;
+    document.getElementById("capacity").value = roundFlow;
+    document.getElementById("totalPressure").value = roundPress;
 }
 
 /* ***************************** Math  Functions ************************************* */
@@ -368,16 +368,14 @@ function calcP(q, di, mu, l) {
   * @return {number} capacity
   *
   */
-function calcQPump(di, mu, l, press1, press2, height) {
+function calcQPump(di, mu, l, inPress, height, pressOut) {
     let Di = di / 1000;
     let inMu = mu; // mm
     let length = l; // m
-    //let height = h1 - h2;
-
     let viscosity = 1e-6; // m2/s
     let rho = 1000; // kg/m3
 
-    let deltap = (press1 - press2 + 0.0981 * (height) * rho / 1000) * 100000;
+    let deltap = (inPress - pressOut + 0.0981 * (height) * rho / 1000) * 100000;
 
     let top = -Math.PI / 2 * Math.pow(Di, 2.5);
     let top2 = Math.sqrt(2 * deltap / (length * rho));
@@ -395,8 +393,8 @@ function calcQPump(di, mu, l, press1, press2, height) {
     * @param {number} height
     * @returns {number} total
     */
-function totalPressure(lostP, height) {
-    let total = lostP + height;
+function totalPressure(lostPress, inPress) {
+    let total = lostPress + inPress;
 
     return total;
 }

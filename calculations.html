@@ -13,12 +13,16 @@
 				<h1 class="h-title">Beräkningssida</h1>
 			</div>
 			<div class="container">
-				<form class="form-inline" autocomplete="off">
+				<div class="sub-header">
 					<h3>Spillvatten</h3>
+				</div>
+				<form class="form-inline" autocomplete="off">
 					<label for="length">Längd</label>
 					<input data-digits-only type="number" id="length" name="length" placeholder="Längd">&nbsp; m
 					<label for="height">Statisk höjd</label>
 					<input data-digits-only type="number" id="height" name="height" placeholder="Höjd">&nbsp; m
+					<label for="pressure">Statiskt tryck</label>
+					<input data-digits-only type="number" id="inPressure" name="pressure" placeholder="Tryck">&nbsp; bar
 					<label for="material">Material</label>
 					<select id="material" name="material">
 						<option value="choose" disabled selected>Välj material</option>
@@ -36,17 +40,15 @@
 					</select>
 					<label name="pressureChoice"></label>
 						<input type="radio" id="pressure1" name="PN" value="PN6,3"><p></p>
-					<label name="pressureChoice" value="pressure"></label>
+					<label name="pressureChoice"></label>
 						<input type="radio" id="pressure2" name="PN" value="PN10"><p></p>
 					<label for="flow" id ="flowLabel"><p></p></label>
 						<input data-digits-only type="number" id="flow" name="flow" placeholder="0" onkeypress="enterPressed(this, event);"><p></p>
-				<input type="button" name="submit" id="submit" value="Punkförsluster" onclick="calcAll();">
+				<input type="button" name="submit" id="submit" value="Beräkna" onclick="calcAll();">
 				</form>
 				<form class="form-inline results" autocomplete="off">
 					<label for="waterSpeed">Flödeshastighet</label>
 					<input disabled="disabled" type="number" id="flowSpeed" name="flowSpeed" placeholder="0">&nbsp; m/s
-					<label for="staticPressure">Statiskt tryck</label>
-					<input disabled="disabled" type="number" id="staticPressure" name="staticPressure" placeholder="0">&nbsp; m
 					<label for="loss">Tryckförluster</label>
 					<input disabled="disabled" type="number" id="pressureLoss" name="pressureLoss" placeholder="0">&nbsp; bar
 					<label for="totalPressure">Totaltryck</label>
