@@ -8,7 +8,7 @@ export let markers = L.layerGroup();
 export let polygons = L.layerGroup();
 
 // Imports the map object.
-import { map, pipeChoice } from "./loadLeafletMap.js";
+import { map, pipeChoice, objectData } from "./loadLeafletMap.js";
 
 // Imports three classes that are used for the project.
 import { Marker, House, Pipe } from "./classes.js";
@@ -24,13 +24,21 @@ export const add = {
      * @returns {void}
      */
     marker: (event) => {
-        let attribute = [add.activeObjName, "antalpumpar: 1", "diameter: 600",
-            "inlopp: 110, typ: gummitätning", "höjd: 700",
-            "Kabelgenomförning: 50, typ: gummitätning", "RSK: 5886909",
-            "utlopp: 32, typ: inv. gänga"
-        ];
+        let object;
 
-        new Marker(event.latlng, attribute, add.activeIcon);
+        for (let i = 0; i < objectData.length; i++) {
+            if (add.activeObjName == objectData[i].Modell) {
+                object = objectData[i];
+                break;
+            }
+        }
+        let attributes = [];
+
+        for (let x in object) {
+            attributes.push(`${x}: ${object[x]}`);
+        }
+
+        new Marker(event.latlng, attributes, add.activeIcon);
     },
 
     /**

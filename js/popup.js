@@ -1,20 +1,17 @@
 export let popup = {
-    marker: (attribute) => {
-        //loopa igenom attribute när backend är kopplad istället
+    marker: (attributes) => {
+        let temp = "";
+
+        for (let i = 0; i < attributes.length; i++) {temp += `<tr><td>${attributes[i]}</td></tr>`;}
+
+
         return `<ul class='accordion2'>
     <li>
         <label for='cp-1'>Info</label>
         <input type='radio' name='a' id='cp-1' checked='checked'>
         <div class='content'>
 			<table>
-		        	<tr><td>${attribute}</td></tr>
-					<tr><td>antalpumpar: 1</td></tr>
-					<tr><td>diameter: 600</td></tr>
-					<tr><td>inlopp: 110, typ: gummitätning</td></tr>
-					<tr><td>höjd: 700</td></tr>
-					<tr><td>Kabelgenomförning: 50, typ: gummitätning</td> </tr>
-					<tr><td>RSK: 5886909</td></tr>
-					<tr><td>utlopp: 32, typ: inv. gänga</td></tr>
+		        	${temp}
 			</table>
 		</div>
     </li>`;

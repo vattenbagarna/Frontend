@@ -33,9 +33,11 @@ export class Marker {
 
         this.marker = new L.Marker(latlng, options.marker(icon))
             // Popup behöver uppdateras med backend
-            .bindPopup(popup.marker(this.attributes[0]) + popup.changeCoord(latlng))
+            .bindPopup(popup.marker(this.attributes) + popup.changeCoord(latlng))
             .on("drag", edit.moveMarker)
             .on('popupopen', this.updateCoords);
+
+        this.marker.attributes = attributes;
 
         // Adds marker to map
         markers.addLayer(this.marker).addTo(map);

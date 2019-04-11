@@ -1,14 +1,14 @@
 /* global L */
 
 let temp =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1Y2FmM2M5MDJlMTIwYjBkNzE2OGFkMzYiLCJ1c2VybmFtZSI6ImpvaGFuLmRqYXJ2Lmthcmx0b3JwQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoiJDJiJDEwJGN4c3Nic0oyNy9Sby9xNVR4THA4UGV1cFhFZkhVeFpuUS80TVltL0J2VFRqdkxTQnBrOXNlIiwiaXNBZG1pbiI6ImZhbHNlIiwiaWF0IjoxNTU0OTg4MTc5fQ.X8qkvnr1R9clgVddcaHMywnr_UCyCf0deqi3wKo__xA";
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1Y2FmNTE5MjU0ZDFkMjJjOTczMjdhMDIiLCJ1c2VybmFtZSI6ImpvaGFuLmRqYXJ2Lmthcmx0b3JwQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoiJDJiJDEwJFdCcENyYy9lSzVWNGlVLk1ib0tYeXVGR2lUdEQyY04uZXRSQ0NVeWRMTWhkZFc5MjhxY3J1IiwiaXNBZG1pbiI6ImZhbHNlIiwiaWF0IjoxNTU0OTk1MzM4fQ.VRlrpanSdO2ewYqIN7kn-jiib_Fz_RF-LXdjMH3rCvk";
 
 // Ska skapas vid inlogg i framtiden istället
 let localStorage = window.localStorage;
 
 localStorage.setItem('token', temp);
 
-let token = localStorage.getItem('token');
+export let token = localStorage.getItem('token');
 
 
 // Imports Google maps javascript api key from getKey.js file
@@ -26,73 +26,6 @@ import { show } from "./show.js";
 // If it is 'pipe' or 'stemPipe', uses in add.pipe function
 export let pipeChoice = null;
 export let objectData;
-
-
-/**
- * loadProducts - Description
- *
- * @returns {type} Description
- */
-let loadProducts = () => {
-    fetch(
-        `http://localhost:1337/obj/all?token=${token}`
-    )
-        .then((response) => {
-            return response.json();
-        })
-        .then((json) => {
-            objectData = json;
-            let temp = "";
-            let list = document.getElementsByClassName('obj-list')[0];
-
-            for (let i = 0; i < json.length; i++) {
-                if (temp != json[i].Kategori) {
-                    temp = json[i].Kategori;
-
-                    list.innerHTML +=
-                        `<button class="accordion desc">${json[i].Kategori}</button>
-						 <div class="panel"></div>`;
-
-                    let panels = document.getElementsByClassName('panel');
-                    let panel = panels[panels.length - 1];
-
-                    let object = document.createElement('div');
-
-                    object.innerHTML =
-                        `<div class="obj-container">
-							<div id="${json[i].Kategori}" class="obj ${json[i].Kategori}">
-								<img src="img/${json[i].Modell}.png"/>
-							</div>
-							<div class="obj-desc">${json[i].Modell}</div>
-						 </div>`;
-
-                    panel.appendChild(object);
-                } else {
-                    let panels = document.getElementsByClassName('panel');
-                    let panel = panels[panels.length - 1];
-
-                    let object = document.createElement('div');
-
-                    object.innerHTML =
-                        `<div class="obj-container">
-							<div id="${json[i].Kategori}" class="obj ${json[i].Kategori}">
-						   		<img src="img/${json[i].Modell}.png"/>
-					   		</div>
-					   		<div class="obj-desc">${json[i].Modell}</div>
-						 </div>`;
-
-                    panel.appendChild(object);
-                }
-            }
-
-            accordions();
-            show.activeObj();
-            loadClickEvent();
-            addPipeOnClick();
-            addHouseOnClick();
-        })
-        .catch(error => alert(error));
-};
 
 // Initialize the map with center coordinates on BAGA HQ and zoom 18.
 export const map = L.map("myMap", {
@@ -467,36 +400,6 @@ let deleteOnClick = () => {
 };
 
 /**
- * onLoad - Initialize the map functionality with html objects
- *
- * @returns {void}
- */
-let onLoad = () => {
-    loadProducts();
-    gridlayers();
-    customControl('map');
-    customControl('timeline');
-    customControl('control_camera');
-    customControl('bar_chart');
-    customControl('delete');
-    add.search();
-
-    doNothingonClick();
-    editpipesOnClick();
-    toggleMouseCoordOnClick();
-    getDistanceOnClick();
-    deleteOnClick();
-    save();
-    edit.warning.unsavedChanges();
-
-    //make the blue border appear on mouse icon button on load
-    document.getElementById('map').click();
-};
-
-onLoad();
-
-
-/**
  * loadClickEvent - Description
  *
  * @returns {type} Description
@@ -568,22 +471,125 @@ let loadClickEvent = () => {
             iconUrl: `img/endpointmarker.png`,
             popupAnchor: [0, -19.5]
         }));
-<<<<<<< HEAD
-=======
+};
 
-    addPipeOnClick();
-    addHouseOnClick();
+
+/**
+ * loadProducts - Description
+ *
+ * @returns {type} Description
+ */
+let loadProducts = () => {
+    fetch(
+            `http://localhost:1337/obj/all?token=${token}`
+        )
+        .then((response) => {
+            return response.json();
+        })
+        .then((json) => {
+            objectData = json;
+            let temp = "";
+            let list = document.getElementsByClassName('obj-list')[0];
+
+            for (let i = 0; i < json.length; i++) {
+                if (temp != json[i].Kategori && json[i].Kategori != "Pump") {
+                    temp = json[i].Kategori;
+
+                    list.innerHTML +=
+                        `<button class="accordion desc">${json[i].Kategori}</button>
+						 <div class="panel"></div>`;
+
+                    let panels = document.getElementsByClassName('panel');
+                    let panel = panels[panels.length - 1];
+
+                    let object = document.createElement('div');
+
+                    object.innerHTML =
+                        `<div class="obj-container">
+							<div id="${json[i].Modell}" class="obj ${json[i].Kategori}">
+								<img src="img/${json[i].Modell}.png"/>
+							</div>
+							<div class="obj-desc">${json[i].Modell}</div>
+						 </div>`;
+
+                    panel.appendChild(object);
+                } else {
+                    let panels = document.getElementsByClassName('panel');
+                    let panel = panels[panels.length - 1];
+
+                    let object = document.createElement('div');
+
+                    object.innerHTML =
+                        `<div class="obj-container">
+							<div id="${json[i].Modell}" class="obj ${json[i].Kategori}">
+						   		<img src="img/${json[i].Modell}.png"/>
+					   		</div>
+					   		<div class="obj-desc">${json[i].Modell}</div>
+						 </div>`;
+
+                    panel.appendChild(object);
+                }
+            }
+
+            accordions();
+            show.activeObj();
+
+            loadClickEvent();
+            addPipeOnClick();
+            addHouseOnClick();
+        })
+        .catch(error => alert(error));
+};
+
+
+/**
+ * loadMap - Description
+ *
+ * @returns {type} Description
+ */
+let loadMap = () => {
+    let id = new URL(window.location.href).searchParams.get('id');
+
+    fetch(
+            `http://localhost:1337/proj/data/${id}/12345?token=${token}`
+        )
+        .then((response) => {
+            return response.json();
+        })
+        .then((json) => {
+            edit.load(json[0].data);
+        });
+};
+
+
+
+/**
+ * onLoad - Initialize the map functionality with html objects
+ *
+ * @returns {void}
+ */
+let onLoad = () => {
+    loadMap();
+    loadProducts();
+    gridlayers();
+    customControl('map');
+    customControl('timeline');
+    customControl('control_camera');
+    customControl('bar_chart');
+    customControl('delete');
+    add.search();
 
     doNothingonClick();
     editpipesOnClick();
     toggleMouseCoordOnClick();
     getDistanceOnClick();
     deleteOnClick();
+
     saveBox();
-    edit.load();
     edit.warning.unsavedChanges();
 
     //make the blue border appear on mouse icon button on load
     document.getElementById('map').click();
->>>>>>> materiallist
 };
+
+onLoad();
