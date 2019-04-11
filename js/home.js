@@ -17,8 +17,8 @@ let token = localStorage.getItem('token');
  */
 let loadAllProjects = () => {
     fetch(
-            `http://localhost:1337/proj/all/1234?token=${token}`
-        )
+        `http://localhost:1337/proj/all/1234?token=${token}`
+    )
         .then((response) => {
             return response.json();
         })
@@ -31,7 +31,6 @@ let loadAllProjects = () => {
 
             if (json.length > 0) {
                 for (let i = 0; i < json.length - 1; i++) {
-
                     for (let n = 0; n < json[i].access.length; n++) {
                         if (json[i].access[n].permission == "w") {
                             permission = 'redigera <i class="material-icons">edit</i>';

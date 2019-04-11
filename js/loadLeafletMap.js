@@ -33,10 +33,15 @@ export let pipeChoice = null;
 export let objectData;
 
 
+/**
+ * loadProducts - Description
+ *
+ * @returns {type} Description
+ */
 let loadProducts = () => {
     fetch(
-            `http://localhost:1337/obj/all?token=${token}`
-        )
+        `http://localhost:1337/obj/all?token=${token}`
+    )
         .then((response) => {
             return response.json();
         })
@@ -51,12 +56,13 @@ let loadProducts = () => {
 
                     list.innerHTML +=
                         `<button class="accordion desc">${json[i].Kategori}</button>
-						 <div class="panel"></div>`
+						 <div class="panel"></div>`;
 
                     let panels = document.getElementsByClassName('panel');
                     let panel = panels[panels.length - 1];
 
                     let object = document.createElement('div');
+
                     object.innerHTML =
                         `<div class="obj-container">
 							<div id="${json[i].Kategori}" class="obj ${json[i].Kategori}">
@@ -66,12 +72,12 @@ let loadProducts = () => {
 						 </div>`;
 
                     panel.appendChild(object);
-
                 } else {
                     let panels = document.getElementsByClassName('panel');
                     let panel = panels[panels.length - 1];
 
                     let object = document.createElement('div');
+
                     object.innerHTML =
                         `<div class="obj-container">
 							<div id="${json[i].Kategori}" class="obj ${json[i].Kategori}">
@@ -91,7 +97,7 @@ let loadProducts = () => {
             addHouseOnClick();
         })
         .catch(error => alert(error));
-}
+};
 
 // Initialize the map with center coordinates on BAGA HQ and zoom 18.
 export const map = L.map("myMap", {
@@ -461,6 +467,11 @@ let onLoad = () => {
 onLoad();
 
 
+/**
+ * loadClickEvent - Description
+ *
+ * @returns {type} Description
+ */
 let loadClickEvent = () => {
     addMarkerOnClick(document.getElementsByClassName('Pumpstationer'),
         L.icon({
@@ -528,4 +539,4 @@ let loadClickEvent = () => {
             iconUrl: `img/endpointmarker.png`,
             popupAnchor: [0, -19.5]
         }));
-}
+};

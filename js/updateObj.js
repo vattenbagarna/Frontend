@@ -15,8 +15,8 @@ let id = new URL(window.location.href).searchParams.get('id');
  */
 let loadObject = () => {
     fetch(
-            `http://localhost:1337/obj/id/${id}?token=${localStorage.getItem('token')}`
-        )
+        `http://localhost:1337/obj/id/${id}?token=${localStorage.getItem('token')}`
+    )
         .then(function(response) {
             return response.json();
         })
@@ -80,12 +80,12 @@ let saveObject = (json) => {
         `http://localhost:1337/obj/update/${id}/123?token=${localStorage.getItem('token')}`;
 
     fetch(url, {
-            method: "POST",
-            body: data,
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-            },
-        }).then(res => res.json())
+        method: "POST",
+        body: data,
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+    }).then(res => res.json())
         .then((response) => {
             //json laddas bara in vid load och uppdateras aldrig
             console.log("changed:", JSON.stringify(response) != JSON.stringify(json));
