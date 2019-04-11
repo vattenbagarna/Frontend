@@ -37,18 +37,12 @@ export const show = {
                 //if current have the class "active" replace it with "".
                 if (current.length > 0) {
                     current[0].className =
-                        current[0].className.replace(
-                            " active",
-                            "");
+                        current[0].className.replace(" active", "");
                 }
 
-                current = document.getElementsByClassName(
-                    "active3");
+                current = document.getElementsByClassName("active3");
                 if (current.length > 0) {
-                    current[0].className = current[0].className
-                        .replace(
-                            " active3",
-                            "");
+                    current[0].className = current[0].className.replace(" active3", "");
                 }
 
                 //clicked object gets the class active
@@ -141,8 +135,8 @@ export const show = {
                 //bind a popup with length for current polyline
                 polyline.bindTooltip("Längd: " + Math.round(thisPipeDistance * 100) / 100 +
                     "m", {
-                    autoClose: false
-                }).openTooltip();
+                        autoClose: false
+                    }).openTooltip();
                 //if polylines have more than 2 points
             } else if (tempPolyline.length > 2) {
                 for (var i = 0; i < tempPolyline.length - 1; i++) {
@@ -153,8 +147,8 @@ export const show = {
                 //totalDistance += thisPipeDistance;
                 polyline.bindTooltip("Längd: " + Math.round(thisPipeDistance * 100) / 100 +
                     "m", {
-                    autoClose: false
-                }).openTooltip();
+                        autoClose: false
+                    }).openTooltip();
             }
         });
     },

@@ -1,5 +1,16 @@
 /* global L */
 
+let temp =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1Y2FmM2M5MDJlMTIwYjBkNzE2OGFkMzYiLCJ1c2VybmFtZSI6ImpvaGFuLmRqYXJ2Lmthcmx0b3JwQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoiJDJiJDEwJGN4c3Nic0oyNy9Sby9xNVR4THA4UGV1cFhFZkhVeFpuUS80TVltL0J2VFRqdkxTQnBrOXNlIiwiaXNBZG1pbiI6ImZhbHNlIiwiaWF0IjoxNTU0OTg4MTc5fQ.X8qkvnr1R9clgVddcaHMywnr_UCyCf0deqi3wKo__xA";
+
+// Ska skapas vid inlogg i framtiden istället
+let localStorage = window.localStorage;
+
+localStorage.setItem('token', temp);
+
+let token = localStorage.getItem('token');
+
+
 // Imports Google maps javascript api key from getKey.js file
 import {
     key
@@ -19,6 +30,68 @@ import {
 } from "./show.js";
 
 export let pipeChoice = null;
+export let objectData;
+
+
+let loadProducts = () => {
+    fetch(
+            `http://localhost:1337/obj/all?token=${token}`
+        )
+        .then((response) => {
+            return response.json();
+        })
+        .then((json) => {
+            objectData = json;
+            let temp = "";
+            let list = document.getElementsByClassName('obj-list')[0];
+
+            for (let i = 0; i < json.length; i++) {
+                if (temp != json[i].Kategori) {
+                    temp = json[i].Kategori;
+
+                    list.innerHTML +=
+                        `<button class="accordion desc">${json[i].Kategori}</button>
+						 <div class="panel"></div>`
+
+                    let panels = document.getElementsByClassName('panel');
+                    let panel = panels[panels.length - 1];
+
+                    let object = document.createElement('div');
+                    object.innerHTML =
+                        `<div class="obj-container">
+							<div id="${json[i].Kategori}" class="obj ${json[i].Kategori}">
+								<img src="img/${json[i].Modell}.png"/>
+							</div>
+							<div class="obj-desc">${json[i].Modell}</div>
+						 </div>`;
+
+                    panel.appendChild(object);
+
+                } else {
+                    let panels = document.getElementsByClassName('panel');
+                    let panel = panels[panels.length - 1];
+
+                    let object = document.createElement('div');
+                    object.innerHTML =
+                        `<div class="obj-container">
+							<div id="${json[i].Kategori}" class="obj ${json[i].Kategori}">
+						   		<img src="img/${json[i].Modell}.png"/>
+					   		</div>
+					   		<div class="obj-desc">${json[i].Modell}</div>
+						 </div>`;
+
+                    panel.appendChild(object);
+                }
+            }
+
+            accordions();
+            show.activeObj();
+            loadClickEvent();
+            addPipeOnClick();
+            addHouseOnClick();
+        })
+        .catch(error => alert(error));
+}
 
 // Initialize the map with center coordinates on BAGA HQ and zoom 18.
 export const map = L.map("myMap", {
@@ -364,66 +437,14 @@ let save = () => {
  * @returns {void}
  */
 let onLoad = () => {
+    loadProducts();
     gridlayers();
-    accordions();
     customControl('map');
     customControl('timeline');
     customControl('control_camera');
     customControl('bar_chart');
     customControl('delete');
     add.search();
-    show.activeObj();
-
-    addMarkerOnClick(document.getElementsByClassName('pumpstationer'),
-        L.icon({
-            iconAnchor: [19.5, 19.5],
-            iconSize: [39, 39],
-            iconUrl: `img/pump.png`,
-            popupAnchor: [0, -19.5]
-        }));
-
-    addMarkerOnClick(document.getElementsByClassName("slamavskiljare"),
-        L.icon({
-            iconAnchor: [19.5, 19.5],
-            iconSize: [39, 39],
-            iconUrl: `img/symbol_slamavskiljare.png`,
-            popupAnchor: [0, -19.5]
-        }));
-
-    addMarkerOnClick(document.getElementsByClassName("kompaktbädd"),
-        L.icon({
-            iconAnchor: [36.5, 19.5],
-            iconSize: [73, 39],
-            iconUrl: `img/symbol_utjämningsbrunn.png`,
-            popupAnchor: [0, -19.5]
-        }));
-
-    addMarkerOnClick(document.getElementsByClassName("fettavskiljare"),
-        L.icon({
-            iconAnchor: [19.5, 19.5],
-            iconSize: [39, 39],
-            iconUrl: `img/symbol_fettavskiljare.png`,
-            popupAnchor: [0, -19.5]
-        }));
-
-    addMarkerOnClick(document.getElementsByClassName("oljeavskiljare"),
-        L.icon({
-            iconAnchor: [19.5, 19.5],
-            iconSize: [39, 39],
-            iconUrl: `img/symbol_oljeavskiljare.png`,
-            popupAnchor: [0, -19.5]
-        }));
-
-    addMarkerOnClick(document.getElementsByClassName("endpoint"),
-        L.icon({
-            iconAnchor: [19.5, 19.5],
-            iconSize: [39, 39],
-            iconUrl: `img/endpointmarker.png`,
-            popupAnchor: [0, -19.5]
-        }));
-
-    addPipeOnClick();
-    addHouseOnClick();
 
     doNothingonClick();
     editpipesOnClick();
@@ -438,3 +459,73 @@ let onLoad = () => {
 };
 
 onLoad();
+
+
+let loadClickEvent = () => {
+    addMarkerOnClick(document.getElementsByClassName('Pumpstationer'),
+        L.icon({
+            iconAnchor: [19.5, 19.5],
+            iconSize: [39, 39],
+            iconUrl: `img/pump.png`,
+            popupAnchor: [0, -19.5]
+        }));
+
+    addMarkerOnClick(document.getElementsByClassName("Fettavskiljare"),
+        L.icon({
+            iconAnchor: [19.5, 19.5],
+            iconSize: [39, 39],
+            iconUrl: `img/symbol_fettavskiljare.png`,
+            popupAnchor: [0, -19.5]
+        }));
+
+    addMarkerOnClick(document.getElementsByClassName("Oljeavskiljare"),
+        L.icon({
+            iconAnchor: [19.5, 19.5],
+            iconSize: [39, 39],
+            iconUrl: `img/symbol_oljeavskiljare.png`,
+            popupAnchor: [0, -19.5]
+        }));
+
+
+
+    addMarkerOnClick(document.getElementsByClassName("Slamavskiljare"),
+        L.icon({
+            iconAnchor: [19.5, 19.5],
+            iconSize: [39, 39],
+            iconUrl: `img/symbol_slamavskiljare.png`,
+            popupAnchor: [0, -19.5]
+        }));
+
+    addMarkerOnClick(document.getElementsByClassName("BioTank"),
+        L.icon({
+            iconAnchor: [36.5, 19.5],
+            iconSize: [73, 39],
+            iconUrl: `img/symbol_utjämningsbrunn.png`,
+            popupAnchor: [0, -19.5]
+        }));
+
+    addMarkerOnClick(document.getElementsByClassName("Källsorterat avlopp"),
+        L.icon({
+            iconAnchor: [36.5, 19.5],
+            iconSize: [73, 39],
+            iconUrl: `img/symbol_elementbrunn.png`,
+            popupAnchor: [0, -19.5]
+        }));
+
+
+    addMarkerOnClick(document.getElementsByClassName("Kompaktbädd"),
+        L.icon({
+            iconAnchor: [36.5, 19.5],
+            iconSize: [73, 39],
+            iconUrl: `img/symbol_utjämningsbrunn.png`,
+            popupAnchor: [0, -19.5]
+        }));
+
+    addMarkerOnClick(document.getElementsByClassName("endpoint"),
+        L.icon({
+            iconAnchor: [19.5, 19.5],
+            iconSize: [39, 39],
+            iconUrl: `img/endpointmarker.png`,
+            popupAnchor: [0, -19.5]
+        }));
+}
