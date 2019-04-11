@@ -1,0 +1,18 @@
+.button-wrap {
+    margin: 2rem 0;
+}
+
+.button {
+    text-decoration: none;
+    color: #fff;
+    font-size: 1.1rem;
+    padding: 1rem;
+    background: #3867d6;
+    border-radius: 4px;
+    box-shadow: 1px 1px 4px rgba(102, 102, 102, 0.6);
+}
+
+.button:hover {
+    box-shadow: 1px 1px 4px rgba(102, 102, 102, 1);
+    cursor: pointer;
+}
