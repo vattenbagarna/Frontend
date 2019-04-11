@@ -10,9 +10,7 @@
 		<script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js" integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg==" crossorigin=""></script>
 		<script type="module" src="js/loadLeafletMap.js"></script>
 		<script type="module" src="js/show.js"></script>
-		<script type="module" src="js/add.js"></script>
 		<script type="module" src="js/edit.js"></script>
-		<script type="module" src="js/getKey.js"></script>
 		<script type="text/javascript" src="https://revh.github.io/leaflet-draggable-polyline/leaflet.geometryutil.js"></script>
 		<script type="text/javascript" src="https://rawgit.com/RevH/leaflet-draggable-polyline/master/leaflet-draggable-polyline.js"></script>
 		<script src="https://unpkg.com/esri-leaflet"></script>
@@ -175,12 +173,13 @@
 				<span class="close">&times;</span>
 				<b>Spara Projekt 1</b>
 				<br></br>
-				<label>Lägg till ny version</label>
-				<input autocomplete="off" type="text" id="newVersion" placeholder="tex 2.0"/>
 				<label>Välj version</label>
 				<select id="versions">
 					<option value="1.0">1.0</option>
 				</select>
+				<label>Lägg till ny version</label>
+				<input autocomplete="off" type="text" id="newVersion" placeholder="tex 2.0"/>
+
 				<input type="button" id="saveButton" value="Spara">
 			</div>
 		</div>

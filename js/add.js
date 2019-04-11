@@ -1,118 +1,17 @@
 /* global L */
-let startPolyline = null;
+let pipe = null;
 
-let latLngs;
-let options = {
-    marker: (activeIcon) => {
-        return {
-            draggable: true,
-            icon: activeIcon
-        };
-    },
-
-    house: {
-        color: 'blue',
-        fillColor: '#3388ff',
-        fillOpacity: 0.5,
-        weight: 1.5
-    },
-
-    pipe: {
-        edit_with_drag: true,
-        vertices: {
-            destroy: true,
-            first: false,
-            last: false,
-            insert: true,
-            middle: true,
-        }
-    },
-
-    stemPipe: {
-        id: "stemPipe",
-        weight: 5,
-        color: "red",
-        edit_with_drag: true,
-        vertices: {
-            destroy: true,
-            first: false,
-            last: false,
-            insert: true,
-            middle: true,
-        }
-    },
-};
-
-export let popup = {
-    marker: (objName) => {
-        return `<ul class='accordion2'>
-    <li>
-        <label for='cp-1'>Info</label>
-        <input type='radio' name='a' id='cp-1' checked='checked'>
-        <div class='content'>
-			<table>
-		        	<tr><td>${objName}</td></tr>
-					<tr><td>antalpumpar: 1</td></tr>
-					<tr><td>diameter: 600</td></tr>
-					<tr><td>inlopp: 110, typ: gummitätning</td></tr>
-					<tr><td>höjd: 700</td></tr>
-					<tr><td>Kabelgenomförning: 50, typ: gummitätning</td> </tr>
-					<tr><td>RSK: 5886909</td></tr>
-					<tr><td>utlopp: 32, typ: inv. gänga</td></tr>
-			</table>
-		</div>
-    </li>`;
-    },
-
-    pipe: (dimension, tilt) => {
-        return `<b>Rör</b><br>
-<label>Inner Dimension</label>
-<input type="number" id="dimension" name="dimension" placeholder="${dimension}">
-<label>Lutning</label>
-<input type="number" id="tilt" name="tilt" placeholder="${tilt}">
-<input type="button" value="Skicka">`;
-    },
-
-    branch: `<b>Förgrening<br>`,
-
-    changeCoord: (latlng) => {
-        return `
-    <li>
-        <label for='cp-2'>Ändra coordinater</label>
-        <input type='radio' name='a' id='cp-2'>
-        <div class='content'>
-			<b> Latitud </b>
-			<input type="text" id='latitud' value=${latlng.lat}>
-        	<b> Longitud </b>
-			<input type="text" id='longitud' value=${latlng.lng}>
-        	<input type="button" class="sendCoords" value="Skicka" >
-		</div>
-    </li>
-</ul>`;
-    }
-
-};
-
-export let polygon = null;
-export let guideline = null;
+export let house = null;
 
 export let polylines = L.layerGroup();
 export let markers = L.layerGroup();
 export let polygons = L.layerGroup();
 
-//imports the map object
-import {
-    map,
-    pipeChoice
-} from "./loadLeafletMap.js";
+// Imports the map object.
+import { map, pipeChoice } from "./loadLeafletMap.js";
 
-import {
-    edit
-} from "./edit.js";
-
-import {
-    show
-} from "./show.js";
+// Imports three classes that are used for the project.
+import { Marker, House, Pipe } from "./classes.js";
 
 export const add = {
     activeObjName: "",
@@ -125,30 +24,13 @@ export const add = {
      * @returns {void}
      */
     marker: (event) => {
-        //Create marker object
-        const temp = new L.Marker(event.latlng, options.marker(add.activeIcon))
-            .bindPopup(popup.marker(add.activeObjName) + popup.changeCoord(event.latlng))
-            .on("drag", edit.moveMarker)
-            .on('popupopen', (event) => {
-                let button = document.getElementsByClassName('sendCoords');
+        let attribute = [add.activeObjName, "antalpumpar: 1", "diameter: 600",
+            "inlopp: 110, typ: gummitätning", "höjd: 700",
+            "Kabelgenomförning: 50, typ: gummitätning", "RSK: 5886909",
+            "utlopp: 32, typ: inv. gänga"
+        ];
 
-                button[button.length - 1].addEventListener('click', () => {
-                    let lat = document.getElementById('latitud').value;
-                    let lng = document.getElementById('longitud').value;
-
-                    event.target.closePopup();
-                    event.target.setLatLng([lat, lng]);
-                    map.panTo([lat, lng]);
-                    event.target.setPopupContent(popup.marker(add.activeObjName) +
-                        popup.changeCoord({
-                            lat: lat,
-                            lng: lng
-                        }));
-                });
-            });
-
-        //Adds marker to map
-        markers.addLayer(temp).addTo(map);
+        new Marker(event.latlng, attribute, add.activeIcon);
     },
 
     /**
@@ -158,127 +40,46 @@ export const add = {
      * @returns {void}
      */
     house: (event) => {
-        if (polygon != null) {
-            polygon.addLatLng(event.latlng);
-            polygons.addLayer(polygon).addTo(map);
-
-            let coord = guideline.getLatLngs();
-
-            coord.shift();
-            coord.unshift(event.latlng);
+        // Draws houses and displays it on map.
+        if (house != null) {
+            house.draw(event.latlng);
         } else {
-            latLngs = [event.latlng];
-            polygon = L.polygon(latLngs, options.house);
-
-            guideline = L.polyline([event.latlng, event.latlng], {
-                dashArray: '5, 10'
-            }).addTo(map);
-
-            map.on('mousemove', add.guideLine);
+            house = new House(event.latlng, ["house"]);
         }
-    },
-
-    /**
-     * guideLine - Shows a guideline for the user when creating polygons.
-     *
-     * @param {object} event
-     * @returns {void}
-     */
-    guideLine: (event) => {
-        let coord = guideline.getLatLngs();
-
-        coord.pop();
-        coord.push(event.latlng);
-        guideline.setLatLngs(coord);
     },
 
     /**
      * addPipe - Draws polylines on the map, polylines is also known as pipes.
      *
-     * @param {object} event event.
+     * @param {object} event
      * @returns {void}
      */
     pipe: (event) => {
         let target = event.target;
-        let temp;
+        let point = {};
 
         target.closePopup();
 
-        //If startPolyline is null create the first point
-        if (startPolyline != null) {
-            if (target.getLength) {
-                let newLine = addBranchConnection(startPolyline, event, target);
-
-                if (pipeChoice == "pipe") {
-                    temp = new L.polyline([startPolyline.latlng, newLine.latlng], options.pipe);
-                } else if (pipeChoice == "stemPipe") {
-                    temp = new L.polyline([startPolyline.latlng, newLine.latlng], options.stemPipe);
-                }
-
-                temp.connected_with = {
-                    first: startPolyline.id,
-                    last: newLine.id
-                };
-            } else {
-                if (pipeChoice == "pipe") {
-                    temp = new L.polyline([startPolyline.latlng, event.latlng], options.pipe);
-                } else if (pipeChoice == "stemPipe") {
-                    temp = new L.polyline([startPolyline.latlng, event.latlng], options.stemPipe);
-                }
-
-
-                temp.connected_with = {
-                    first: startPolyline.id,
-                    last: event.sourceTarget._leaflet_id
-                };
+        // If pipe is null create the first point.
+        if (pipe != null) {
+            point.id = event.sourceTarget._leaflet_id;
+            if (target.length) {
+                point = addBranchConnection(event, target);
             }
-
-            show.openModal(document.getElementById('pipeModal'));
-
-            // borde vara i edit.js och bör fungera hela tiden samt lägg till esq
-            document.getElementById("tilt").addEventListener("keyup", (event) => {
-                if (event.keyCode === 13) {
-                    event.preventDefault();
-                    document.getElementById("pipeSpecifications").click();
-                }
-            });
-
-            document.getElementById("pipeSpecifications").onclick = () => {
-                let modal = document.getElementById("pipeModal");
-                let dimension = document.getElementById("dimension");
-                let tilt = document.getElementById("tilt");
-
-                modal.style.display = "none";
-                polylines.addLayer(temp).addTo(map);
-
-                temp.dimension = dimension.value;
-                temp.tilt = tilt.value;
-                temp.bindPopup(popup.pipe(temp.dimension, temp.tilt));
-                temp.editingDrag.removeHooks();
-                temp.on('click', add.pipe);
-
-                startPolyline = null;
-                calcLengthFromPipe(temp);
-            };
-        } else if (target.getLength) {
-            startPolyline = [];
-            startPolyline.latlng = event.latlng;
-            startPolyline.id = event.sourceTarget._leaflet_id;
-
-            let startPoint = addBranchConnection(startPolyline, event, target);
-
-            startPolyline.latlng = startPoint.latlng;
-            startPolyline.id = startPoint.id;
+            pipe.draw(0, 0, point.id, event.latlng);
+            pipe = null;
         } else {
-            startPolyline = [];
-            startPolyline.latlng = event.latlng;
-            startPolyline.id = event.sourceTarget._leaflet_id;
+            point.id = event.sourceTarget._leaflet_id;
+            if (target.length) {
+                point = addBranchConnection(event, target);
+            }
+            pipe = new Pipe([event.latlng], ["", ""], pipeChoice, point.id);
         }
     },
 
     /**
      * search - Search functionality to the map using a plugin.
-     * plugin?
+     *    - @see {@link https://esri.github.io/esri-leaflet/api-reference/controls/geosearch.html}
      *
      * @returns {void}
      */
@@ -288,17 +89,19 @@ export const add = {
 };
 
 /**
- * calcLengthFromPipe - Gets an individual polyline and calculates the length.
+ * getLength - Gets an individual polyline and calculates the length.
  *
- * @param {array} array
+ * @param {L.polyline} polyline @see {@link https://leafletjs.com/reference-1.4.0.html#polyline}
  * @returns {void}
  */
-export let calcLengthFromPipe = (polyline) => {
+export let getLength = (polyline) => {
+    // Gets the coords.
     var tempPolyline = polyline._latlngs;
     var thisPipeDistance = 0;
 
+    // Calulates the total length according to number of points in the polyline.
     if (tempPolyline.length == 2) {
-        polyline.getLength = tempPolyline[0].distanceTo(tempPolyline[1]);
+        return tempPolyline[0].distanceTo(tempPolyline[1]);
     } else if (tempPolyline.length > 2) {
         for (var i = 0; i < tempPolyline.length - 1; i++) {
             var firstPoint = tempPolyline[i];
@@ -306,21 +109,20 @@ export let calcLengthFromPipe = (polyline) => {
 
             thisPipeDistance += L.latLng(firstPoint).distanceTo(secondPoint);
         }
-        polyline.getLength = thisPipeDistance;
+        return thisPipeDistance;
     }
-    //console.log(polyline.getLength);
 };
 
 /**
- * addBranchConnection - Description
+ * addBranchConnection - Connecting pipes with each other and add a branch
+ * connector between them.
  *
- * @param {type} startPolyline Description
- * @param {type} event         Description
- * @param {type} target        Description
+ * @param {type} event
+ * @param {type} target The element selected by the user.
  *
- * @returns {type} Description
+ * @returns {void}
  */
-let addBranchConnection = (startPolyline, event, target) => {
+let addBranchConnection = (event, target) => {
     let targetLatlngs = target.getLatLngs();
     let firstLatlngs;
     let secondLatlngs;
@@ -328,6 +130,7 @@ let addBranchConnection = (startPolyline, event, target) => {
     let distanceMin = Infinity;
     let segmentMin = null;
 
+    // Finds closest point where user's click when connecting two pipes.
     for (let i = 0; i < targetLatlngs.length - 1; i++) {
         let segment = [targetLatlngs[i], targetLatlngs[i + 1]];
         let distance = L.GeometryUtil.distanceSegment(map, event.latlng, segment[0], segment[1]);
@@ -348,83 +151,49 @@ let addBranchConnection = (startPolyline, event, target) => {
 
     let url = 'https://cdn4.iconfinder.com/data/icons/bathroom-accessory-outline/32/14-512.png';
 
-    let branchMarker = new L.Marker(event.latlng, {
-        draggable: true,
-        icon: L.icon({
-            iconAnchor: [19.5, 19.5],
-            iconSize: [39, 39],
-            iconUrl: url,
-            popupAnchor: [0, -19.5]
-        })
-    }).bindPopup(popup.branch).on("drag", edit.moveMarker);
-
-    markers.addLayer(branchMarker).addTo(map);
-    branchMarker.on('click', add.pipe);
+    // Creates the marker for branch connector.
+    let branchMarker = new Marker(event.latlng, ["Förgrening"], L.icon({
+        iconAnchor: [19.5, 19.5],
+        iconSize: [39, 39],
+        iconUrl: url,
+        popupAnchor: [0, -19.5]
+    }));
 
     newLine = {
         latlngs: secondLatlngs,
-        first: branchMarker._leaflet_id,
+        first: branchMarker.marker._leaflet_id,
         last: target.connected_with.last
     };
-    target.connected_with.last = branchMarker._leaflet_id;
+    target.connected_with.last = branchMarker.marker._leaflet_id;
 
-    let temp;
+    let newPipe = new Pipe(newLine.latlngs, [""], target.type, newLine.first);
 
-    if (target.options.id == "stemPipe") {
-        temp = new L.polyline(newLine.latlngs, options.stemPipe);
-    } else {
-        temp = new L.polyline(newLine.latlngs, {
-            edit_with_drag: true,
-            vertices: {
-                destroy: true,
-                first: false,
-                last: false,
-                insert: true,
-                middle: true,
-            }
-        });
-    }
-
-    temp.connected_with = {
-        first: newLine.first,
-        last: newLine.last
-    };
-
-    temp.dimension = target.dimension;
-    temp.tilt = target.tilt;
-    temp.bindPopup(popup.pipe(temp.dimension, temp.tilt));
-    polylines.addLayer(temp).addTo(map);
-    temp.editingDrag.removeHooks();
-    temp.on('click', add.pipe);
-
-    calcLengthFromPipe(temp);
-
+    newPipe.draw(0, 0, newLine.last);
 
     return {
-        latlng: branchMarker._latlng,
-        id: branchMarker._leaflet_id
+        latlng: branchMarker.marker._latlng,
+        id: branchMarker.marker._leaflet_id
     };
 };
 
-/**
- * clear - Set varible polygon and guideLine equals null. This is called from clearMapsEvents()
- * 		 - This function is used because export varibles is read-only
- *
- * @returns {void}
- */
-export let clear = () => {
-    polygon = null;
-    guideline = null;
-};
-
 
 /**
- * clearStartPolyline - Set varible startPolyline equals to null.
+ * clearStartPolyline - Set varible pipe equals to null.
  * 					  - This is called from clearMapsEvents()
  * 		 			  - This function is used because export varibles is read-only
  *
  * @returns {void}
  */
 export let clearStartPolyline = () => {
-    startPolyline = null;
+    pipe = null;
+};
+
+
+/**
+ * clearHouse - A house is marked when user cancels the drawing tool.
+ *
+ * @returns {void}
+ */
+export let clearHouse = () => {
+    house = null;
 };
