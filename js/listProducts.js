@@ -1,44 +1,52 @@
-let url = "http://localhost:1337";
-let token = '';
-let userID = '';
+/*global configuration*/
+/*eslint no-unused-vars: 0*/
+let token = localStorage.getItem('token');
+let userID = "12345";
 
-fetch(url+"/obj/created/"+userID+"?token="+token).then(function(response) {
-    return response.json();
-}).then(function(myJson) {
-    console.log(JSON.stringify(myJson));
-    let parent = document.getElementsByClassName('productList')[0];
+fetch(`${configuration.apiURL}/obj/created/${userID}?token=${token}`)
+    .then((response) => {
+        return response.json();
+    })
+    .then((json) => {
+        let productList = document.getElementsByClassName('productList')[0];
 
-    for (let i= 0; i < myJson.length; i++) {
-        //Create div
-        let div = document.createElement("DIV");
+        if (json.length > 0) {
+            for (let i = 0; i < json.length; i++) {
+                productList.innerHTML +=
+                    `<div class="product">
+			<h2>${json[i].Modell}</h2>
+			<h2>${json[i].Kategori}</h2>
+			<a href="updateObject.html?id=${json[i]._id}">
+				<i class="material-icons">settings</i>
+			</a>
+<a onclick="remove('${configuration.apiURL}/obj/delete/${json[i]._id}/${userID}?token=${token}');">
+				<i class="material-icons">delete</i>
+			</a>
+			</div>`;
+            }
 
-        parent.appendChild(div);
-        div.className = "button-wrap";
+            productList.innerHTML += '<div class="last-product"></div>';
+        } else {
+            productList.innerHTML +=
+                `<div class="product">
+				<h2>Inga produkter skapade ännu</h2>
+			</div>`;
+        }
+    });
 
-        //Create paragraph for name
-        let name = document.createElement("P");
 
-        div.appendChild(name);
-        name.innerText = myJson[i].Namn;
-
-        //Create edit button
-        let EditBTN = document.createElement("A");
-
-        div.appendChild(EditBTN);
-        EditBTN.className = "button";
-        EditBTN.setAttribute('href', 'updateObject.html?id='+myJson[i]._id);
-        EditBTN.innerHTML = "Redigera";
-
-        //Create delete button
-        let DeleteBTN = document.createElement("A");
-
-        div.appendChild(DeleteBTN);
-        DeleteBTN.className = "button";
-        DeleteBTN.setAttribute('href', url+'/obj/delete/'+myJson[i]._id+'/'+userID+'?token='+token);
-        DeleteBTN.innerHTML = "Ta bort";
-
-        let br = document.createElement("BR");
-
-        div.appendChild(br);
-    }
-});
+/**
+ * remove - Removes the selected product by calling backend API
+ *
+ * @param {type} url The url of the call
+ *
+ */
+let remove = (url) => {
+    fetch(url)
+        .then((response) => {
+            return response.json();
+        })
+        .then(() => {
+            location.reload();
+        });
+};
