@@ -1,14 +1,7 @@
 /* global L */
-
-let temp =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1Y2FmNTE5MjU0ZDFkMjJjOTczMjdhMDIiLCJ1c2VybmFtZSI6ImpvaGFuLmRqYXJ2Lmthcmx0b3JwQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoiJDJiJDEwJFdCcENyYy9lSzVWNGlVLk1ib0tYeXVGR2lUdEQyY04uZXRSQ0NVeWRMTWhkZFc5MjhxY3J1IiwiaXNBZG1pbiI6ImZhbHNlIiwiaWF0IjoxNTU0OTk1MzM4fQ.VRlrpanSdO2ewYqIN7kn-jiib_Fz_RF-LXdjMH3rCvk";
-
-// Ska skapas vid inlogg i framtiden istället
-let localStorage = window.localStorage;
-
-localStorage.setItem('token', temp);
-
 export let token = localStorage.getItem('token');
+
+console.log(token);
 
 
 // Imports Google maps javascript api key from getKey.js file
@@ -481,8 +474,8 @@ let loadClickEvent = () => {
  */
 let loadProducts = () => {
     fetch(
-            `http://localhost:1337/obj/all?token=${token}`
-        )
+        `http://localhost:1337/obj/all?token=${token}`
+    )
         .then((response) => {
             return response.json();
         })
@@ -551,13 +544,14 @@ let loadMap = () => {
     let id = new URL(window.location.href).searchParams.get('id');
 
     fetch(
-            `http://localhost:1337/proj/data/${id}/12345?token=${token}`
-        )
+        `http://localhost:1337/proj/data/${id}/12345?token=${token}`
+    )
         .then((response) => {
             return response.json();
         })
         .then((json) => {
-            edit.load(json[0].data);
+            console.log(json);
+            //edit.load(json[0].data);
         });
 };
 

@@ -1,10 +1,6 @@
-let token =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1Y2FmNTBhMWQ5YjM5MDJiN2I0MzU5NWUiLCJ1c2VybmFtZSI6ImpvaGFuLmRqYXJ2Lmthcmx0b3JwQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoiJDJiJDEwJEJKL0FqL3FaSVIwbzQ5MDV1dXpGSWVnU0NQT2s1OEFxd1EyZThpdVRBNS9HVFF3RHBzUkN5IiwiaXNBZG1pbiI6ImZhbHNlIiwiaWF0IjoxNTU0OTkzMzE1fQ.jI6AlqdCq2zeYXYYpMNTzq06TA9k7JcZ4aChPkjONZQ";
+/*global configuration */
 
-// Ska skapas vid inlogg i framtiden istället
-let localStorage = window.localStorage;
-
-localStorage.setItem('token', token);
+let token = localStorage.getItem('token');
 
 let id = new URL(window.location.href).searchParams.get('id');
 
@@ -15,7 +11,7 @@ let id = new URL(window.location.href).searchParams.get('id');
  */
 let loadObject = () => {
     fetch(
-        `http://localhost:1337/obj/id/${id}?token=${localStorage.getItem('token')}`
+        configuration.apiURL + `/obj/id/${id}?token=${token}`
     )
         .then(function(response) {
             return response.json();

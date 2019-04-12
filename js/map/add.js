@@ -25,6 +25,7 @@ export const add = {
      */
     marker: (event) => {
         let object;
+        let attributes = [];
 
         for (let i = 0; i < objectData.length; i++) {
             if (add.activeObjName == objectData[i].Modell) {
@@ -32,7 +33,6 @@ export const add = {
                 break;
             }
         }
-        let attributes = [];
 
         for (let x in object) {
             attributes.push(`${x}: ${object[x]}`);
@@ -81,6 +81,7 @@ export const add = {
             if (target.length) {
                 point = addBranchConnection(event, target);
             }
+
             pipe = new Pipe([event.latlng], ["", ""], pipeChoice, point.id);
         }
     },

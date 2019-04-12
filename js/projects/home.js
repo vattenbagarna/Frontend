@@ -1,14 +1,8 @@
-let temp =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1Y2FiNmVjMTRiNzYwYTUwZGUyY2QwYTIiLCJ1c2VybmFtZSI6ImpvaGFuLmRqYXJ2Lmthcmx0b3JwQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoiJDJiJDEwJDNkbkptZDNoSmhBdHNhQUY0MlovaS5teERYSVY3MUlBL2xmeERKR2hsZFVRRi56SWZVUjJlIiwiaXNBZG1pbiI6ImZhbHNlIiwiaWF0IjoxNTU0ODk3NjAwfQ.BsK_c1HXGNOC1WUjXsCg27jMn_BGqupcEJcTYAJXBZc";
-
-// Ska skapas vid inlogg i framtiden istället
-let localStorage = window.localStorage;
-
-localStorage.setItem('token', temp);
-
+/*global configuration */
 let token = localStorage.getItem('token');
+let user = localStorage.getItem('username');
 
-
+console.log(token);
 
 /**
  * loadAllProjects - Description
@@ -16,9 +10,7 @@ let token = localStorage.getItem('token');
  * @returns {type} Description
  */
 let loadAllProjects = () => {
-    fetch(
-        `http://localhost:1337/proj/all/1234?token=${token}`
-    )
+    fetch(configuration.apiURL + `/proj/all/12345?token=${token}`)
         .then((response) => {
             return response.json();
         })
@@ -27,7 +19,7 @@ let loadAllProjects = () => {
             let userName = document.getElementById('userName');
             let permission;
 
-            userName.innerHTML = "Välkommen user?";
+            userName.innerHTML = `Välkommen ${user}`;
 
             if (json.length > 0) {
                 for (let i = 0; i < json.length - 1; i++) {
@@ -72,7 +64,7 @@ let loadAllProjects = () => {
 				</div>`;
             }
         })
-        .catch(error => alert(error));
+        .catch(error => console.log(error));
 };
 
 loadAllProjects();

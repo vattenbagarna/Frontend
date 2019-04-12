@@ -41,6 +41,8 @@ export class Marker {
 
         // Adds marker to map
         markers.addLayer(this.marker).addTo(map);
+
+        return this.marker;
     }
 
     /**

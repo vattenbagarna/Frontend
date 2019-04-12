@@ -1,4 +1,4 @@
-/* global L, */
+/* global L, configuration */
 export let isEdit = null;
 let tempPolylineArray = [];
 
@@ -9,7 +9,6 @@ import { add, polylines, markers, polygons, getLength } from "./add.js";
 
 import { popup } from "./popup.js";
 
-import { Marker, House, Pipe } from "./classes.js";
 
 export const edit = {
     /**
@@ -171,7 +170,7 @@ export const edit = {
             json.push(temp);
         });
 
-
+        /*
         var str = "";
 
         for (let i = 0; i < json.length; i++) {
@@ -213,15 +212,17 @@ export const edit = {
 
         console.log(str);
 
+		*/
 
+        //backend måste uppdateras för att acceptera content-type application/json
         let id = new URL(window.location.href).searchParams.get('id');
 
-        fetch(`http://localhost:1337/proj/update/data/${id}/12345?token=${token}`, {
+        fetch(configuration.apiURL + `/${id}/12345?token=${token}`, {
             method: "POST",
-            body: str,
             headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
+                "Content-Type": "application/json",
             },
+            body: json,
         }).then(res => res.json())
             .then((response) => console.log(response[0].data))
             .catch(error => alert(error));
@@ -233,59 +234,53 @@ export const edit = {
      *
      * @returns {void}
      */
-    load: (jsonData) => {
-        let iconOptions = [];
-        let options = {};
+    load: (json) => {
         let icon;
         let newObj;
 
-        console.log(jsonData);
+        console.log(json);
 
         //Loop through json data.
-        for (let i = 0; i < jsonData.type.length; i++) {
-            switch (jsonData.type[i]) {
+        for (let i = 0; i < json.type.length; i++) {
+            switch (json.type[i]) {
                 //if marker add it to the map with its options
                 case "marker":
-                    iconOptions.iconAnchor = jsonData["icon.options.iconAnchor"][i];
-                    iconOptions.iconSize = jsonData["icon.options.iconSize"][i];
-                    iconOptions.iconUrl = jsonData["icon.options.iconUrl"][i];
-                    iconOptions.popupAnchor = jsonData["icon.options.popupAnchor"][i];
-                    iconOptions._initHooksCalled = jsonData["icon._initHooksCalled"][i];
-                    console.log(iconOptions);
-                    icon = L.icon(iconOptions);
+                    icon = L.icon(json[i].options.icon.options);
 
-                    newObj = new Marker([jsonData.coordinates[i][0], jsonData.coordinates[i][1]],
-                        jsonData.attributes[i], icon);
+                    json[i].options.icon = icon;
+                    newObj = new L.Marker(json[i].coordinates, json[i].options)
+                        .addTo(map)
+                        .on("drag", edit.moveMarker);
 
-                    console.log(newObj);
+                    newObj._leaflet_id = json[i].id;
+                    newObj.bindPopup(json[i].popup);
 
-                    newObj._leaflet_id = jsonData.id[i];
+                    markers.addLayer(newObj);
                     break;
                     //if polyline
                 case "polyline":
                     //get polyline options and add it to an object
-                    newObj = L.polyline(jsonData[i].coordinates, jsonData[i].options);
+                    newObj = L.polyline(json[i].coordinates, json[i].options);
                     newObj
-                        .connected_with = jsonData[i].connected_with;
+                        .connected_with = json[i].connected_with;
                     newObj.bindPopup(
-                        jsonData[i].popup);
+                        json[i].popup);
 
-                    newObj.getLength = jsonData[i].getLength;
-                    newObj.tilt = jsonData[i].tilt;
-                    newObj
-                        .innerDiameter = jsonData[i].dimension;
+                    newObj.getLength = json[i].getLength;
+                    newObj.tilt = json[i].tilt;
+                    newObj.innerDiameter = json[i].dimension;
 
                     //add to map
                     polylines.addLayer(newObj).addTo(map);
                     break;
                 case "polygon":
-                    newObj = L.polygon(jsonData[i].coordinates, jsonData[i].options);
+                    newObj = L.polygon(json[i].coordinates, json[i].options);
                     newObj
-                        .bindPopup(jsonData[i].popup);
-                    newObj.address = jsonData[i].address;
+                        .bindPopup(json[i].popup);
+                    newObj.address = json[i].address;
                     newObj
-                        .nop = jsonData[i].nop;
-                    newObj.flow = jsonData[i].flow;
+                        .nop = json[i].nop;
+                    newObj.flow = json[i].flow;
 
                     polygons.addLayer(newObj).addTo(map);
                     break;
