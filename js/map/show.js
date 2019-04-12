@@ -2,13 +2,13 @@
 let mouseCoord = null;
 
 // Imports the map object.
-import {map} from "./loadLeafletMap.js";
+import { map } from "./loadLeafletMap.js";
 
 // Imports polylines and clears the start polyline.
-import {polylines, clearStartPolyline} from "./add.js";
+import { polylines, clearStartPolyline } from "./add.js";
 
 // Imports the edit file.
-import {edit} from "./edit.js";
+import { edit } from "./edit.js";
 
 export const show = {
     /**
@@ -170,7 +170,6 @@ export const show = {
 
         document.addEventListener('keyup', (event) => {
             if (event.keyCode == 27) {
-                console.log("??");
                 modal.style.display = "none";
                 clearStartPolyline();
             } else if (event.keyCode == 13) {

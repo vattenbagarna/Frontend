@@ -9,6 +9,7 @@ import { add, polylines, markers, polygons, getLength } from "./add.js";
 
 import { popup } from "./popup.js";
 
+import { Marker, House, Pipe } from "./classes.js";
 
 export const edit = {
     /**
@@ -134,6 +135,7 @@ export const edit = {
                 getLength: polyline.getLength,
                 tilt: polyline.tilt,
                 dimension: polyline.dimension,
+                pipeType: polyline.type,
                 id: polyline._leaflet_id,
             };
 
@@ -241,48 +243,26 @@ export const edit = {
         console.log(json);
 
         //Loop through json data.
-        for (let i = 0; i < json.type.length; i++) {
-            switch (json.type[i]) {
+        for (let i = 0; i < json.length; i++) {
+            switch (json[i].type) {
                 //if marker add it to the map with its options
                 case "marker":
                     icon = L.icon(json[i].options.icon.options);
 
-                    json[i].options.icon = icon;
-                    newObj = new L.Marker(json[i].coordinates, json[i].options)
-                        .addTo(map)
-                        .on("drag", edit.moveMarker);
+                    newObj = new Marker(json[i].coordinates, json[i].attributes, icon);
 
-                    newObj._leaflet_id = json[i].id;
-                    newObj.bindPopup(json[i].popup);
-
-                    markers.addLayer(newObj);
+                    newObj.marker._leaflet_id = json[i].id;
                     break;
                     //if polyline
                 case "polyline":
-                    //get polyline options and add it to an object
-                    newObj = L.polyline(json[i].coordinates, json[i].options);
-                    newObj
-                        .connected_with = json[i].connected_with;
-                    newObj.bindPopup(
-                        json[i].popup);
-
-                    newObj.getLength = json[i].getLength;
-                    newObj.tilt = json[i].tilt;
-                    newObj.innerDiameter = json[i].dimension;
-
-                    //add to map
-                    polylines.addLayer(newObj).addTo(map);
+                    newObj = new Pipe(json[i].coordinates, ["", ""], json[i].pipeType,
+                        json[i].connected_with[0]);
+                    newObj.draw(json[i].connected_with[1], null, json[i].dimension, json[i].tilt);
                     break;
                 case "polygon":
-                    newObj = L.polygon(json[i].coordinates, json[i].options);
-                    newObj
-                        .bindPopup(json[i].popup);
-                    newObj.address = json[i].address;
-                    newObj
-                        .nop = json[i].nop;
-                    newObj.flow = json[i].flow;
-
-                    polygons.addLayer(newObj).addTo(map);
+                    newObj = new House(json[i].coordinates[0], ["", ""]);
+                    newObj.drawFromLoad(json[i].coordinates, json[i].address, json[i].definition,
+                        json[i].nop, json[i].flow);
                     break;
             }
         }

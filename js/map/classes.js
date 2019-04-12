@@ -9,6 +9,8 @@ import { polylines, markers, polygons, add, getLength, clearHouse } from "./add.
 
 import { edit } from "./edit.js";
 
+import { show } from "./show.js";
+
 export let guideline = null;
 
 /**
@@ -41,8 +43,6 @@ export class Marker {
 
         // Adds marker to map
         markers.addLayer(this.marker).addTo(map);
-
-        return this.marker;
     }
 
     /**
@@ -123,6 +123,32 @@ export class House {
         coord.unshift(latlng);
     }
 
+
+    /**
+     * drawFromLoad - Description
+     *
+     * @param {type} latlngs           Description
+     * @param {null} [address=null]    Description
+     * @param {null} [definition=null] Description
+     * @param {null} [nop=null]        Description
+     * @param {null} [flow=null]       Description
+     *
+     * @returns {type} Description
+     */
+    drawFromLoad(latlngs, address = null, definition = null, nop = null, flow = null) {
+        this.polygon.setLatLngs(latlngs);
+        this.polygon.bindPopup(popup.house(address, definition, nop, flow));
+        polygons.addLayer(this.polygon).addTo(map);
+
+        this.polygon.address = address;
+        this.polygon.definition = definition;
+        this.polygon.nop = nop;
+        this.polygon.flow = flow;
+
+        map.off('mousemove', this.updateGuideLine);
+        guideline.remove();
+    }
+
     /**
      * updateGuideLine - update the guideline coordinates to mouse coordinates
      * 				   - from mousemove.
@@ -163,13 +189,14 @@ export class House {
                             this.polygon.bindPopup(popup.house(addr, "Hus", 5,
                                 "150 l/person"));
                             this.polygon.address = addr;
-                            this.polygon.definition = "Hus";
-                            this.polygon.nop = 5;
-                            this.polygon.flow = "150 l/person";
-                            map.off('mousemove', this.updateGuideLine);
-                            guideline.remove();
-                            clearHouse();
                         });
+
+                    this.polygon.definition = "Hus";
+                    this.polygon.nop = 5;
+                    this.polygon.flow = "150 l/person";
+                    map.off('mousemove', this.updateGuideLine);
+                    guideline.remove();
+                    clearHouse();
                 }
             }
         }), { once: true };
@@ -205,20 +232,47 @@ export class Pipe {
      * 		- Set length for new polyline
      * 		- Displays new polyline on map
      *
-     * @param {let} dimension     Diameter of the pipe that the user inputed
-     * @param {let} tilt          Tilt of the pipe that the user inputed
      * @param {let} id            Unique number to last connected_with
      * @param {array} [latlng=null] Option to push new point into new polyline
+     * @param {null} [dimension=null] Description
+     * @param {null} [tilt=null]      Description
      *
      * @returns {void}
-     */
-    draw(dimension, tilt, id, latlng = null) {
-        this.dimension = dimension;
-        this.tilt = tilt;
+     **/
+    draw(id, latlng = null, dimension = null, tilt = null) {
         this.last = id;
-
         if (latlng != null) { this.latlngs.push(latlng); }
 
+        if (dimension == null && tilt == null) {
+            show.openModal(document.getElementById('pipeModal'));
+
+            document.getElementById("pipeSpecifications").onclick = () => {
+                let modal = document.getElementById("pipeModal");
+                let dimension = document.getElementById("dimension");
+                let tilt = document.getElementById("tilt");
+
+
+                modal.style.display = "none";
+
+                this.dimension = dimension.value;
+                this.tilt = tilt.value;
+
+                this.createPolyline();
+            };
+        } else {
+            this.dimension = dimension;
+            this.tilt = tilt;
+
+            this.createPolyline();
+        }
+    }
+
+    /**
+     * createPolyline - Description
+     *
+     * @returns {type} Description
+     */
+    createPolyline() {
         if (this.type == 0) {
             this.polyline = new L.polyline(this.latlngs, options.pipe);
         } else if (this.type == 1) {
@@ -233,6 +287,8 @@ export class Pipe {
         this.polyline.bindPopup(popup.pipe(this.dimension, this.tilt));
         this.polyline.length = getLength(this.polyline);
         this.polyline.type = this.type;
+        this.polyline.dimension = this.dimension;
+        this.polyline.tilt = this.tilt;
         this.polyline.on('click', add.pipe);
         polylines.addLayer(this.polyline).addTo(map);
         this.polyline.editingDrag.removeHooks();

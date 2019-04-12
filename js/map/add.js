@@ -74,7 +74,7 @@ export const add = {
             if (target.length) {
                 point = addBranchConnection(event, target);
             }
-            pipe.draw(0, 0, point.id, event.latlng);
+            pipe.draw(point.id, event.latlng);
             pipe = null;
         } else {
             point.id = event.sourceTarget._leaflet_id;
