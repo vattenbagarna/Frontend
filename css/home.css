@@ -4,6 +4,7 @@ body {
     padding: 0;
     height: 100%;
     width: 100%;
+    font-family: 'Fira Sans', sans-serif;
 }
 
 .topnav {
@@ -37,7 +38,6 @@ body {
 .wrap {
     width: 90%;
     margin: auto;
-    font-family: 'Fira Sans', sans-serif;
 }
 
 .title h1 {
