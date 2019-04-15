@@ -22,10 +22,19 @@ let getAllUsers = () => {
     }).then(response => {
         return response.json();
     }).then((json) => {
-        for (var i = 0; i < json.length; i++) {
-            usernameObj[json[i].id] = json[i].username;
-            usernameArray.push(json[i].username);
-            userIdArray.push(json[i].id);
+        if (!json.error) {
+            for (var i = 0; i < json.length; i++) {
+                usernameObj[json[i].id] = json[i].username;
+                usernameArray.push(json[i].username);
+                userIdArray.push(json[i].id);
+            }
+        } else {
+            if (json.info == "token failed to validate") {
+                localStorage.removeItem("token");
+                document.location.href = "index.html";
+            } else {
+                console.log(json);
+            }
         }
     });
 };

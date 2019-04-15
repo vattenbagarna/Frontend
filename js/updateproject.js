@@ -24,10 +24,19 @@ let getAllUsers = () => {
     }).then(response => {
         return response.json();
     }).then((json) => {
-        for (var i = 0; i < json.length; i++) {
-            usernameObj[json[i].id] = json[i].username;
-            usernameArray.push(json[i].username);
-            userIdArray.push(json[i].id);
+        if (!json.error) {
+            for (var i = 0; i < json.length; i++) {
+                usernameObj[json[i].id] = json[i].username;
+                usernameArray.push(json[i].username);
+                userIdArray.push(json[i].id);
+            }
+        } else {
+            if (json.info == "token failed to validate") {
+                localStorage.removeItem("token");
+                document.location.href = "index.html";
+            } else {
+                console.log(json);
+            }
         }
     });
 };
@@ -254,10 +263,25 @@ let createSelect = (value, text, selectCompetence) => {
     selectCompetence.appendChild(option);
 };
 
+let deleteProject = () => {
+    let url = "http://localhost:1337/proj/delete/" + projectId + "?token=" + token;
+
+    fetch(url, {
+        method: 'GET'
+    }).then(res => res.json())
+        .then(response => location.href = "home.html")
+        .catch(error => alert(error));
+};
+
 //gets button to update project
 let updateProjectButton = document.getElementById("updateProjectButton");
+let deleteProjectButton = document.getElementById("deleteProjectButton");
 
 //adds eventListener to updateProjectButton which calls updateProject
 updateProjectButton.addEventListener("click", () => {
     updateProject();
+});
+
+deleteProjectButton.addEventListener("click", () => {
+    deleteProject();
 });
