@@ -54,7 +54,7 @@ let createNewProject = () => {
     let data = `name=${projectName}&version=1.0${accessData}&default[peoplePerHouse]=${peopleperhouse}&default[litrePerPerson]=${litreperperson}`;
 
     //Url to call API/Backend
-    let url = "http://localhost:1337/proj/insert/12345678" + "?token=" + token;
+    let url = "http://localhost:1337/proj/insert" + "?token=" + token;
 
     //Fetch to post the data to the database
     fetch(url, {
@@ -64,7 +64,7 @@ let createNewProject = () => {
             'Content-Type': 'application/x-www-form-urlencoded'
         }
     }).then(res => res.json())
-        .then(response => console.log(response)/*location.href = "map.html?id=" + response[0]._id*/)
+        .then(response => location.href = "home.html")
         .catch(error => alert(error));
 };
 
