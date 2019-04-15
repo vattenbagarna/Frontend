@@ -263,6 +263,11 @@ let createSelect = (value, text, selectCompetence) => {
     selectCompetence.appendChild(option);
 };
 
+/**
+ * deleteProject - Deletes a project
+ *
+ * @returns {void}
+ */
 let deleteProject = () => {
     let url = "http://localhost:1337/proj/delete/" + projectId + "?token=" + token;
 
