@@ -7,7 +7,6 @@ let userIdArray = [];
 let optionArray = ["Läsbehörighet", "Skrivbehörighet"];
 let optionArrayValue = ["r", "w"];
 let deleteButtonNumber = 0;
-let creatorUserArray = [];
 
 /**
  * getAllUsers - Fetches all users from the database and creates a
@@ -55,18 +54,13 @@ let getProject = () => {
     }).then(response => {
         return response.json();
     }).then((json) => {
-        //creates an array(creatorUserArray) with the creator of the projects values which needs
-        //to be sent to the DB everytime it updates
-        creatorUserArray.push(json[0].access[0].userID);
-        creatorUserArray.push(json[0].access[0].permission);
-        creatorUserArray.push(json[0].access[0].creator);
         //sets the form values to the projects name and version
         document.getElementById("projectName").value = json[0].name;
         document.getElementById("projectVersion").value = json[0].version;
 
         //loops through the amount of users given access starting on 1 as the
         //first place is the creator
-        for (var i = 1; i < json[0].access.length; i++) {
+        for (var i = 0; i < json[0].access.length; i++) {
             //creates the select element
             var selectUser = document.createElement("select");
 
@@ -224,13 +218,9 @@ let updateProject = () => {
     let accessCompetence = document.getElementsByClassName("accessCompetence");
     let accessData = "";
 
-    //string which will be used to send values to the db, it contains the values
-    //for the creator of the project
-    accessData = "&access[0][creator]=" + creatorUserArray[2] + "&access[0][permission]=" + creatorUserArray[1] + "&access[0][userID]=" + creatorUserArray[0];
-
     //adds the rest of the access data to a string
-    for (var i = 1; i < accessUser.length + 1; i++) {
-        accessData += `&access[${i}][creator]=${"0"}&access[${i}][userID]=${accessUser[i - 1].value}&access[${i}][permission]=${accessCompetence[i - 1].value}&access[${i}][username]=${usernameObj[accessUser[i - 1].value]}&access[${i}]`;
+    for (var i = 0; i < accessUser.length; i++) {
+        accessData += `&access[${i}][creator]=${"0"}&access[${i}][userID]=${accessUser[i].value}&access[${i}][permission]=${accessCompetence[i].value}&access[${i}][username]=${usernameObj[accessUser[i].value]}&access[${i}]`;
     }
 
     //adds access data with the rest

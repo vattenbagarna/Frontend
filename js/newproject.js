@@ -1,6 +1,7 @@
 /* eslint-disable max-len, no-unused-vars, no-undef */
 //Gets the users token
 let token = localStorage.getItem("token");
+console.log(token);
 let deleteButtonNumber = 0;
 let usernameObj = {};
 let usernameArray = [];
