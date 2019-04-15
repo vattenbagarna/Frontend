@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="sv" dir="ltr">
+	<head>
+		<meta charset="utf-8">
+		<title>Beräkningssida</title>
+		<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+		<link href="https://fonts.googleapis.com/css?family=Fira+Sans:300,400" rel="stylesheet">
+		<link rel="stylesheet" href="css/calculations.css">
+	</head>
+	<body>
+		<div class="wrap">
+			<div class="title">
+				<h1 class="h-title">Beräkningssida</h1>
+			</div>
+			<div class="container">
+				<div class="sub-header">
+					<h3>Spillvatten</h3>
+				</div>
+				<form class="form-inline" autocomplete="off">
+					<label for="length">Längd</label>
+					<input data-digits-only type="number" id="length" name="length" placeholder="Längd">&nbsp; m
+					<label for="height">Statisk höjd</label>
+					<input data-digits-only type="number" id="height" name="height" placeholder="Höjd">&nbsp; m
+					<label for="pressure">Statiskt tryck</label>
+					<input data-digits-only type="number" id="inPressure" name="pressure" placeholder="Tryck">&nbsp; bar
+					<label for="material">Material</label>
+					<select id="material" name="material">
+						<option value="choose" disabled selected>Välj material</option>
+						<option value="PEM">PEM</option>
+						<option value="PE">PE</option>
+						<option value="stainless">Rostfria</option>
+					</select>
+					<label name="dimension"></label>
+						<input type="radio" id="innerdimension" name="dimension"><p></p>
+					<label name="dimension"></label>
+						<input type="radio" id="outerdimension" name="dimension"><p></p>
+					<label name="dimension"></label>
+						<input type="radio" id="inches" name="dimension"><p></p>
+					<select id="selectDim">
+					</select>
+					<label name="pressureChoice"></label>
+						<input type="radio" id="pressure1" name="PN" value="PN6,3"><p></p>
+					<label name="pressureChoice"></label>
+						<input type="radio" id="pressure2" name="PN" value="PN10"><p></p>
+					<label for="flow" id ="flowLabel"><p></p></label>
+						<input data-digits-only type="number" id="flow" name="flow" placeholder="0" onkeypress="enterPressed(this, event);"><p></p>
+				<input type="button" name="submit" id="submit" value="Beräkna" onclick="calcAll();">
+				</form>
+				<form class="form-inline results" autocomplete="off">
+					<label for="waterSpeed">Flödeshastighet</label>
+					<input disabled="disabled" type="number" id="flowSpeed" name="flowSpeed" placeholder="0">&nbsp; m/s
+					<label for="loss">Tryckförluster</label>
+					<input disabled="disabled" type="number" id="pressureLoss" name="pressureLoss" placeholder="0">&nbsp; bar
+					<label for="totalPressure">Totaltryck</label>
+					<input disabled="disabled" type="number" id="totalPressure" name="totalPressure" placeholder="0">&nbsp; m
+					<label for="capacity">Kapacitet</label>
+					<input disabled="disabled" type="number" id="capacity" name="capacity" placeholder="0">&nbsp; l/s
+				</form>
+			</div>
+		</body>
+		<script src="js/flowCalc.js"></script>
+	</html>

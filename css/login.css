@@ -1,0 +1,48 @@
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: 'Fira Sans', sans-serif;
+}
+
+.wrap {
+    margin: auto;
+    text-align: center;
+}
+
+.error-wrap {
+    padding: 1rem;
+}
+
+.error-msg {
+    padding: 1rem;
+    border-radius: 8px;
+    color: #fff;
+    background: #c0392b;
+}
+
+.login-label {
+    display:run-in;
+}
+
+.login-box {
+    min-width: 350px;
+    font-size: 1.1rem;
+    padding: 10px;
+    border: 3px solid #1280c4;
+    border-radius: 5px;
+    background: #fff;
+    color: #1280c4;
+}
+
+.login-button {
+    width: 250px;
+    margin: auto;
+    padding: 1rem;
+    text-decoration: none;
+    border-radius: 5px;
+    background: #1280c4;
+    color: #fff;
+}
