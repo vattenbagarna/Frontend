@@ -2,16 +2,16 @@
 <html lang="sv" dir="ltr">
     <head>
         <meta charset="utf-8">
-        <title>Startsida</title>
-        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <title>Logga In - Baga Aqua System</title>
         <link href="https://fonts.googleapis.com/css?family=Fira+Sans:300,400" rel="stylesheet">
-        <link rel="stylesheet" href="css/index.css">
+        <link rel="stylesheet" href="css/login.css">
     </head>
     <body>
         <div class="wrap">
             <div class="title">
-                <h1 class="h-title">VA-Anläggning Online (DEMO)</h1>
+                <h1 class="h-title">Baga Aqua System (DEMO)</h1>
             </div>
+<<<<<<< HEAD
             <br>
             <hr>
             <br><br>
@@ -19,7 +19,23 @@
                 <a href="newproject.html" class="button-link"><div class="button">NYTT PROJEKT</div></a>
                 <br>
                 <a><div class="button disabled">ÖPPNA PROJEKT</div></a>
+=======
+            <h2>Logga In</h2>
+            <div class="error-wrap" id="error-holder"></div>
+            <div class="form-field">
+                <form id="login-form">
+                    <!-- <label class="login-label" for="username">Epost:</label> -->
+                    <input id="email" class="login-box" type="text" name="username" placeholder="Epost">
+                    <br><br>
+                    <!-- <label class="login-label" for="password">Lösenord: </label> -->
+                    <input id="password" class="login-box" type="password" name="password" placeholder="Lösenord">
+                    <br><br><br>
+                    <a id="login-bt" class="login-button" type="button" name="login-bt" href="#">Logga In</a>
+                </form>
+>>>>>>> master
             </div>
         </div>
+        <script src="js/configVariables.js" charset="utf-8"></script>
+        <script src="js/login/authenticate.js" charset="utf-8"></script>
     </body>
 </html>
