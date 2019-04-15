@@ -66,6 +66,11 @@ const sendLogin = () => {
         });
 };
 
+// Check if the user is already logged in
+if (localStorage.getItem("token")) {
+    window.location = "home.html";
+}
+
 // This will fire the sendLogin function when the user clicks on the login button
 loginBt.addEventListener("click", () => {
     sendLogin();
