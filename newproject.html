@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="sv" dir="ltr">
+	<head>
+		<meta charset="utf-8">
+		<title>Nytt projekt</title>
+		<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+		<link href="https://fonts.googleapis.com/css?family=Fira+Sans:300,400" rel="stylesheet">
+		<link rel="stylesheet" href="css/newproject.css">
+	</head>
+	<body>
+        <div class="topnav">
+            <a href="home.html">Home</a>
+            <a href="calculations.html">Beräkningar</a>
+            <a href="listProducts.html">Produkter</a>
+            <a class="right" href="#logout">Logga ut</a>
+        </div>
+        <div class="wrap-all">
+            <div class="wrap">
+                <h1>Skapa nytt projekt</h1>
+                <form name="myForm" method="post">
+                    Projektnamn: <input id="projectName" type="text" name="projectname">
+                    <h3>Behörigheter:</h3>
+                    <div class="button-wrap">
+                        <a class="button" id="addButton">Lägg till behörigheter</a>
+                    </div>
+                    <div id="newField"></div>
+                    <h3>Standardvärden:</h3>
+                    Personer per hushåll: <input id="peopleperhouse" type="number" value="5" name="peopleperhouse">
+                    Liter per person: <input id="litreperperson" type="number" value="150" name="litreperperson">
+                    <div class="button-wrap">
+                        <a id="createProjectButton" class="button">Skapa projekt</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+	</body>
+	<script src="js/configVariables.js" charset="utf-8"></script>
+    <script type="text/javascript" src="./js/newproject.js"></script>
+</html>
