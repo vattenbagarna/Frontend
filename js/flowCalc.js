@@ -1,4 +1,5 @@
 /* eslint-disable no-unused-vars */
+/* global configuration */
 
 /**
     * hideFlow - Hides the input for flow and hides the submit button
@@ -6,11 +7,13 @@
     * @returns {void}
     */
 function hideFlow() {
-    let showFlow = document.getElementById("flow");
-    let showSubmit = document.getElementById("submit");
+    let hidesFlow = document.getElementById("flow");
+    let hideSubmit = document.getElementById("submit");
+    let hidePumps = document.getElementById("pumps");
 
-    showSubmit.style.display = "none";
-    showFlow.style.display = "none";
+    hidesFlow.style.display = "none";
+    hideSubmit.style.display = "none";
+    hidePumps.style.display = "none";
 }
 hideFlow();
 
@@ -120,16 +123,16 @@ function PEMPipe() {
         for (let i = 0; i < outerDimPEM.length; i++) {
             let option = document.createElement("option");
 
-            option.innerHTML = outerDimPEM[i];
-            select.appendChild(option);
+            option.text = outerDimPEM[i];
+            select.add(option);
         }
     }
     if (document.getElementById("innerdimension").checked) {
         for (let i = 0; i < innerDimPEM.length; i++) {
             let option = document.createElement("option");
 
-            option.innerHTML = innerDimPEM[i];
-            select.appendChild(option);
+            option.text = innerDimPEM[i];
+            select.add(option);
         }
     }
 }
@@ -154,16 +157,16 @@ function PEPipe() {
         for (let i = 0; i < outerDimPE.length; i++) {
             let option = document.createElement("option");
 
-            option.innerHTML = outerDimPE[i];
-            select.appendChild(option);
+            option.text = outerDimPE[i];
+            select.add(option);
         }
     }
     if (document.getElementById("innerdimension").checked) {
         for (let i = 0; i < innerDimPE.length; i++) {
             let option = document.createElement("option");
 
-            option.innerHTML = innerDimPE[i];
-            select.appendChild(option);
+            option.text = innerDimPE[i];
+            select.add(option);
         }
     }
 }
@@ -187,24 +190,24 @@ function stainlessPipe() {
         for (let i = 0; i < outerDimStain.length; i++) {
             let option = document.createElement("option");
 
-            option.innerHTML = outerDimStain[i];
-            select.appendChild(option);
+            option.text = outerDimStain[i];
+            select.add(option);
         }
     }
     if (document.getElementById("innerdimension").checked) {
         for (let i = 0; i < innerDimStain.length; i++) {
             let option = document.createElement("option");
 
-            option.innerHTML = innerDimStain[i];
-            select.appendChild(option);
+            option.text = innerDimStain[i];
+            select.add(option);
         }
     }
     if (document.getElementById("inches").checked) {
         for (let i = 0; i < inches.length; i++) {
             let option = document.createElement("option");
 
-            option.innerHTML = inches[i];
-            select.appendChild(option);
+            option.text = inches[i];
+            select.add(option);
         }
     }
 }
@@ -234,9 +237,7 @@ function showStyling() {
     * @returns {void}
     */
 function hideStyling() {
-    let select = document.getElementById("selectDim");
-
-    select.style.display = "none";
+    document.getElementById("selectDim").style.display = "none";
     document.getElementById("innerdimension").style.display = "block";
     document.getElementById("outerdimension").style.display = "block";
     document.getElementById("innerdimension").nextSibling.innerHTML = "Innediameter";
@@ -253,6 +254,8 @@ function hideStyling() {
     document.getElementById("submit").style.display = "none";
     document.getElementById("flowLabel").innerHTML = "";
     document.getElementById("flow").nextSibling.innerHTML = "";
+    document.getElementById("pumpLabel").innerHTML = "";
+    document.getElementById("pumps").style.display = "none";
 }
 
 /**
@@ -281,7 +284,7 @@ function calcAll() {
     let selectedDim = parseFloat(document.getElementById("selectDim").value);
     let wantedFlow = parseFloat(document.getElementById("flow").value);
     let inPress = parseFloat(document.getElementById("inPressure").value);
-    let pressOut = 0;
+    let outPress = 0;
     let mu = 0.015;
 
     if (document.getElementById("inches").checked) {
@@ -289,21 +292,88 @@ function calcAll() {
     }
 
     let lostPress = calcP(wantedFlow, selectedDim, mu, length);
-    let roundP = lostPress.toFixed(2);
-    let rFlow = calcQPump(selectedDim, mu, length, inPress, height, pressOut);
+    let roundPress = lostPress.toFixed(2);
+    let rFlow = calcQPump(selectedDim, mu, length, inPress, height, outPress);
     let roundFlow = rFlow.toFixed(2);
     let velocity = calcV(wantedFlow, selectedDim);
     let roundVel = velocity.toFixed(2);
     let totalPress = totalPressure(lostPress, inPress);
-    let roundPress = totalPress.toFixed(2);
+    let roundTotal = totalPress.toFixed(2);
 
     document.getElementById("flowSpeed").value = roundVel;
-    document.getElementById("pressureLoss").value = roundP;
+    document.getElementById("pressureLoss").value = roundPress;
     document.getElementById("capacity").value = roundFlow;
-    document.getElementById("totalPressure").value = roundPress;
+    document.getElementById("totalPressure").value = roundTotal;
+
+    resetPumps();
+    getPumps();
 }
 
-/* ***************************** Math  Functions ************************************* */
+/**
+    * getPumps - Fetches all the pumps from the database
+    *
+    * @returns {void}
+    */
+function getPumps() {
+    fetch(configuration.apiURL + "/obj/type/Pump?token=" + localStorage.getItem("token"), {
+        //body: data,
+        method: 'GET'
+    })
+        .then(function (response) {
+            return response.json();
+        }).then(function(json) {
+            recommendPump(json);
+        });
+}
+
+/**
+    * recommendPump - Recommends pumps according to calculations
+    *
+    * @param {object} Pumps
+    *
+    * @returns {void}
+    */
+function recommendPump(pumps) {
+    let wantedFlow = parseFloat(document.getElementById("flow").value);
+    let inputHeight = parseFloat(document.getElementById("height").value);
+    let diameter = parseFloat(document.getElementById("selectDim").value);
+    let select = document.getElementById("pumps");
+    let margin = 0.5;
+
+    for (let i = 0; i < pumps.length; i++) {
+        for (let y = 0; y < pumps[i]["Pumpkurva"].length; y++) {
+            if (pumps[i]["Pumpkurva"][y]["lyfthöjd: m"] == inputHeight) {
+                let mps = calcV(pumps[i]["Pumpkurva"][y]["lps"], diameter);
+
+                if (mps >= wantedFlow - margin && mps <= wantedFlow + margin) {
+                    let option = document.createElement("option");
+
+                    option.text = pumps[i]["Artikelnr."];
+                    select.add(option);
+                    break;
+                }
+            }
+        }
+    }
+
+    document.getElementById("pumpLabel").innerHTML = "Pumpförslag";
+    document.getElementById("pumps").style.display = "block";
+}
+
+/**
+    * resetPumps - Resets the pump suggestions
+    *
+    * @returns {void}
+    */
+function resetPumps() {
+    let select = document.getElementById("pumps");
+
+    for (let i = select.childNodes.length - 1; i >= 0; i--) {
+        select.removeChild(select.childNodes[i]);
+    }
+}
+/************************ Math functions ************************************/
+
 /**
     * convertInches - Converts inches to mm
     *
@@ -315,6 +385,7 @@ function convertInches(selectedDim) {
 
     return selectedDim;
 }
+
 /**
   * Calculate lost pressure.
   *
@@ -372,19 +443,19 @@ function calcP(q, di, mu, l) {
   * @return {number} Capacity
   *
   */
-function calcQPump(di, mu, l, inPress, height, pressOut) {
-    let Di = di / 1000;
+function calcQPump(di, mu, l, inPress, height, outPress) {
+    let dim = di / 1000;
     let inMu = mu; // mm
     let length = l; // m
     let viscosity = 1e-6; // m2/s
     let rho = 1000; // kg/m3
 
-    let deltap = (inPress - pressOut + 0.0981 * (height) * rho / 1000) * 100000;
+    let deltap = (inPress - outPress + 0.0981 * (height) * rho / 1000) * 100000;
 
-    let top = -Math.PI / 2 * Math.pow(Di, 2.5);
+    let top = -Math.PI / 2 * Math.pow(dim, 2.5);
     let top2 = Math.sqrt(2 * deltap / (length * rho));
-    let inside = inMu / 1000 / (3.7 * Di);
-    let rightInside = (Math.pow(Di, 1.5) * Math.sqrt(2 * deltap / (length * rho)));
+    let inside = inMu / 1000 / (3.7 * dim);
+    let rightInside = (Math.pow(dim, 1.5) * Math.sqrt(2 * deltap / (length * rho)));
     let avgQ = top * top2 * log10(inside + 2.51 * viscosity/ rightInside);
 
     return avgQ*1000;
