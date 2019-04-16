@@ -1,4 +1,4 @@
-/* eslint-disable max-len, no-unused-vars, no-undef */
+/* global configuration */
 let token = localStorage.getItem("token");
 let projectId = new URL(window.location.href).searchParams.get("id");
 let usernameObj = {};
@@ -15,7 +15,7 @@ let deleteButtonNumber = 0;
  * @returns {json}
  */
 let getAllUsers = () => {
-    let url = "http://localhost:1337/user/all?token=" + token;
+    let url = configuration.apiURL + "/user/all?token=" + token;
 
     //Fetches all users from database
     fetch(url, {
@@ -46,7 +46,7 @@ let getAllUsers = () => {
  * @returns {json}
  */
 let getProject = () => {
-    let url = "http://localhost:1337/proj/id/" + projectId + "?token=" + token;
+    let url = configuration.apiURL +"/proj/id/" + projectId + "?token=" + token;
 
     //fetch to get project
     fetch(url, {
@@ -125,6 +125,8 @@ let addRemoveButtons = () => {
     deleteATag.innerHTML = "Ta bort";
     deleteDiv.appendChild(deleteATag);
     //Appends button to existing div
+    var newField = document.getElementById("newField");
+
     newField.appendChild(deleteDiv);
 
     deleteButtonNumber = deleteButtonNumber + 1;
@@ -217,16 +219,23 @@ let updateProject = () => {
     let accessUser = document.getElementsByClassName("accessSelect");
     let accessCompetence = document.getElementsByClassName("accessCompetence");
     let accessData = "";
+    let data = "";
 
     //adds the rest of the access data to a string
     for (var i = 0; i < accessUser.length; i++) {
-        accessData += `&access[${i}][creator]=${"0"}&access[${i}][userID]=${accessUser[i].value}&access[${i}][permission]=${accessCompetence[i].value}&access[${i}][username]=${usernameObj[accessUser[i].value]}&access[${i}]`;
+        accessData += `&access[${i}][creator]=${"0"}`;
+        accessData += `&access[${i}][userID]=${accessUser[i].value}`;
+        accessData += `&access[${i}][permission]=${accessCompetence[i].value}`;
+        accessData += `&access[${i}][username]=${usernameObj[accessUser[i].value]}`;
+        accessData += `&access[${i}]`;
     }
 
     //adds access data with the rest
-    let data = "name=" + projectName + "&version=" + projectVersion + accessData + "&default[peoplePerHouse]=" + peoplePerHouse + "&default[litrePerPerson]=" + litrePerPerson;
+    data = "name=" + projectName + "&version=" + projectVersion + accessData;
+    data += "&default[peoplePerHouse]=" + peoplePerHouse;
+    data += "&default[litrePerPerson]=" + litrePerPerson;
 
-    let url = "http://localhost:1337/proj/update/info/" + projectId + "?token=" + token;
+    let url = configuration.apiURL + "/proj/update/info/" + projectId + "?token=" + token;
 
     //fetch to post the data to db
     fetch(url, {
@@ -259,12 +268,12 @@ let createSelect = (value, text, selectCompetence) => {
  * @returns {void}
  */
 let deleteProject = () => {
-    let url = "http://localhost:1337/proj/delete/" + projectId + "?token=" + token;
+    let url = configuration.apiURL + "/proj/delete/" + projectId + "?token=" + token;
 
     fetch(url, {
         method: 'GET'
     }).then(res => res.json())
-        .then(response => location.href = "home.html")
+        .then(()=> location.href = "home.html")
         .catch(error => alert(error));
 };
 
@@ -279,4 +288,9 @@ updateProjectButton.addEventListener("click", () => {
 
 deleteProjectButton.addEventListener("click", () => {
     deleteProject();
+});
+
+addEventListener("DOMContentLoaded", () => {
+    getProject();
+    getAllUsers();
 });
