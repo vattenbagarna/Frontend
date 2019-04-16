@@ -125,7 +125,7 @@ let addRemoveButtons = () => {
     deleteATag.innerHTML = "Ta bort";
     deleteDiv.appendChild(deleteATag);
     //Appends button to existing div
-    var newField = document.getElementById("newField");
+    let newField = document.getElementById("newField");
 
     newField.appendChild(deleteDiv);
 
