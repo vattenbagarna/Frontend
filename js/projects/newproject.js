@@ -1,5 +1,5 @@
-/* eslint-disable max-len, no-unused-vars, no-undef */
-//Gets the users token
+/* global configuration */
+//Gets the users tokEn
 let token = localStorage.getItem("token");
 let deleteButtonNumber = 0;
 let usernameObj = {};
@@ -7,7 +7,6 @@ let usernameArray = [];
 let userIdArray = [];
 let optionArray = ["Läsbehörighet", "Skrivbehörighet"];
 let optionArrayValue = ["r", "w"];
-
 /**
  * getAllUsers - Fetches all users from the database and creates a
  * username object, username and userID array.
@@ -15,17 +14,26 @@ let optionArrayValue = ["r", "w"];
  * @returns {json}
  */
 let getAllUsers = () => {
-    let url = "http://localhost:1337/user/all?token=" + token;
+    let url = configuration.apiURL + "/user/all?token=" + token;
 
     fetch(url, {
         method: 'GET',
     }).then(response => {
         return response.json();
     }).then((json) => {
-        for (var i = 0; i < json.length; i++) {
-            usernameObj[json[i].id] = json[i].username;
-            usernameArray.push(json[i].username);
-            userIdArray.push(json[i].id);
+        if (!json.error) {
+            for (var i = 0; i < json.length; i++) {
+                usernameObj[json[i].id] = json[i].username;
+                usernameArray.push(json[i].username);
+                userIdArray.push(json[i].id);
+            }
+        } else {
+            if (json.info == "token failed to validate") {
+                localStorage.removeItem("token");
+                document.location.href = "index.html";
+            } else {
+                console.log(json);
+            }
         }
     });
 };
@@ -43,18 +51,25 @@ let createNewProject = () => {
     let peopleperhouse = document.getElementById("peopleperhouse").value;
     let litreperperson = document.getElementById("litreperperson").value;
     let accessData = "";
+    let data = "";
 
     //Loops through the amount of Users added in the newproject.html view and
     //prepares to send them to the database.
     for (var i = 0; i < accessUser.length; i++) {
-        accessData += `&access[${i}][userID]=${accessUser[i].value}&access[${i}][permission]=${accessCompetence[i].value}&access[${i}][username]=${usernameObj[accessUser[i].value]}&access[${i}]`;
+        accessData += `&access[${i}][userID]=${accessUser[i].value}`;
+        accessData += `&access[${i}][permission]=${accessCompetence[i].value}`;
+        accessData += `&access[${i}][username]=${usernameObj[accessUser[i].value]}`;
+        accessData += `&access[${i}]`;
     }
 
     //Adds the accessData with the rest of the data which needs to be sent to the database
-    let data = `name=${projectName}&version=1.0${accessData}&default[peoplePerHouse]=${peopleperhouse}&default[litrePerPerson]=${litreperperson}`;
+    data = `name=${projectName}`;
+    data += `&version=1.0${accessData}`;
+    data += `&default[peoplePerHouse]=${peopleperhouse}`;
+    data += `&default[litrePerPerson]=${litreperperson}`;
 
     //Url to call API/Backend
-    let url = "http://localhost:1337/proj/insert/12345678" + "?token=" + token;
+    let url = configuration.apiURL + "/proj/insert" + "?token=" + token;
 
     //Fetch to post the data to the database
     fetch(url, {
@@ -64,7 +79,7 @@ let createNewProject = () => {
             'Content-Type': 'application/x-www-form-urlencoded'
         }
     }).then(res => res.json())
-        .then(response => console.log(response)/*location.href = "map.html?id=" + response[0]._id*/)
+        .then(()=> location.href = "home.html")
         .catch(error => alert(error));
 };
 
@@ -86,6 +101,8 @@ let addRemoveButtons = () => {
     deleteATag.innerHTML = "Ta bort";
     deleteDiv.appendChild(deleteATag);
     //Appends button to existing div
+    var newField = document.getElementById("newField");
+
     newField.appendChild(deleteDiv);
 
     deleteButtonNumber = deleteButtonNumber + 1;
@@ -171,4 +188,8 @@ let createProjectButton = document.getElementById("createProjectButton");
 //eventListener to create project button which calls createNewProject()
 createProjectButton.addEventListener("click", () => {
     createNewProject();
+});
+
+addEventListener("DOMContentLoaded", () => {
+    getAllUsers();
 });

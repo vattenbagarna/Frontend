@@ -88,3 +88,7 @@ select {
 input[readonly] {
     background-color: rgba(128,128,128, 0.3);
 }
+
+#updateProjectButton {
+    padding-bottom: 10px;
+}

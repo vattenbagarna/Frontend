@@ -6,6 +6,7 @@
 const loginBt = document.getElementById('login-bt');
 const formElement = document.getElementById('login-form');
 const passwordField = document.getElementById('password');
+const emailField = document.getElementById('email');
 const errorHolder = document.getElementById('error-holder');
 
 /**
@@ -65,6 +66,16 @@ const sendLogin = () => {
             }
         });
 };
+
+// Check if the user is already logged in
+if (localStorage.getItem("token")) {
+    window.location = "home.html";
+}
+
+//If the user has been previously logged in, auto-fill email feild
+if (localStorage.getItem("username")) {
+    emailField.value = localStorage.getItem("username");
+}
 
 // This will fire the sendLogin function when the user clicks on the login button
 loginBt.addEventListener("click", () => {

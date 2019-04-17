@@ -7,11 +7,11 @@
 		<link href="https://fonts.googleapis.com/css?family=Fira+Sans:300,400" rel="stylesheet">
 		<link rel="stylesheet" href="css/newproject.css">
 	</head>
-	<body onload="getProject(), getAllUsers()">
+	<body>
         <div class="topnav">
             <a href="home.html">Home</a>
-            <a href="#calculations">Beräkningar</a>
-            <a href="#products">Produkter</a>
+            <a href="calculations.html">Beräkningar</a>
+            <a href="listProducts.html">Produkter</a>
             <a class="right" href="#logout">Logga ut</a>
         </div>
         <div class="wrap-all">
@@ -31,9 +31,18 @@
                     <div class="button-wrap">
                         <a id="updateProjectButton" class="button">Uppdatera projekt</a>
                     </div>
+					<!-- Indentation is wrong in github. -->
+					<div class="button-wrap">
+						<a class="button" id="deleteProjectButton">Ta bort projekt</a>
+					</div>
                 </form>
             </div>
         </div>
 	</body>
+<<<<<<< HEAD:updateProject.html
     <script type="text/javascript" src="./js/projects/updateproject.js"></script>
+=======
+	<script src="js/configVariables.js" charset="utf-8"></script>
+    <script type="text/javascript" src="./js/updateproject.js"></script>
+>>>>>>> master:updateproject.html
 </html>
