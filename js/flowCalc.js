@@ -1,8 +1,9 @@
 /* eslint-disable no-unused-vars */
 /* global configuration */
 
+
 /**
-    * hideFlow - Hides the input for flow and hides the submit button
+    * hideFlow - Hides the input for flow, pumps and the submit button
     *
     * @returns {void}
     */
@@ -108,8 +109,16 @@ document.getElementById("material").addEventListener("change", () => {
     * @returns {void}
     */
 function PEMPipe() {
-    let outerDimPEM = ["40 mm", "50 mm", "60 mm"];
-    let innerDimPEM = ["35.2 mm", "44 mm", "55.4 mm"];
+    let dimPEM = [{
+        "innerdim": "35.2 mm",
+        "outerdim": "40 mm"
+    }, {
+        "innerdim": "44 mm",
+        "outerdim": "50 mm"
+    }, {
+        "innerdim": "55.4 mm",
+        "outerdim": "60 mm"
+    }];
     let select = document.getElementById("selectDim");
 
     for (let i = select.childNodes.length - 1; i >= 0; i--) {
@@ -117,21 +126,18 @@ function PEMPipe() {
     }
 
     if (document.getElementById("outerdimension").checked) {
-        for (let i = 0; i < select.childNodes.length; i++) {
-            select.removeChild(select.childNodes[0]);
-        }
-        for (let i = 0; i < outerDimPEM.length; i++) {
+        for (let i = 0; i < dimPEM.length; i++) {
             let option = document.createElement("option");
 
-            option.text = outerDimPEM[i];
+            option.text = dimPEM[i].outerdim;
             select.add(option);
         }
     }
     if (document.getElementById("innerdimension").checked) {
-        for (let i = 0; i < innerDimPEM.length; i++) {
+        for (let i = 0; i < dimPEM.length; i++) {
             let option = document.createElement("option");
 
-            option.text = innerDimPEM[i];
+            option.text = dimPEM[i].innerdim;
             select.add(option);
         }
     }
@@ -143,10 +149,37 @@ function PEMPipe() {
     * @returns {void}
     */
 function PEPipe() {
-    let outerDimPE = ["110 mm", "160 mm", "180 mm", "200 mm", "225 mm", "250 mm",
-        "315 mm", "400 mm", "450 mm", "500 mm"];
-    let innerDimPE = ["96.8 mm", "141 mm", "158.6 mm", "176.2 mm", "198.2 mm",
-        "220.4 mm", "277.6 mm", "352.6 mm", "396.6 mm", "440.6 mm"];
+    let dimPE = [{
+        "innerdim": "96.8 mm",
+        "outerdim": "110 mm"
+    }, {
+        "innerdim": "141 mm",
+        "outerdim": "160 mm"
+    }, {
+        "innerdim": "158.6 mm",
+        "outerdim": "180 mm"
+    }, {
+        "innerdim": "176.2 mm",
+        "outerdim": "200 mm"
+    }, {
+        "innerdim": "198.2 mm",
+        "outerdim": "225 mm"
+    }, {
+        "innerdim": "220.4 mm",
+        "outerdim": "250 mm"
+    }, {
+        "innerdim": "277.6 mm",
+        "outerdim": "315 mm"
+    }, {
+        "innerdim": "352.6 mm",
+        "outerdim": "400 mm"
+    }, {
+        "innerdim": "396.6 mm",
+        "outerdim": "450 mm"
+    }, {
+        "innerdim": "440.6 mm",
+        "outerdim": "500 mm"
+    }];
     let select = document.getElementById("selectDim");
 
     for (let i = select.childNodes.length - 1; i >= 0; i--) {
@@ -154,18 +187,18 @@ function PEPipe() {
     }
 
     if (document.getElementById("outerdimension").checked) {
-        for (let i = 0; i < outerDimPE.length; i++) {
+        for (let i = 0; i < dimPE.length; i++) {
             let option = document.createElement("option");
 
-            option.text = outerDimPE[i];
+            option.text = dimPE[i].outerdim;
             select.add(option);
         }
     }
     if (document.getElementById("innerdimension").checked) {
-        for (let i = 0; i < innerDimPE.length; i++) {
+        for (let i = 0; i < dimPE.length; i++) {
             let option = document.createElement("option");
 
-            option.text = innerDimPE[i];
+            option.text = dimPE[i].innerdim;
             select.add(option);
         }
     }
@@ -177,9 +210,29 @@ function PEPipe() {
     * @returns {void}
     */
 function stainlessPipe() {
-    let inches = ['1.25 "', '1.5 "', '2 "', '2.5 "'];
-    let outerDimStain = ["42.4 mm", "48.3 mm", "60.3 mm", "76.1 mm"];
-    let innerDimStain = ["38.4 mm", "44.3 mm", "56.3 mm", "72.1 mm", "80 mm", "100 mm", "150 mm"];
+    let dimStainless = [{
+        "innerdim": "38.4 mm",
+        "outerdim": "42.4 mm",
+        "inches": '1.25 "'
+    }, {
+        "innerdim": "44.3 mm",
+        "outerdim": "48.3 mm",
+        "inches": '1.5 "'
+    }, {
+        "innerdim": "56.3 mm",
+        "outerdim": "60.3 mm",
+        "inches": '2 "'
+    }, {
+        "innerdim": "72.1 mm",
+        "outerdim": "76.1 mm",
+        "inches": '2.5 "'
+    }, {
+        "innerdim": "80 mm"
+    }, {
+        "innerdim": "100 mm"
+    }, {
+        "innerdim": "150 mm"
+    }];
     let select = document.getElementById("selectDim");
 
     for (let i = select.childNodes.length - 1; i >= 0; i--) {
@@ -187,27 +240,31 @@ function stainlessPipe() {
     }
 
     if (document.getElementById("outerdimension").checked) {
-        for (let i = 0; i < outerDimStain.length; i++) {
-            let option = document.createElement("option");
+        for (let i = 0; i < dimStainless.length; i++) {
+            if (dimStainless[i].outerdim != undefined) {
+                let option = document.createElement("option");
 
-            option.text = outerDimStain[i];
-            select.add(option);
+                option.text = dimStainless[i].outerdim;
+                select.add(option);
+            }
         }
     }
     if (document.getElementById("innerdimension").checked) {
-        for (let i = 0; i < innerDimStain.length; i++) {
+        for (let i = 0; i < dimStainless.length; i++) {
             let option = document.createElement("option");
 
-            option.text = innerDimStain[i];
+            option.text = dimStainless[i].innerdim;
             select.add(option);
         }
     }
     if (document.getElementById("inches").checked) {
-        for (let i = 0; i < inches.length; i++) {
-            let option = document.createElement("option");
+        for (let i = 0; i < dimStainless.length; i++) {
+            if (dimStainless[i].inches != undefined) {
+                let option = document.createElement("option");
 
-            option.text = inches[i];
-            select.add(option);
+                option.text = dimStainless[i].inches;
+                select.add(option);
+            }
         }
     }
 }
@@ -290,6 +347,9 @@ function calcAll() {
     if (document.getElementById("inches").checked) {
         selectedDim = convertInches(selectedDim);
     }
+    if (!document.getElementById("innerdimension").checked) {
+        selectedDim = changeDim();
+    }
 
     let lostPress = calcP(wantedFlow, selectedDim, mu, length);
     let roundPress = lostPress.toFixed(2);
@@ -341,9 +401,9 @@ function recommendPump(pumps) {
     let margin = 0.5;
 
     for (let i = 0; i < pumps.length; i++) {
-        for (let y = 0; y < pumps[i]["Pumpkurva"].length; y++) {
-            if (pumps[i]["Pumpkurva"][y]["lyfthöjd: m"] == inputHeight) {
-                let mps = calcV(pumps[i]["Pumpkurva"][y]["lps"], diameter);
+        for (let y = 0; y < pumps[i].Pumpkurva.length; y++) {
+            if (pumps[i].Pumpkurva[y]["lyfthöjd: m"] == inputHeight) {
+                let mps = calcV(pumps[i].Pumpkurva[y]["lps"], diameter);
 
                 if (mps >= wantedFlow - margin && mps <= wantedFlow + margin) {
                     let option = document.createElement("option");
@@ -372,6 +432,57 @@ function resetPumps() {
         select.removeChild(select.childNodes[i]);
     }
 }
+
+/**
+    * changeDim - Changes the outer dimension to inner dimension
+    *
+    * @returns {number}
+    */
+function changeDim() {
+    let chosen = "";
+
+    if (document.getElementById("material").value == "PEM") {
+        chosen += "P";
+    } else if (document.getElementById("material").value == "PE") {
+        chosen += "PE";
+    } else {
+        chosen += "L";
+    }
+    if (document.getElementById("inches").checked) {
+        chosen += "IN";
+    } else {
+        chosen += "O";
+    }
+    chosen += parseFloat(document.getElementById("selectDim").value);
+
+    let innerdim =
+        {
+            "PO40": 35.2,
+            "PO50": 44,
+            "PO60": 55.4,
+            "PEO110": 96.8,
+            "PEO160": 141,
+            "PEO180": 158.6,
+            "PEO200": 176.2,
+            "PEO225": 198.2,
+            "PEO250": 220.4,
+            "PEO315": 227.6,
+            "PEO400": 352.6,
+            "PEO450": 396.6,
+            "PEO500": 440.6,
+            "LO42.4": 38.4,
+            "LIN1.25": 38.4,
+            "LO48.3": 44.3,
+            "LIN1.5": 44.3,
+            "LO60.3": 56.3,
+            "LIN2": 56.3,
+            "LO76.1": 72.1,
+            "LIN2.5": 72.1
+        };
+
+    return innerdim[chosen];
+}
+
 /************************ Math functions ************************************/
 
 /**
