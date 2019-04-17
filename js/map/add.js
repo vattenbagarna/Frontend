@@ -1,5 +1,6 @@
 /* global L */
 let pipe = null;
+let first;
 
 export let house = null;
 
@@ -75,13 +76,18 @@ export const add = {
                 point = addBranchConnection(event, target);
             }
             pipe.draw(point.id, event.latlng);
+            if (first) {
+                first.enableDragging();
+                first = null;
+            }
             pipe = null;
         } else {
             point.id = event.sourceTarget._leaflet_id;
             if (target.length) {
                 point = addBranchConnection(event, target);
+            } else {
+                first = target.disableDragging();
             }
-
             pipe = new Pipe([event.latlng], ["", ""], pipeChoice, point.id);
         }
     },
@@ -177,7 +183,7 @@ let addBranchConnection = (event, target) => {
 
     let newPipe = new Pipe(newLine.latlngs, [""], target.type, newLine.first);
 
-    newPipe.draw(0, 0, newLine.last);
+    newPipe.draw(newLine.last, null, target.dimension, target.tilt);
 
     return {
         latlng: branchMarker.marker._latlng,

@@ -209,7 +209,7 @@ let addMarkerOnClick = (elements, icon) => {
 
             // Call addMarker function in add.js
             map.on("click", add.marker);
-            document.getElementById("map").style.cursor = "pointer";
+            document.getElementById("myMap").style.cursor = "pointer";
         });
     }
 };
@@ -279,8 +279,6 @@ let addPipeOnClick = () => {
 let doNothingonClick = () => {
     // Adds a click event listener on mouse icon button
     document.getElementById("map").addEventListener('click', (event) => {
-        // Clears all events from the map
-        edit.clearMapsEvents();
         // Set this icon to the active icon
         show.activeCustomControl(event);
     });
@@ -295,8 +293,6 @@ let doNothingonClick = () => {
 let editpipesOnClick = () => {
     // Adds a click event listener on edit pipes button
     document.getElementById("timeline").addEventListener('click', (event) => {
-        // Clears all events from the map
-        edit.clearMapsEvents();
         // Set this icon to the active icon
         show.activeCustomControl(event);
         // Enable editible polylines
@@ -313,13 +309,11 @@ let editpipesOnClick = () => {
  */
 let toggleMouseCoordOnClick = () => {
     // Add a click event listener to element
-    document.getElementById('control_camera').addEventListener('click', (
-        event) => {
+    document.getElementById('control_camera').addEventListener('click', (event) => {
         let target = event.target;
 
         // Toggle css class 'active2' to element. Switches each time user clicks on button
-        document.getElementById('control_camera').classList.toggle(
-            'active2');
+        document.getElementById('control_camera').classList.toggle('active2');
 
         // If the user clicks on the border of i element and by mistake select
         // the parent element instead
@@ -362,8 +356,6 @@ let toggleMouseCoordOnClick = () => {
 let getDistanceOnClick = () => {
     // Adds a click event listener on delete button
     document.getElementById("bar_chart").addEventListener("click", (event) => {
-        // Clears all events from the map
-        edit.clearMapsEvents();
         // Set this icon to the active icon
         show.activeCustomControl(event);
         // Call polylineLengths from show.js to get the length from all polylines
@@ -381,7 +373,6 @@ let getDistanceOnClick = () => {
 let deleteOnClick = () => {
     // Adds a click event listener on delete button
     document.getElementById("delete").addEventListener("click", (event) => {
-        edit.clearMapsEvents();
         show.activeCustomControl(event);
         // On each layer of the map => this means all markers, all polylines
         // and all polygons but not the map itself
@@ -481,46 +472,46 @@ let loadProducts = () => {
         })
         .then((json) => {
             objectData = json;
-            let temp = "";
             let list = document.getElementsByClassName('obj-list')[0];
 
             for (let i = 0; i < json.length; i++) {
-                if (temp != json[i].Kategori && json[i].Kategori != "Pump") {
-                    temp = json[i].Kategori;
-
-                    list.innerHTML +=
-                        `<button class="accordion desc">${json[i].Kategori}</button>
+                if (json[i].Kategori != undefined) {
+                    if (document.getElementsByClassName(json[i].Kategori).length == 0 &&
+                        json[i].Kategori != "Pump") {
+                        list.innerHTML +=
+                            `<button class="accordion desc">${json[i].Kategori}</button>
 						 <div class="panel"></div>`;
 
-                    let panels = document.getElementsByClassName('panel');
-                    let panel = panels[panels.length - 1];
+                        let panels = document.getElementsByClassName('panel');
+                        let panel = panels[panels.length - 1];
 
-                    let object = document.createElement('div');
+                        let object = document.createElement('div');
 
-                    object.innerHTML =
-                        `<div class="obj-container">
+                        object.innerHTML =
+                            `<div class="obj-container">
 							<div id="${json[i].Modell}" class="obj ${json[i].Kategori}">
 								<img src="img/${json[i].Modell}.png"/>
 							</div>
 							<div class="obj-desc">${json[i].Modell}</div>
 						 </div>`;
 
-                    panel.appendChild(object);
-                } else {
-                    let panels = document.getElementsByClassName('panel');
-                    let panel = panels[panels.length - 1];
+                        panel.appendChild(object);
+                    } else if (json[i].Kategori != "Pump") {
+                        let elements = document.getElementsByClassName(json[i].Kategori);
+                        let panel = elements[0].parentElement.parentElement.parentElement;
 
-                    let object = document.createElement('div');
+                        let object = document.createElement('div');
 
-                    object.innerHTML =
-                        `<div class="obj-container">
+                        object.innerHTML =
+                            `<div class="obj-container">
 							<div id="${json[i].Modell}" class="obj ${json[i].Kategori}">
 						   		<img src="img/${json[i].Modell}.png"/>
 					   		</div>
 					   		<div class="obj-desc">${json[i].Modell}</div>
 						 </div>`;
 
-                    panel.appendChild(object);
+                        panel.appendChild(object);
+                    }
                 }
             }
 
@@ -544,14 +535,13 @@ let loadMap = () => {
     let id = new URL(window.location.href).searchParams.get('id');
 
     fetch(
-        `http://localhost:1337/proj/data/${id}/12345?token=${token}`
+        `http://localhost:1337/proj/data/${id}?token=${token}`
     )
         .then((response) => {
             return response.json();
         })
         .then((json) => {
-            console.log(json);
-            //edit.load(json[0].data);
+            edit.load(json[0].data);
         });
 };
 

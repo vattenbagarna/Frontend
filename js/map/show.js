@@ -56,22 +56,22 @@ export const show = {
         let current = document.getElementsByClassName("active");
 
         if (current.length > 0) {
-            current[0].className = current[0].className.replace(
-                " active",
-                "");
+            current[0].className = current[0].className.replace(" active", "");
         }
 
         current = document.getElementsByClassName("active3");
 
         if (current.length > 0) {
-            current[0].className = current[0].className.replace(
-                " active3",
-                "");
+            current[0].className = current[0].className.replace(" active3", "");
         }
         if (event.target.localName == 'div') {
             event.target.className += " active3";
+            // Clears all events from the map
+            edit.clearMapsEvents();
         } else {
             event.target.parentElement.className += " active3";
+            // Clears all events from the map
+            edit.clearMapsEvents();
         }
     },
 
@@ -83,11 +83,12 @@ export const show = {
      */
     mouseCoordOnMap: (event) => {
         if (mouseCoord == null) {
-            mouseCoord = L.polyline(event.latlng).addTo(map);
+            mouseCoord = L.circle(event.latlng, { radius: 0 }).addTo(map);
         } else {
-            mouseCoord.bindTooltip("lat:" + event.latlng.lat +
-                ", lng:" + event.latlng.lng).openTooltip(
-                event.latlng);
+            document.getElementById("myMap").style.cursor = "pointer";
+            mouseCoord.setLatLng(event.latlng);
+            mouseCoord.bindTooltip("lat:" + event.latlng.lat + ", lng:" + event.latlng.lng)
+                .openTooltip(event.latlng);
         }
     },
 

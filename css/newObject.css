@@ -53,6 +53,15 @@ body {
     width: 40%;
 }
 
+img {
+    max-width: 7rem;
+}
+
+canvas {
+    width: 100%;
+    height: auto;
+}
+
 input[type=text],
 input[type=number],
 select {
@@ -67,11 +76,21 @@ select {
     box-sizing: border-box;
 }
 
+.newKey {
+    width: 25% !important;
+    display: inline-block !important;
+}
+
+.newInput {
+    width: 56% !important;
+    display: inline-block !important;
+}
+
 .button-wrap {
     margin: 2rem 0;
 }
 
-.button {
+.button, .button2, .removeButton {
     text-decoration: none;
     color: #fff;
     font-size: 1.1rem;
@@ -81,7 +100,20 @@ select {
     box-shadow: 1px 1px 4px rgba(102, 102, 102, 0.6);
 }
 
-.button:hover {
+.button2 {
+    padding: 0.5rem !important;
+    font-size: 0.8rem;
+}
+
+.removeButton {
+    display: inline-block !important;
+    margin: 0 !important;
+    padding: 0.5rem !important;
+    background: #c0392b !important;
+    font-size: 0.8rem;
+}
+
+.button:hover, .button2:hover, .removeButton:hover {
     box-shadow: 1px 1px 4px rgba(102, 102, 102, 1);
     cursor: pointer;
 }

@@ -74,6 +74,7 @@ export const edit = {
         //Turn off click events for markers and polylines.
         map.off("click", add.marker);
         map.off('click', add.polygone);
+
         //If polylines has been edited
         if (isEdit == true) {
             var i = 0;
@@ -93,7 +94,7 @@ export const edit = {
             isEdit = null;
         }
 
-        document.getElementById("map").style.cursor = "grab";
+        document.getElementById("myMap").style.cursor = "grab";
 
         //Closes popups and turns off click events for remove and addPipe.
         map.closePopup();
@@ -123,10 +124,18 @@ export const edit = {
      */
     save: () => {
         let json = [];
+        let temp;
+
+        temp = {
+            zoom: map.getZoom(),
+            center: map.getCenter()
+        };
+
+        json.push(temp);
 
         //loop through all polylines and save them in a json format
         polylines.eachLayer((polyline) => {
-            let temp = {
+            temp = {
                 coordinates: polyline._latlngs,
                 type: "polyline",
                 connected_with: polyline.connected_with,
@@ -144,7 +153,7 @@ export const edit = {
 
         //loop through all markers and save them in a json format
         markers.eachLayer((marker) => {
-            let temp = {
+            temp = {
                 coordinates: [marker._latlng.lat, marker._latlng.lng],
                 type: "marker",
                 options: marker.options,
@@ -157,7 +166,7 @@ export const edit = {
         });
 
         polygons.eachLayer((polygon) => {
-            let temp = {
+            temp = {
                 coordinates: polygon._latlngs,
                 type: "polygon",
                 options: polygon.options,
@@ -172,59 +181,14 @@ export const edit = {
             json.push(temp);
         });
 
-        /*
-        var str = "";
-
-        for (let i = 0; i < json.length; i++) {
-            for (var key in json[i]) {
-                if (json[i].type !== "marker") {
-                    str += encodeURIComponent(key) + "=" +
-                        encodeURIComponent(json[i][key]) + "&";
-                } else if (key === "options") {
-                    console.log(key);
-                    console.log(json[i][key].draggable);
-                    str += encodeURIComponent("draggable") + "=" +
-                        encodeURIComponent(json[i][key].draggable) + "&";
-                    console.log(json[i][key].icon.options.iconAnchor);
-                    str += encodeURIComponent("icon.options.iconAnchor") + "=" +
-                        encodeURIComponent(json[i][key].icon.options.iconAnchor) + "&";
-
-                    console.log(json[i][key].icon.options.iconSize);
-                    str += encodeURIComponent("icon.options.iconSize") + "=" +
-                        encodeURIComponent(json[i][key].icon.options.iconSize) + "&";
-
-                    console.log(json[i][key].icon.options.iconUrl);
-                    str += encodeURIComponent("icon.options.iconUrl") + "=" +
-                        encodeURIComponent(json[i][key].icon.options.iconUrl) + "&";
-
-                    console.log(json[i][key].icon.options.popupAnchor);
-                    str += encodeURIComponent("icon.options.popupAnchor") + "=" +
-                        encodeURIComponent(json[i][key].icon.options.popupAnchor) + "&";
-
-
-                    console.log(json[i][key].icon._initHooksCalled);
-                    str += encodeURIComponent("icon._initHooksCalled") + "=" +
-                        encodeURIComponent(json[i][key].icon._initHooksCalled) + "&";
-                } else {
-                    str += encodeURIComponent(key) + "=" +
-                        encodeURIComponent(json[i][key]) + "&";
-                }
-            }
-        }
-
-        console.log(str);
-
-		*/
-
-        //backend måste uppdateras för att acceptera content-type application/json
         let id = new URL(window.location.href).searchParams.get('id');
 
-        fetch(configuration.apiURL + `/${id}/12345?token=${token}`, {
+        fetch(configuration.apiURL + `/proj/update/data/${id}?token=${token}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: json,
+            body: JSON.stringify(json),
         }).then(res => res.json())
             .then((response) => console.log(response[0].data))
             .catch(error => alert(error));
@@ -242,8 +206,10 @@ export const edit = {
 
         console.log(json);
 
+        map.setView(json[0].center, json[0].zoom);
+
         //Loop through json data.
-        for (let i = 0; i < json.length; i++) {
+        for (let i = 1; i < json.length; i++) {
             switch (json[i].type) {
                 //if marker add it to the map with its options
                 case "marker":

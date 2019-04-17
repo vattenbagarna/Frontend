@@ -40,6 +40,8 @@ export class Marker {
             .on('popupopen', this.updateCoords);
 
         this.marker.attributes = attributes;
+        this.marker.disableDragging = () => { this.marker.dragging.disable(); return this.marker; };
+        this.marker.enableDragging = () => { this.marker.dragging.enable(); };
 
         // Adds marker to map
         markers.addLayer(this.marker).addTo(map);
@@ -284,13 +286,13 @@ export class Pipe {
             first: this.first,
             last: this.last
         };
+        polylines.addLayer(this.polyline).addTo(map);
         this.polyline.bindPopup(popup.pipe(this.dimension, this.tilt));
         this.polyline.length = getLength(this.polyline);
         this.polyline.type = this.type;
         this.polyline.dimension = this.dimension;
         this.polyline.tilt = this.tilt;
         this.polyline.on('click', add.pipe);
-        polylines.addLayer(this.polyline).addTo(map);
         this.polyline.editingDrag.removeHooks();
     }
 }
