@@ -118,11 +118,11 @@ loadrequiredFields();
 
 
 /**
- * newPump - Description
+ * newPump - Adds a select HTML element with all current pumps as options
  *
- * @param {type} pumps Description
+ * @param {Object} pumps object data with all pumps
  *
- * @returns {type} Description
+ * @returns {void}
  */
 let newPump = (pumps) => {
     let div = document.createElement('div');
@@ -162,9 +162,10 @@ let newCategory = () => {
 
 
 /**
- * newPumpCurve - Description
+ * newPumpCurve - Adds a new pump curve (HTML canvas) with input fields for user input and
+ * 				- updates graph after each input
  *
- * @returns {type} Description
+ * @returns {void}
  */
 let newPumpCurve = () => {
     let div = document.createElement('div');
@@ -281,8 +282,8 @@ let newField = () => {
 
 /**
  * createObject - Calls when user pressed send button
- * 				- Collects all attributes and put them in x-www-form-urlencoded format
- * 				- POST result to backend API and redirect to listProducts.html
+ * 				- Collects all attributes and put them in json format
+ * 				- POST result to API and redirect to listProducts.html if no errors were found
  *
  * @returns {void}
  */
@@ -293,7 +294,6 @@ let createObject = () => {
     let newFields = document.getElementsByClassName('newField');
     let newPumpDiv = document.getElementById('newPump');
 
-    //SKICKA MED creatorID
     data.Modell = document.getElementById('Modell').value;
 
     if (newCategory) {

@@ -3,12 +3,11 @@ let token = localStorage.getItem('token');
 let user = localStorage.getItem('username');
 
 /**
- * loadAllProjects - Description
+ * loadAllProjects - Load all project connected to user and display it on page
  *
- * @returns {type} Description
+ * @returns {void}
  */
 let loadAllProjects = () => {
-    //använd project info istället
     fetch(configuration.apiURL + `/proj/all?token=${token}`)
         .then((response) => {
             return response.json();
@@ -18,6 +17,8 @@ let loadAllProjects = () => {
                 let projectlist = document.getElementsByClassName('projectlist')[0];
                 let userName = document.getElementById('userName');
                 let permission = "";
+
+                console.log(json);
 
                 userName.innerHTML = `Välkommen ${user}`;
 

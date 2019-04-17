@@ -5,9 +5,9 @@ let base64Image;
 let myLineChart;
 
 /**
- * loadObject - Fetch objects attributes and display them om map
+ * loadObject - Fetch object attributes and display them in right place on page
  *
- * @returns {type} Description
+ * @returns {void}
  */
 let loadObject = () => {
     fetch(
@@ -66,6 +66,7 @@ let loadObject = () => {
                         case '_id':
                         case 'creatorID':
                             break;
+
                         default:
                             main.innerHTML +=
                                 `<div class="oldInputDiv"><label for="${key}">${key}</label><br>
@@ -151,11 +152,13 @@ let newField = () => {
 };
 
 /**
- * newPump - Description
+ * pumpChoice - Adds a select HTML element with all current pumps as options
  *
- * @param {type} pumps Description
+ * @param {type} currentPump Objects current picked pump
+ * @param {type} nr          Current nr of pumps
+ * @param {type} pumps       Object data with all pumps
  *
- * @returns {type} Description
+ * @returns {void}
  */
 let pumpChoice = (currentPump, nr, pumps) => {
     let div = document.createElement('div');
@@ -174,8 +177,8 @@ let pumpChoice = (currentPump, nr, pumps) => {
     for (let i = 0; i < pumps.length; i++) {
         if (currentPump != pumps[i]["Artikelnr."]) {
             let option = document.createElement('option');
-            //Modell i framtiden
 
+            //Modell i framtiden
             option.text = pumps[i]["Artikelnr."];
             select.add(option);
         }
@@ -183,9 +186,10 @@ let pumpChoice = (currentPump, nr, pumps) => {
 };
 
 /**
- * newPumpCurve - Description
+ * newPumpCurve - Adds a new pump curve with input fields for user input and updates graph after
+ * 				- each input
  *
- * @returns {type} Description
+ * @returns {void}
  */
 let newPumpCurve = () => {
     let div = document.createElement('div');
@@ -276,11 +280,12 @@ let newPumpCurve = () => {
 
 
 /**
- * saveObject - Description
+ * saveObject - Collects all relative data and puts it into one json object and POST it to
+ * 			  - API to update current object
  *
- * @param {type} json Description
+ * @param {type} json Old json data from current object
  *
- * @returns {type} Description
+ * @returns {void}
  */
 let saveObject = (json) => {
     let data = {};
@@ -290,6 +295,10 @@ let saveObject = (json) => {
         switch (key) {
             case 'Bild':
                 data[key] = base64Image;
+                break;
+
+            case 'creatorID':
+                data[key] = json[0][key];
                 break;
 
             case 'Pump':
@@ -307,7 +316,6 @@ let saveObject = (json) => {
                 break;
             case 'Pumpkurva':
             case '_id':
-            case 'creatorID': //SKA VARA MED I UPDATERAD API
                 break;
 
             default:
