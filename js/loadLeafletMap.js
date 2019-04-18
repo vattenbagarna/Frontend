@@ -19,7 +19,6 @@ import {
 } from "./show.js";
 
 export let pipeChoice = null;
-let permission = "geng";
 
 // Initialize the map with center coordinates on BAGA HQ and zoom 18.
 export const map = L.map("myMap", {
@@ -359,7 +358,8 @@ let save = () => {
 };
 
 /**
- * onLoad - Initialize the map functionality with html objects
+ * onLoadWrite - Initialize the map functionality with html objects, when user
+ * has write property
  *
  * @returns {void}
  */
@@ -437,6 +437,12 @@ let onLoadWrite = () => {
     document.getElementById('map').click();
 };
 
+/**
+ * onLoadRead - Initialize the map functionality with html objects, when user
+ * has read property
+ *
+ * @returns {void}
+ */
 let onLoadRead = () => {
     gridlayers();
     customControl('map');
@@ -454,6 +460,12 @@ let onLoadRead = () => {
     map[0].style.width = "100%";
 };
 
+/**
+ * getPermission - Gets the permission of the user and loads the correct
+ * function depending on permission
+ *
+ * @returns {void}
+ */
 let getPermission = () => {
     let projectId = new URL(window.location.href).searchParams.get("id");
     let token = localStorage.getItem("token");
@@ -461,17 +473,18 @@ let getPermission = () => {
     fetch("//localhost:1337/proj/permission/" + projectId + "?token=" + token, {
         method: "GET",
     })
-    .then(response => response.json())
-    .then(function(response) {
-        if (response.permission == "w") {
-            onLoadWrite();
-            console.log("write");
-        } else {
-            onLoadRead();
-            console.log("read");
-        }
-    })
-    .catch(error => console.error('Error:', error));
+        .then(response => response.json())
+        .then(function(response) {
+            if (response.permission == "w") {
+                onLoadWrite();
+                console.log("write");
+            } else {
+                onLoadRead();
+                console.log("read");
+            }
+        })
+        .catch(error => console.error('Error:', error));
 };
 
 getPermission();
+map._onResize();
