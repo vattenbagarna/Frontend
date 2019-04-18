@@ -19,6 +19,7 @@ import {
 } from "./show.js";
 
 export let pipeChoice = null;
+let permission = "geng";
 
 // Initialize the map with center coordinates on BAGA HQ and zoom 18.
 export const map = L.map("myMap", {
@@ -357,13 +358,12 @@ let save = () => {
     });
 };
 
-
 /**
  * onLoad - Initialize the map functionality with html objects
  *
  * @returns {void}
  */
-let onLoad = () => {
+let onLoadWrite = () => {
     gridlayers();
     accordions();
     customControl('map');
@@ -437,4 +437,41 @@ let onLoad = () => {
     document.getElementById('map').click();
 };
 
-onLoad();
+let onLoadRead = () => {
+    gridlayers();
+    customControl('map');
+    customControl('control_camera');
+    customControl('bar_chart');
+    add.search();
+    doNothingonClick();
+    toggleMouseCoordOnClick();
+    getDistanceOnClick();
+
+    let sidebar = document.getElementsByClassName("sidebar");
+    let map = document.getElementsByClassName("map");
+
+    sidebar[0].style.display = "none";
+    map[0].style.width = "100%";
+};
+
+let getPermission = () => {
+    let projectId = new URL(window.location.href).searchParams.get("id");
+    let token = localStorage.getItem("token");
+
+    fetch("//localhost:1337/proj/permission/" + projectId + "?token=" + token, {
+        method: "GET",
+    })
+    .then(response => response.json())
+    .then(function(response) {
+        if (response.permission == "w") {
+            onLoadWrite();
+            console.log("write");
+        } else {
+            onLoadRead();
+            console.log("read");
+        }
+    })
+    .catch(error => console.error('Error:', error));
+};
+
+getPermission();
