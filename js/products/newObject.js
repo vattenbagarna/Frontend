@@ -141,7 +141,7 @@ let newPump = (pumps) => {
     for (let i = 0; i < pumps.length; i++) {
         let option = document.createElement('option');
 
-        option.text = pumps[i]["Artikelnr."];
+        option.text = pumps[i].Modell;
         select.add(option);
     }
 };

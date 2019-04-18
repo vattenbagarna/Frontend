@@ -60,13 +60,13 @@ body {
     transition: 0.2s;
 }
 
+.project i {
+    font-size: 30px;
+}
+
 .project a {
     text-decoration: none;
     color: black;
-}
-
-.project i {
-    font-size: 30px;
 }
 
 .project a:hover {

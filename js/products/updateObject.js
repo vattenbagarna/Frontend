@@ -175,11 +175,11 @@ let pumpChoice = (currentPump, nr, pumps) => {
     let select = document.getElementById('pumpSelect');
 
     for (let i = 0; i < pumps.length; i++) {
-        if (currentPump != pumps[i]["Artikelnr."]) {
+        if (currentPump != pumps[i].Modell) {
             let option = document.createElement('option');
 
             //Modell i framtiden
-            option.text = pumps[i]["Artikelnr."];
+            option.text = pumps[i].Modell;
             select.add(option);
         }
     }

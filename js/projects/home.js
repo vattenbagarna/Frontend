@@ -18,12 +18,13 @@ let loadAllProjects = () => {
                 let userName = document.getElementById('userName');
                 let permission = "";
 
-                console.log(json);
-
                 userName.innerHTML = `Välkommen ${user}`;
 
                 if (json.length > 0) {
                     for (let i = 0; i < json.length; i++) {
+                        if (json[i].access.length > 0) {
+                            permission += "Rättigheter till övriga: <br>";
+                        }
                         for (let n = 0; n < json[i].access.length; n++) {
                             if (json[i].access[n].permission == "w") {
                                 permission +=
@@ -40,7 +41,8 @@ let loadAllProjects = () => {
                             `<div class="project">
 						<h2>${json[i].name}</h2>
 						<h2>${json[i].version}</h2>
-						<h2>Rättigheter: <p>${permission}</p></h2>
+						<h2>Skapare: <br>${json[0].creator.username} <br>
+						<p>${permission}</p></h2>
 						<a href="updateProject.html?id=${json[i]._id}">
 							<i class="material-icons">settings</i>
 						</a>

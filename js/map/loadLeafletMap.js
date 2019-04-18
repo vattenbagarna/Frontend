@@ -1,8 +1,6 @@
 /* global L */
 export let token = localStorage.getItem('token');
 
-console.log(token);
-
 
 // Imports Google maps javascript api key from getKey.js file
 import { key } from "./getKey.js";
@@ -541,7 +539,7 @@ let loadMap = () => {
             return response.json();
         })
         .then((json) => {
-            edit.load(json[0].data);
+            if (json[0].data.length > 0) {edit.load(json[0].data);}
         });
 };
 
