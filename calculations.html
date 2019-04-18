@@ -18,11 +18,11 @@
 				</div>
 				<form class="form-inline" autocomplete="off">
 					<label for="length">Längd</label>
-					<input data-digits-only type="number" id="length" name="length" placeholder="Längd">&nbsp; m
+					<input data-digits-only step="0.1" type="number" id="length" name="length" placeholder="Längd" onkeypress="enterPressed(this, event);">&nbsp; m
 					<label for="height">Statisk höjd</label>
-					<input data-digits-only type="number" id="height" name="height" placeholder="Höjd">&nbsp; m
+					<input data-digits-only step="0.1" type="number" id="height" name="height" placeholder="Höjd" onkeypress="enterPressed(this, event);">&nbsp; m
 					<label for="pressure">Statiskt tryck</label>
-					<input data-digits-only type="number" id="inPressure" name="pressure" placeholder="Tryck">&nbsp; bar
+					<input data-digits-only step="0.1" type="number" id="inPressure" name="pressure" placeholder="Tryck" onkeypress="enterPressed(this, event);">&nbsp; bar
 					<label for="material">Material</label>
 					<select id="material" name="material">
 						<option value="choose" disabled selected>Välj material</option>
@@ -43,7 +43,7 @@
 					<label name="pressureChoice"></label>
 						<input type="radio" id="pressure2" name="PN" value="PN10"><p></p>
 					<label for="flow" id ="flowLabel"><p></p></label>
-						<input data-digits-only type="number" id="flow" name="flow" placeholder="0" onkeypress="enterPressed(this, event);"><p></p>
+						<input data-digits-only step="0.1" type="number" id="flow" name="flow" placeholder="0" onkeypress="enterPressed(this, event);"><p></p>
 				<input type="button" name="submit" id="submit" value="Beräkna" onclick="calcAll();">
 				</form>
 				<form class="form-inline results" autocomplete="off">
@@ -55,8 +55,12 @@
 					<input disabled="disabled" type="number" id="totalPressure" name="totalPressure" placeholder="0">&nbsp; m
 					<label for="capacity">Kapacitet</label>
 					<input disabled="disabled" type="number" id="capacity" name="capacity" placeholder="0">&nbsp; l/s
+					<label for="pumps" id="pumpLabel"><p></p></label>
+					<select id="pumps">
+					</select>
 				</form>
 			</div>
 		</body>
+		<script src="js/configVariables.js"></script>
 		<script src="js/flowCalc.js"></script>
 	</html>
