@@ -344,18 +344,15 @@ function calcAll() {
     let outPress = 0;
     let mu = 0.015;
 
-    if (document.getElementById("inches").checked) {
-        selectedDim = convertInches(selectedDim);
-    }
     if (!document.getElementById("innerdimension").checked) {
-        selectedDim = changeDim();
+        selectedDim = changeDim(selectedDim);
     }
 
-    let lostPress = calcP(wantedFlow, selectedDim, mu, length);
+    let lostPress = calcPress(wantedFlow, selectedDim, mu, length);
     let roundPress = lostPress.toFixed(2);
     let rFlow = calcQPump(selectedDim, mu, length, inPress, height, outPress);
     let roundFlow = rFlow.toFixed(2);
-    let velocity = calcV(wantedFlow, selectedDim);
+    let velocity = calcVel(wantedFlow, selectedDim);
     let roundVel = velocity.toFixed(2);
     let totalPress = totalPressure(lostPress, inPress);
     let roundTotal = totalPress.toFixed(2);
@@ -366,23 +363,24 @@ function calcAll() {
     document.getElementById("totalPressure").value = roundTotal;
 
     resetPumps();
-    getPumps();
+    getPumps(selectedDim);
 }
 
 /**
     * getPumps - Fetches all the pumps from the database
     *
+    * @param {number} Dimension
+    *
     * @returns {void}
     */
-function getPumps() {
+function getPumps(selectedDim) {
     fetch(configuration.apiURL + "/obj/type/Pump?token=" + localStorage.getItem("token"), {
-        //body: data,
         method: 'GET'
     })
         .then(function (response) {
             return response.json();
         }).then(function(json) {
-            recommendPump(json);
+            recommendPump(json, selectedDim);
         });
 }
 
@@ -390,25 +388,25 @@ function getPumps() {
     * recommendPump - Recommends pumps according to calculations
     *
     * @param {object} Pumps
+    * @param {number} Dimension
     *
     * @returns {void}
     */
-function recommendPump(pumps) {
+function recommendPump(pumps, dimension) {
     let wantedFlow = parseFloat(document.getElementById("flow").value);
     let inputHeight = parseFloat(document.getElementById("height").value);
-    let diameter = parseFloat(document.getElementById("selectDim").value);
     let select = document.getElementById("pumps");
     let margin = 0.5;
 
     for (let i = 0; i < pumps.length; i++) {
-        for (let y = 0; y < pumps[i].Pumpkurva.length; y++) {
-            if (pumps[i].Pumpkurva[y]["lyfthöjd: m"] == inputHeight) {
-                let mps = calcV(pumps[i].Pumpkurva[y]["lps"], diameter);
+        for (let k = 0; k < pumps[i].Pumpkurva.length; k++) {
+            if (pumps[i].Pumpkurva[k].y == inputHeight) {
+                let mps = calcVel(pumps[i].Pumpkurva[k].x, dimension);
 
                 if (mps >= wantedFlow - margin && mps <= wantedFlow + margin) {
                     let option = document.createElement("option");
 
-                    option.text = pumps[i]["Artikelnr."];
+                    option.text = pumps[i].Modell;
                     select.add(option);
                     break;
                 }
@@ -436,10 +434,12 @@ function resetPumps() {
 /**
     * changeDim - Changes the outer dimension to inner dimension
     *
+    *  @param {number} Chosen dimension
+    *
     * @returns {number}
     */
-function changeDim() {
-    let chosen = "";
+function changeDim(chosen) {
+    chosen = "";
 
     if (document.getElementById("material").value == "PEM") {
         chosen += "P";
@@ -486,19 +486,7 @@ function changeDim() {
 /************************ Math functions ************************************/
 
 /**
-    * convertInches - Converts inches to mm
-    *
-    * @param {number} Selected dimension
-    * @returns {number} Selected dimension in mm
-    */
-function convertInches(selectedDim) {
-    selectedDim = selectedDim * 25.4;
-
-    return selectedDim;
-}
-
-/**
-  * Calculate lost pressure.
+  * calcPress - Calculates lost pressure
   *
   * @param {number} Flowcapacity
   * @param {number} Innerdimension
@@ -508,7 +496,7 @@ function convertInches(selectedDim) {
   * @return {number} Lost pressure
   *
   */
-function calcP(q, di, mu, l) {
+function calcPress(q, di, mu, l) {
     let inDi = di; // mm
     let pLength = l; // m
     let avgQ = q/1000; // l/s
@@ -542,7 +530,7 @@ function calcP(q, di, mu, l) {
 }
 
 /**
-  * Calculate capacity for pump pipes
+  * calcQPump - Calculates capacity for pump pipes
   *
   * @param {number} Innerdimension
   * @param {number} MU
@@ -587,7 +575,7 @@ function totalPressure(lostPress, inPress) {
 }
 
 /**
-  * Calculate velocity
+  * calcVel - Calculates velocity
   *
   * @param {number} Wanted flow
   * @param {number} Innerdimension
@@ -595,13 +583,13 @@ function totalPressure(lostPress, inPress) {
   * @return {number} Velocity
   *
   */
-function calcV(q, di) {
+function calcVel(q, di) {
     q /= 1000; // l/s
     return 4 * 1000000 * q / (di * di * Math.PI);
 }
 
 /**
-  * X squared
+  * square - Calculates X squared
   *
   * @param {number} Value to square
   *
@@ -613,7 +601,7 @@ function square(x) {
 }
 
 /**
-  * X log10
+  * log10 - Calculates X log10
   *
   * @param {number} Value to log10
   *
