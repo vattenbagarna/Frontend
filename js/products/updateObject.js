@@ -11,8 +11,8 @@ let myLineChart;
  */
 let loadObject = () => {
     fetch(
-        `${configuration.apiURL}/obj/id/${id}?token=${token}`
-    )
+            `${configuration.apiURL}/obj/id/${id}?token=${token}`
+        )
         .then((response) => {
             return response.json();
         })
@@ -35,8 +35,8 @@ let loadObject = () => {
 
                         case 'Pump':
                             fetch(
-                                `${configuration.apiURL}/obj/type/Pump?token=${token}`
-                            )
+                                    `${configuration.apiURL}/obj/type/Pump?token=${token}`
+                                )
                                 .then(function(response) {
                                     return response.json();
                                 })
@@ -136,8 +136,8 @@ let newField = () => {
 
     div.className = 'newField';
     div.innerHTML =
-        `<input class="newKey" type="text" placeholder="titel">
-		<input class="newInput" type="text" placeholder="värde">
+        `<input class="newKey" type="text" placeholder="Titel">
+		<input class="newInput" type="text" placeholder="Värde">
 		<a class="removeButton">Ta bort fält</a>`;
 
     document.getElementById('sendButton').before(div);
@@ -332,12 +332,12 @@ let saveObject = (json) => {
         `${configuration.apiURL}/obj/update/${id}?token=${token}`;
 
     fetch(url, {
-        method: "POST",
-        body: JSON.stringify(data),
-        headers: {
-            "Content-Type": "application/json",
-        },
-    }).then(res => res.json())
+            method: "POST",
+            body: JSON.stringify(data),
+            headers: {
+                "Content-Type": "application/json",
+            },
+        }).then(res => res.json())
         .then((data) => {
             if (data.error) {
                 console.log(data);
