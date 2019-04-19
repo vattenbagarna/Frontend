@@ -204,8 +204,6 @@ export const edit = {
         let icon;
         let newObj;
 
-        console.log(json);
-
         map.setView(json[0].center, json[0].zoom);
 
         //Loop through json data.
@@ -235,18 +233,19 @@ export const edit = {
     },
 
     /**
-     * warning - Description
+     * warning - Warning message object
      *
-     * @returns {type} Description
+     * @returns {void}
      */
     warning: {
         /**
-         * unsavedChanges - Description
-         *
-         * @returns {type} Description
+         * unsavedChanges - Display a warning box when user tries to leave the page that some
+         * 				  - information may not be saved if user exit the page.
+         *				  - Uses window.onbeforeunload.
+         * @returns {void}
          */
         unsavedChanges: () => {
-            //borde bara köras om nya ändringar har gjorts
+            //borde bara köras om nya ändringar har gjorts (framtida feature)
             window.onbeforeunload = () => {
                 return "Are you sure you want to navigate away?";
             };

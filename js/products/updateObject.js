@@ -178,7 +178,6 @@ let pumpChoice = (currentPump, nr, pumps) => {
         if (currentPump != pumps[i].Modell) {
             let option = document.createElement('option');
 
-            //Modell i framtiden
             option.text = pumps[i].Modell;
             select.add(option);
         }

@@ -5,15 +5,10 @@ let markers = L.layerGroup();
 let polygons = L.layerGroup();
 let newDiv;
 let boundsArray = [];
+
 // Imports Google maps javascript api key from getKey.js file
-
-import {
-    key
-} from "./getKey.js";
-
-import {
-    jsonData
-} from "../json/jsonSave.js";
+import { key } from "./getKey.js";
+import { Marker, Pipe, House, } from "./classes.js";
 
 
 // Initialize the map with center coordinates on BAGA HQ and zoom 18.
@@ -90,7 +85,6 @@ map.on("zoomend", () => {
 
     markers.eachLayer((marker) => {
         var pixelPosition = map.latLngToLayerPoint(marker._latlng);
-        //console.log(pixelPosition);
 
         newDiv = document.createElement("div" + i);
         newDiv.style.top = (pixelPosition.y + 10) + "px";
@@ -108,91 +102,40 @@ map.on("zoomend", () => {
     });
 });
 
-/*
-	markers
-		- pos
-		- type
-		- options
-		- popup
-		- egenskaper
-	polylines
-		- pos
-		- type
-		- connected_with
-		- options
-		- id
-		- popup
-		- getLength
-		- diameter
-		- lutning
-	polygon
-		- pos
-		- type
-		- options
-		- popup
-		- address
-		- antal personer
-		- flöde
-*/
 /**
  * load - Load objects(markers, polylines, polygons) to the map using json
  * data
  *
  * @returns {void}
- **/
-let load = () => {
-    const savedData = jsonData;
-    //const jsonLoad = JSON.parse(jsonData)
+ */
+let load = (json) => {
     let icon;
     let newObj;
-    let table = document.getElementById('myMaterialTable');
-    let row = table.insertRow(-1);
+
+    map.setView(json[0].center, json[0].zoom);
 
     //Loop through json data.
-    for (let i = 0; i < savedData.length; i++) {
-        switch (savedData[i].type) {
+    for (let i = 1; i < json.length; i++) {
+        switch (json[i].type) {
             //if marker add it to the map with its options
             case "marker":
-                icon = L.icon(savedData[i].options.icon.options);
+                icon = L.icon(json[i].options.icon.options);
 
-                savedData[i].options.icon = icon;
-                newObj = new L.Marker(savedData[i].coordinates, savedData[i].options).addTo(map);
-                markers.addLayer(newObj);
+                newObj = new Marker(json[i].coordinates, json[i].attributes, icon);
 
-                row = table.insertRow(-1);
-                console.log(savedData[i]);
-                for (let x = 0; x < savedData[i].attribute.length; x++) {
-                    row.insertCell(x).innerHTML = savedData[i].attribute[x];
-                }
+                newObj.marker._leaflet_id = json[i].id;
                 break;
                 //if polyline
             case "polyline":
-                //get polyline options and add it to an object
-                newObj = L.polyline(savedData[i]
-                    .coordinates, savedData[i].options);
-                newObj.connected_with = savedData[i].connected_with;
-
-                //add to map
-                polylines.addLayer(newObj).addTo(map);
-
-                row = table.insertRow(-1);
-                row.insertCell(0).innerHTML = savedData[i].options.id;
-                row.insertCell(1).innerHTML = savedData[i].getLength.toFixed(2);
-                row.insertCell(2).innerHTML = savedData[i].tilt;
-                row.insertCell(3).innerHTML = savedData[i].dimension;
-
-                row.insertCell(4).className = "right";
+                newObj = new Pipe(json[i].coordinates, ["", ""], json[i].pipeType,
+                    json[i].connected_with[0]);
+                newObj.draw(json[i].connected_with[1], null, json[i].dimension, json[i].tilt);
                 break;
-
+                //if polygon
             case "polygon":
-                newObj = L.polygon(savedData[i].coordinates, savedData[i].options);
-                polygons.addLayer(newObj).addTo(map);
-
-                row = table.insertRow(-1);
-                row.insertCell(0).innerHTML = savedData[i].definition;
-                row.insertCell(1).innerHTML = savedData[i].address;
-                row.insertCell(2).innerHTML = savedData[i].nop;
-                row.insertCell(3).innerHTML = savedData[i].flow;
+                newObj = new House(json[i].coordinates[0], ["", ""]);
+                newObj.drawFromLoad(json[i].coordinates, json[i].address, json[i].definition,
+                    json[i].nop, json[i].flow);
                 break;
         }
     }

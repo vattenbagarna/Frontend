@@ -34,7 +34,6 @@ export class Marker {
         this.attributes = attributes;
 
         this.marker = new L.Marker(latlng, options.marker(icon))
-            // Popup behöver uppdateras med backend
             .bindPopup(popup.marker(this.attributes) + popup.changeCoord(latlng))
             .on("drag", edit.moveMarker)
             .on('popupopen', this.updateCoords);
@@ -83,7 +82,7 @@ export class Marker {
  */
 export class House {
     /**
-     * constructor - Creates a L.polygon with preconfiged attributes from options.js and popup.js
+     * constructor - Creates a L.polygon with preconfigured attributes from options.js and popup.js
      * 			   - @see {@link https://leafletjs.com/reference-1.4.0.html#polygon}
      * 			   - Creates a guideline with a dashed line to help user to line up the next point
      * 			   - Guideline update it's position on mousemove
@@ -125,19 +124,18 @@ export class House {
         coord.unshift(latlng);
     }
 
-
     /**
-     * drawFromLoad - Description
+     * drawFromLoad - Draws polygon from saved data
      *
-     * @param {type} latlngs           Description
-     * @param {null} [address=null]    Description
-     * @param {null} [definition=null] Description
-     * @param {null} [nop=null]        Description
-     * @param {null} [flow=null]       Description
+     * @param {array} latlngs     The rest of the coordinates of the corners on the polygon
+     * @param {string} address    The address of the polygon
+     * @param {string} definition What type of building is it
+     * @param {string} nop        number of people is living there
+     * @param {string} flow       water flow per person
      *
-     * @returns {type} Description
+     * @returns {void}
      */
-    drawFromLoad(latlngs, address = null, definition = null, nop = null, flow = null) {
+    drawFromLoad(latlngs, address, definition, nop, flow) {
         this.polygon.setLatLngs(latlngs);
         this.polygon.bindPopup(popup.house(address, definition, nop, flow));
         polygons.addLayer(this.polygon).addTo(map);
@@ -160,7 +158,6 @@ export class House {
      *
      **/
     updateGuideLine(event) {
-        // Behövs kommenteras
         let coord = guideline.getLatLngs();
 
         coord.pop();
@@ -228,16 +225,16 @@ export class Pipe {
     }
 
     /**
-     * draw - Creates a L.polyline with preconfiged attributes from options.js and popup.js and type
+     * draw - Creates a L.polyline with preconfigured attributes from options.js, popup.js and type
      * 		- @see {@link https://leafletjs.com/reference-1.4.0.html#polyline}
      * 		- Set connected_with values so the object knows what is it connected to
      * 		- Set length for new polyline
      * 		- Displays new polyline on map
      *
-     * @param {let} id            Unique number to last connected_with
-     * @param {array} [latlng=null] Option to push new point into new polyline
-     * @param {null} [dimension=null] Description
-     * @param {null} [tilt=null]      Description
+     * @param {let} id            		Unique number to last connected_with
+     * @param {array} [latlng=null] 	Option to push new point into new polyline
+     * @param {null} [dimension=null]	Option to add preconfigured dimension
+     * @param {null} [tilt=null]      	Option to add preconfigured tilt
      *
      * @returns {void}
      **/
@@ -270,9 +267,11 @@ export class Pipe {
     }
 
     /**
-     * createPolyline - Description
+     * createPolyline - Creates a new polyline depending on what type is choosen with preconfigured
+     * 				  - options, popup, length, dimension and tilt. Lastly add the new created
+     * 				  - polyline to map
      *
-     * @returns {type} Description
+     * @returns {void}
      */
     createPolyline() {
         if (this.type == 0) {

@@ -265,8 +265,8 @@ let newField = () => {
 
     div.className = 'newField';
     div.innerHTML =
-        `<input class="newKey" type="text" placeholder="titel">
-		<input class="newInput" type="text" placeholder="värde">
+        `<input class="newKey" type="text" placeholder="Titel">
+		<input class="newInput" type="text" placeholder="Värde">
 		<a class="removeButton">Ta bort fält</a>`;
 
     document.getElementById('sendButton').before(div);

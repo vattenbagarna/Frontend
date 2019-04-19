@@ -2,8 +2,9 @@ export let popup = {
     marker: (attributes) => {
         let temp = "";
 
-        for (let i = 0; i < attributes.length; i++) {temp += `<tr><td>${attributes[i]}</td></tr>`;}
-
+        for (let i = 0; i < attributes.length; i++) {
+            temp += `<tr><td>${attributes[i]}</td></tr>`;
+        }
 
         return `<ul class='accordion2'>
     <li>
@@ -37,7 +38,7 @@ export let popup = {
 
     pipe: (dimension, tilt) => {
         return `<b>Rör</b><br>
-<label>Inner Dimension</label>
+<label>Innerdiameter</label>
 <input type="number" id="dimension" name="dimension" placeholder="${dimension}">
 <label>Lutning</label>
 <input type="number" id="tilt" name="tilt" placeholder="${tilt}">
