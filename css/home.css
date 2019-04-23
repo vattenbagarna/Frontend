@@ -52,11 +52,7 @@ body {
     margin: auto;
 }
 
-img {
-    max-width: 5rem;
-}
-
-.product {
+.project {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -64,29 +60,29 @@ img {
     transition: 0.2s;
 }
 
-.product a {
+.project i {
+    font-size: 30px;
+}
+
+.project a {
     text-decoration: none;
     color: black;
 }
 
-.product i {
-    font-size: 30px;
-}
-
-.product a:hover {
+.project a:hover {
     color: #3867d6;
 }
 
-.product:hover {
+.project:hover {
     cursor: pointer;
     background: rgba(150, 150, 150, 0.3);
 }
 
-.last-product {
+.last-project {
     border-bottom: 1px solid rgba(0, 0, 0, 0.5);
 }
 
-.product h2 {
+.project h2 {
     font-weight: 200;
 }
 

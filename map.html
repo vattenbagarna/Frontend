@@ -8,11 +8,10 @@
 		<link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css" integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA==" crossorigin=""/>
 		<link rel="stylesheet" href="css/map.css">
 		<script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js" integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg==" crossorigin=""></script>
-		<script type="module" src="js/loadLeafletMap.js"></script>
-		<script type="module" src="js/show.js"></script>
-		<script type="module" src="js/add.js"></script>
-		<script type="module" src="js/edit.js"></script>
-		<script type="module" src="js/getKey.js"></script>
+		<script type="module" src="js/map/loadLeafletMap.js"></script>
+		<script type="module" src="js/map/show.js"></script>
+		<script type="module" src="js/map/edit.js"></script>
+		<script src="js/configVariables.js" charset="utf-8"></script>
 		<script type="text/javascript" src="https://revh.github.io/leaflet-draggable-polyline/leaflet.geometryutil.js"></script>
 		<script type="text/javascript" src="https://rawgit.com/RevH/leaflet-draggable-polyline/master/leaflet-draggable-polyline.js"></script>
 		<script src="https://unpkg.com/esri-leaflet"></script>
@@ -26,87 +25,6 @@
 				<div class="wrappa-items">
 					<h1 class="projekt-titel">Projekt 1</h1>
 					<div class="obj-list">
-						<button class="accordion desc">Pumpstationer</button>
-						<div class="panel">
-							<div class="obj-container">
-								<div id="Pumpstation Kompus typ 61, 81, 82" class="obj pumpstationer">
-									<img src="img/pumpstation_61_81_82-e1413280385370.png"/>
-								</div>
-								<div class="obj-desc">Kompus typ 61, 81, 82</div>
-							</div>
-							<div class="obj-container">
-								<div id="Pumpstation Kompus typ 06-01" class="obj pumpstationer">
-									<img src="img/kompus_06_1-e1413280844940.png"/>
-								</div>
-								<div class="obj-desc">Kompus typ 06-01</div>
-							</div>
-							<div class="obj-container">
-								<div id="Pumpstation Kompus typ 08-01" class="obj pumpstationer">
-									<img src="img/kompus_08_1-e1413280539824.png"/>
-								</div>
-								<div class="obj-desc">Kompus typ 08-01</div>
-							</div>
-							<div class="obj-container">
-								<div id="Pumpstation Kompus typ 12-01" class="obj pumpstationer">
-									<img src="img/pumpstation_12_1-e1413280563473.png"/>
-								</div>
-								<div class="obj-desc">Kompus typ 12-01</div>
-							</div>
-							<div class="obj-container">
-								<div id="Pumpstation Kompus typ 10-12" class="obj pumpstationer">
-									<img src="img/pumpstation_10_2-e1413280585410.png"/>
-								</div>
-								<div class="obj-desc">Kompus typ 10-12</div>
-							</div>
-							<div class="obj-container">
-								<div id="Pumpstation Kompus typ 12-02" class="obj pumpstationer">
-									<img src="img/pumpstation_12_2-e1413280606538.png"/>
-								</div>
-								<div class="obj-desc">Kompus typ 12-02</div>
-							</div>
-						</div>
-						<button class="accordion desc">Slamavskiljare</button>
-						<div class="panel">
-							<div class="obj-container">
-								<div id="Slamavskiljare 2,2 m³ 1 hushåll – lågbyggd" class="obj slamavskiljare">
-									<img src="img/slamavskiljare_2m3_produkt2.png"/>
-								</div>
-								<div class="obj-desc">Slamavskiljare 2,2 m³ 1 hushåll – lågbyggd</div>
-							</div>
-							<div class="obj-container">
-								<div id="Slamavskiljare 3 m³ 1 hushåll" class="obj slamavskiljare">
-									<img src="img/slamavskiljare_105x105.png"/>
-								</div>
-								<div class="obj-desc">Slamavskiljare 3 m³ 1 hushåll</div>
-							</div>
-						</div>
-						<button class="accordion desc">Kompaktbädd</button>
-						<div class="panel">
-							<div class="obj-container">
-								<div id="BAGA Easy kompaktbädd" class="obj kompaktbädd">
-									<img style="max-width:150px !important; margin-top:20px;" src="img/kompaktbadd_web.png"/>
-								</div>
-								<div class="obj-desc">BAGA Easy kompaktbädd</div>
-							</div>
-						</div>
-						<button class="accordion desc">Fettavskiljare</button>
-						<div class="panel">
-							<div class="obj-container">
-								<div id="Markförlagda fettavskiljare (stående)" class="obj fettavskiljare">
-									<img style="max-width:100px !important;" src="img/Fettavskiljare_576px.png"/>
-								</div>
-								<div class="obj-desc">Markförlagda fettavskiljare (stående)</div>
-							</div>
-						</div>
-						<button class="accordion desc">Oljeavskiljare</button>
-						<div class="panel">
-							<div class="obj-container">
-								<div id="Klass 1. Modell BOK – Allt-i-ett" class="obj oljeavskiljare">
-									<img style="max-width:150px !important; margin-top:20px;" src="img/oljeavskiljare_suk15_576px.png"/>
-								</div>
-								<div class="obj-desc">Klass 1. Modell BOK – Allt-i-ett</div>
-							</div>
-						</div>
 						<button class="accordion desc">Verktyg</button>
 						<div class="panel">
 							<div class="obj-container" id="stempipe">
@@ -175,12 +93,13 @@
 				<span class="close">&times;</span>
 				<b>Spara Projekt 1</b>
 				<br></br>
-				<label>Lägg till ny version</label>
-				<input autocomplete="off" type="text" id="newVersion" placeholder="tex 2.0"/>
 				<label>Välj version</label>
 				<select id="versions">
 					<option value="1.0">1.0</option>
 				</select>
+				<label>Lägg till ny version</label>
+				<input autocomplete="off" type="text" id="newVersion" placeholder="tex 2.0"/>
+
 				<input type="button" id="saveButton" value="Spara">
 			</div>
 		</div>

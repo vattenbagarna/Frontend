@@ -324,7 +324,7 @@ ul.accordion2 label+input[type='radio']:checked+div.content {
     display: block;
 }
 
-table {
+ul.accordion2 table {
     border-spacing: 0;
     border: none;
     width: 100%;
@@ -333,16 +333,20 @@ table {
     table-layout: fixed;
 }
 
-th {
+ul.accordion2 th {
     background-color: #3867d6;
     color: white;
 }
 
-th, td {
+ul.accordion2 th, td {
     border-bottom: 1px solid #ddd;
     text-align: left;
     padding: 0.8rem 0;
     width: 15vw;
+}
+
+ul.accordion2 img {
+    max-width: 15vw;
 }
 
 tr:nth-child(even) {

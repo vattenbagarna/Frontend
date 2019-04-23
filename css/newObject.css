@@ -4,7 +4,6 @@ body {
     padding: 0;
     height: 100%;
     width: 100%;
-    font-family: 'Fira Sans', sans-serif;
 }
 
 .topnav {
@@ -38,6 +37,7 @@ body {
 .wrap {
     width: 90%;
     margin: auto;
+    font-family: 'Fira Sans', sans-serif;
 }
 
 .title h1 {
@@ -48,53 +48,49 @@ body {
     text-align: center;
 }
 
-.projectlista {
+.main-wrap {
     margin: auto;
+    width: 40%;
 }
 
 img {
-    max-width: 5rem;
+    max-width: 7rem;
 }
 
-.product {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-top: 1px solid rgba(0, 0, 0, 0.5);
-    transition: 0.2s;
+canvas {
+    width: 100%;
+    height: auto;
 }
 
-.product a {
-    text-decoration: none;
+input[type=text],
+input[type=number],
+select {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: block;
+    background: white;
     color: black;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
 }
 
-.product i {
-    font-size: 30px;
+.newKey {
+    width: 25% !important;
+    display: inline-block !important;
 }
 
-.product a:hover {
-    color: #3867d6;
-}
-
-.product:hover {
-    cursor: pointer;
-    background: rgba(150, 150, 150, 0.3);
-}
-
-.last-product {
-    border-bottom: 1px solid rgba(0, 0, 0, 0.5);
-}
-
-.product h2 {
-    font-weight: 200;
+.newInput {
+    width: 56% !important;
+    display: inline-block !important;
 }
 
 .button-wrap {
     margin: 2rem 0;
 }
 
-.button {
+.button, .button2, .removeButton {
     text-decoration: none;
     color: #fff;
     font-size: 1.1rem;
@@ -104,7 +100,20 @@ img {
     box-shadow: 1px 1px 4px rgba(102, 102, 102, 0.6);
 }
 
-.button:hover {
+.button2 {
+    padding: 0.5rem !important;
+    font-size: 0.8rem;
+}
+
+.removeButton {
+    display: inline-block !important;
+    margin: 0 !important;
+    padding: 0.5rem !important;
+    background: #c0392b !important;
+    font-size: 0.8rem;
+}
+
+.button:hover, .button2:hover, .removeButton:hover {
     box-shadow: 1px 1px 4px rgba(102, 102, 102, 1);
     cursor: pointer;
 }
