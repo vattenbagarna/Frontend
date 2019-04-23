@@ -17,7 +17,7 @@ let loadAllProjects = () => {
                 let projectlist = document.getElementsByClassName('projectlist')[0];
                 let userName = document.getElementById('userName');
 
-                userName.innerHTML = `Välkommen ${user}`;
+                userName.innerHTML = `${user}`;
 
                 if (json.length > 0) {
                     for (let i = 0; i < json.length; i++) {
