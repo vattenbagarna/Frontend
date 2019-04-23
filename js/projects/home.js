@@ -42,7 +42,7 @@ let loadAllProjects = () => {
                             `<div class="project">
 						<h2>${json[i].name}</h2>
 						<h2>${json[i].version}</h2>
-						<h2>Skapare: <br>${json[0].creator.username} <br>
+						<h2>Skapare: <br>${json[i].creator.username} <br>
 						<p>${permission}</p></h2>
 						<a href="updateProject.html?id=${json[i]._id}">
 							<i class="material-icons">settings</i>
