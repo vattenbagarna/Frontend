@@ -1,4 +1,4 @@
-/* global L */
+/* global L configuration */
 export let token = localStorage.getItem('token');
 
 
@@ -457,70 +457,79 @@ let loadClickEvent = () => {
 
 
 /**
- * loadProducts - Description
+ * loadProducts - Loads all products from database and with each category creates a new accordion
  *
- * @returns {type} Description
+ * @returns {void}
  */
 let loadProducts = () => {
     fetch(
-        `http://localhost:1337/obj/all?token=${token}`
+        `${configuration.apiURL}/obj/all?token=${token}`
     )
         .then((response) => {
             return response.json();
         })
         .then((json) => {
-            objectData = json;
-            let list = document.getElementsByClassName('obj-list')[0];
+            if (!json.error) {
+                objectData = json;
+                let list = document.getElementsByClassName('obj-list')[0];
 
-            for (let i = 0; i < json.length; i++) {
-                if (json[i].Kategori != undefined) {
-                    if (document.getElementsByClassName(json[i].Kategori).length == 0 &&
-                        json[i].Kategori != "Pump") {
-                        list.innerHTML +=
-                            `<button class="accordion desc">${json[i].Kategori}</button>
+                for (let i = 0; i < json.length; i++) {
+                    if (json[i].Kategori != undefined) {
+                        if (document.getElementsByClassName(json[i].Kategori).length == 0 &&
+                            json[i].Kategori != "Pump") {
+                            list.innerHTML +=
+                                `<button class="accordion desc">${json[i].Kategori}</button>
 						 <div class="panel"></div>`;
 
-                        let panels = document.getElementsByClassName('panel');
-                        let panel = panels[panels.length - 1];
+                            let panels = document.getElementsByClassName('panel');
+                            let panel = panels[panels.length - 1];
 
-                        let object = document.createElement('div');
+                            let object = document.createElement('div');
 
-                        object.innerHTML =
-                            `<div class="obj-container">
+                            object.innerHTML =
+                                `<div class="obj-container">
 							<div id="${json[i].Modell}" class="obj ${json[i].Kategori}">
 								<img src="img/${json[i].Modell}.png"/>
 							</div>
 							<div class="obj-desc">${json[i].Modell}</div>
 						 </div>`;
 
-                        panel.appendChild(object);
-                    } else if (json[i].Kategori != "Pump") {
-                        let elements = document.getElementsByClassName(json[i].Kategori);
-                        let panel = elements[0].parentElement.parentElement.parentElement;
+                            panel.appendChild(object);
+                        } else if (json[i].Kategori != "Pump") {
+                            let elements = document.getElementsByClassName(json[i].Kategori);
+                            let panel = elements[0].parentElement.parentElement.parentElement;
 
-                        let object = document.createElement('div');
+                            let object = document.createElement('div');
 
-                        object.innerHTML =
-                            `<div class="obj-container">
+                            object.innerHTML =
+                                `<div class="obj-container">
 							<div id="${json[i].Modell}" class="obj ${json[i].Kategori}">
 						   		<img src="img/${json[i].Modell}.png"/>
 					   		</div>
 					   		<div class="obj-desc">${json[i].Modell}</div>
 						 </div>`;
 
-                        panel.appendChild(object);
+                            panel.appendChild(object);
+                        }
                     }
                 }
+
+                accordions();
+                show.activeObj();
+
+                loadClickEvent();
+                addPipeOnClick();
+                addHouseOnClick();
+            } else {
+                if (json.info == "token failed to validate") {
+                    localStorage.removeItem('token');
+                    document.location.href = "index.html";
+                } else {
+                    console.log(json);
+                }
             }
-
-            accordions();
-            show.activeObj();
-
-            loadClickEvent();
-            addPipeOnClick();
-            addHouseOnClick();
         })
-        .catch(error => alert(error));
+        .catch(error => console.log(error));
 };
 
 
@@ -533,13 +542,22 @@ let loadMap = () => {
     let id = new URL(window.location.href).searchParams.get('id');
 
     fetch(
-        `http://localhost:1337/proj/data/${id}?token=${token}`
+        `${configuration.apiURL}/proj/data/${id}?token=${token}`
     )
         .then((response) => {
             return response.json();
         })
         .then((json) => {
-            if (json[0].data.length > 0) {edit.load(json[0].data);}
+            if (!json.error) {
+                if (json[0].data.length > 0) { edit.load(json[0].data); }
+            } else {
+                if (json.info == "token failed to validate") {
+                    localStorage.removeItem('token');
+                    document.location.href = "index.html";
+                } else {
+                    console.log(json);
+                }
+            }
         });
 };
 
