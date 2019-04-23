@@ -2,7 +2,7 @@
 /*eslint no-unused-vars: 0*/
 let token = localStorage.getItem('token');
 
-fetch(`${configuration.apiURL}/obj/created/?token=${token}`)
+fetch(`${configuration.apiURL}/obj/created?token=${token}`)
     .then((response) => {
         return response.json();
     })

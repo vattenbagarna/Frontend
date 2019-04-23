@@ -26,7 +26,6 @@ export const add = {
      */
     marker: (event) => {
         let object;
-        let attributes = [];
 
         for (let i = 0; i < objectData.length; i++) {
             if (add.activeObjName == objectData[i].Modell) {
@@ -35,11 +34,7 @@ export const add = {
             }
         }
 
-        for (let x in object) {
-            attributes.push(`${x}: ${object[x]}`);
-        }
-
-        new Marker(event.latlng, attributes, add.activeIcon);
+        new Marker(event.latlng, object, add.activeIcon);
     },
 
     /**

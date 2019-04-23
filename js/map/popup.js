@@ -2,8 +2,17 @@ export let popup = {
     marker: (attributes) => {
         let temp = "";
 
-        for (let i = 0; i < attributes.length; i++) {
-            temp += `<tr><td>${attributes[i]}</td></tr>`;
+        for (let key in attributes) {
+            switch (key) {
+                case 'Bild':
+                    temp += `<tr><td><img src="${attributes[key]}"/></td></tr>`;
+                    break;
+                case 'creatorID':
+                case '_id':
+                    break;
+                default:
+                    temp += `<tr><td>${key}: ${attributes[key]}</td></tr>`;
+            }
         }
 
         return `<ul class='accordion2'>

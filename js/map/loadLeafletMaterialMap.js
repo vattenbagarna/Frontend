@@ -8,7 +8,7 @@ let boundsArray = [];
 
 // Imports Google maps javascript api key from getKey.js file
 import { key } from "./getKey.js";
-import { Marker, Pipe, House, } from "./classes.js";
+//import { Marker, Pipe, House, } from "./classes.js";
 
 
 // Initialize the map with center coordinates on BAGA HQ and zoom 18.
@@ -108,6 +108,7 @@ map.on("zoomend", () => {
  *
  * @returns {void}
  */
+/*
 let load = (json) => {
     let icon;
     let newObj;
@@ -141,7 +142,9 @@ let load = (json) => {
     }
 };
 
+*/
+
 
 gridlayers();
-load();
+//load();
 getBounds();

@@ -16,12 +16,13 @@ let loadAllProjects = () => {
             if (!json.error) {
                 let projectlist = document.getElementsByClassName('projectlist')[0];
                 let userName = document.getElementById('userName');
-                let permission = "";
 
                 userName.innerHTML = `Välkommen ${user}`;
 
                 if (json.length > 0) {
                     for (let i = 0; i < json.length; i++) {
+                        let permission = "";
+
                         if (json[i].access.length > 0) {
                             permission += "Rättigheter till övriga: <br>";
                         }
