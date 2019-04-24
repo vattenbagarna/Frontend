@@ -11,8 +11,12 @@
     text-align: center;
 }
 
-.projectlista {
+.projectlist {
     margin: auto;
+}
+
+.project  h2 {
+    font-weight: 400;
 }
 
 .creators {
