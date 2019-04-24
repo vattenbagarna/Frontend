@@ -3,7 +3,7 @@ export let isEdit = null;
 let tempPolylineArray = [];
 
 //imports the map object
-import { map, token } from "./loadLeafletMap.js";
+import { map, token, projectInfo } from "./loadLeafletMap.js";
 
 import { add, polylines, markers, polygons, getLength } from "./add.js";
 
@@ -120,9 +120,10 @@ export const edit = {
     /**
      * save - Saves the objects from the map in a json format.
      *
+     * @param {string} version version number the user wants to save the project under
      * @returns {void}
      */
-    save: () => {
+    save: (version) => {
         let json = [];
         let temp;
 
@@ -181,17 +182,47 @@ export const edit = {
             json.push(temp);
         });
 
-        let id = new URL(window.location.href).searchParams.get('id');
+        if (version == projectInfo.version) {
+            let id = new URL(window.location.href).searchParams.get('id');
 
-        fetch(configuration.apiURL + `/proj/update/data/${id}?token=${token}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(json),
-        }).then(res => res.json())
-            .then((response) => console.log(response[0].data))
-            .catch(error => alert(error));
+            fetch(`${configuration.apiURL}/proj/update/data/${id}?token=${token}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(json),
+            }).then(res => res.json())
+                .then()
+                .catch(error => console.log(error));
+        } else {
+            let id;
+
+            projectInfo.version = version;
+            fetch(`${configuration.apiURL}/proj/insert?token=${token}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(projectInfo),
+            }).then(res => res.json())
+                .then((response) => {
+                    id = response._id;
+
+                    fetch(`${configuration.apiURL}/proj/update/data/${id}?token=${token}`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(json),
+                    }).then(res => res.json())
+                        .then(() => {
+                            window.onbeforeunload = () => {};
+                            document.location.href = `map.html?id=${id}`;
+                        })
+                        .catch(error => console.log(error));
+                })
+                .catch(error => console.log(error));
+        }
     },
 
     /**
