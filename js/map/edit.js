@@ -22,7 +22,7 @@ export const edit = {
         //get each polyline
         polylines.eachLayer((polyline) => {
             //check if polylines are connected to a marker, by first point and last point.
-            if (event.target._leaflet_id === polyline.connected_with.first) {
+            if (event.target.id === polyline.connected_with.first) {
                 //if polyline is connected with marker change lat lng to match marker
                 let newLatlng = polyline.getLatLngs();
 
@@ -30,7 +30,7 @@ export const edit = {
                 newLatlng.unshift(event.latlng);
 
                 polyline.setLatLngs(newLatlng);
-            } else if (event.target._leaflet_id === polyline.connected_with.last) {
+            } else if (event.target.id === polyline.connected_with.last) {
                 let newLatlng = polyline.getLatLngs();
 
                 newLatlng.pop();
@@ -38,14 +38,16 @@ export const edit = {
                 polyline.setLatLngs(newLatlng);
             }
         });
-        event.target.setPopupContent(popup.marker(add.activeObjName) + popup.changeCoord({
+        event.target.setPopupContent(popup.marker(event.target.attributes) + popup.changeCoord({
             lat: event.latlng.lat,
             lng: event.latlng.lng
         }));
+
+        edit.warning.unsavedChanges(true);
     },
 
     /**
-     * editPolylines - Makes polylines editable by adding hooks and dragging.
+     * polylines - Makes polylines editable by adding hooks and dragging.
      * library?
      *
      * @returns {void}
@@ -56,6 +58,7 @@ export const edit = {
             tempPolylineArray.push(polyline._latlngs.length);
         });
 
+        edit.warning.unsavedChanges(true);
         isEdit = true;
     },
 
@@ -112,9 +115,11 @@ export const edit = {
      */
     remove: (event) => {
         //remove polylines, markers and polygons when clicked
-        polylines.removeLayer(event.sourceTarget);
-        markers.removeLayer(event.sourceTarget);
-        polygons.removeLayer(event.sourceTarget);
+        polylines.removeLayer(event.target);
+        markers.removeLayer(event.target);
+        polygons.removeLayer(event.target);
+
+        edit.warning.unsavedChanges(true);
     },
 
     /**
@@ -146,7 +151,6 @@ export const edit = {
                 tilt: polyline.tilt,
                 dimension: polyline.dimension,
                 pipeType: polyline.type,
-                id: polyline._leaflet_id,
             };
 
             json.push(temp);
@@ -158,7 +162,7 @@ export const edit = {
                 coordinates: [marker._latlng.lat, marker._latlng.lng],
                 type: "marker",
                 options: marker.options,
-                id: marker._leaflet_id,
+                id: marker.id,
                 popup: marker.getPopup().getContent(),
                 attributes: marker.attributes,
             };
@@ -171,7 +175,6 @@ export const edit = {
                 coordinates: polygon._latlngs,
                 type: "polygon",
                 options: polygon.options,
-                id: polygon._leaflet_id,
                 popup: polygon.getPopup().getContent(),
                 definition: polygon.definition,
                 address: polygon.address,
@@ -192,7 +195,7 @@ export const edit = {
                 },
                 body: JSON.stringify(json),
             }).then(res => res.json())
-                .then()
+                .then(() => edit.warning.unsavedChanges(false))
                 .catch(error => console.log(error));
         } else {
             let id;
@@ -216,7 +219,7 @@ export const edit = {
                         body: JSON.stringify(json),
                     }).then(res => res.json())
                         .then(() => {
-                            window.onbeforeunload = () => {};
+                            edit.warning.unsavedChanges(false);
                             document.location.href = `map.html?id=${id}`;
                         })
                         .catch(error => console.log(error));
@@ -244,15 +247,13 @@ export const edit = {
                 case "marker":
                     icon = L.icon(json[i].options.icon.options);
 
-                    newObj = new Marker(json[i].coordinates, json[i].attributes, icon);
-
-                    newObj.marker._leaflet_id = json[i].id;
+                    newObj = new Marker(json[i].coordinates, json[i].attributes, icon, json[i].id);
                     break;
                     //if polyline
                 case "polyline":
                     newObj = new Pipe(json[i].coordinates, ["", ""], json[i].pipeType,
-                        json[i].connected_with[0]);
-                    newObj.draw(json[i].connected_with[1], null, json[i].dimension, json[i].tilt);
+                        json[i].connected_with.first);
+                    newObj.draw(json[i].connected_with.last, null, json[i].dimension, json[i].tilt);
                     break;
                 case "polygon":
                     newObj = new House(json[i].coordinates[0], ["", ""]);
@@ -275,11 +276,14 @@ export const edit = {
          *				  - Uses window.onbeforeunload.
          * @returns {void}
          */
-        unsavedChanges: () => {
-            //borde bara köras om nya ändringar har gjorts (framtida feature)
-            window.onbeforeunload = () => {
-                return "Are you sure you want to navigate away?";
-            };
+        unsavedChanges: (value) => {
+            if (value) {
+                window.onbeforeunload = () => {
+                    return "Are you sure you want to navigate away?";
+                };
+            } else {
+                window.onbeforeunload = () => {};
+            }
         },
     },
 

@@ -556,7 +556,15 @@ let loadMap = {
             })
             .then((json) => {
                 if (!json.error) {
-                    if (json[0].data.length > 0) { edit.load(json[0].data); }
+                    if (json[0].data.length > 0) {
+                        edit.load(json[0].data);
+                    }
+
+                    map.on('layeradd', () => {
+                        edit.warning.unsavedChanges(true);
+                    });
+
+                    edit.clearMapsEvents();
                 } else {
                     if (json.info == "token failed to validate") {
                         localStorage.removeItem('token');
@@ -618,7 +626,6 @@ let onLoad = () => {
     deleteOnClick();
 
     saveBox();
-    edit.warning.unsavedChanges();
 
     //make the blue border appear on mouse icon button on load
     document.getElementById('map').click();

@@ -66,7 +66,7 @@ export const add = {
 
         // If pipe is null create the first point.
         if (pipe != null) {
-            point.id = event.sourceTarget._leaflet_id;
+            point.id = event.sourceTarget.id;
             if (target.length) {
                 point = addBranchConnection(event, target);
             }
@@ -77,7 +77,7 @@ export const add = {
             }
             pipe = null;
         } else {
-            point.id = event.sourceTarget._leaflet_id;
+            point.id = event.sourceTarget.id;
             if (target.length) {
                 point = addBranchConnection(event, target);
                 first = point.marker.disableDragging();
@@ -172,10 +172,10 @@ let addBranchConnection = (event, target) => {
 
     newLine = {
         latlngs: secondLatlngs,
-        first: branchMarker.marker._leaflet_id,
+        first: branchMarker.marker.id,
         last: target.connected_with.last
     };
-    target.connected_with.last = branchMarker.marker._leaflet_id;
+    target.connected_with.last = branchMarker.marker.id;
 
     let newPipe = new Pipe(newLine.latlngs, [""], target.type, newLine.first);
 
@@ -183,7 +183,7 @@ let addBranchConnection = (event, target) => {
 
     return {
         marker: branchMarker.marker,
-        id: branchMarker.marker._leaflet_id
+        id: branchMarker.marker.id
     };
 };
 
