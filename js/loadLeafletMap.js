@@ -460,8 +460,9 @@ let onLoadRead = () => {
     sidebar[0].style.display = "none";
     map[0].style.width = "100%";
     var backLink = document.createElement("a");
+
     backLink.setAttribute("class", "material-icons");
-    backLink.setAttribute("href", "/home.html")
+    backLink.setAttribute("href", "/home.html");
     backLink.innerHTML = "arrow_back";
     back.appendChild(backLink);
     backLink.style.position = "fixed";
