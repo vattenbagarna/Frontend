@@ -18,12 +18,6 @@
     display:run-in;
 }
 
-.login-box {
+.text-input {
     min-width: 350px;
-    font-size: 1.1rem;
-    padding: 10px;
-    border: 3px solid #1280c4;
-    border-radius: 5px;
-    background: #fff;
-    color: #1280c4;
 }
