@@ -80,7 +80,8 @@ export const add = {
             point.id = event.sourceTarget._leaflet_id;
             if (target.length) {
                 point = addBranchConnection(event, target);
-            } else {
+                first = point.marker.disableDragging();
+            } else if (target.options.draggable) {
                 first = target.disableDragging();
             }
             pipe = new Pipe([event.latlng], ["", ""], pipeChoice, point.id);
@@ -181,7 +182,7 @@ let addBranchConnection = (event, target) => {
     newPipe.draw(newLine.last, null, target.dimension, target.tilt);
 
     return {
-        latlng: branchMarker.marker._latlng,
+        marker: branchMarker.marker,
         id: branchMarker.marker._leaflet_id
     };
 };
