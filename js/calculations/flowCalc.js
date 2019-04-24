@@ -9,10 +9,12 @@
     */
 function hideFlow() {
     let hidesFlow = document.getElementById("flow");
+    let hidesFlowWrap = document.getElementById("flow-wrap");
     let hideSubmit = document.getElementById("submit");
     let hidePumps = document.getElementById("pumps");
 
     hidesFlow.style.display = "none";
+    hidesFlowWrap.style.display = "none";
     hideSubmit.style.display = "none";
     hidePumps.style.display = "none";
 }
@@ -86,19 +88,19 @@ document.getElementById("inches").addEventListener("click", () => {
     * Displays the associated dimension for the material after the material
     * button has been changed
     *
-    * @param {object} change
+    * @param {object} changeFlow
     *
     * @returns {void}
     */
 document.getElementById("material").addEventListener("change", () => {
     if (document.getElementById("material").value === "stainless") {
         document.getElementById("inches").style.display = "block";
-        document.getElementById("inches").nextSibling.innerHTML = "Tum";
+        document.getElementById("inches").previousElementSibling.innerHTML = "Tum";
     }
     if (document.getElementById("material").value === "PEM" ||
         document.getElementById("material").value === "PE") {
         document.getElementById("inches").style.display = "none";
-        document.getElementById("inches").nextSibling.innerHTML = "";
+        document.getElementById("inches").previousElementSibling.innerHTML = "";
     }
     hideStyling();
 });
@@ -278,14 +280,12 @@ function showStyling() {
     document.getElementById("pressure1").style.display = "block";
     document.getElementById("pressure2").style.display = "block";
     document.getElementById("flow").style.display = "block";
+    document.getElementById("flow-wrap").style.display = "flex";
     document.getElementById("submit").style.display = "block";
-    document.getElementById("pressure1").nextSibling.innerHTML = "PN 6.3";
-    document.getElementById("pressure2").nextSibling.innerHTML = "PN 10";
+    document.getElementById("pressure1").previousElementSibling.innerHTML = "PN 6.3";
+    document.getElementById("pressure2").previousElementSibling.innerHTML = "PN 10";
     document.getElementById("flowLabel").style.marginTop = "20px";
     document.getElementById("flowLabel").innerHTML = "Önskat flöde";
-    document.getElementById("flow").style.marginRight = "10px";
-    document.getElementById("flow").nextSibling.innerHTML = "l/s";
-    document.getElementById("submit").nextSibling.innerHTML = "Punkförsluster";
 }
 
 /**
@@ -297,17 +297,18 @@ function hideStyling() {
     document.getElementById("selectDim").style.display = "none";
     document.getElementById("innerdimension").style.display = "block";
     document.getElementById("outerdimension").style.display = "block";
-    document.getElementById("innerdimension").nextSibling.innerHTML = "Innediameter";
-    document.getElementById("outerdimension").nextSibling.innerHTML = "Ytterdiameter";
+    document.getElementById("innerdimension").previousElementSibling.innerText = "Innediameter";
+    document.getElementById("outerdimension").previousElementSibling.innerHTML = "Ytterdiameter";
     document.getElementById("pressure1").style.display = "none";
     document.getElementById("pressure2").style.display = "none";
-    document.getElementById("pressure1").nextSibling.innerHTML = "";
-    document.getElementById("pressure2").nextSibling.innerHTML = "";
+    document.getElementById("pressure1").previousElementSibling.innerHTML = "";
+    document.getElementById("pressure2").previousElementSibling.innerHTML = "";
     document.getElementById("pressure1").checked = false;
     document.getElementById("pressure2").checked = false;
     document.getElementById("innerdimension").checked = false;
     document.getElementById("outerdimension").checked = false;
     document.getElementById("flow").style.display = "none";
+    document.getElementById("flow-wrap").style.display = "none";
     document.getElementById("submit").style.display = "none";
     document.getElementById("flowLabel").innerHTML = "";
     document.getElementById("flow").nextSibling.innerHTML = "";
