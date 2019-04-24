@@ -455,9 +455,21 @@ let onLoadRead = () => {
 
     let sidebar = document.getElementsByClassName("sidebar");
     let map = document.getElementsByClassName("map");
+    let back = document.getElementById("readBack");
 
     sidebar[0].style.display = "none";
     map[0].style.width = "100%";
+    var backLink = document.createElement("a");
+    backLink.setAttribute("class", "material-icons");
+    backLink.setAttribute("href", "/home.html")
+    backLink.innerHTML = "arrow_back";
+    back.appendChild(backLink);
+    backLink.style.position = "fixed";
+    backLink.style.bottom = "35px";
+    backLink.style.zIndex = "9999";
+    backLink.style.fontSize = "60px";
+    backLink.style.textDecoration = "none";
+    backLink.style.color = "gray";
 };
 
 /**
