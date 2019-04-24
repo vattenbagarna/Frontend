@@ -24,8 +24,9 @@ let loadrequiredFields = () => {
                 let main = document.getElementsByClassName('main-wrap')[0];
 
                 main.innerHTML +=
-                    `<label>Kategori</label>
-				<select id="Kategori"><option disabled selected></option></select>`;
+                    `<label>Kategori</label><br>
+				<select class="select-input" id="Kategori">
+                <option disabled selected></option></select><br>`;
 
                 let select = document.getElementById("Kategori");
 
@@ -44,13 +45,13 @@ let loadrequiredFields = () => {
 
 
                 main.innerHTML +=
-                    `<label>Modell</label>
-			 <input id="Modell" type="text">
+                    `<br><label>Modell</label><br>
+			 <input class="text-input" id="Modell" type="text"><br><br>
 			 <label>Produktbild</label><br>
 			 <img id="currentImage"/>
   	 		<input id="imageFile" type="file" name="pic" accept=".png">
 			<div class="button-wrap">
-				<a id="newFieldButton" class="button2">Lägg till nytt fält</a>
+				<a id="newFieldButton" class="button small-button">Lägg till nytt fält</a>
 			</div>
 				<div id="sendButton" class="button-wrap">
 					<br><br>
@@ -265,9 +266,9 @@ let newField = () => {
 
     div.className = 'newField';
     div.innerHTML =
-        `<input class="newKey" type="text" placeholder="Titel">
-		<input class="newInput" type="text" placeholder="Värde">
-		<a class="removeButton">Ta bort fält</a>`;
+        `<input class="newKey text-input" type="text" placeholder="Titel">
+		<input class="newInput text-input" type="text" placeholder="Värde">
+		<a class="removeButton button small-button danger-bt">Ta bort fält</a>`;
 
     document.getElementById('sendButton').before(div);
 

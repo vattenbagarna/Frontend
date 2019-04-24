@@ -37,21 +37,21 @@ let loadAllProjects = () => {
                         }
 
                         projectlist.innerHTML +=
-                        `<div class="project">
-    						<h2 class="projectpart">${json[i].name}</h2>
-    						<h2 class="projectpart">${json[i].version}</h2>
-    						<div class="creators projectpart">
+                        `<div class="table">
+    						<h2 class="tablepart">${json[i].name}</h2>
+    						<h2 class="tablepart">${json[i].version}</h2>
+    						<div class="creators tablepart">
                                 <p class="creatorname">Skapare:<br>
                                     ${json[i].creator.username}
                                 </p>
     						    <p class="creatorname">${permission}</p>
                             </div>
-						    <span class="projectpart">
+						    <span class="tablepart">
                                 <a class="projectlink" href="updateProject.html?id=${json[i]._id}">
 							        <i class="material-icons">settings</i>
                                 </a>
 						    </span>
-    						<span class="projectpart">
+    						<span class="tablepart">
                                 <a class="projectlink" href="map.html?id=${json[i]._id}">
     							    <i class="material-icons">exit_to_app</i>
                                 </a>

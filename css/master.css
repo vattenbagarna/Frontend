@@ -96,6 +96,13 @@ body {
 }
 
 /*
+    Gebneral small button
+*/
+.small-button {
+    padding: 0.4rem 0.6rem;
+}
+
+/*
     General text input field
 */
 .text-input {
@@ -136,6 +143,26 @@ option {
     color: #1280c4;
     border: solid 2px #1280c4;
     border-radius: 5px;
+}
+
+
+/*
+    General table logic layout
+*/
+.table {
+    text-align: center;
+    display: flex;
+    justify-content:space-around;
+    align-items: center;
+    border-top: 1px solid rgba(0, 0, 0, 0.5);
+    transition: 0.2s;
+}
+
+.tablepart {
+    font-weight: 200;
+    width: 15%;
+    margin: auto;
+    flex-grow: 0;
 }
 
 /*
