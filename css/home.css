@@ -16,37 +16,38 @@
 }
 
 .project {
+    text-align: center;
     display: flex;
-    justify-content: space-between;
+    justify-content:space-around;
     align-items: center;
     border-top: 1px solid rgba(0, 0, 0, 0.5);
     transition: 0.2s;
 }
 
-.project i {
-    font-size: 30px;
+.projectpart {
+    font-weight: 200;
+    width: 15%;
+    margin: auto;
+    flex-grow: 0;
 }
 
-.project a {
-    text-decoration: none;
-    color: black;
+.creators {
+    display: flex;
+    flex-direction: column;
 }
 
-.project a:hover {
-    color: #3867d6;
+.creatorname {
+    margin: 0.5rem;
+    font-weight: 400;
+    text-align: left;
 }
 
-.project:hover {
-    cursor: pointer;
-    background: rgba(150, 150, 150, 0.3);
+.projectlink {
+    color: #000;
 }
 
 .last-project {
     border-bottom: 1px solid rgba(0, 0, 0, 0.5);
-}
-
-.project h2 {
-    font-weight: 200;
 }
 
 .button-wrap {

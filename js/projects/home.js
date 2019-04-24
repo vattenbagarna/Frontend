@@ -29,28 +29,34 @@ let loadAllProjects = () => {
                         for (let n = 0; n < json[i].access.length; n++) {
                             if (json[i].access[n].permission == "w") {
                                 permission +=
-                                    `${json[i].access[n].username}
-								<i class="material-icons">edit</i><br>`;
+                                    `${json[i].access[n].username}`;
                             } else {
                                 permission +=
-                                    `${json[i].access[n].username}
-								<i class="material-icons">description</i><br>`;
+                                    `${json[i].access[n].username}`;
                             }
                         }
 
                         projectlist.innerHTML +=
-                            `<div class="project">
-						<h2>${json[i].name}</h2>
-						<h2>${json[i].version}</h2>
-						<h2>Skapare: <br>${json[i].creator.username} <br>
-						<p>${permission}</p></h2>
-						<a href="updateProject.html?id=${json[i]._id}">
-							<i class="material-icons">settings</i>
-						</a>
-						<a href="map.html?id=${json[i]._id}">
-							<i class="material-icons">exit_to_app</i>
-						</a>
-					</div>`;
+                        `<div class="project">
+    						<h2 class="projectpart">${json[i].name}</h2>
+    						<h2 class="projectpart">${json[i].version}</h2>
+    						<div class="creators projectpart">
+                                <p class="creatorname">Skapare:<br>
+                                    ${json[i].creator.username}
+                                </p>
+    						    <p class="creatorname">${permission}</p>
+                            </div>
+						    <span class="projectpart">
+                                <a class="projectlink" href="updateProject.html?id=${json[i]._id}">
+							        <i class="material-icons">settings</i>
+                                </a>
+						    </span>
+    						<span class="projectpart">
+                                <a class="projectlink" href="map.html?id=${json[i]._id}">
+    							    <i class="material-icons">exit_to_app</i>
+                                </a>
+    						</span>
+					    </div>`;
                     }
                     // Add last-project class to last element
                     projectlist.innerHTML +=
