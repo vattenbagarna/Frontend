@@ -1,106 +1,106 @@
 <!DOCTYPE html>
 <html lang="sv" dir="ltr">
-	<head>
-		<meta charset="utf-8">
-		<title>Karta</title>
-		<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-		<link href="https://fonts.googleapis.com/css?family=Fira+Sans:300,400" rel="stylesheet">
-		<link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css" integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA==" crossorigin=""/>
-		<link rel="stylesheet" href="css/map.css">
-		<script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js" integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg==" crossorigin=""></script>
-		<script type="module" src="js/map/loadLeafletMap.js"></script>
-		<script type="module" src="js/map/show.js"></script>
-		<script type="module" src="js/map/edit.js"></script>
-		<script src="js/configVariables.js" charset="utf-8"></script>
-		<script type="text/javascript" src="https://revh.github.io/leaflet-draggable-polyline/leaflet.geometryutil.js"></script>
-		<script type="text/javascript" src="https://rawgit.com/RevH/leaflet-draggable-polyline/master/leaflet-draggable-polyline.js"></script>
-		<script src="https://unpkg.com/esri-leaflet"></script>
-		<link rel="stylesheet" href="https://unpkg.com/esri-leaflet-geocoder/dist/esri-leaflet-geocoder.css">
-		<script src="https://unpkg.com/esri-leaflet-geocoder"></script>
-		<script src='https://unpkg.com/leaflet.gridlayer.googlemutant@latest/Leaflet.GoogleMutant.js'></script>
-	</head>
-	<body>
-		<div class="wrap-all">
-			<div class="sidebar">
-				<div class="wrappa-items">
-					<h1 class="projekt-titel"></h1>
-					<div class="obj-list">
-						<button class="accordion desc">Verktyg</button>
-						<div class="panel">
-							<div class="obj-container" id="stempipe">
-								<div class="obj obj-icon">
-									<i class="material-icons obj-icon">transform</i>
-								</div>
-								<div class="obj-desc">
-									Placera stamledningar
-								</div>
-							</div>
-							<div class="obj-container" id="pipe">
-								<div class="obj obj-icon">
-									<i class="material-icons obj-icon">transform</i>
-								</div>
-								<div class="obj-desc">
-									Placera ledningar
-								</div>
-							</div>
-							<div class="obj-container" id="house">
-								<div class="obj obj-icon">
-									<i class="material-icons obj-icon">home</i>
-								</div>
-								<div class="obj-desc">
-									Placera byggnader
-								</div>
-							</div>
-							<div class="obj-container">
-								<div id="Utsläppspunkt" class="obj obj-icon endpoint">
-									<i class="material-icons obj-icon">explicit</i>
-								</div>
-								<div class="obj-desc">
-									Placera utsläppspunkt
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="buttons">
-					<a class="link">
-						<div class="fancy-light-button">
-							<span>SE OBJEKTDATA</span>
-							<i class="material-icons">chevron_right</i>
-						</div>
-					</a>
-					<a id="save" class="fancy-button">
-						SPARA
-					</a>
-				</div>
-			</div>
-			<div class="map" id="myMap"></div>
-		</div>
-		<div id="pipeModal" class="modal">
-			<div class="modal-content">
-				<span class="close">&times;</span>
-				<b>Rör</b>
-				<br></br>
-				<label>Inner Dimension</label>
-				<input type="number" id="dimension" name="dimension" placeholder="Inner dimension..">
-				<label>Lutning</label>
-				<input type="number" id="tilt" name="tilt" placeholder="Luting på röret..">
-				<input type="button" id="pipeSpecifications" value="Skicka">
-			</div>
-		</div>
-		<div id="saveModal" class="modal">
-			<div class="modal-content">
-				<span class="close">&times;</span>
-				<b>Spara Projekt 1</b>
-				<br></br>
-				<label>Välj version</label>
-				<select id="versions">
-				</select>
-				<label>Lägg till ny version</label>
-				<input autocomplete="off" type="text" id="newVersion" placeholder="tex 2.0"/>
+    <head>
+        <meta charset="utf-8">
+        <title>Karta</title>
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=Fira+Sans:300,400" rel="stylesheet">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css" integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA==" crossorigin=""/>
+        <link rel="stylesheet" href="css/map.css">
+        <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js" integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg==" crossorigin=""></script>
+        <script type="module" src="js/map/loadLeafletMap.js"></script>
+        <script type="module" src="js/map/show.js"></script>
+        <script type="module" src="js/map/edit.js"></script>
+        <script src="js/configVariables.js" charset="utf-8"></script>
+        <script type="text/javascript" src="https://revh.github.io/leaflet-draggable-polyline/leaflet.geometryutil.js"></script>
+        <script type="text/javascript" src="https://rawgit.com/RevH/leaflet-draggable-polyline/master/leaflet-draggable-polyline.js"></script>
+        <script src="https://unpkg.com/esri-leaflet"></script>
+        <link rel="stylesheet" href="https://unpkg.com/esri-leaflet-geocoder/dist/esri-leaflet-geocoder.css">
+        <script src="https://unpkg.com/esri-leaflet-geocoder"></script>
+        <script src='https://unpkg.com/leaflet.gridlayer.googlemutant@latest/Leaflet.GoogleMutant.js'></script>
+    </head>
+    <body>
+        <div class="wrap-all">
+            <div class="sidebar">
+                <div class="wrappa-items">
+                    <h1 class="projekt-titel"></h1>
+                    <div class="obj-list">
+                        <button class="accordion desc">Verktyg</button>
+                        <div class="panel">
+                            <div class="obj-container" id="stempipe">
+                                <div class="obj obj-icon">
+                                    <i class="material-icons obj-icon">transform</i>
+                                </div>
+                                <div class="obj-desc">
+                                    Placera stamledningar
+                                </div>
+                            </div>
+                            <div class="obj-container" id="pipe">
+                                <div class="obj obj-icon">
+                                    <i class="material-icons obj-icon">transform</i>
+                                </div>
+                                <div class="obj-desc">
+                                    Placera ledningar
+                                </div>
+                            </div>
+                            <div class="obj-container" id="house">
+                                <div class="obj obj-icon">
+                                    <i class="material-icons obj-icon">home</i>
+                                </div>
+                                <div class="obj-desc">
+                                    Placera byggnader
+                                </div>
+                            </div>
+                            <div class="obj-container">
+                                <div id="Utsläppspunkt" class="obj obj-icon endpoint">
+                                    <i class="material-icons obj-icon">explicit</i>
+                                </div>
+                                <div class="obj-desc">
+                                    Placera utsläppspunkt
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="buttons">
+                    <a class="link">
+                        <div class="fancy-light-button">
+                            <span>SE OBJEKTDATA</span>
+                            <i class="material-icons">chevron_right</i>
+                        </div>
+                    </a>
+                    <a id="save" class="fancy-button">
+                        SPARA
+                    </a>
+                </div>
+            </div>
+            <div class="map" id="myMap"></div>
+        </div>
+        <div id="pipeModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <b>Rör</b>
+                <br></br>
+                <label>Inner Dimension</label>
+                <input type="number" id="dimension" name="dimension" placeholder="Inner dimension..">
+                <label>Lutning</label>
+                <input type="number" id="tilt" name="tilt" placeholder="Luting på röret..">
+                <input type="button" id="pipeSpecifications" value="Skicka">
+            </div>
+        </div>
+        <div id="saveModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <b>Spara Projekt 1</b>
+                <br></br>
+                <label>Välj version</label>
+                <select id="versions">
+                </select>
+                <label>Lägg till ny version</label>
+                <input autocomplete="off" type="text" id="newVersion" placeholder="tex 2.0"/>
 
-				<input type="button" id="saveButton" value="Spara">
-			</div>
-		</div>
-	</body>
+                <input type="button" id="saveButton" value="Spara">
+            </div>
+        </div>
+    </body>
 </html>
