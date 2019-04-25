@@ -64,7 +64,7 @@ let getProject = () => {
             //creates the select element
             var selectUser = document.createElement("select");
 
-            selectUser.setAttribute("class", "accessSelect");
+            selectUser.setAttribute("class", "accessSelect select-input");
 
             var newField = document.getElementById("newField");
             var h = document.createElement("h3");
@@ -84,7 +84,7 @@ let getProject = () => {
             var selectCompetence = document.createElement("select");
 
             //give it the class accessCompetence
-            selectCompetence.setAttribute("class", "accessCompetence");
+            selectCompetence.setAttribute("class", "accessCompetence select-input");
 
             //append element
             newField.appendChild(selectCompetence);
@@ -174,7 +174,7 @@ button.addEventListener("click", () => {
     //All this code adds the select elements and the button to remove them.
     var selectUser = document.createElement("select");
 
-    selectUser.setAttribute("class", "accessSelect");
+    selectUser.setAttribute("class", "accessSelect select-input");
 
     var newField = document.getElementById("newField");
 
@@ -190,7 +190,7 @@ button.addEventListener("click", () => {
 
     var selectCompetence = document.createElement("select");
 
-    selectCompetence.setAttribute("class", "accessCompetence");
+    selectCompetence.setAttribute("class", "accessCompetence select-input");
 
     newField.appendChild(selectCompetence);
 

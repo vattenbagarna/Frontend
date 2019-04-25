@@ -5,29 +5,32 @@
 		<title>Produkter</title>
 		<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 		<link href="https://fonts.googleapis.com/css?family=Fira+Sans:300,400" rel="stylesheet">
-		<script src="js/configVariables.js" charset="utf-8"></script>
-		<script src="js/products/listProducts.js"></script>
+		<link rel="stylesheet" href="css/master.css">
 		<link rel="stylesheet" href="css/listProducts.css">
 		<script src="js/login/logout.js"></script>
 	</head>
 	<body>
 		<div class="topnav">
-			<a href="home.html">Hem</a>
-			<a href="calculations.html">Beräkningar</a>
-			<a class="active" href="listProducts.html">Produkter</a>
-			<a class="right" id="logout" href="#logout">Logga ut</a>
-		</div>
+            <div class="links">
+                <a href="home.html">Hem</a>
+                <a href="calculations.html">Beräkningar</a>
+                <a class="active" href="listProducts.html">Produkter</a>
+                <a class="right" id="logout" href="#logout">Logga ut</a>
+            </div>
+            <div class="greet-user">
+                <span id="userName"></span>
+            </div>
+        </div>
 		<div class="wrap">
-			<div class="title">
-				<h1>Egna skapade produkter</h1>
-			</div>
+			<h1 class="title">Egenskapade produkter</h1>
 			<div class="productList"></div>
 			<br>
-			<br></br>
 		</br>
 		<div class="button-wrap">
 			<a href="newObject.html" class="button">Ny produkt</a>
 		</div>
 	</div>
+	<script src="js/configVariables.js" charset="utf-8"></script>
+	<script src="js/products/listProducts.js"></script>
 </body>
 </html>
