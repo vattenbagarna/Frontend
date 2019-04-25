@@ -156,8 +156,8 @@ let newCategory = () => {
     let div = document.createElement('div');
 
     div.innerHTML =
-        `<label>Den nya kategorin </label>
-		<input id="newCategoryInput" type="text">`;
+        `<br><label>Den nya kategorin </label><br>
+		<input class="text-input" id="newCategoryInput" type="text">`;
     document.getElementById('Kategori').after(div);
 };
 
@@ -173,10 +173,12 @@ let newPumpCurve = () => {
 
     div.id = "pumpCurve";
     div.innerHTML =
-        `<label>Pumpkurva</label><br>
-	<input class="newKey" id="height" type="number" step="0.1" placeholder="Höjd (m)">
-	<input class="newInput" id="velocity" type="number" step="0.1" placeholder="Hastighet (l/s)">
-	<a class="button2">Lägg till</a>
+        `<br><label>Pumpkurva</label><br>
+	<input class="number-input newKey" id="height" type="number" step="0.1" placeholder="Höjd (m)">
+    <input class="number-input newInput" id="velocity"
+    type="number" step="0.1" placeholder="Hastighet (l/s)">
+	<a class="button2 button small-button">Lägg till</a>
+    <br><br>
 	<canvas id="myChart"></canvas>`;
 
     document.getElementById('Modell').after(div);
