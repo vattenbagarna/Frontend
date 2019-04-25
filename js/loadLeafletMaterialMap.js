@@ -148,7 +148,10 @@ let load = () => {
     let table = document.getElementById('myMaterialTable');
     let row = table.insertRow(-1);
 
+    let objects = {};
+    let pipes = {};
     //Loop through json data.
+
     for (let i = 0; i < savedData.length; i++) {
         switch (savedData[i].type) {
             //if marker add it to the map with its options
@@ -160,10 +163,31 @@ let load = () => {
                 markers.addLayer(newObj);
 
                 row = table.insertRow(-1);
-                console.log(savedData[i]);
-                for (let x = 0; x < savedData[i].attribute.length; x++) {
-                    row.insertCell(x).innerHTML = savedData[i].attribute[x];
+                //console.log(savedData[i]);
+                let objectName = savedData[i].attribute[0];
+
+                if (!objects.hasOwnProperty(objectName)) {
+                    objects[objectName] = {antal: 1, cell: undefined};
+                    for (let x = 0; x < savedData[i].attribute.length; x++) {
+                        row.insertCell(x).innerHTML = savedData[i].attribute[x];
+                    }
+                    let newCell = row.insertCell(savedData[i].attribute.length);
+
+                    objects[objectName].cell = newCell;
+                    newCell.innerHTML = "antal " + objects[objectName].antal;
+
+                    //insert cost with inptut thing
+                    row.insertCell(savedData[i].attribute.length+1).innerHTML = "Kostnad <input class='costInput' value='1'/>";
+                } else {
+                    objects[objectName].antal += 1;
+                    objects[objectName].cell.innerHTML = "antal " + objects[objectName].antal;
+
+                    //let cells = table.rows[objects[savedData[i].attribute[0]].row].cells;
+                    //console.log(savedData[i].attribute.length);
+                    //console.log(cells);
+                    //cells[savedData[i].attribute.length].innerHTML = objects[savedData[i].attribute[0]].antal;
                 }
+
                 break;
                 //if polyline
             case "polyline":
@@ -175,16 +199,31 @@ let load = () => {
                 //add to map
                 polylines.addLayer(newObj).addTo(map);
 
-                row = table.insertRow(-1);
-                row.insertCell(0).innerHTML = savedData[i].options.id;
-                row.insertCell(1).innerHTML = savedData[i].getLength.toFixed(2);
-                row.insertCell(2).innerHTML = savedData[i].tilt;
-                row.insertCell(3).innerHTML = savedData[i].dimension;
+                let pipeName = savedData[i].options.id;
 
-                row.insertCell(4).className = "right";
+                if (!pipes.hasOwnProperty(pipeName)) {
+                    row = table.insertRow(-1);
+
+
+                    row.insertCell(0).innerHTML = savedData[i].options.id;
+                    let newCell = row.insertCell(1);
+
+                    newCell.innerHTML = savedData[i].getLength.toFixed(2) + " m";
+                    row.insertCell(2).innerHTML = savedData[i].tilt;
+                    row.insertCell(3).innerHTML = savedData[i].dimension;
+
+                    pipes[pipeName] = {"totalLength": parseInt(savedData[i].getLength.toFixed(2)), "cell": newCell};
+                    row.insertCell(4).innerHTML = "Kostnad <input class='costInput' value='1'/>";
+
+                    row.insertCell(5).className = "right";
+                } else {
+                    pipes[pipeName].totalLength += parseInt(savedData[i].getLength.toFixed(2));
+                    pipes[pipeName].cell.innerHTML = pipes[pipeName].totalLength.toFixed(2) + " m";
+                }
                 break;
 
             case "polygon":
+                break; //don't show houses
                 newObj = L.polygon(savedData[i].coordinates, savedData[i].options);
                 polygons.addLayer(newObj).addTo(map);
 
@@ -196,9 +235,37 @@ let load = () => {
                 break;
         }
     }
+    //Create Summary
+    //let totalCost = calculateCost();
+    let totalCost = 0;
+
+    row = table.insertRow(-1);
+    row.insertCell(0).innerHTML = "Totala kostnaden: ";
+    let cost = row.insertCell(1);
+
+    cost.setAttribute('id', 'displayCost');
+    cost.innerHTML = totalCost+" kr";
+    console.log(cost);
+
+    row.insertCell(2).innerHTML = "<button id='UpdateCostButton'>Update</button>";
+
+
+    //calculateCost();
 };
+
 
 
 gridlayers();
 load();
 getBounds();
+
+document.getElementById("UpdateCostButton").addEventListener("click", () => {
+    let costInput = document.getElementsByClassName("costInput");
+    let totalCost = 0;
+
+    for (let i = 0; i < costInput.length; i++) {
+        totalCost += parseInt(costInput[i].value);
+    }
+    console.log("Total cost: "+totalCost);
+    document.getElementById("displayCost").innerHTML = totalCost + " kr";
+});
