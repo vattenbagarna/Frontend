@@ -6,6 +6,7 @@
 		<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 		<link href="https://fonts.googleapis.com/css?family=Fira+Sans:300,400" rel="stylesheet">
 		<link href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css" rel="stylesheet">
+		<link rel="stylesheet" href="css/master.css">
 		<link rel="stylesheet" href="css/newObject.css">
 		<script src="js/configVariables.js" charset="utf-8"></script>
 		<script src="js/products/newObject.js"></script>
@@ -13,15 +14,18 @@
 	</head>
 	<body>
 		<div class="topnav">
-			<a href="home.html">Hem</a>
-			<a href="calculations.html">Beräkningar</a>
-			<a class="active" href="listProducts.html">Produkter</a>
-			<a class="right" href="#logout">Logga ut</a>
-		</div>
+            <div class="links">
+                <a href="home.html">Hem</a>
+                <a href="calculations.html">Beräkningar</a>
+                <a class="active" href="listProducts.html">Produkter</a>
+                <a class="right" href="#logout">Logga ut</a>
+            </div>
+            <div class="greet-user">
+                <span id="userName"></span>
+            </div>
+        </div>
 		<div class="wrap">
-			<div class="title">
-				<h1>Ny Produkt</h1>
-			</div>
+			<h1 class="title">Ny Produkt</h1>
 			<div class="main-wrap"></div>
 		</div>
 	</body>
