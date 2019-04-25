@@ -10,10 +10,15 @@
     </head>
     <body>
         <div class="topnav">
-            <a href="home.html">Hem</a>
-            <a class="active" href="calculations.html">Beräkningar</a>
-            <a href="listProducts.html">Produkter</a>
-            <a class="right" id="logout" href="#logout">Logga ut</a>
+            <div class="links">
+                <a href="home.html">Hem</a>
+                <a class="active" href="calculations.html">Beräkningar</a>
+                <a href="listProducts.html">Produkter</a>
+                <a class="right" id="logout" href="#logout">Logga ut</a>
+            </div>
+            <div class="greet-user">
+                <span id="userName"></span>
+            </div>
         </div>
         <div class="wrap">
             <div class="title">
@@ -25,33 +30,40 @@
                 </div>
                 <form class="form-inline" autocomplete="off">
                     <label for="length">Längd</label>
-                    <input data-digits-only step="0.1" type="number" id="length" name="length" placeholder="Längd" onkeypress="enterPressed(this, event);">&nbsp; m
+                    <input data-digits-only="data-digits-only" step="0.1" type="number" id="length" name="length" placeholder="Längd" onkeypress="enterPressed(this, event);">&nbsp; m
                     <label for="height">Statisk höjd</label>
-                    <input data-digits-only step="0.1" type="number" id="height" name="height" placeholder="Höjd" onkeypress="enterPressed(this, event);">&nbsp; m
+                    <input data-digits-only="data-digits-only" step="0.1" type="number" id="height" name="height" placeholder="Höjd" onkeypress="enterPressed(this, event);">&nbsp; m
                     <label for="pressure">Statiskt tryck</label>
-                    <input data-digits-only step="0.1" type="number" id="inPressure" name="pressure" placeholder="Tryck" onkeypress="enterPressed(this, event);">&nbsp; bar
+                    <input data-digits-only="data-digits-only" step="0.1" type="number" id="inPressure" name="pressure" placeholder="Tryck" onkeypress="enterPressed(this, event);">&nbsp; bar
                     <label for="material">Material</label>
                     <select id="material" name="material">
-                        <option value="choose" disabled selected>Välj material</option>
+                        <option value="choose" disabled="disabled" selected="selected">Välj material</option>
                         <option value="PEM">PEM</option>
                         <option value="PE">PE</option>
                         <option value="stainless">Rostfria</option>
                     </select>
                     <label name="dimension"></label>
-                        <input type="radio" id="innerdimension" name="dimension"><p></p>
+                    <input type="radio" id="innerdimension" name="dimension">
+                    <p></p>
                     <label name="dimension"></label>
-                        <input type="radio" id="outerdimension" name="dimension"><p></p>
+                    <input type="radio" id="outerdimension" name="dimension">
+                    <p></p>
                     <label name="dimension"></label>
-                        <input type="radio" id="inches" name="dimension"><p></p>
-                    <select id="selectDim">
-                    </select>
+                    <input type="radio" id="inches" name="dimension">
+                    <p></p>
+                    <select id="selectDim"></select>
                     <label name="pressureChoice"></label>
-                        <input type="radio" id="pressure1" name="PN" value="PN6,3"><p></p>
+                    <input type="radio" id="pressure1" name="PN" value="PN6,3">
+                    <p></p>
                     <label name="pressureChoice"></label>
-                        <input type="radio" id="pressure2" name="PN" value="PN10"><p></p>
-                    <label for="flow" id ="flowLabel"><p></p></label>
-                        <input data-digits-only step="0.1" type="number" id="flow" name="flow" placeholder="0" onkeypress="enterPressed(this, event);"><p></p>
-                <input type="button" name="submit" id="submit" value="Beräkna" onclick="calcAll();">
+                    <input type="radio" id="pressure2" name="PN" value="PN10">
+                    <p></p>
+                    <label for="flow" id="flowLabel">
+                        <p></p>
+                    </label>
+                    <input data-digits-only="data-digits-only" step="0.1" type="number" id="flow" name="flow" placeholder="0" onkeypress="enterPressed(this, event);">
+                    <p></p>
+                    <input type="button" name="submit" id="submit" value="Beräkna" onclick="calcAll();">
                 </form>
                 <form class="form-inline results" autocomplete="off">
                     <label for="waterSpeed">Flödeshastighet</label>
@@ -62,9 +74,10 @@
                     <input disabled="disabled" type="number" id="totalPressure" name="totalPressure" placeholder="0">&nbsp; m
                     <label for="capacity">Kapacitet</label>
                     <input disabled="disabled" type="number" id="capacity" name="capacity" placeholder="0">&nbsp; l/s
-                    <label for="pumps" id="pumpLabel"><p></p></label>
-                    <select id="pumps">
-                    </select>
+                    <label for="pumps" id="pumpLabel">
+                        <p></p>
+                    </label>
+                    <select id="pumps"></select>
                 </form>
             </div>
         </body>
