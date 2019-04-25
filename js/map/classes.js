@@ -27,10 +27,11 @@ export class Marker {
      * @param {array} latlng     Coordinates (latitude and longitude) for the new marker
      * @param {array} attributes Specific characteristics (values) for the new marker
      * @param {L.Icon} icon		 @see {@link https://leafletjs.com/reference-1.4.0.html#icon}
+     * @param {null} [id=null]   Option to specify leaflet_id on creation
      *
      * @returns {void}
      */
-    constructor(latlng, attributes, icon) {
+    constructor(latlng, attributes, icon, id = null) {
         this.attributes = attributes;
 
         this.marker = new L.Marker(latlng, options.marker(icon))
@@ -38,12 +39,18 @@ export class Marker {
             .on("drag", edit.moveMarker)
             .on('popupopen', this.updateCoords);
 
-        this.marker.attributes = attributes;
+        this.marker.attributes = this.attributes;
         this.marker.disableDragging = () => { this.marker.dragging.disable(); return this.marker; };
         this.marker.enableDragging = () => { this.marker.dragging.enable(); };
 
-        // Adds marker to map
+        // Add marker to markers layer
         markers.addLayer(this.marker).addTo(map);
+
+        if (id) {
+            this.marker.id = id;
+        } else {
+            this.marker.id = this.marker._leaflet_id;
+        }
     }
 
     /**
