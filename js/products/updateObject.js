@@ -24,13 +24,14 @@ let loadObject = () => {
                     switch (key) {
                         case 'Modell':
                             main.innerHTML +=
-                                `<label for="${key}">${key}</label>
-							 <input id=${key} type="text" value="${json[0][key]}">`;
+                                `<label for="${key}">${key}</label><br>
+                        <input class="text-input" id=${key} type="text" value="${json[0][key]}">
+                            <br><br>`;
                             break;
                         case 'Kategori':
                             main.innerHTML +=
-                                `<label for="${key}">${key}</label>
-						<input type="text" id="${key}" value=${json[0][key]} disabled>`;
+                                `<label for="${key}">${key}</label><br>
+        <input class="text-input" type="text" id="${key}" value=${json[0][key]} disabled><br><br>`;
                             break;
 
                         case 'Pump':
@@ -70,15 +71,15 @@ let loadObject = () => {
                         default:
                             main.innerHTML +=
                                 `<div class="oldInputDiv"><label for="${key}">${key}</label><br>
-						  <input id=${key} class="oldInput" type="text" value="${json[0][key]}">
-						  <a class="removeButton">Ta bort fält</a></div>`;
+                <input id=${key} class="oldInput text-input" type="text" value="${json[0][key]}">
+                    <a class="removeButton button small-button danger-bt">Ta bort fält</a></div>`;
                             break;
                     }
                 }
 
                 main.innerHTML +=
                     `<div class="button-wrap">
-						<a id="newFieldButton" class="button2">Lägg till nytt fält</a>
+						<a id="newFieldButton" class="button small-button">Lägg till nytt fält</a>
 					</div>
 					<div id="sendButton" class="button-wrap">
 					<br><br>
@@ -136,9 +137,9 @@ let newField = () => {
 
     div.className = 'newField';
     div.innerHTML =
-        `<input class="newKey" type="text" placeholder="Titel">
-		<input class="newInput" type="text" placeholder="Värde">
-		<a class="removeButton">Ta bort fält</a>`;
+        `<input class="newKey text-input" type="text" placeholder="Titel">
+		<input class="newInput text-input" type="text" placeholder="Värde">
+		<a class="removeButton button small-button danger-bt">Ta bort fält</a>`;
 
     document.getElementById('sendButton').before(div);
 
