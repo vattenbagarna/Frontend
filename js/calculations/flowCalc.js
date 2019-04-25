@@ -1,16 +1,20 @@
 /* eslint-disable no-unused-vars */
+/* global configuration */
+
 
 /**
-    * hideFlow - Hides the input for flow and hides the submit button
+    * hideFlow - Hides the input for flow, pumps and the submit button
     *
     * @returns {void}
     */
 function hideFlow() {
-    let showFlow = document.getElementById("flow");
-    let showSubmit = document.getElementById("submit");
+    let hidesFlow = document.getElementById("flow");
+    let hideSubmit = document.getElementById("submit");
+    let hidePumps = document.getElementById("pumps");
 
-    showSubmit.style.display = "none";
-    showFlow.style.display = "none";
+    hidesFlow.style.display = "none";
+    hideSubmit.style.display = "none";
+    hidePumps.style.display = "none";
 }
 hideFlow();
 
@@ -105,8 +109,16 @@ document.getElementById("material").addEventListener("change", () => {
     * @returns {void}
     */
 function PEMPipe() {
-    let outerDimPEM = ["40 mm", "50 mm", "60 mm"];
-    let innerDimPEM = ["35.2 mm", "44 mm", "55.4 mm"];
+    let dimPEM = [{
+        "innerdim": "35.2 mm",
+        "outerdim": "40 mm"
+    }, {
+        "innerdim": "44 mm",
+        "outerdim": "50 mm"
+    }, {
+        "innerdim": "55.4 mm",
+        "outerdim": "60 mm"
+    }];
     let select = document.getElementById("selectDim");
 
     for (let i = select.childNodes.length - 1; i >= 0; i--) {
@@ -114,22 +126,19 @@ function PEMPipe() {
     }
 
     if (document.getElementById("outerdimension").checked) {
-        for (let i = 0; i < select.childNodes.length; i++) {
-            select.removeChild(select.childNodes[0]);
-        }
-        for (let i = 0; i < outerDimPEM.length; i++) {
+        for (let i = 0; i < dimPEM.length; i++) {
             let option = document.createElement("option");
 
-            option.innerHTML = outerDimPEM[i];
-            select.appendChild(option);
+            option.text = dimPEM[i].outerdim;
+            select.add(option);
         }
     }
     if (document.getElementById("innerdimension").checked) {
-        for (let i = 0; i < innerDimPEM.length; i++) {
+        for (let i = 0; i < dimPEM.length; i++) {
             let option = document.createElement("option");
 
-            option.innerHTML = innerDimPEM[i];
-            select.appendChild(option);
+            option.text = dimPEM[i].innerdim;
+            select.add(option);
         }
     }
 }
@@ -140,10 +149,37 @@ function PEMPipe() {
     * @returns {void}
     */
 function PEPipe() {
-    let outerDimPE = ["110 mm", "160 mm", "180 mm", "200 mm", "225 mm", "250 mm",
-        "315 mm", "400 mm", "450 mm", "500 mm"];
-    let innerDimPE = ["96.8 mm", "141 mm", "158.6 mm", "176.2 mm", "198.2 mm",
-        "220.4 mm", "277.6 mm", "352.6 mm", "396.6 mm", "440.6 mm"];
+    let dimPE = [{
+        "innerdim": "96.8 mm",
+        "outerdim": "110 mm"
+    }, {
+        "innerdim": "141 mm",
+        "outerdim": "160 mm"
+    }, {
+        "innerdim": "158.6 mm",
+        "outerdim": "180 mm"
+    }, {
+        "innerdim": "176.2 mm",
+        "outerdim": "200 mm"
+    }, {
+        "innerdim": "198.2 mm",
+        "outerdim": "225 mm"
+    }, {
+        "innerdim": "220.4 mm",
+        "outerdim": "250 mm"
+    }, {
+        "innerdim": "277.6 mm",
+        "outerdim": "315 mm"
+    }, {
+        "innerdim": "352.6 mm",
+        "outerdim": "400 mm"
+    }, {
+        "innerdim": "396.6 mm",
+        "outerdim": "450 mm"
+    }, {
+        "innerdim": "440.6 mm",
+        "outerdim": "500 mm"
+    }];
     let select = document.getElementById("selectDim");
 
     for (let i = select.childNodes.length - 1; i >= 0; i--) {
@@ -151,19 +187,19 @@ function PEPipe() {
     }
 
     if (document.getElementById("outerdimension").checked) {
-        for (let i = 0; i < outerDimPE.length; i++) {
+        for (let i = 0; i < dimPE.length; i++) {
             let option = document.createElement("option");
 
-            option.innerHTML = outerDimPE[i];
-            select.appendChild(option);
+            option.text = dimPE[i].outerdim;
+            select.add(option);
         }
     }
     if (document.getElementById("innerdimension").checked) {
-        for (let i = 0; i < innerDimPE.length; i++) {
+        for (let i = 0; i < dimPE.length; i++) {
             let option = document.createElement("option");
 
-            option.innerHTML = innerDimPE[i];
-            select.appendChild(option);
+            option.text = dimPE[i].innerdim;
+            select.add(option);
         }
     }
 }
@@ -174,9 +210,29 @@ function PEPipe() {
     * @returns {void}
     */
 function stainlessPipe() {
-    let inches = ['1.25 "', '1.5 "', '2 "', '2.5 "'];
-    let outerDimStain = ["42.4 mm", "48.3 mm", "60.3 mm", "76.1 mm"];
-    let innerDimStain = ["38.4 mm", "44.3 mm", "56.3 mm", "72.1 mm", "80 mm", "100 mm", "150 mm"];
+    let dimStainless = [{
+        "innerdim": "38.4 mm",
+        "outerdim": "42.4 mm",
+        "inches": '1.25 "'
+    }, {
+        "innerdim": "44.3 mm",
+        "outerdim": "48.3 mm",
+        "inches": '1.5 "'
+    }, {
+        "innerdim": "56.3 mm",
+        "outerdim": "60.3 mm",
+        "inches": '2 "'
+    }, {
+        "innerdim": "72.1 mm",
+        "outerdim": "76.1 mm",
+        "inches": '2.5 "'
+    }, {
+        "innerdim": "80 mm"
+    }, {
+        "innerdim": "100 mm"
+    }, {
+        "innerdim": "150 mm"
+    }];
     let select = document.getElementById("selectDim");
 
     for (let i = select.childNodes.length - 1; i >= 0; i--) {
@@ -184,27 +240,31 @@ function stainlessPipe() {
     }
 
     if (document.getElementById("outerdimension").checked) {
-        for (let i = 0; i < outerDimStain.length; i++) {
-            let option = document.createElement("option");
+        for (let i = 0; i < dimStainless.length; i++) {
+            if (dimStainless[i].outerdim != undefined) {
+                let option = document.createElement("option");
 
-            option.innerHTML = outerDimStain[i];
-            select.appendChild(option);
+                option.text = dimStainless[i].outerdim;
+                select.add(option);
+            }
         }
     }
     if (document.getElementById("innerdimension").checked) {
-        for (let i = 0; i < innerDimStain.length; i++) {
+        for (let i = 0; i < dimStainless.length; i++) {
             let option = document.createElement("option");
 
-            option.innerHTML = innerDimStain[i];
-            select.appendChild(option);
+            option.text = dimStainless[i].innerdim;
+            select.add(option);
         }
     }
     if (document.getElementById("inches").checked) {
-        for (let i = 0; i < inches.length; i++) {
-            let option = document.createElement("option");
+        for (let i = 0; i < dimStainless.length; i++) {
+            if (dimStainless[i].inches != undefined) {
+                let option = document.createElement("option");
 
-            option.innerHTML = inches[i];
-            select.appendChild(option);
+                option.text = dimStainless[i].inches;
+                select.add(option);
+            }
         }
     }
 }
@@ -234,9 +294,7 @@ function showStyling() {
     * @returns {void}
     */
 function hideStyling() {
-    let select = document.getElementById("selectDim");
-
-    select.style.display = "none";
+    document.getElementById("selectDim").style.display = "none";
     document.getElementById("innerdimension").style.display = "block";
     document.getElementById("outerdimension").style.display = "block";
     document.getElementById("innerdimension").nextSibling.innerHTML = "Innediameter";
@@ -253,6 +311,8 @@ function hideStyling() {
     document.getElementById("submit").style.display = "none";
     document.getElementById("flowLabel").innerHTML = "";
     document.getElementById("flow").nextSibling.innerHTML = "";
+    document.getElementById("pumpLabel").innerHTML = "";
+    document.getElementById("pumps").style.display = "none";
 }
 
 /**
@@ -281,42 +341,152 @@ function calcAll() {
     let selectedDim = parseFloat(document.getElementById("selectDim").value);
     let wantedFlow = parseFloat(document.getElementById("flow").value);
     let inPress = parseFloat(document.getElementById("inPressure").value);
-    let pressOut = 0;
+    let outPress = 0;
     let mu = 0.015;
 
-    if (document.getElementById("inches").checked) {
-        selectedDim = convertInches(selectedDim);
+    if (!document.getElementById("innerdimension").checked) {
+        selectedDim = changeDim(selectedDim);
     }
 
-    let lostPress = calcP(wantedFlow, selectedDim, mu, length);
-    let roundP = lostPress.toFixed(2);
-    let rFlow = calcQPump(selectedDim, mu, length, inPress, height, pressOut);
+    let lostPress = calcPress(wantedFlow, selectedDim, mu, length);
+    let roundPress = lostPress.toFixed(2);
+    let rFlow = calcQPump(selectedDim, mu, length, inPress, height, outPress);
     let roundFlow = rFlow.toFixed(2);
-    let velocity = calcV(wantedFlow, selectedDim);
+    let velocity = calcVel(wantedFlow, selectedDim);
     let roundVel = velocity.toFixed(2);
     let totalPress = totalPressure(lostPress, inPress);
-    let roundPress = totalPress.toFixed(2);
+    let roundTotal = totalPress.toFixed(2);
 
     document.getElementById("flowSpeed").value = roundVel;
-    document.getElementById("pressureLoss").value = roundP;
+    document.getElementById("pressureLoss").value = roundPress;
     document.getElementById("capacity").value = roundFlow;
-    document.getElementById("totalPressure").value = roundPress;
+    document.getElementById("totalPressure").value = roundTotal;
+
+    resetPumps();
+    getPumps(selectedDim);
 }
 
-/* ***************************** Math  Functions ************************************* */
 /**
-    * convertInches - Converts inches to mm
+    * getPumps - Fetches all the pumps from the database
     *
-    * @param {number} Selected dimension
-    * @returns {number} Selected dimension in mm
+    * @param {number} Dimension
+    *
+    * @returns {void}
     */
-function convertInches(selectedDim) {
-    selectedDim = selectedDim * 25.4;
-
-    return selectedDim;
+function getPumps(selectedDim) {
+    fetch(configuration.apiURL + "/obj/type/Pump?token=" + localStorage.getItem("token"), {
+        method: 'GET'
+    })
+        .then(function (response) {
+            return response.json();
+        }).then(function(json) {
+            recommendPump(json, selectedDim);
+        });
 }
+
 /**
-  * Calculate lost pressure.
+    * recommendPump - Recommends pumps according to calculations
+    *
+    * @param {object} Pumps
+    * @param {number} Dimension
+    *
+    * @returns {void}
+    */
+function recommendPump(pumps, dimension) {
+    let wantedFlow = parseFloat(document.getElementById("flow").value);
+    let inputHeight = parseFloat(document.getElementById("height").value);
+    let select = document.getElementById("pumps");
+    let margin = 0.5;
+
+    for (let i = 0; i < pumps.length; i++) {
+        for (let k = 0; k < pumps[i].Pumpkurva.length; k++) {
+            if (pumps[i].Pumpkurva[k].y == inputHeight) {
+                let mps = calcVel(pumps[i].Pumpkurva[k].x, dimension);
+
+                if (mps >= wantedFlow - margin && mps <= wantedFlow + margin) {
+                    let option = document.createElement("option");
+
+                    option.text = pumps[i].Modell;
+                    select.add(option);
+                    break;
+                }
+            }
+        }
+    }
+
+    document.getElementById("pumpLabel").innerHTML = "Pumpförslag";
+    document.getElementById("pumps").style.display = "block";
+}
+
+/**
+    * resetPumps - Resets the pump suggestions
+    *
+    * @returns {void}
+    */
+function resetPumps() {
+    let select = document.getElementById("pumps");
+
+    for (let i = select.childNodes.length - 1; i >= 0; i--) {
+        select.removeChild(select.childNodes[i]);
+    }
+}
+
+/**
+    * changeDim - Changes the outer dimension to inner dimension
+    *
+    *  @param {number} Chosen dimension
+    *
+    * @returns {number}
+    */
+function changeDim(chosen) {
+    chosen = "";
+
+    if (document.getElementById("material").value == "PEM") {
+        chosen += "P";
+    } else if (document.getElementById("material").value == "PE") {
+        chosen += "PE";
+    } else {
+        chosen += "L";
+    }
+    if (document.getElementById("inches").checked) {
+        chosen += "IN";
+    } else {
+        chosen += "O";
+    }
+    chosen += parseFloat(document.getElementById("selectDim").value);
+
+    let innerdim =
+        {
+            "PO40": 35.2,
+            "PO50": 44,
+            "PO60": 55.4,
+            "PEO110": 96.8,
+            "PEO160": 141,
+            "PEO180": 158.6,
+            "PEO200": 176.2,
+            "PEO225": 198.2,
+            "PEO250": 220.4,
+            "PEO315": 227.6,
+            "PEO400": 352.6,
+            "PEO450": 396.6,
+            "PEO500": 440.6,
+            "LO42.4": 38.4,
+            "LIN1.25": 38.4,
+            "LO48.3": 44.3,
+            "LIN1.5": 44.3,
+            "LO60.3": 56.3,
+            "LIN2": 56.3,
+            "LO76.1": 72.1,
+            "LIN2.5": 72.1
+        };
+
+    return innerdim[chosen];
+}
+
+/************************ Math functions ************************************/
+
+/**
+  * calcPress - Calculates lost pressure
   *
   * @param {number} Flowcapacity
   * @param {number} Innerdimension
@@ -326,7 +496,7 @@ function convertInches(selectedDim) {
   * @return {number} Lost pressure
   *
   */
-function calcP(q, di, mu, l) {
+function calcPress(q, di, mu, l) {
     let inDi = di; // mm
     let pLength = l; // m
     let avgQ = q/1000; // l/s
@@ -360,7 +530,7 @@ function calcP(q, di, mu, l) {
 }
 
 /**
-  * Calculate capacity for pump pipes
+  * calcQPump - Calculates capacity for pump pipes
   *
   * @param {number} Innerdimension
   * @param {number} MU
@@ -372,19 +542,19 @@ function calcP(q, di, mu, l) {
   * @return {number} Capacity
   *
   */
-function calcQPump(di, mu, l, inPress, height, pressOut) {
-    let Di = di / 1000;
+function calcQPump(di, mu, l, inPress, height, outPress) {
+    let dim = di / 1000;
     let inMu = mu; // mm
     let length = l; // m
     let viscosity = 1e-6; // m2/s
     let rho = 1000; // kg/m3
 
-    let deltap = (inPress - pressOut + 0.0981 * (height) * rho / 1000) * 100000;
+    let deltap = (inPress - outPress + 0.0981 * (height) * rho / 1000) * 100000;
 
-    let top = -Math.PI / 2 * Math.pow(Di, 2.5);
+    let top = -Math.PI / 2 * Math.pow(dim, 2.5);
     let top2 = Math.sqrt(2 * deltap / (length * rho));
-    let inside = inMu / 1000 / (3.7 * Di);
-    let rightInside = (Math.pow(Di, 1.5) * Math.sqrt(2 * deltap / (length * rho)));
+    let inside = inMu / 1000 / (3.7 * dim);
+    let rightInside = (Math.pow(dim, 1.5) * Math.sqrt(2 * deltap / (length * rho)));
     let avgQ = top * top2 * log10(inside + 2.51 * viscosity/ rightInside);
 
     return avgQ*1000;
@@ -405,7 +575,7 @@ function totalPressure(lostPress, inPress) {
 }
 
 /**
-  * Calculate velocity
+  * calcVel - Calculates velocity
   *
   * @param {number} Wanted flow
   * @param {number} Innerdimension
@@ -413,13 +583,13 @@ function totalPressure(lostPress, inPress) {
   * @return {number} Velocity
   *
   */
-function calcV(q, di) {
+function calcVel(q, di) {
     q /= 1000; // l/s
     return 4 * 1000000 * q / (di * di * Math.PI);
 }
 
 /**
-  * X squared
+  * square - Calculates X squared
   *
   * @param {number} Value to square
   *
@@ -431,7 +601,7 @@ function square(x) {
 }
 
 /**
-  * X log10
+  * log10 - Calculates X log10
   *
   * @param {number} Value to log10
   *

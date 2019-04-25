@@ -1,30 +1,28 @@
-/* global L */
+/* global L configuration */
+export let token = localStorage.getItem('token');
+
 
 // Imports Google maps javascript api key from getKey.js file
-import {
-    key
-} from "./getKey.js";
+import { key } from "./getKey.js";
 
-// Imports functions from underlying functionality from add.js file that uses the leaflet library
-import {
-    add
-} from "./add.js";
+// Imports object add with multible functions from add.js file that uses the leaflet library
+import { add } from "./add.js";
 
-import {
-    edit
-} from "./edit.js";
+// Imports object edit with multible functions from eidt.js file that uses the leaflet library
+import { edit } from "./edit.js";
 
-import {
-    show
-} from "./show.js";
+// Imports object show with multible functions from show.js file that uses the leaflet library
+import { show } from "./show.js";
 
+// If it is 'pipe' or 'stemPipe', uses in add.pipe function
 export let pipeChoice = null;
+export let objectData;
 
 // Initialize the map with center coordinates on BAGA HQ and zoom 18.
 export const map = L.map("myMap", {
-    "center": [56.208640, 15.632630],
-    "editable": true,
-    "zoom": 18
+    center: [56.208640, 15.632630],
+    editable: true,
+    zoom: 18
 });
 
 // Creates script link to Google Maps javascript API with our key
@@ -54,8 +52,8 @@ let gridlayers = () => {
     // Creates a array with roadmap and satellite inside and then add the array to a
     // new control layer and displays it to the map in the top right corner.
     var baseMaps = {
-        "Karta": roadmap,
-        "Satellit": satellite
+        Karta: roadmap,
+        Satellit: satellite
     };
 
     L.control.layers(baseMaps).addTo(map);
@@ -106,6 +104,8 @@ let customControl = (iconName) => {
 
 /**
  * Adds functionality to the sidebar accordions
+ *
+ * @returns {void}
  */
 let accordions = () => {
     // Find all accordions
@@ -132,6 +132,63 @@ let accordions = () => {
 };
 
 /**
+ * saveBox - Opens the save modal when user press on the 'spara' button and adds version handling
+ * 		   - and calls the save function
+ *
+ * @returns {void}
+ */
+let saveBox = () => {
+    document.getElementById("save").addEventListener("click", () => {
+        // Save box
+        let modal = document.getElementById('saveModal');
+        // html element select for version
+        let select = document.getElementById("versions");
+        // New version input field
+        let newVersion = document.getElementById('newVersion');
+
+        // Show the savebox
+        show.openModal(modal);
+
+        // Check if user adds a input in the new version field
+        newVersion.addEventListener('input', () => {
+            // get html element option with id 'newOption'
+            let newOption = document.getElementById('newOption');
+
+            // if newOption do not exist
+            if (newOption == null) {
+                // Create a new html element option
+                let option = document.createElement("option");
+
+                // Set new option text equals the text in the input field newVersion
+                option.text = newVersion.value;
+                // Set id equals to newOption
+                option.id = 'newOption';
+
+                // Add new option to select with id 'version'
+                select.add(option, select[0]);
+                // Select new option in the select
+                select.value = option.text;
+
+                // Else if newOption already exists
+            } else {
+                // Update newOption text to updated text in input field newVersion
+                newOption.text = newVersion.value;
+            }
+        });
+        // When user clicks on saveButton
+        document.getElementById('saveButton').addEventListener('click', () => {
+            // logs version
+            console.log(select.value);
+            // Calls save in edit object from edit.js
+            edit.save();
+
+            // Hide save box
+            modal.style.display = 'none';
+        });
+    });
+};
+
+/**
  * addMarkerOnClick - Displays a marker on the map with its custom icon
  *
  * @param {array} elements All elements with the same class
@@ -148,9 +205,9 @@ let addMarkerOnClick = (elements, icon) => {
             add.activeObjName = elements[i].id;
             add.activeIcon = icon;
 
-            // Call addMarker function in src.js
+            // Call addMarker function in add.js
             map.on("click", add.marker);
-            document.getElementById("map").style.cursor = "pointer";
+            document.getElementById("myMap").style.cursor = "pointer";
         });
     }
 };
@@ -164,18 +221,19 @@ let addMarkerOnClick = (elements, icon) => {
 let addHouseOnClick = () => {
     // Add click event listener on house button in sidebar
     document.getElementById("house").addEventListener('click', () => {
-        // Call addHouse function everytime user clicks on map
+        // Call add.house function everytime user clicks on map
         map.on('click', add.house);
         document.getElementById("myMap").style.cursor = "pointer";
-
-        // Call stopEdit function when user keydown on 'esc' key
-        document.addEventListener("keypress", (event) => {
-            if (event.keyCode == 27) {
-                edit.stopDrawingHouse();
-            }
-        });
     });
 };
+
+/**
+ * houseDrawing - Stops drawing guideline if user keyup on 'esc' key
+ *
+ * @param {type} event - here inside exist the keyCode that the user did a keyup on
+ *
+ * @returns {void}
+ */
 
 /**
  * addPipeOnClick - Adds a polyline (pipe) between two objects after the
@@ -187,18 +245,24 @@ let addHouseOnClick = () => {
 let addPipeOnClick = () => {
     // Adds a click event listener on pipe button
     document.getElementById("pipe").addEventListener("click", () => {
+        // Set pipeChoice
+        pipeChoice = 0;
         // On each layer of the map => this means all markers, all polylines
         // and all polygons but not the map itself
-        pipeChoice = "pipe";
         map.eachLayer((layer) => {
-            // On click on add call addPipe function
+            // On click, call addPipe function from add.js file
             layer.on("click", add.pipe);
         });
     });
 
+    // Adds a click event listener on stempipe button
     document.getElementById("stempipe").addEventListener("click", () => {
-        pipeChoice = "stemPipe";
+        // Set pipeChoice
+        pipeChoice = 1;
+        // On each layer of the map => this means all markers, all polylines
+        // and all polygons but not the map itself
         map.eachLayer((layer) => {
+            // On click on add call addPipe function
             layer.on("click", add.pipe);
         });
     });
@@ -213,7 +277,7 @@ let addPipeOnClick = () => {
 let doNothingonClick = () => {
     // Adds a click event listener on mouse icon button
     document.getElementById("map").addEventListener('click', (event) => {
-        edit.clearMapsEvents();
+        // Set this icon to the active icon
         show.activeCustomControl(event);
     });
 };
@@ -227,8 +291,9 @@ let doNothingonClick = () => {
 let editpipesOnClick = () => {
     // Adds a click event listener on edit pipes button
     document.getElementById("timeline").addEventListener('click', (event) => {
-        edit.clearMapsEvents();
+        // Set this icon to the active icon
         show.activeCustomControl(event);
+        // Enable editible polylines
         edit.polylines();
     });
 };
@@ -242,13 +307,11 @@ let editpipesOnClick = () => {
  */
 let toggleMouseCoordOnClick = () => {
     // Add a click event listener to element
-    document.getElementById('control_camera').addEventListener('click', (
-        event) => {
+    document.getElementById('control_camera').addEventListener('click', (event) => {
         let target = event.target;
 
         // Toggle css class 'active2' to element. Switches each time user clicks on button
-        document.getElementById('control_camera').classList.toggle(
-            'active2');
+        document.getElementById('control_camera').classList.toggle('active2');
 
         // If the user clicks on the border of i element and by mistake select
         // the parent element instead
@@ -291,8 +354,9 @@ let toggleMouseCoordOnClick = () => {
 let getDistanceOnClick = () => {
     // Adds a click event listener on delete button
     document.getElementById("bar_chart").addEventListener("click", (event) => {
-        edit.clearMapsEvents();
+        // Set this icon to the active icon
         show.activeCustomControl(event);
+        // Call polylineLengths from show.js to get the length from all polylines
         show.polylineLengths();
     });
 };
@@ -307,7 +371,6 @@ let getDistanceOnClick = () => {
 let deleteOnClick = () => {
     // Adds a click event listener on delete button
     document.getElementById("delete").addEventListener("click", (event) => {
-        edit.clearMapsEvents();
         show.activeCustomControl(event);
         // On each layer of the map => this means all markers, all polylines
         // and all polygons but not the map itself
@@ -318,63 +381,13 @@ let deleteOnClick = () => {
     });
 };
 
-
 /**
- * save - Description
+ * loadClickEvent - Description
  *
  * @returns {type} Description
  */
-let save = () => {
-    document.getElementById("save").addEventListener("click", () => {
-        let modal = document.getElementById('saveModal');
-        let select = document.getElementById("versions");
-        let newVersion = document.getElementById('newVersion');
-
-        show.openModal(modal);
-
-        newVersion.addEventListener('input', () => {
-            let newOption = document.getElementById('newOption');
-
-            if (newOption == null) {
-                let option = document.createElement("option");
-
-                option.text = newVersion.value;
-                option.id = 'newOption';
-
-                select.add(option, select[0]);
-                select.value = option.text;
-            } else {
-                newOption.text = newVersion.value;
-            }
-        });
-
-        document.getElementById('saveButton').addEventListener('click', () => {
-            console.log(select.value);
-            edit.save();
-
-            modal.style.display = 'none';
-        });
-    });
-};
-
-/**
- * onLoadWrite - Initialize the map functionality with html objects, when user
- * has write property
- *
- * @returns {void}
- */
-let onLoadWrite = () => {
-    gridlayers();
-    accordions();
-    customControl('map');
-    customControl('timeline');
-    customControl('control_camera');
-    customControl('bar_chart');
-    customControl('delete');
-    add.search();
-    show.activeObj();
-
-    addMarkerOnClick(document.getElementsByClassName('pumpstationer'),
+let loadClickEvent = () => {
+    addMarkerOnClick(document.getElementsByClassName('Pumpstationer'),
         L.icon({
             iconAnchor: [19.5, 19.5],
             iconSize: [39, 39],
@@ -382,23 +395,7 @@ let onLoadWrite = () => {
             popupAnchor: [0, -19.5]
         }));
 
-    addMarkerOnClick(document.getElementsByClassName("slamavskiljare"),
-        L.icon({
-            iconAnchor: [19.5, 19.5],
-            iconSize: [39, 39],
-            iconUrl: `img/symbol_slamavskiljare.png`,
-            popupAnchor: [0, -19.5]
-        }));
-
-    addMarkerOnClick(document.getElementsByClassName("kompaktbädd"),
-        L.icon({
-            iconAnchor: [36.5, 19.5],
-            iconSize: [73, 39],
-            iconUrl: `img/symbol_utjämningsbrunn.png`,
-            popupAnchor: [0, -19.5]
-        }));
-
-    addMarkerOnClick(document.getElementsByClassName("fettavskiljare"),
+    addMarkerOnClick(document.getElementsByClassName("Fettavskiljare"),
         L.icon({
             iconAnchor: [19.5, 19.5],
             iconSize: [39, 39],
@@ -406,11 +403,46 @@ let onLoadWrite = () => {
             popupAnchor: [0, -19.5]
         }));
 
-    addMarkerOnClick(document.getElementsByClassName("oljeavskiljare"),
+    addMarkerOnClick(document.getElementsByClassName("Oljeavskiljare"),
         L.icon({
             iconAnchor: [19.5, 19.5],
             iconSize: [39, 39],
             iconUrl: `img/symbol_oljeavskiljare.png`,
+            popupAnchor: [0, -19.5]
+        }));
+
+
+
+    addMarkerOnClick(document.getElementsByClassName("Slamavskiljare"),
+        L.icon({
+            iconAnchor: [19.5, 19.5],
+            iconSize: [39, 39],
+            iconUrl: `img/symbol_slamavskiljare.png`,
+            popupAnchor: [0, -19.5]
+        }));
+
+    addMarkerOnClick(document.getElementsByClassName("BioTank"),
+        L.icon({
+            iconAnchor: [36.5, 19.5],
+            iconSize: [73, 39],
+            iconUrl: `img/symbol_utjämningsbrunn.png`,
+            popupAnchor: [0, -19.5]
+        }));
+
+    addMarkerOnClick(document.getElementsByClassName("Källsorterat avlopp"),
+        L.icon({
+            iconAnchor: [36.5, 19.5],
+            iconSize: [73, 39],
+            iconUrl: `img/symbol_elementbrunn.png`,
+            popupAnchor: [0, -19.5]
+        }));
+
+
+    addMarkerOnClick(document.getElementsByClassName("Kompaktbädd"),
+        L.icon({
+            iconAnchor: [36.5, 19.5],
+            iconSize: [73, 39],
+            iconUrl: `img/symbol_utjämningsbrunn.png`,
             popupAnchor: [0, -19.5]
         }));
 
@@ -421,16 +453,139 @@ let onLoadWrite = () => {
             iconUrl: `img/endpointmarker.png`,
             popupAnchor: [0, -19.5]
         }));
+};
 
-    addPipeOnClick();
-    addHouseOnClick();
+
+/**
+ * loadProducts - Loads all products from database and with each category creates a new accordion
+ *
+ * @returns {void}
+ */
+let loadProducts = () => {
+    fetch(
+        `${configuration.apiURL}/obj/all?token=${token}`
+    )
+        .then((response) => {
+            return response.json();
+        })
+        .then((json) => {
+            if (!json.error) {
+                objectData = json;
+                let list = document.getElementsByClassName('obj-list')[0];
+
+                for (let i = 0; i < json.length; i++) {
+                    if (json[i].Kategori != undefined) {
+                        if (document.getElementsByClassName(json[i].Kategori).length == 0 &&
+                            json[i].Kategori != "Pump") {
+                            list.innerHTML +=
+                                `<button class="accordion desc">${json[i].Kategori}</button>
+						 <div class="panel"></div>`;
+
+                            let panels = document.getElementsByClassName('panel');
+                            let panel = panels[panels.length - 1];
+
+                            let object = document.createElement('div');
+
+                            object.innerHTML =
+                                `<div class="obj-container">
+							<div id="${json[i].Modell}" class="obj ${json[i].Kategori}">
+								<img src="img/${json[i].Modell}.png"/>
+							</div>
+							<div class="obj-desc">${json[i].Modell}</div>
+						 </div>`;
+
+                            panel.appendChild(object);
+                        } else if (json[i].Kategori != "Pump") {
+                            let elements = document.getElementsByClassName(json[i].Kategori);
+                            let panel = elements[0].parentElement.parentElement.parentElement;
+
+                            let object = document.createElement('div');
+
+                            object.innerHTML =
+                                `<div class="obj-container">
+							<div id="${json[i].Modell}" class="obj ${json[i].Kategori}">
+						   		<img src="img/${json[i].Modell}.png"/>
+					   		</div>
+					   		<div class="obj-desc">${json[i].Modell}</div>
+						 </div>`;
+
+                            panel.appendChild(object);
+                        }
+                    }
+                }
+
+                accordions();
+                show.activeObj();
+
+                loadClickEvent();
+                addPipeOnClick();
+                addHouseOnClick();
+            } else {
+                if (json.info == "token failed to validate") {
+                    localStorage.removeItem('token');
+                    document.location.href = "index.html";
+                } else {
+                    console.log(json);
+                }
+            }
+        })
+        .catch(error => console.log(error));
+};
+
+
+/**
+ * loadMap - Description
+ *
+ * @returns {type} Description
+ */
+let loadMap = () => {
+    let id = new URL(window.location.href).searchParams.get('id');
+
+    fetch(
+        `${configuration.apiURL}/proj/data/${id}?token=${token}`
+    )
+        .then((response) => {
+            return response.json();
+        })
+        .then((json) => {
+            if (!json.error) {
+                if (json[0].data.length > 0) { edit.load(json[0].data); }
+            } else {
+                if (json.info == "token failed to validate") {
+                    localStorage.removeItem('token');
+                    document.location.href = "index.html";
+                } else {
+                    console.log(json);
+                }
+            }
+        });
+};
+
+
+
+/**
+ * onLoad - Initialize the map functionality with html objects
+ *
+ * @returns {void}
+ */
+let onLoadWrite = () => {
+    loadMap();
+    loadProducts();
+    gridlayers();
+    customControl('map');
+    customControl('timeline');
+    customControl('control_camera');
+    customControl('bar_chart');
+    customControl('delete');
+    add.search();
 
     doNothingonClick();
     editpipesOnClick();
     toggleMouseCoordOnClick();
     getDistanceOnClick();
     deleteOnClick();
-    save();
+
+    saveBox();
     edit.warning.unsavedChanges();
 
     //make the blue border appear on mouse icon button on load
@@ -444,6 +599,7 @@ let onLoadWrite = () => {
  * @returns {void}
  */
 let onLoadRead = () => {
+    loadMap();
     gridlayers();
     customControl('map');
     customControl('control_camera');
@@ -483,7 +639,7 @@ let getPermission = () => {
     let projectId = new URL(window.location.href).searchParams.get("id");
     let token = localStorage.getItem("token");
 
-    fetch("//localhost:1337/proj/permission/" + projectId + "?token=" + token, {
+    fetch(configuration.apiURL + "/proj/permission/" + projectId + "?token=" + token, {
         method: "GET",
     })
         .then(response => response.json())

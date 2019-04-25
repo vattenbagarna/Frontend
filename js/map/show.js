@@ -1,26 +1,19 @@
 /* global L */
 let mouseCoord = null;
 
+// Imports the map object.
+import { map } from "./loadLeafletMap.js";
 
+// Imports polylines and clears the start polyline.
+import { polylines, clearStartPolyline } from "./add.js";
 
-//imports the map object
-import {
-    map
-} from "./loadLeafletMap.js";
-
-import {
-    polylines,
-    clearStartPolyline
-} from "./add.js";
-
-import {
-    edit
-} from "./edit.js";
+// Imports the edit file.
+import { edit } from "./edit.js";
 
 export const show = {
     /**
      * activeObj - Shows which object is clicked in the sidebar menu by adding
-     * and removing the active class
+     * and removing the active class.
      *
      * @param {object} event
      * @returns {void}
@@ -28,30 +21,24 @@ export const show = {
     activeObj: () => {
         const obj = document.getElementsByClassName("obj");
 
-        //gets all buttons and adds a click event to each.
+        // Gets all buttons and adds a click event to each.
         for (let i = 0; i < obj.length; i++) {
             obj[i].parentElement.addEventListener("click", function() {
                 let current = document.getElementsByClassName(
                     "active");
 
-                //if current have the class "active" replace it with "".
+                // If current have the class "active" replace it with "".
                 if (current.length > 0) {
                     current[0].className =
-                        current[0].className.replace(
-                            " active",
-                            "");
+                        current[0].className.replace(" active", "");
                 }
 
-                current = document.getElementsByClassName(
-                    "active3");
+                current = document.getElementsByClassName("active3");
                 if (current.length > 0) {
-                    current[0].className = current[0].className
-                        .replace(
-                            " active3",
-                            "");
+                    current[0].className = current[0].className.replace(" active3", "");
                 }
 
-                //clicked object gets the class active
+                // Clicked object gets the class active.
                 this.className += " active";
                 edit.clearMapsEvents();
             });
@@ -69,22 +56,22 @@ export const show = {
         let current = document.getElementsByClassName("active");
 
         if (current.length > 0) {
-            current[0].className = current[0].className.replace(
-                " active",
-                "");
+            current[0].className = current[0].className.replace(" active", "");
         }
 
         current = document.getElementsByClassName("active3");
 
         if (current.length > 0) {
-            current[0].className = current[0].className.replace(
-                " active3",
-                "");
+            current[0].className = current[0].className.replace(" active3", "");
         }
         if (event.target.localName == 'div') {
             event.target.className += " active3";
+            // Clears all events from the map
+            edit.clearMapsEvents();
         } else {
             event.target.parentElement.className += " active3";
+            // Clears all events from the map
+            edit.clearMapsEvents();
         }
     },
 
@@ -96,11 +83,12 @@ export const show = {
      */
     mouseCoordOnMap: (event) => {
         if (mouseCoord == null) {
-            mouseCoord = L.polyline(event.latlng).addTo(map);
+            mouseCoord = L.circle(event.latlng, { radius: 0 }).addTo(map);
         } else {
-            mouseCoord.bindTooltip("lat:" + event.latlng.lat +
-                ", lng:" + event.latlng.lng).openTooltip(
-                event.latlng);
+            document.getElementById("myMap").style.cursor = "pointer";
+            mouseCoord.setLatLng(event.latlng);
+            mouseCoord.bindTooltip("lat:" + event.latlng.lat + ", lng:" + event.latlng.lng)
+                .openTooltip(event.latlng);
         }
     },
 
@@ -124,33 +112,30 @@ export const show = {
      * @returns {void}
      */
     polylineLengths: () => {
-        //var totalDistance = 0;
         var thisPipeDistance = 0;
         var firstPoint;
         var secondPoint;
 
-        //loop each polyline and adds a function to each.
+        // Loop each polyline and adds a function to each.
         polylines.eachLayer((polyline) => {
             var tempPolyline = polyline._latlngs;
 
-            //if polyline only has 2 points
+            // If polyline only has 2 points.
             if (tempPolyline.length == 2) {
-                //calculate current pipes length
+                // Calculate current pipe's length.
                 thisPipeDistance = tempPolyline[0].distanceTo(tempPolyline[1]);
-                //totalDistance += thisPipeDistance;
-                //bind a popup with length for current polyline
+                // Bind a popup with length for current polyline.
                 polyline.bindTooltip("Längd: " + Math.round(thisPipeDistance * 100) / 100 +
                     "m", {
                     autoClose: false
                 }).openTooltip();
-                //if polylines have more than 2 points
+                // If polylines have more than 2 points.
             } else if (tempPolyline.length > 2) {
                 for (var i = 0; i < tempPolyline.length - 1; i++) {
                     firstPoint = tempPolyline[i];
                     secondPoint = tempPolyline[i + 1];
                     thisPipeDistance += L.latLng(firstPoint).distanceTo(secondPoint);
                 }
-                //totalDistance += thisPipeDistance;
                 polyline.bindTooltip("Längd: " + Math.round(thisPipeDistance * 100) / 100 +
                     "m", {
                     autoClose: false
@@ -159,17 +144,40 @@ export const show = {
         });
     },
 
+    /**
+     * openModal - It handles the opening and closing of boxes that shows when
+     * save button and pipe specifications.
+     *
+     * @param {object} modal
+     * @returns {void}
+     */
     openModal: (modal) => {
         var span = modal.children[0].children[0];
+        let success = false;
 
         // Open the modal
         modal.style.display = 'block';
+        let firstInput = modal.getElementsByTagName('input')[0];
+        let button = modal.getElementsByTagName('input')[modal.getElementsByTagName('input')
+            .length - 1];
+
+        firstInput.focus();
 
         // When the user clicks on <span> (x), close the modal
         span.onclick = () => {
             modal.style.display = "none";
             clearStartPolyline();
         };
+
+        document.addEventListener('keyup', (event) => {
+            if (event.keyCode == 27) {
+                modal.style.display = "none";
+                clearStartPolyline();
+            } else if (event.keyCode == 13) {
+                event.preventDefault();
+                button.click();
+            }
+        });
 
         // When the user clicks anywhere outside of the modal, close it
         window.onclick = (event) => {
@@ -178,5 +186,7 @@ export const show = {
                 clearStartPolyline();
             }
         };
+
+        return success;
     },
 };
