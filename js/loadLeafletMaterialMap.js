@@ -153,6 +153,9 @@ let load = () => {
     //Loop through json data.
 
     for (let i = 0; i < savedData.length; i++) {
+        let objectName = "";
+        let pipeName = "";
+
         switch (savedData[i].type) {
             //if marker add it to the map with its options
             case "marker":
@@ -163,8 +166,8 @@ let load = () => {
                 markers.addLayer(newObj);
 
                 row = table.insertRow(-1);
-                //console.log(savedData[i]);
-                let objectName = savedData[i].attribute[0];
+
+                objectName = savedData[i].attribute[0];
 
                 if (!objects.hasOwnProperty(objectName)) {
                     objects[objectName] = {antal: 1, cell: undefined};
@@ -177,15 +180,11 @@ let load = () => {
                     newCell.innerHTML = "antal " + objects[objectName].antal;
 
                     //insert cost with inptut thing
-                    row.insertCell(savedData[i].attribute.length+1).innerHTML = "Kostnad <input class='costInput' value='1'/>";
+                    row.insertCell(savedData[i].attribute.length+1).innerHTML =
+                        "Kostnad <input class='costInput' value='1'/>";
                 } else {
                     objects[objectName].antal += 1;
                     objects[objectName].cell.innerHTML = "antal " + objects[objectName].antal;
-
-                    //let cells = table.rows[objects[savedData[i].attribute[0]].row].cells;
-                    //console.log(savedData[i].attribute.length);
-                    //console.log(cells);
-                    //cells[savedData[i].attribute.length].innerHTML = objects[savedData[i].attribute[0]].antal;
                 }
 
                 break;
@@ -199,7 +198,7 @@ let load = () => {
                 //add to map
                 polylines.addLayer(newObj).addTo(map);
 
-                let pipeName = savedData[i].options.id;
+                pipeName = savedData[i].options.id;
 
                 if (!pipes.hasOwnProperty(pipeName)) {
                     row = table.insertRow(-1);
@@ -212,7 +211,10 @@ let load = () => {
                     row.insertCell(2).innerHTML = savedData[i].tilt;
                     row.insertCell(3).innerHTML = savedData[i].dimension;
 
-                    pipes[pipeName] = {"totalLength": parseInt(savedData[i].getLength.toFixed(2)), "cell": newCell};
+                    pipes[pipeName] = {
+                        "totalLength": parseInt(savedData[i].getLength.toFixed(2)),
+                        "cell": newCell
+                    };
                     row.insertCell(4).innerHTML = "Kostnad <input class='costInput' value='1'/>";
 
                     row.insertCell(5).className = "right";
@@ -220,18 +222,6 @@ let load = () => {
                     pipes[pipeName].totalLength += parseInt(savedData[i].getLength.toFixed(2));
                     pipes[pipeName].cell.innerHTML = pipes[pipeName].totalLength.toFixed(2) + " m";
                 }
-                break;
-
-            case "polygon":
-                break; //don't show houses
-                newObj = L.polygon(savedData[i].coordinates, savedData[i].options);
-                polygons.addLayer(newObj).addTo(map);
-
-                row = table.insertRow(-1);
-                row.insertCell(0).innerHTML = savedData[i].definition;
-                row.insertCell(1).innerHTML = savedData[i].address;
-                row.insertCell(2).innerHTML = savedData[i].nop;
-                row.insertCell(3).innerHTML = savedData[i].flow;
                 break;
         }
     }
