@@ -6,7 +6,7 @@
 * @return Returns config variables
 */
 const configuration = (() => {
-    let apiURL = "http://194.47.150.34:1337";
+    let apiURL = "";
 
     return {
         apiURL

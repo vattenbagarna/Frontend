@@ -150,7 +150,7 @@ button.addEventListener("click", () => {
     //All this code adds the select elements and the button to remove them.
     var selectUser = document.createElement("select");
 
-    selectUser.setAttribute("class", "accessSelect");
+    selectUser.setAttribute("class", "accessSelect select-input");
 
     var newField = document.getElementById("newField");
 
@@ -167,7 +167,7 @@ button.addEventListener("click", () => {
 
     var selectCompetence = document.createElement("select");
 
-    selectCompetence.setAttribute("class", "accessCompetence");
+    selectCompetence.setAttribute("class", "accessCompetence select-input");
 
     newField.appendChild(selectCompetence);
 

@@ -1,18 +1,20 @@
 /* global L configuration */
 export let token = localStorage.getItem('token');
-
+export let projectInfo;
 
 // Imports Google maps javascript api key from getKey.js file
 import { key } from "./getKey.js";
 
 // Imports object add with multible functions from add.js file that uses the leaflet library
-import { add, markers } from "./add.js";
+import { add, markers, polylines, polygons } from "./add.js";
 
 // Imports object edit with multible functions from eidt.js file that uses the leaflet library
 import { edit } from "./edit.js";
 
 // Imports object show with multible functions from show.js file that uses the leaflet library
 import { show } from "./show.js";
+
+import { popup } from "./popup.js";
 
 // If it is 'pipe' or 'stemPipe', uses in add.pipe function
 export let pipeChoice = null;
@@ -134,16 +136,27 @@ let accordions = () => {
  * @returns {void}
  */
 let saveBox = () => {
-    document.getElementById("save").addEventListener("click", () => {
-        // Save box
-        let modal = document.getElementById('saveModal');
-        // html element select for version
-        let select = document.getElementById("versions");
-        // New version input field
-        let newVersion = document.getElementById('newVersion');
+    // Save box
+    let modal = document.getElementById('saveModal');
+    // html element select for version
+    let select = document.getElementById("versions");
+    // New version input field
+    let newVersion = document.getElementById('newVersion');
 
+    document.getElementById("save").addEventListener("click", () => {
         // Show the savebox
         show.openModal(modal);
+
+        for (let i = select.options.length - 1; i >= 0; i--) {
+            select.remove(i);
+        }
+        newVersion.value = "";
+
+        let currVersion = document.createElement('option');
+
+        currVersion.text = projectInfo.version;
+        select.add(currVersion);
+        select.value = currVersion.text;
 
         // Check if user adds a input in the new version field
         newVersion.addEventListener('input', () => {
@@ -173,10 +186,8 @@ let saveBox = () => {
         });
         // When user clicks on saveButton
         document.getElementById('saveButton').addEventListener('click', () => {
-            // logs version
-            console.log(select.value);
-            // Calls save in edit object from edit.js
-            edit.save();
+            // Calls save in edit object from edit.js with version
+            edit.save(select.value);
 
             // Hide save box
             modal.style.display = 'none';
@@ -528,33 +539,79 @@ let loadProducts = () => {
         .catch(error => console.log(error));
 };
 
+let loadMap = {
+    id: new URL(window.location.href).searchParams.get('id'),
 
-/**
- * loadMap - Description
- *
- * @returns {type} Description
- */
-let loadMap = () => {
-    let id = new URL(window.location.href).searchParams.get('id');
+    /**
+     * loadData - Get project map json data and calls load function in edit.js
+     *
+     * @returns {void}
+     */
+    loadData: (editPermission) => {
+        fetch(`${configuration.apiURL}/proj/data/${loadMap.id}?token=${token}`)
+            .then((response) => {
+                return response.json();
+            })
+            .then((json) => {
+                if (!json.error) {
+                    if (json[0].data.length > 0) {
+                        edit.load(json[0].data);
+                    }
 
-    fetch(
-        `${configuration.apiURL}/proj/data/${id}?token=${token}`
-    )
-        .then((response) => {
-            return response.json();
-        })
-        .then((json) => {
-            if (!json.error) {
-                if (json[0].data.length > 0) { edit.load(json[0].data); }
-            } else {
-                if (json.info == "token failed to validate") {
-                    localStorage.removeItem('token');
-                    document.location.href = "index.html";
+                    map.on('layeradd', () => {
+                        edit.warning.unsavedChanges(true);
+                    });
+
+                    edit.clearMapsEvents();
+                    if (editPermission == true) {
+                        markers.eachLayer((marker) => {
+                            marker.disableDragging();
+                            marker.bindPopup(popup.marker(marker.attributes));
+                            marker.off("popupopen");
+                        });
+
+                        polylines.eachLayer((polyline) => {
+                            polyline.options.interactive = false;
+                            polyline.off("click");
+                        });
+
+                        polygons.eachLayer((polygon) => {
+                            polygon.off("click");
+                        });
+                    }
+                } else {
+                    if (json.info == "token failed to validate") {
+                        localStorage.removeItem('token');
+                        document.location.href = "index.html";
+                    } else {
+                        console.log(json);
+                    }
+                }
+            });
+    },
+
+    /**
+     * loadProjectInfo - Get project info and sets project title and saves info for later
+     *
+     * @returns {void}
+     */
+    loadProjectInfo: () => {
+        fetch(`${configuration.apiURL}/proj/info/${loadMap.id}?token=${token}`)
+            .then((response) => {
+                return response.json();
+            })
+            .then((json) => {
+                if (!json.error) {
+                    let title = document.getElementsByClassName('projekt-titel')[0];
+
+                    title.innerHTML = `${json[0].name} ${json[0].version}`;
+
+                    projectInfo = json[0];
                 } else {
                     console.log(json);
                 }
-            }
-        });
+            });
+    },
 };
 
 
@@ -572,7 +629,8 @@ let onLoadWrite = () => {
         zoom: 18
     });
     //gets project data and info
-    loadMap();
+    loadMap.loadData(false);
+    loadMap.loadProjectInfo();
     //loads all the products to the map
     loadProducts();
     //loads the gridlayers, satellite or map
@@ -593,7 +651,6 @@ let onLoadWrite = () => {
     deleteOnClick();
 
     saveBox();
-    edit.warning.unsavedChanges();
 
     //make the blue border appear on mouse icon button on load
     document.getElementById('map').click();
@@ -623,7 +680,8 @@ let onLoadRead = () => {
     });
 
     //loads project data and info
-    loadMap();
+    loadMap.loadData(true);
+    loadMap.loadProjectInfo;
     //loads the gridlayers, satellite or map
     gridlayers();
     //loads the custom controls for read property
@@ -650,12 +708,6 @@ let onLoadRead = () => {
     backLink.style.fontSize = "60px";
     backLink.style.textDecoration = "none";
     backLink.style.color = "gray";
-
-    window.setTimeout(() => {
-        markers.eachLayer((marker) => {
-            console.log(marker);
-        });
-    }, 0);
 };
 
 /**

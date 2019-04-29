@@ -13,14 +13,15 @@ fetch(`${configuration.apiURL}/obj/created?token=${token}`)
             if (json.length > 0) {
                 for (let i = 0; i < json.length; i++) {
                     productList.innerHTML +=
-                        `<div class="product">
-			<h2>${json[i].Modell}</h2>
-			<h2>${json[i].Kategori}</h2>
-			<img src="${json[i].Bild}"/>
-			<a href="updateObject.html?id=${json[i]._id}">
+                        `<div class="table">
+			<h2 class="tablepart">${json[i].Modell}</h2>
+			<h2 class="tablepart">${json[i].Kategori}</h2>
+			<img class="tablepart" src="${json[i].Bild}"/>
+			<a class="tablepart tablelink" href="updateObject.html?id=${json[i]._id}">
 				<i class="material-icons">settings</i>
 			</a>
-<a onclick="remove('${configuration.apiURL}/obj/delete/${json[i]._id}/?token=${token}');">
+<a class="tablepart tablelink"
+onclick="remove('${configuration.apiURL}/obj/delete/${json[i]._id}/?token=${token}');">
 				<i class="material-icons">delete</i>
 			</a>
 			</div>`;
