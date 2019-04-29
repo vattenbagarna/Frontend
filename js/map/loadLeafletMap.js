@@ -541,7 +541,7 @@ let loadProducts = () => {
         .catch(error => console.log(error));
 };
 
-let loadMap = {
+export let loadMap = {
     id: new URL(window.location.href).searchParams.get('id'),
 
     /**
