@@ -1,77 +1,31 @@
-html,
-body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
+.text-input {
     width: 100%;
 }
 
-.topnav {
-    background-color: #f1f1f1;
-    overflow: hidden;
+.accessSelect {
+    width: 60%;
+    margin-right: 2%;
 }
 
-.topnav a {
-    float: left;
-    color: black;
-    text-align: center;
-    padding: 14px 16px;
-    text-decoration: none;
-    font-size: 17px;
+.accessSelect:after {
+  background: #1280c4;
 }
 
-.topnav .right {
-    float: right;
-}
-
-.topnav a:hover {
-    background-color: #ddd;
-    color: black;
-}
-
-.topnav a.active {
-    background-color: #3867d6;
-    color: white;
-}
-
-input[type=text],
-input[type="number"],
-select {
-    width: 100%;
-    padding: 12px 20px;
-    margin: 8px 0;
-    display: block;
-    background: white;
-    color: black;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
+.accessCompetence {
+    width: 38%;
+    padding: 0.4rem;
 }
 
 .button-wrap {
     margin: 2rem 0;
 }
 
-.button {
-    text-decoration: none;
-    color: #fff;
-    font-size: 1.1rem;
-    padding: 1rem;
-    background: #3867d6;
-    border-radius: 4px;
-    box-shadow: 1px 1px 4px rgba(102, 102, 102, 0.6);
-}
-
 .buttonNumber {
-    padding: 0.3rem;
+    padding: 0.4rem 0.6rem;
 }
 
 .removeDiv {
     margin: 1rem 0;
-}
-
-.button:hover {
-    box-shadow: 1px 1px 4px rgba(102, 102, 102, 1);
 }
 
 .wrap-all {
@@ -82,13 +36,9 @@ select {
 
 .wrap {
     margin: auto;
-    width: 40%;
-}
-
-input[readonly] {
-    background-color: rgba(128,128,128, 0.3);
+    width: 60%;
 }
 
 #updateProjectButton {
-    padding-bottom: 10px;
+    padding-bottom: 1rem;
 }

@@ -5,28 +5,37 @@
 		<title>Nytt projekt</title>
 		<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 		<link href="https://fonts.googleapis.com/css?family=Fira+Sans:300,400" rel="stylesheet">
+		<link rel="stylesheet" href="css/master.css">
 		<link rel="stylesheet" href="css/newproject.css">
+		<script src="js/login/logout.js"></script>
 	</head>
 	<body>
         <div class="topnav">
-            <a href="home.html">Hem</a>
-            <a href="calculations.html">Beräkningar</a>
-            <a href="listProducts.html">Produkter</a>
-            <a class="right" href="#logout">Logga ut</a>
+            <div class="links">
+                <a class="active" href="home.html">Hem</a>
+                <a href="calculations.html">Beräkningar</a>
+                <a href="listProducts.html">Produkter</a>
+                <a class="right" id="logout" href="#logout">Logga ut</a>
+            </div>
+            <div class="greet-user">
+                <span id="userName"></span>
+            </div>
         </div>
         <div class="wrap-all">
             <div class="wrap">
-                <h1>Skapa nytt projekt</h1>
+                <h1 class="title">Skapa nytt projekt</h1>
                 <form name="myForm" method="post">
-                    Projektnamn: <input id="projectName" type="text" name="projectname">
+                    Projektnamn: <input class="text-input" id="projectName" type="text" name="projectname" placeholder="Projektnamn">
                     <h3>Behörigheter:</h3>
                     <div class="button-wrap">
                         <a class="button" id="addButton">Lägg till behörigheter</a>
                     </div>
                     <div id="newField"></div>
                     <h3>Standardvärden:</h3>
-                    Personer per hushåll: <input id="peopleperhouse" type="number" value="5" name="peopleperhouse">
-                    Liter per person: <input id="litreperperson" type="number" value="150" name="litreperperson">
+                    Personer per hushåll:<br><input class="number-input" id="peopleperhouse" type="number" value="5" name="peopleperhouse">
+                    <br><br>
+                    Liter per person:<br><input class="number-input" id="litreperperson" type="number" value="150" name="litreperperson">
+                    <br><br>
                     <div class="button-wrap">
                         <a id="createProjectButton" class="button">Skapa projekt</a>
                     </div>

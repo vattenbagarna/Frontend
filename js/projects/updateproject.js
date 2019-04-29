@@ -57,6 +57,8 @@ let getProject = () => {
         //sets the form values to the projects name and version
         document.getElementById("projectName").value = json[0].name;
         document.getElementById("projectVersion").value = json[0].version;
+        document.getElementById("peopleperhouse").value = json[0].default.peoplePerHouse;
+        document.getElementById("litreperperson").value = json[0].default.litrePerPerson;
 
         //loops through the amount of users given access starting on 1 as the
         //first place is the creator
@@ -64,7 +66,7 @@ let getProject = () => {
             //creates the select element
             var selectUser = document.createElement("select");
 
-            selectUser.setAttribute("class", "accessSelect");
+            selectUser.setAttribute("class", "accessSelect select-input");
 
             var newField = document.getElementById("newField");
             var h = document.createElement("h3");
@@ -84,7 +86,7 @@ let getProject = () => {
             var selectCompetence = document.createElement("select");
 
             //give it the class accessCompetence
-            selectCompetence.setAttribute("class", "accessCompetence");
+            selectCompetence.setAttribute("class", "accessCompetence select-input");
 
             //append element
             newField.appendChild(selectCompetence);
@@ -174,7 +176,7 @@ button.addEventListener("click", () => {
     //All this code adds the select elements and the button to remove them.
     var selectUser = document.createElement("select");
 
-    selectUser.setAttribute("class", "accessSelect");
+    selectUser.setAttribute("class", "accessSelect select-input");
 
     var newField = document.getElementById("newField");
 
@@ -190,7 +192,7 @@ button.addEventListener("click", () => {
 
     var selectCompetence = document.createElement("select");
 
-    selectCompetence.setAttribute("class", "accessCompetence");
+    selectCompetence.setAttribute("class", "accessCompetence select-input");
 
     newField.appendChild(selectCompetence);
 
@@ -245,7 +247,7 @@ let updateProject = () => {
             'Content-Type': 'application/x-www-form-urlencoded'
         }
     }).then(res => res.json())
-        .then(response => console.log(response))
+        .then(()=> location.href = "home.html")
         .catch(error => alert(error));
 };
 
