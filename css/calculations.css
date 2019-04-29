@@ -1,0 +1,71 @@
+.wrap {
+    width: 90%;
+    margin: auto;
+}
+
+.container {
+    margin: 0 auto;
+    border-radius: 5px;
+    background-color: #f1f1f1;
+    padding-bottom: 2rem;
+    width: 90%;
+}
+
+.form-wrap {
+    display: flex;
+    justify-content: center;
+}
+
+.form-inline {
+    width: 40%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.form-element-pair {
+    width: 80%;
+    margin-bottom: 1rem;
+}
+
+.radio-bt-txt {
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+.number-input {
+    width: 80%;
+}
+
+.select-input {
+    width: 83.5%;
+}
+
+input[type=radio] {
+    padding: 1.5rem;
+    display: none;
+}
+
+#selectDim {
+    display: none;
+}
+
+p {
+    margin: 0;
+}
+
+.sub-header h3 {
+    margin: 0;
+    padding: 3rem 0;
+    font-size: 1.8rem;
+    font-weight: 300;
+    text-align: center;
+}
+
+#flow-wrap {
+    align-items: center;
+}
+
+label {
+    width: 100%;
+}

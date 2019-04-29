@@ -1,0 +1,23 @@
+.wrap {
+    margin: auto;
+    text-align: center;
+}
+
+.error-wrap {
+    padding: 1rem;
+}
+
+.error-msg {
+    padding: 1rem;
+    border-radius: 8px;
+    color: #fff;
+    background: #c0392b;
+}
+
+.login-label {
+    display:run-in;
+}
+
+.text-input {
+    min-width: 350px;
+}

@@ -1,17 +1,15 @@
-/* global L, */
+/* global L, configuration */
 export let isEdit = null;
 let tempPolylineArray = [];
 
 //imports the map object
-import {
-    map,
-} from "./loadLeafletMap.js";
+import { map, token, projectInfo } from "./loadLeafletMap.js";
 
 import { add, polylines, markers, polygons, getLength } from "./add.js";
 
 import { popup } from "./popup.js";
 
-import { jsonData } from "../json/jsonSave.js";
+import { Marker, House, Pipe } from "./classes.js";
 
 export const edit = {
     /**
@@ -24,7 +22,7 @@ export const edit = {
         //get each polyline
         polylines.eachLayer((polyline) => {
             //check if polylines are connected to a marker, by first point and last point.
-            if (event.target._leaflet_id === polyline.connected_with.first) {
+            if (event.target.id === polyline.connected_with.first) {
                 //if polyline is connected with marker change lat lng to match marker
                 let newLatlng = polyline.getLatLngs();
 
@@ -32,7 +30,7 @@ export const edit = {
                 newLatlng.unshift(event.latlng);
 
                 polyline.setLatLngs(newLatlng);
-            } else if (event.target._leaflet_id === polyline.connected_with.last) {
+            } else if (event.target.id === polyline.connected_with.last) {
                 let newLatlng = polyline.getLatLngs();
 
                 newLatlng.pop();
@@ -40,14 +38,16 @@ export const edit = {
                 polyline.setLatLngs(newLatlng);
             }
         });
-        event.target.setPopupContent(popup.marker(add.activeObjName) + popup.changeCoord({
+        event.target.setPopupContent(popup.marker(event.target.attributes) + popup.changeCoord({
             lat: event.latlng.lat,
             lng: event.latlng.lng
         }));
+
+        edit.warning.unsavedChanges(true);
     },
 
     /**
-     * editPolylines - Makes polylines editable by adding hooks and dragging.
+     * polylines - Makes polylines editable by adding hooks and dragging.
      * library?
      *
      * @returns {void}
@@ -58,6 +58,7 @@ export const edit = {
             tempPolylineArray.push(polyline._latlngs.length);
         });
 
+        edit.warning.unsavedChanges(true);
         isEdit = true;
     },
 
@@ -76,6 +77,7 @@ export const edit = {
         //Turn off click events for markers and polylines.
         map.off("click", add.marker);
         map.off('click', add.polygone);
+
         //If polylines has been edited
         if (isEdit == true) {
             var i = 0;
@@ -95,7 +97,7 @@ export const edit = {
             isEdit = null;
         }
 
-        document.getElementById("map").style.cursor = "grab";
+        document.getElementById("myMap").style.cursor = "grab";
 
         //Closes popups and turns off click events for remove and addPipe.
         map.closePopup();
@@ -113,55 +115,66 @@ export const edit = {
      */
     remove: (event) => {
         //remove polylines, markers and polygons when clicked
-        polylines.removeLayer(event.sourceTarget);
-        markers.removeLayer(event.sourceTarget);
-        polygons.removeLayer(event.sourceTarget);
+        polylines.removeLayer(event.target);
+        markers.removeLayer(event.target);
+        polygons.removeLayer(event.target);
+
+        edit.warning.unsavedChanges(true);
     },
 
     /**
      * save - Saves the objects from the map in a json format.
      *
+     * @param {string} version version number the user wants to save the project under
      * @returns {void}
      */
-    save: () => {
-        const jsonArray = [];
+    save: (version) => {
+        let json = [];
+        let temp;
+
+        temp = {
+            zoom: map.getZoom(),
+            center: map.getCenter()
+        };
+
+        json.push(temp);
 
         //loop through all polylines and save them in a json format
         polylines.eachLayer((polyline) => {
-            let temp = {
+            temp = {
                 coordinates: polyline._latlngs,
                 type: "polyline",
                 connected_with: polyline.connected_with,
                 options: polyline.options,
                 popup: polyline.getPopup().getContent(),
-                getLength: polyline.getLength,
+                length: polyline.length,
                 tilt: polyline.tilt,
                 dimension: polyline.dimension,
+                pipeType: polyline.type,
             };
 
-            jsonArray.push(temp);
+            json.push(temp);
         });
 
         //loop through all markers and save them in a json format
         markers.eachLayer((marker) => {
-            let temp = {
-                coordinates: marker._latlng,
+            temp = {
+                coordinates: [marker._latlng.lat, marker._latlng.lng],
                 type: "marker",
                 options: marker.options,
-                id: marker._leaflet_id,
+                id: marker.id,
                 popup: marker.getPopup().getContent(),
-                attribute: marker.attribute
+                attributes: marker.attributes,
             };
 
-            jsonArray.push(temp);
+            json.push(temp);
         });
 
         polygons.eachLayer((polygon) => {
-            let temp = {
+            temp = {
                 coordinates: polygon._latlngs,
                 type: "polygon",
                 options: polygon.options,
-                id: polygon.id,
                 popup: polygon.getPopup().getContent(),
                 definition: polygon.definition,
                 address: polygon.address,
@@ -169,12 +182,50 @@ export const edit = {
                 flow: polygon.flow
             };
 
-            jsonArray.push(temp);
+            json.push(temp);
         });
 
-        const myJSON = JSON.stringify(jsonArray);
+        if (version == projectInfo.version) {
+            let id = new URL(window.location.href).searchParams.get('id');
 
-        console.log(myJSON);
+            fetch(`${configuration.apiURL}/proj/update/data/${id}?token=${token}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(json),
+            }).then(res => res.json())
+                .then(() => edit.warning.unsavedChanges(false))
+                .catch(error => console.log(error));
+        } else {
+            let id;
+
+            projectInfo.version = version;
+            fetch(`${configuration.apiURL}/proj/insert?token=${token}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(projectInfo),
+            }).then(res => res.json())
+                .then((response) => {
+                    id = response._id;
+
+                    fetch(`${configuration.apiURL}/proj/update/data/${id}?token=${token}`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(json),
+                    }).then(res => res.json())
+                        .then(() => {
+                            edit.warning.unsavedChanges(false);
+                            document.location.href = `map.html?id=${id}`;
+                        })
+                        .catch(error => console.log(error));
+                })
+                .catch(error => console.log(error));
+        }
     },
 
     /**
@@ -183,72 +234,56 @@ export const edit = {
      *
      * @returns {void}
      */
-    load: () => {
-        const savedData = jsonData;
-        //const jsonLoad = JSON.parse(jsonData)
+    load: (json) => {
         let icon;
         let newObj;
 
+        map.setView(json[0].center, json[0].zoom);
+
         //Loop through json data.
-        for (let i = 0; i < savedData.length; i++) {
-            switch (savedData[i].type) {
+        for (let i = 1; i < json.length; i++) {
+            switch (json[i].type) {
                 //if marker add it to the map with its options
                 case "marker":
-                    icon = L.icon(savedData[i].options.icon.options);
+                    icon = L.icon(json[i].options.icon.options);
 
-                    savedData[i].options.icon = icon;
-                    newObj = new L.Marker(savedData[i].coordinates,
-                        savedData[i].options).addTo(map).on("drag", edit.moveMarker);
-
-                    newObj._leaflet_id = savedData[i].id;
-                    newObj.bindPopup(savedData[i].popup);
-                    newObj.attribute = savedData[i].attribute;
-
-                    markers.addLayer(newObj);
+                    newObj = new Marker(json[i].coordinates, json[i].attributes, icon, json[i].id);
                     break;
                     //if polyline
                 case "polyline":
-                    //get polyline options and add it to an object
-                    newObj = L.polyline(savedData[i].coordinates, savedData[i].options);
-                    newObj.connected_with = savedData[i].connected_with;
-                    newObj.bindPopup(savedData[i].popup);
-
-                    newObj.getLength = savedData[i].getLength;
-                    newObj.tilt = savedData[i].tilt;
-                    newObj.innerDiameter = savedData[i].dimension;
-
-                    //add to map
-                    polylines.addLayer(newObj).addTo(map);
+                    newObj = new Pipe(json[i].coordinates, ["", ""], json[i].pipeType,
+                        json[i].connected_with.first);
+                    newObj.draw(json[i].connected_with.last, null, json[i].dimension, json[i].tilt);
                     break;
                 case "polygon":
-                    newObj = L.polygon(savedData[i].coordinates, savedData[i].options);
-                    newObj.bindPopup(savedData[i].popup);
-                    newObj.address = savedData[i].address;
-                    newObj.nop = savedData[i].nop;
-                    newObj.flow = savedData[i].flow;
-
-                    polygons.addLayer(newObj).addTo(map);
+                    newObj = new House(json[i].coordinates[0], ["", ""]);
+                    newObj.drawFromLoad(json[i].coordinates, json[i].popup, json[i].nop,
+                        json[i].flow, json[i].options);
                     break;
             }
         }
     },
 
     /**
-     * warning - Description
+     * warning - Warning message object
      *
-     * @returns {type} Description
+     * @returns {void}
      */
     warning: {
         /**
-         * unsavedChanges - Description
-         *
-         * @returns {type} Description
+         * unsavedChanges - Display a warning box when user tries to leave the page that some
+         * 				  - information may not be saved if user exit the page.
+         *				  - Uses window.onbeforeunload.
+         * @returns {void}
          */
-        unsavedChanges: () => {
-            //borde bara köras om nya ändringar har gjorts
-            window.onbeforeunload = () => {
-                return "Are you sure you want to navigate away?";
-            };
+        unsavedChanges: (value) => {
+            if (value) {
+                window.onbeforeunload = () => {
+                    return "Are you sure you want to navigate away?";
+                };
+            } else {
+                window.onbeforeunload = () => {};
+            }
         },
     },
 

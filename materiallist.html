@@ -1,23 +1,20 @@
 <!DOCTYPE html>
 <html lang="sv" dir="ltr">
-
-<head>
-	<meta charset="utf-8">
-	<title>Skriva ut</title>
-	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css" integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA==" crossorigin=""/>
-	<link rel="stylesheet" href="css/materiallist.css">
-	<script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js" integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg==" crossorigin=""></script>
-	<script type="module" src="js/loadLeafletMaterialMap.js"></script>
-	<script type="module" src="js/getKey.js"></script>
-	<script src='https://unpkg.com/leaflet.gridlayer.googlemutant@latest/Leaflet.GoogleMutant.js'></script>
-</head>
-
-<body>
-<div id="mapDiv">
-	<div class="map" id="myMaterialMap"></div>
-	<table id="myMaterialTable">
-
-	</table>
-</div>
-</body>
+    <head>
+        <meta charset="utf-8">
+        <title>Skriva ut</title>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css" integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA==" crossorigin=""/>
+        <link rel="stylesheet" href="css/materiallist.css">
+        <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js" integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg==" crossorigin=""></script>
+        <script type="module" src="js/map/getKey.js"></script>
+        <script src='https://unpkg.com/leaflet.gridlayer.googlemutant@latest/Leaflet.GoogleMutant.js'></script>
+        <script src="js/configVariables.js" charset="utf-8"></script>
+    </head>
+    <body>
+        <div id="mapDiv">
+            <div class="map" id="myMaterialMap"></div>
+            <table id="myMaterialTable"></table>
+        </div>
+    </body>
+    <script type="module" src="js/map/loadLeafletMaterialMap.js"></script>
 </html>

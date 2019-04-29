@@ -7,7 +7,7 @@ export let options = {
     },
 
     house: {
-        color: 'blue',
+        color: '#3388ff',
         fillColor: '#3388ff',
         fillOpacity: 0.5,
         weight: 1.5

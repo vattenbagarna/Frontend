@@ -1,5 +1,5 @@
 /*global L*/
-import { map } from "./loadLeafletMap.js";
+import { map, projectInfo } from "./loadLeafletMap.js";
 
 import { popup } from "./popup.js";
 
@@ -8,6 +8,8 @@ import { options } from "./options.js";
 import { polylines, markers, polygons, add, getLength, clearHouse } from "./add.js";
 
 import { edit } from "./edit.js";
+
+import { show } from "./show.js";
 
 export let guideline = null;
 
@@ -25,20 +27,30 @@ export class Marker {
      * @param {array} latlng     Coordinates (latitude and longitude) for the new marker
      * @param {array} attributes Specific characteristics (values) for the new marker
      * @param {L.Icon} icon		 @see {@link https://leafletjs.com/reference-1.4.0.html#icon}
+     * @param {null} [id=null]   Option to specify leaflet_id on creation
      *
      * @returns {void}
      */
-    constructor(latlng, attributes, icon) {
+    constructor(latlng, attributes, icon, id = null) {
         this.attributes = attributes;
 
         this.marker = new L.Marker(latlng, options.marker(icon))
-            // Popup behöver uppdateras med backend
-            .bindPopup(popup.marker(this.attributes[0]) + popup.changeCoord(latlng))
+            .bindPopup(popup.marker(this.attributes) + popup.changeCoord(latlng))
             .on("drag", edit.moveMarker)
             .on('popupopen', this.updateCoords);
 
-        // Adds marker to map
+        this.marker.attributes = this.attributes;
+        this.marker.disableDragging = () => { this.marker.dragging.disable(); return this.marker; };
+        this.marker.enableDragging = () => { this.marker.dragging.enable(); };
+
+        // Add marker to markers layer
         markers.addLayer(this.marker).addTo(map);
+
+        if (id) {
+            this.marker.id = id;
+        } else {
+            this.marker.id = this.marker._leaflet_id;
+        }
     }
 
     /**
@@ -77,7 +89,7 @@ export class Marker {
  */
 export class House {
     /**
-     * constructor - Creates a L.polygon with preconfiged attributes from options.js and popup.js
+     * constructor - Creates a L.polygon with preconfigured attributes from options.js and popup.js
      * 			   - @see {@link https://leafletjs.com/reference-1.4.0.html#polygon}
      * 			   - Creates a guideline with a dashed line to help user to line up the next point
      * 			   - Guideline update it's position on mousemove
@@ -90,6 +102,7 @@ export class House {
      * @returns {void}
      */
     constructor(latlng, attributes) {
+        this.completed = false;
         this.attributes = attributes;
         this.polygon = L.polygon([latlng], options.house);
 
@@ -120,6 +133,32 @@ export class House {
     }
 
     /**
+     * drawFromLoad - Draws polygon from saved data
+     *
+     * @param {array} latlngs     The rest of the coordinates of the corners on the polygon
+     * @param {string} address    The address of the polygon
+     * @param {string} definition What type of building is it
+     * @param {string} nop        number of people is living there
+     * @param {string} flow       water flow per person
+     *
+     * @returns {void}
+     */
+    drawFromLoad(latlngs, popup, nop, flow, options) {
+        this.polygon.setStyle(options);
+        this.polygon.setLatLngs(latlngs);
+        this.polygon.bindPopup(popup);
+        polygons.addLayer(this.polygon).addTo(map);
+
+        this.polygon.nop = nop;
+        this.polygon.flow = flow;
+        this.completed = true;
+
+        map.off('mousemove', this.updateGuideLine);
+        this.polygon.on('popupopen', this.updateValues);
+        guideline.remove();
+    }
+
+    /**
      * updateGuideLine - update the guideline coordinates to mouse coordinates
      * 				   - from mousemove.
      *
@@ -128,7 +167,6 @@ export class House {
      *
      **/
     updateGuideLine(event) {
-        // Behövs kommenteras
         let coord = guideline.getLatLngs();
 
         coord.pop();
@@ -148,7 +186,8 @@ export class House {
         document.addEventListener("keyup", (event) => {
             // If user keyup is key 'esc'
             if (event.keyCode == 27) {
-                if (guideline != null && this.polygon != null) {
+                if (guideline != null && this.polygon != null && this.completed == false) {
+                    this.completed = true;
                     let addr;
 
                     L.esri.Geocoding.reverseGeocode()
@@ -156,18 +195,63 @@ export class House {
                         .run((error, result) => {
                             addr = result.address.Match_addr;
 
-                            this.polygon.bindPopup(popup.house(addr, "Hus", 5,
-                                "150 l/person"));
+                            this.polygon.bindPopup(popup.house(
+                                addr,
+                                "Hus",
+                                projectInfo.default.peoplePerHouse,
+                                projectInfo.default.litrePerPerson,
+                                "#3388ff",
+                            ));
+
                             this.polygon.address = addr;
-                            this.polygon.definition = "Hus";
-                            this.polygon.nop = 5;
-                            this.polygon.flow = "150 l/person";
-                            map.off('mousemove', this.updateGuideLine);
-                            guideline.remove();
-                            clearHouse();
                         });
+
+                    this.polygon.definition = "Hus";
+                    this.polygon.nop = projectInfo.default.personPerHouse;
+                    this.polygon.flow = projectInfo.default.litrePerHouse;
+                    this.polygon.on('popupopen', this.updateValues);
+                    map.off('mousemove', this.updateGuideLine);
+                    guideline.remove();
+                    clearHouse();
                 }
             }
+        }), { once: true };
+    }
+
+    /**
+     * updateValues - Updates house values from user input and updates popup content with
+     * 			 	- the new values
+     *
+     * @param {object} event
+     *
+     * @returns {void}
+     */
+    updateValues(event) {
+        // Get button after popup is open
+        let buttons = document.getElementsByClassName('updateValuesInHouse');
+        //console.log(buttons);
+
+        // Add event listener on click on button
+        buttons[buttons.length - 1].addEventListener('click', () => {
+            // Get new values after click
+            let addr = document.getElementById('address').innerHTML;
+            let type = document.getElementById('houseType').value;
+            let newColor = document.getElementById('houseColor').value;
+            let nop = document.getElementById('per').value;
+            let flow = document.getElementById('cons').value;
+
+            // Close active popup
+            event.target.closePopup();
+
+            event.target.setStyle({
+                color: newColor,
+                fillColor: newColor,
+                fillOpacity: 0.5,
+                weight: 1.5
+            });
+
+            // Update popup content with new values
+            event.target.setPopupContent(popup.house(addr, type, nop, flow, newColor));
         }), { once: true };
     }
 }
@@ -195,26 +279,55 @@ export class Pipe {
     }
 
     /**
-     * draw - Creates a L.polyline with preconfiged attributes from options.js and popup.js and type
+     * draw - Creates a L.polyline with preconfigured attributes from options.js, popup.js and type
      * 		- @see {@link https://leafletjs.com/reference-1.4.0.html#polyline}
      * 		- Set connected_with values so the object knows what is it connected to
      * 		- Set length for new polyline
      * 		- Displays new polyline on map
      *
-     * @param {let} dimension     Diameter of the pipe that the user inputed
-     * @param {let} tilt          Tilt of the pipe that the user inputed
-     * @param {let} id            Unique number to last connected_with
-     * @param {array} [latlng=null] Option to push new point into new polyline
+     * @param {let} id            		Unique number to last connected_with
+     * @param {array} [latlng=null] 	Option to push new point into new polyline
+     * @param {null} [dimension=null]	Option to add preconfigured dimension
+     * @param {null} [tilt=null]      	Option to add preconfigured tilt
+     *
+     * @returns {void}
+     **/
+    draw(id, latlng = null, dimension = null, tilt = null) {
+        this.last = id;
+        if (latlng != null) { this.latlngs.push(latlng); }
+
+        if (dimension == null && tilt == null) {
+            show.openModal(document.getElementById('pipeModal'));
+
+            document.getElementById("pipeSpecifications").onclick = () => {
+                let modal = document.getElementById("pipeModal");
+                let dimension = document.getElementById("dimension");
+                let tilt = document.getElementById("tilt");
+
+
+                modal.style.display = "none";
+
+                this.dimension = dimension.value;
+                this.tilt = tilt.value;
+
+                this.createPolyline();
+            };
+        } else {
+            this.dimension = dimension;
+            this.tilt = tilt;
+
+            this.createPolyline();
+        }
+    }
+
+    /**
+     * createPolyline - Creates a new polyline depending on what type is choosen with preconfigured
+     * 				  - options, popup, length, dimension and tilt. Lastly add the new created
+     * 				  - polyline to map
      *
      * @returns {void}
      */
-    draw(dimension, tilt, id, latlng = null) {
-        this.dimension = dimension;
-        this.tilt = tilt;
-        this.last = id;
-
-        if (latlng != null) { this.latlngs.push(latlng); }
-
+    createPolyline() {
         if (this.type == 0) {
             this.polyline = new L.polyline(this.latlngs, options.pipe);
         } else if (this.type == 1) {
@@ -226,11 +339,44 @@ export class Pipe {
             first: this.first,
             last: this.last
         };
+        polylines.addLayer(this.polyline).addTo(map);
         this.polyline.bindPopup(popup.pipe(this.dimension, this.tilt));
         this.polyline.length = getLength(this.polyline);
         this.polyline.type = this.type;
+        this.polyline.dimension = this.dimension;
+        this.polyline.tilt = this.tilt;
         this.polyline.on('click', add.pipe);
-        polylines.addLayer(this.polyline).addTo(map);
+        this.polyline.on('popupopen', this.updateValues);
         this.polyline.editingDrag.removeHooks();
+    }
+
+    /**
+     * updateValues - Updates pipe values from user input and updates popup content with
+     * 			 	- the new values
+     *
+     * @param {object} event
+     *
+     * @returns {void}
+     */
+    updateValues(event) {
+        // Get button after popup is open
+        let buttons = document.getElementsByClassName('updateValuesInPipe');
+        //console.log(buttons);
+
+        // Add event listener on click on button
+        buttons[buttons.length - 1].addEventListener('click', () => {
+            // Get new values after click
+            let dim = document.getElementById('dimension').value;
+            let tilt = document.getElementById('tilt').value;
+
+            event.target.dimension = dim;
+            event.target.tilt = tilt;
+
+            // Close active popup
+            event.target.closePopup();
+
+            // Update popup content with new values
+            event.target.setPopupContent(popup.pipe(dim, tilt));
+        }), { once: true };
     }
 }

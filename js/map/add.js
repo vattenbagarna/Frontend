@@ -1,5 +1,6 @@
 /* global L */
 let pipe = null;
+let first;
 
 export let house = null;
 
@@ -8,7 +9,7 @@ export let markers = L.layerGroup();
 export let polygons = L.layerGroup();
 
 // Imports the map object.
-import { map, pipeChoice } from "./loadLeafletMap.js";
+import { map, pipeChoice, objectData } from "./loadLeafletMap.js";
 
 // Imports three classes that are used for the project.
 import { Marker, House, Pipe } from "./classes.js";
@@ -24,13 +25,16 @@ export const add = {
      * @returns {void}
      */
     marker: (event) => {
-        let attribute = [add.activeObjName, "antalpumpar: 1", "diameter: 600",
-            "inlopp: 110, typ: gummitätning", "höjd: 700",
-            "Kabelgenomförning: 50, typ: gummitätning", "RSK: 5886909",
-            "utlopp: 32, typ: inv. gänga"
-        ];
+        let object;
 
-        new Marker(event.latlng, attribute, add.activeIcon);
+        for (let i = 0; i < objectData.length; i++) {
+            if (add.activeObjName == objectData[i].Modell) {
+                object = objectData[i];
+                break;
+            }
+        }
+
+        new Marker(event.latlng, object, add.activeIcon);
     },
 
     /**
@@ -62,16 +66,23 @@ export const add = {
 
         // If pipe is null create the first point.
         if (pipe != null) {
-            point.id = event.sourceTarget._leaflet_id;
+            point.id = event.sourceTarget.id;
             if (target.length) {
                 point = addBranchConnection(event, target);
             }
-            pipe.draw(0, 0, point.id, event.latlng);
+            pipe.draw(point.id, event.latlng);
+            if (first) {
+                first.enableDragging();
+                first = null;
+            }
             pipe = null;
         } else {
-            point.id = event.sourceTarget._leaflet_id;
+            point.id = event.sourceTarget.id;
             if (target.length) {
                 point = addBranchConnection(event, target);
+                first = point.marker.disableDragging();
+            } else if (target.options.draggable) {
+                first = target.disableDragging();
             }
             pipe = new Pipe([event.latlng], ["", ""], pipeChoice, point.id);
         }
@@ -161,18 +172,18 @@ let addBranchConnection = (event, target) => {
 
     newLine = {
         latlngs: secondLatlngs,
-        first: branchMarker.marker._leaflet_id,
+        first: branchMarker.marker.id,
         last: target.connected_with.last
     };
-    target.connected_with.last = branchMarker.marker._leaflet_id;
+    target.connected_with.last = branchMarker.marker.id;
 
     let newPipe = new Pipe(newLine.latlngs, [""], target.type, newLine.first);
 
-    newPipe.draw(0, 0, newLine.last);
+    newPipe.draw(newLine.last, null, target.dimension, target.tilt);
 
     return {
-        latlng: branchMarker.marker._latlng,
-        id: branchMarker.marker._leaflet_id
+        marker: branchMarker.marker,
+        id: branchMarker.marker.id
     };
 };
 
