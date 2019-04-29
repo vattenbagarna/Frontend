@@ -67,10 +67,6 @@ input[type=radio] {
     display: none;
 }
 
-p {
-    margin: 0;
-}
-
 .sub-header h3 {
     margin: 0;
     padding: 3rem 0;

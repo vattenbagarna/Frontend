@@ -12,9 +12,8 @@ function showStyling() {
     document.getElementById("flow").style.display = "block";
     document.getElementById("flow-wrap").style.display = "flex";
     document.getElementById("submit").style.display = "block";
-    document.getElementById("pressure1").previousElementSibling.innerHTML = "PN 6.3";
-    document.getElementById("pressure2").previousElementSibling.innerHTML = "PN 10";
-    document.getElementById("flowLabel").innerHTML = "Önskat flöde";
+    document.getElementById("pressure1").previousElementSibling.innerText = "PN 6.3";
+    document.getElementById("pressure2").previousElementSibling.innerText = "PN 10";
 }
 
 /**
@@ -25,7 +24,7 @@ function showStyling() {
 function hideStyling() {
     document.getElementById("pressure1").checked = false;
     document.getElementById("pressure2").checked = false;
-    // document.getElementById("pumpLabel").innerHTML = "";
+    // document.getElementById("pumpLabel").innerText = "";
     // document.getElementById("pumps").style.display = "none";
 }
 hideStyling();
@@ -275,27 +274,29 @@ function calcAll() {
     let selectedUnit = document.getElementById("selectUnit").value;
     let mu = 0.015;
 
+    selectedDim = changeDim(selectedDim);
+
     switch (selectedUnit) {
         case "lps":
             wantedFlow /= 1000;
             break;
         case "lpm":
-            wantedFlow /= (1000/60);
+            wantedFlow /= 1000*60;
             break;
-        case "mp3h":
+        case "m3ph":
             wantedFlow /= 3600;
             break;
         default:
             break;
     }
 
-    let lostPress = calcPress(wantedFlow, selectedDim, mu, length);
+    let lostPress = calcPressure(wantedFlow, selectedDim, mu, length);
 
     lostPress *= 9.81;
     let roundPress = lostPress.toFixed(2);
     //let rFlow = calcQPump(selectedDim, mu, length, height);
     //let roundFlow = rFlow.toFixed(2);
-    let velocity = calcVel(wantedFlow, selectedDim);
+    let velocity = calcVelocity(wantedFlow, selectedDim);
     let roundVel = velocity.toFixed(2);
     let totalPress = totalPressure(lostPress, height);
     let roundTotal = totalPress.toFixed(2);
@@ -345,7 +346,7 @@ function recommendPump(pumps, dimension) {
     for (let i = 0; i < pumps.length; i++) {
         for (let k = 0; k < pumps[i].Pumpkurva.length; k++) {
             if (pumps[i].Pumpkurva[k].y == inputHeight) {
-                let mps = calcVel(pumps[i].Pumpkurva[k].x, dimension);
+                let mps = calcVelocity(pumps[i].Pumpkurva[k].x, dimension);
 
                 if (mps >= wantedFlow - margin && mps <= wantedFlow + margin) {
                     let option = document.createElement("option");
@@ -358,8 +359,8 @@ function recommendPump(pumps, dimension) {
         }
     }
 
-    document.getElementById("pumpLabel").innerHTML = "Pumpförslag";
-    document.getElementById("pumps").style.display = "block";
+    //document.getElementById("pumpLabel").innerText = "Pumpförslag";
+    //document.getElementById("pumps").style.display = "block";
 }
 
 /**
@@ -392,7 +393,7 @@ function changeDim(chosen) {
     } else {
         chosen += "L";
     }
-    if (document.getElementById("inches").checked) {
+    if (document.getElementById("material").value == "stainless") {
         chosen += "IN";
     } else {
         chosen += "O";
@@ -430,7 +431,7 @@ function changeDim(chosen) {
 /************************ Math functions ************************************/
 
 /**
-  * calcPress - Calculates lost pressure
+  * calcPressure - Calculates lost pressure
   *
   * @param {number} Flowcapacity
   * @param {number} Innerdimension
@@ -440,10 +441,9 @@ function changeDim(chosen) {
   * @return {number} Lost pressure
   *
   */
-function calcPress(q, di, mu, l) {
+function calcPressure(q, di, mu, l) {
     let inDi = di; // mm
     let pLength = l; // m
-    //let avgQ = q/1000; // l/s
     let inMu = mu; // mm
     let rho = 1000; // kg/m3
     let viscosity = 1e-6; // m2/s
@@ -519,7 +519,31 @@ function totalPressure(lostPress, height) {
 }
 
 /**
-  * calcVel - Calculates velocity
+  * estPumpValue - Estimates the amount of fluid capacity a given pump can
+  * give within a previosly unknown interval.
+  *
+  * @param {number} Y value
+  * @param {number} The pumpcurve to calculate on
+  *
+  * @returns {number} X value
+  */
+function estPumpValue(yValue, pumpCurve) {
+    let min1 = 100;
+    let min2 = 100;
+
+    for (let i = 0; i < pumpCurve.length; i++) {
+        let temp = Math.abs(yValue - pumpCurve[i].Pumpkurva.y);
+
+        if (temp < min1) {
+            min1 = temp;
+        } else if (temp < min2) {
+            min2 = temp;
+        }
+    }
+}
+
+/**
+  * calcVelocity - Calculates velocity
   *
   * @param {number} Wanted flow
   * @param {number} Innerdimension
@@ -527,8 +551,7 @@ function totalPressure(lostPress, height) {
   * @return {number} Velocity
   *
   */
-function calcVel(q, di) {
-    //q /= 1000; // l/s
+function calcVelocity(q, di) {
     return 4 * 1000000 * q / (di * di * Math.PI);
 }
 
