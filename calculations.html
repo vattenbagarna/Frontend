@@ -63,9 +63,9 @@
 							<span id="flow-wrap">
 								<input class="number-input" data-digits-only step="0.1" type="number" id="flow" name="flow" placeholder="0" onkeypress="enterPressed(this, event);">&nbsp;
 								<select class="select-input" id="selectUnit">
-									<option value="lps">l/s</option>
+									<option value="lps" selected>l/s</option>
 									<option value="lpm">l/m</option>
-									<option value="m3ph">m³/h<option>
+									<option value="m3ph">m³/h</option>
 								</select>
 							</span>
 						</span>
@@ -77,37 +77,49 @@
 					</form>
 
 					<div class="all-results">
+						<h3 class="result-header">Resultat</h3>
 						<div class="result">
 							<span class="result-name">Flödeshastighet</span>
 							<span class="result-valueUnit">
 								<span class="result-value" id="flowSpeed"></span>
 								<span class="result-unit">m/s</span>
-							</span><br>
+							</span>
+						</div>
+						<div class="result">
 							<span class="result-name">Statiskt tryck</span>
 							<span class="result-valueUnit">
 								<span class="result-value" id="staticPressure"></span>
 								<span class="result-unit">m</span>
-							</span><br>
+							</span>
+						</div>
+						<div class="result">
 							<span class="result-name">Tryckförluster</span>
 							<span class="result-valueUnit">
 								<span class="result-value" id="pressureLoss"></span>
 								<span class="result-unit">m</span>
-							</span><br>
+							</span>
+						</div>
+						<div class="result">
 							<span class="result-name">Totaltryck</span>
 							<span class="result-valueUnit">
 								<span class="result-value" id="totalPressure"></span>
 								<span class="result-unit">m</span>
-							</span><br>
-							<!-- <span class="result-name">Flödeskapacitet</span>
+							</span>
+						</div>
+						<div class="pump-suggestions">
+							<label for="pumps" id="pumpLabel">Pumpförslag</label><br>
+							<select class="select-input" id="pumps">
+								<option value="no-suggestions" selected disabled>Inga pumpförslag...</option>
+							</select>
+						</div>
+						<!-- <div class="result">
+							<span class="result-name">Flödeskapacitet</span>
 							<span class="result-valueUnit">
 								<span class="result-value" id="capacity"></span>
 								<span class="result-unit">l/s</span>
-							</span><br> -->
-						</div>
+							</span>
+						</div> -->
 					</div>
-						<label for="pumps" id="pumpLabel"><p></p></label><br>
-						<select class="select-input" id="pumps">
-						</select>
 				</div>
 			</div>
 		</body>

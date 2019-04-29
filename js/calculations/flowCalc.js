@@ -25,8 +25,8 @@ function showStyling() {
 function hideStyling() {
     document.getElementById("pressure1").checked = false;
     document.getElementById("pressure2").checked = false;
-    document.getElementById("pumpLabel").innerHTML = "";
-    document.getElementById("pumps").style.display = "none";
+    // document.getElementById("pumpLabel").innerHTML = "";
+    // document.getElementById("pumps").style.display = "none";
 }
 hideStyling();
 
