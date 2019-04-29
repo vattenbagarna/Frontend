@@ -605,7 +605,6 @@ let onLoadWrite = () => {
  *
  * @returns {void}
  */
-
 let onLoadRead = () => {
     //Gets the HTML objets which needs to change
     let sidebar = document.getElementsByClassName("sidebar");
@@ -656,7 +655,7 @@ let onLoadRead = () => {
         markers.eachLayer((marker) => {
             console.log(marker);
         });
-    }, 0)
+    }, 0);
 };
 
 /**
