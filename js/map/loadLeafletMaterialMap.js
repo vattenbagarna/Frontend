@@ -4,7 +4,9 @@ let polylines = L.layerGroup();
 let markers = L.layerGroup();
 let polygons = L.layerGroup();
 let newDiv;
+let newP;
 let boundsArray = [];
+let numbersObj = {};
 let token = localStorage.getItem('token');
 // Imports Google maps javascript api key from getKey.js file
 
@@ -15,7 +17,6 @@ import { popup } from "./popup.js";
 
 // Initialize the map with center coordinates on BAGA HQ and zoom 18.
 export const map = L.map("myMaterialMap", {
-    "center": [56.208640, 15.632630],
     "editable": true,
     "zoomControl": false,
     "doubleClickZoom": false,
@@ -82,28 +83,39 @@ let getBounds = () => {
     map.fitBounds(bounds);
 };
 
-map.on("zoomend", () => {
+map.on("moveend", () => {
     var i = 1;
 
     markers.eachLayer((marker) => {
-        var pixelPosition = map.latLngToLayerPoint(marker._latlng);
-        //console.log(pixelPosition);
+        //console.log(marker.attributes.Modell);
+        if (marker.attributes != "Förgrening" && marker.attributes != undefined) {
+            if (!numbersObj.hasOwnProperty(marker.attributes.Modell)) {
+                numbersObj[marker.attributes.Modell] = [i];
+            } else {
+                numbersObj[marker.attributes.Modell].push(i);
+            }
+            var pixelPosition = map.latLngToLayerPoint(marker._latlng);
+            //console.log(pixelPosition);
 
-        newDiv = document.createElement("div" + i);
-        newDiv.style.top = (pixelPosition.y + 10) + "px";
-        newDiv.style.left = (pixelPosition.x + 15) + "px";
-        newDiv.style.position = "absolute";
-        newDiv.style.zIndex = 100000;
-        var newContent = document.createTextNode(i);
+            newDiv = document.createElement("div");
+            newP = document.createElement("p");
+            newDiv.style.top = (pixelPosition.y + 10) + "px";
+            newDiv.style.left = (pixelPosition.x + 15) + "px";
+            newDiv.setAttribute("class", "circleNumbers")
+            var newContent = document.createTextNode(i);
 
-        i = i + 1;
-        newDiv.appendChild(newContent);
+            i = i + 1;
+            newP.appendChild(newContent);
+            newDiv.appendChild(newP);
 
-        var currentDiv = document.getElementById("mapDiv");
+            var currentDiv = document.getElementById("mapDiv");
 
-        document.body.insertBefore(newDiv, currentDiv);
+            document.body.insertBefore(newDiv, currentDiv);
+        }
     });
 });
+
+console.log(numbersObj);
 
 
 let id = new URL(window.location.href).searchParams.get('id');
@@ -144,7 +156,7 @@ let load = (json) => {
     let objects = {};
     let pipes = {};
 
-    map.setView(json[0].center, json[0].zoom);
+    //map.setView(json[0].center, json[0].zoom);
 
     //Loop through json data.
     for (let i = 1; i < json.length; i++) {
