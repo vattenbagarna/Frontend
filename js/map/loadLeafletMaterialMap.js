@@ -162,22 +162,22 @@ let load = (json) => {
 
                 if (!objects.hasOwnProperty(objectName)) {
                     objects[objectName] = { antal: 1, cell: undefined };
-                    let x = 0;
-
-                    for (let key in json[i].attributes) {
-                        if (key != "_id") {
-                            row.insertCell(x++).innerHTML =
-                                `${key}: ${json[i].attributes[key]}`;
-                        }
+                    row.insertCell(0).innerHTML =
+                        `${json[i].attributes.Modell}`;
+                    row.insertCell(1).innerHTML +=
+                        `Antal: ${objects[objectName].antal}`;
+                    if (json[i].attributes.RSK != undefined) {
+                        row.insertCell(2).innerHTML +=
+                            `RSK: ${json[i].attributes.RSK}`;
+                    } else {
+                        row.insertCell(2).innerHTML +=
+                            `Artikel nummer: ${json[i].attributes.ArtikelNr}`;
                     }
-                    let newCell = row.insertCell(json[i].attributes.length);
+                    row.insertCell(3).innerHTML +=
+                        `<img src="${json[i].attributes.Bild}"/>`;
 
-                    objects[objectName].cell = newCell;
-                    newCell.innerHTML = "antal " + objects[objectName].antal;
-
-                    //insert cost with inptut thing
-                    row.insertCell(json[i].attributes.length + 1).innerHTML =
-                        "Kostnad <input class='costInput' value='1'/>";
+                    row.insertCell(4).innerHTML = "Kostnad <input class='costInput' value='?'/>";
+                    row.insertCell(4).className = "right";
                 } else {
                     objects[objectName].antal += 1;
                     objects[objectName].cell.innerHTML = "antal " + objects[objectName].antal;

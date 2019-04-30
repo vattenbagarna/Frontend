@@ -3,19 +3,13 @@
     height: 90vh;
 }
 
-html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-}
-
 table {
     border-spacing: 0;
     border: none;
     width: 100%;
     border: 1px solid #ddd;
     table-layout: fixed;
+    margin-bottom: 50vh;
 }
 
 th {

@@ -3,16 +3,7 @@ export let popup = {
         let temp = "";
 
         for (let key in attributes) {
-            switch (key) {
-                case 'Bild':
-                    temp += `<tr><td><img src="${attributes[key]}"/></td></tr>`;
-                    break;
-                case 'creatorID':
-                case '_id':
-                    break;
-                default:
-                    temp += `<tr><td>${key}: ${attributes[key]}</td></tr>`;
-            }
+            temp += `<tr><td>${key}: ${attributes[key]}</td></tr>`;
         }
 
         return `<ul class='accordion2'>
