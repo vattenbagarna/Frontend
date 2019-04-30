@@ -88,7 +88,6 @@ map.on("moveend", () => {
     var i = 1;
 
     markers.eachLayer((marker) => {
-        //console.log(marker.attributes.Modell);
         if (marker.attributes != "Förgrening" && marker.attributes != undefined) {
             if (!numbersObj.hasOwnProperty(marker.attributes.Modell)) {
                 numbersObj[marker.attributes.Modell] = [i];
@@ -207,7 +206,8 @@ let load = (json) => {
             case "polyline":
                 newObj = new Pipe(json[i].coordinates, ["", ""], json[i].pipeType,
                     json[i].connected_with.first);
-                newObj.draw(json[i].connected_with.last, null, json[i].dimension, json[i].tilt);
+                newObj.draw(json[i].connected_with.last,
+                    null, json[i].dimension, json[i].tilt);
 
                 if (!pipes.hasOwnProperty(json[i].options.id)) {
                     let row = table.insertRow(-1);
@@ -233,14 +233,16 @@ let load = (json) => {
 
                     row.cells[5].className = "right";
                 } else {
-                    pipes[json[i].options.id].totalLength += parseInt(json[i].length.toFixed(2));
+                    pipes[json[i].options.id].totalLength += parseInt(json[i].length.toFixed(
+                        2));
                     pipes[json[i].options.id].cell.innerHTML =
                         pipes[json[i].options.id].totalLength.toFixed(2) + " m";
                 }
                 break;
             case "polygon":
                 newObj = new House(json[i].coordinates[0], ["", ""]);
-                newObj.drawFromLoad(json[i].coordinates, json[i].popup, json[i].nop,
+                newObj.drawFromLoad(
+                    json[i].coordinates, json[i].popup, json[i].nop,
                     json[i].flow, json[i].options);
                 break;
         }
@@ -301,13 +303,13 @@ export class Marker {
     constructor(latlng, attributes, icon, id = null) {
         this.attributes = attributes;
 
-        this.marker = new L.Marker(latlng, options.marker(icon))
+        this.marker = new L.Marker(latlng, {
+            draggable: false,
+            icon: icon
+        })
             .bindPopup(popup.marker(this.attributes) + popup.changeCoord(latlng));
 
         this.marker.attributes = this.attributes;
-        this.marker.disableDragging = () => { this.marker.dragging.disable(); return this.marker; };
-        this.marker.enableDragging = () => { this.marker.dragging.enable(); };
-
         // Add marker to markers layer
         markers.addLayer(this.marker).addTo(map);
 
