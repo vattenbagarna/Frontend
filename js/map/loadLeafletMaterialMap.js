@@ -101,7 +101,7 @@ map.on("moveend", () => {
             newP = document.createElement("p");
             newDiv.style.top = (pixelPosition.y + 10) + "px";
             newDiv.style.left = (pixelPosition.x + 15) + "px";
-            newDiv.setAttribute("class", "circleNumbers")
+            newDiv.setAttribute("class", "circleNumbers");
             var newContent = document.createTextNode(i);
 
             i = i + 1;
