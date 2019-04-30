@@ -6,7 +6,7 @@
 * @return Returns config variables
 */
 const configuration = (() => {
-    let apiURL = " ";
+    let apiURL = "//localhost:1337";
 
     return {
         apiURL
