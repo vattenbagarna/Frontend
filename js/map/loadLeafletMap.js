@@ -6,7 +6,7 @@ export let projectInfo;
 import { key } from "./getKey.js";
 
 // Imports object add with multible functions from add.js file that uses the leaflet library
-import { add } from "./add.js";
+import { add, markers, polylines, polygons } from "./add.js";
 
 // Imports object edit with multible functions from eidt.js file that uses the leaflet library
 import { edit } from "./edit.js";
@@ -14,16 +14,14 @@ import { edit } from "./edit.js";
 // Imports object show with multible functions from show.js file that uses the leaflet library
 import { show } from "./show.js";
 
+import { popup } from "./popup.js";
+
 // If it is 'pipe' or 'stemPipe', uses in add.pipe function
 export let pipeChoice = null;
 export let objectData;
 
 // Initialize the map with center coordinates on BAGA HQ and zoom 18.
-export const map = L.map("myMap", {
-    center: [56.208640, 15.632630],
-    editable: true,
-    zoom: 18
-});
+export let map;
 
 // Creates script link to Google Maps javascript API with our key
 // then append it to head of map.html.
@@ -549,7 +547,7 @@ export let loadMap = {
      *
      * @returns {void}
      */
-    loadData: () => {
+    loadData: (editPermission) => {
         fetch(`${configuration.apiURL}/proj/data/${loadMap.id}?token=${token}`)
             .then((response) => {
                 return response.json();
@@ -565,6 +563,22 @@ export let loadMap = {
                     });
 
                     edit.clearMapsEvents();
+                    if (editPermission == true) {
+                        markers.eachLayer((marker) => {
+                            marker.disableDragging();
+                            marker.bindPopup(popup.marker(marker.attributes));
+                            marker.off("popupopen");
+                        });
+
+                        polylines.eachLayer((polyline) => {
+                            polyline.options.interactive = false;
+                            polyline.off("click");
+                        });
+
+                        polygons.eachLayer((polygon) => {
+                            polygon.off("click");
+                        });
+                    }
                 } else {
                     if (json.info == "token failed to validate") {
                         localStorage.removeItem('token');
@@ -603,20 +617,31 @@ export let loadMap = {
 
 
 /**
- * onLoad - Initialize the map functionality with html objects
+ * onLoadWrite - Initialize the map functionality with the html objects for
+ * when a user has the write property
  *
  * @returns {void}
  */
-let onLoad = () => {
-    loadMap.loadData();
+let onLoadWrite = () => {
+    map = L.map("myMap", {
+        center: [56.208640, 15.632630],
+        editable: true,
+        zoom: 18
+    });
+    //gets project data and info
+    loadMap.loadData(false);
     loadMap.loadProjectInfo();
+    //loads all the products to the map
     loadProducts();
+    //loads the gridlayers, satellite or map
     gridlayers();
+    //loads all the custom controls
     customControl('map');
     customControl('timeline');
     customControl('control_camera');
     customControl('bar_chart');
     customControl('delete');
+    //loads search functionality
     add.search();
 
     doNothingonClick();
@@ -631,4 +656,88 @@ let onLoad = () => {
     document.getElementById('map').click();
 };
 
-onLoad();
+/**
+ * onLoadRead - Initialize the map functionality with html objects, when user
+ * has read property
+ *
+ * @returns {void}
+ */
+let onLoadRead = () => {
+    //Gets the HTML objets which needs to change
+    let sidebar = document.getElementsByClassName("sidebar");
+    let mapElem = document.getElementsByClassName("map");
+    let back = document.getElementById("readBack");
+
+    //hides the sidebar
+    sidebar[0].style.display = "none";
+    //map width to 100%
+    mapElem[0].style.width = "100%";
+    //reinitializes the map after it has gotten width = 100% to remove gray area
+    map = L.map("myMap", {
+        center: [56.208640, 15.632630],
+        editable: true,
+        zoom: 18
+    });
+
+    //loads project data and info
+    loadMap.loadData(true);
+    loadMap.loadProjectInfo;
+    //loads the gridlayers, satellite or map
+    gridlayers();
+    //loads the custom controls for read property
+    customControl('map');
+    customControl('control_camera');
+    customControl('bar_chart');
+    //loads search functionality
+    add.search();
+    doNothingonClick();
+    toggleMouseCoordOnClick();
+    getDistanceOnClick();
+
+    //create an a tag to go back to home
+    var backLink = document.createElement("a");
+
+    //sets the CSS and attributes for the a tag
+    backLink.setAttribute("class", "material-icons");
+    backLink.setAttribute("href", "/home.html");
+    backLink.innerHTML = "arrow_back";
+    back.appendChild(backLink);
+    backLink.style.position = "fixed";
+    backLink.style.bottom = "35px";
+    backLink.style.zIndex = "9999";
+    backLink.style.fontSize = "60px";
+    backLink.style.textDecoration = "none";
+    backLink.style.color = "gray";
+};
+
+/**
+ * getPermission - Gets the permission of the user and loads the correct
+ * function depending on permission
+ *
+ * @returns {void}
+ */
+let getPermission = () => {
+    //gets the project ID from the url
+    let projectId = new URL(window.location.href).searchParams.get("id");
+    //gets token from localStorage
+    let token = localStorage.getItem("token");
+
+    //fetches the users permission from database to decide which load to use
+    fetch(configuration.apiURL + "/proj/permission/" + projectId + "?token=" + token, {
+        method: "GET",
+    })
+        .then(response => response.json())
+        .then(function(response) {
+            console.log(response);
+            //if user has permission w(write) load onLoadWrite()
+            if (response.permission == "r") {
+                onLoadRead();
+            //if user has permission r(read) load onLoadRead()
+            } else {
+                onLoadWrite();
+            }
+        })
+        .catch(error => console.error('Error:', error));
+};
+
+getPermission();
