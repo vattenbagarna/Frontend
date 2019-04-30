@@ -1,9 +1,9 @@
 .map {
     width: 100%;
-    height: 90vh;
+    height: 66vh;
 }
 
-table {
+.materiallist {
     border-spacing: 0;
     border: none;
     width: 100%;
@@ -12,18 +12,100 @@ table {
     margin-bottom: 50vh;
 }
 
-th {
+.materiallist th {
     background-color: #3867d6;
     color: white;
 }
 
-th, td {
+.materiallist th, .materiallist td {
     border-bottom: 1px solid #ddd;
     text-align: left;
     padding: 0.8rem 0;
     width: 15vw;
 }
 
+ul.accordion2 {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+ul.accordion2 label+input[type='radio'] {
+    display: none;
+}
+
+ul.accordion2 li {
+    border-bottom: 1px solid #DDDDDD;
+}
+
+ul.accordion2 label {
+    background: #1280c4;
+    color: #fff;
+    display: block;
+    padding: 10px;
+}
+
+ul.accordion2 label:hover {
+    cursor: pointer;
+}
+
+ul.accordion2 div.content {
+    overflow: hidden;
+    display: none;
+}
+
+ul.accordion2 label+input[type='radio']:checked+div.content {
+    display: block;
+}
+
+ul.accordion2 table {
+    border-spacing: 0;
+    border: none;
+    width: 100%;
+    border: 1px solid #ddd;
+    background-color: white;
+    table-layout: fixed;
+}
+
+ul.accordion2 th {
+    background-color: #3867d6;
+    color: white;
+}
+
+ul.accordion2 th, td {
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+    padding: 0.8rem 0;
+    width: 15vw;
+}
+
+ul.accordion2 img {
+    max-width: 15vw;
+}
+
 tr:nth-child(even) {
     background-color: #f2f2f2
+}
+
+.right {
+    text-align: right;
+    width: 100%;
+}
+
+.circleNumbers {
+    position: absolute;
+    z-index: 9999;
+    width: 20px;
+    height: 20px;
+    background-color: black;
+    border-radius: 50%;
+}
+
+.circleNumbers p {
+    font-family: 'Fira Sans', sans-serif;
+    font-weight: bold;
+    font-size: 17px;
+    color: white;
+    text-align: center;
+    margin: 0 auto;
 }

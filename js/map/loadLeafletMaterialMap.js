@@ -4,10 +4,13 @@ let polylines = L.layerGroup();
 let markers = L.layerGroup();
 let polygons = L.layerGroup();
 let newDiv;
+let newP;
 let boundsArray = [];
+let numbersObj = {};
 let token = localStorage.getItem('token');
-// Imports Google maps javascript api key from getKey.js file
+let table = document.getElementById('myMaterialTable');
 
+// Imports Google maps javascript api key from getKey.js file
 import { key } from "./getKey.js";
 import { options } from "./options.js";
 import { popup } from "./popup.js";
@@ -15,7 +18,6 @@ import { popup } from "./popup.js";
 
 // Initialize the map with center coordinates on BAGA HQ and zoom 18.
 export const map = L.map("myMaterialMap", {
-    "center": [56.208640, 15.632630],
     "editable": true,
     "zoomControl": false,
     "doubleClickZoom": false,
@@ -82,29 +84,39 @@ let getBounds = () => {
     map.fitBounds(bounds);
 };
 
-map.on("zoomend", () => {
+map.on("moveend", () => {
     var i = 1;
 
     markers.eachLayer((marker) => {
-        var pixelPosition = map.latLngToLayerPoint(marker._latlng);
-        //console.log(pixelPosition);
+        //console.log(marker.attributes.Modell);
+        if (marker.attributes != "Förgrening" && marker.attributes != undefined) {
+            if (!numbersObj.hasOwnProperty(marker.attributes.Modell)) {
+                numbersObj[marker.attributes.Modell] = [i];
+            } else {
+                numbersObj[marker.attributes.Modell].push(i);
+            }
+            var pixelPosition = map.latLngToLayerPoint(marker._latlng);
+            //console.log(pixelPosition);
 
-        newDiv = document.createElement("div" + i);
-        newDiv.style.top = (pixelPosition.y + 10) + "px";
-        newDiv.style.left = (pixelPosition.x + 15) + "px";
-        newDiv.style.position = "absolute";
-        newDiv.style.zIndex = 100000;
-        var newContent = document.createTextNode(i);
+            newDiv = document.createElement("div");
+            newP = document.createElement("p");
+            newDiv.style.top = (pixelPosition.y + 10) + "px";
+            newDiv.style.left = (pixelPosition.x + 15) + "px";
+            newDiv.setAttribute("class", "circleNumbers");
+            var newContent = document.createTextNode(i);
 
-        i = i + 1;
-        newDiv.appendChild(newContent);
+            i = i + 1;
+            newP.appendChild(newContent);
+            newDiv.appendChild(newP);
 
-        var currentDiv = document.getElementById("mapDiv");
+            var currentDiv = document.getElementById("mapDiv");
 
-        document.body.insertBefore(newDiv, currentDiv);
+            document.body.insertBefore(newDiv, currentDiv);
+            document.getElementById(marker.attributes.Modell).innerHTML =
+                `Nummer på kartan: ${numbersObj[marker.attributes.Modell].join(', ')}`;
+        }
     });
 });
-
 
 let id = new URL(window.location.href).searchParams.get('id');
 
@@ -138,18 +150,15 @@ let load = (json) => {
     let icon;
     let newObj;
 
-    let table = document.getElementById('myMaterialTable');
-    let row = table.insertRow(-1);
 
     let objects = {};
     let pipes = {};
 
-    map.setView(json[0].center, json[0].zoom);
+    //map.setView(json[0].center, json[0].zoom);
 
     //Loop through json data.
     for (let i = 1; i < json.length; i++) {
-        let objectName = "";
-        let pipeName = "";
+        let row;
 
         switch (json[i].type) {
             //if marker add it to the map with its options
@@ -160,27 +169,38 @@ let load = (json) => {
 
                 row = table.insertRow(-1);
 
-                if (!objects.hasOwnProperty(objectName)) {
-                    objects[objectName] = { antal: 1, cell: undefined };
-                    row.insertCell(0).innerHTML =
-                        `${json[i].attributes.Modell}`;
-                    row.insertCell(1).innerHTML +=
-                        `Antal: ${objects[objectName].antal}`;
-                    if (json[i].attributes.RSK != undefined) {
-                        row.insertCell(2).innerHTML +=
-                            `RSK: ${json[i].attributes.RSK}`;
-                    } else {
-                        row.insertCell(2).innerHTML +=
-                            `Artikel nummer: ${json[i].attributes.ArtikelNr}`;
-                    }
-                    row.insertCell(3).innerHTML +=
-                        `<img src="${json[i].attributes.Bild}"/>`;
+                if (json[i].attributes != undefined) {
+                    if (!objects.hasOwnProperty(json[i].attributes.Modell)) {
+                        row.insertCell(0).innerHTML =
+                            `${json[i].attributes.Modell}`;
 
-                    row.insertCell(4).innerHTML = "Kostnad <input class='costInput' value='?'/>";
-                    row.insertCell(4).className = "right";
-                } else {
-                    objects[objectName].antal += 1;
-                    objects[objectName].cell.innerHTML = "antal " + objects[objectName].antal;
+                        row.insertCell(1).innerHTML +=
+                            `Antal: 1`;
+
+                        row.insertCell(2).innerHTML +=
+                            `Kategori: ${json[i].attributes.Kategori}`;
+
+                        if (json[i].attributes.RSK != undefined) {
+                            row.insertCell(3).innerHTML +=
+                                `RSK: ${json[i].attributes.RSK}`;
+                        } else {
+                            row.insertCell(3).innerHTML +=
+                                `Artikel nummer: ${json[i].attributes.ArtikelNr}`;
+                        }
+
+                        row.insertCell(4).innerHTML = "test";
+                        row.cells[4].id = json[i].attributes.Modell;
+
+                        row.insertCell(5).innerHTML =
+                            `Kostnad <input type="number" class='number-input' value=''/>`;
+                        row.cells[5].className = "right";
+
+                        objects[json[i].attributes.Modell] = { antal: 1, cell: row.cells[1] };
+                    } else {
+                        objects[json[i].attributes.Modell].antal += 1;
+                        objects[json[i].attributes.Modell].cell.innerHTML =
+                            `Antal: ${objects[json[i].attributes.Modell].antal}`;
+                    }
                 }
                 break;
                 //if polyline
@@ -189,27 +209,33 @@ let load = (json) => {
                     json[i].connected_with.first);
                 newObj.draw(json[i].connected_with.last, null, json[i].dimension, json[i].tilt);
 
-                if (!pipes.hasOwnProperty(pipeName)) {
-                    row = table.insertRow(-1);
+                if (!pipes.hasOwnProperty(json[i].options.id)) {
+                    let row = table.insertRow(-1);
 
-
-                    row.insertCell(0).innerHTML = json[i].options.id;
+                    if (json[i].options.id == 'pipe') {
+                        row.insertCell(0).innerHTML = 'Rör';
+                    } else {
+                        row.insertCell(0).innerHTML = "Stam rör";
+                    }
                     let newCell = row.insertCell(1);
 
                     newCell.innerHTML = json[i].length.toFixed(2) + " m";
-                    row.insertCell(2).innerHTML = "lutning: " + json[i].tilt;
-                    row.insertCell(3).innerHTML = "dimension: " + json[i].dimension;
+                    row.insertCell(2).innerHTML = "dimension: " + json[i].dimension;
+                    row.insertCell(3).innerHTML = "";
+                    row.insertCell(4).innerHTML = "";
 
-                    pipes[pipeName] = {
+                    pipes[json[i].options.id] = {
                         "totalLength": parseInt(json[i].length.toFixed(2)),
                         "cell": newCell
                     };
-                    row.insertCell(4).innerHTML = "Kostnad <input class='costInput' value='1'/>";
+                    row.insertCell(5).innerHTML =
+                        `Kostnad <input type="number" class='number-input' value=''/>`;
 
-                    row.insertCell(5).className = "right";
+                    row.cells[5].className = "right";
                 } else {
-                    pipes[pipeName].totalLength += parseInt(json[i].length.toFixed(2));
-                    pipes[pipeName].cell.innerHTML = pipes[pipeName].totalLength.toFixed(2) + " m";
+                    pipes[json[i].options.id].totalLength += parseInt(json[i].length.toFixed(2));
+                    pipes[json[i].options.id].cell.innerHTML =
+                        pipes[json[i].options.id].totalLength.toFixed(2) + " m";
                 }
                 break;
             case "polygon":
@@ -222,33 +248,36 @@ let load = (json) => {
 
 
     //Create Summary
-    //let totalCost = calculateCost();
-    let totalCost = 0;
+    let row = table.insertRow(-1);
 
-    row = table.insertRow(-1);
     row.insertCell(0).innerHTML = "Totala kostnaden: ";
-    let cost = row.insertCell(1);
+    row.insertCell(1).innerHTML = "";
+    row.insertCell(2).innerHTML = "";
+    row.insertCell(3).innerHTML = "";
+    row.insertCell(4).innerHTML = "";
+    let cost = row.insertCell(5);
 
-    cost.setAttribute('id', 'displayCost');
-    cost.innerHTML = totalCost + " kr";
-    console.log(cost);
+    cost.id = 'displayCost';
+    cost.innerHTML = "";
+    cost.className = "right";
 
-    row.insertCell(2).innerHTML = "<button id='UpdateCostButton'>Update</button>";
+    let inputs = document.getElementsByClassName('number-input');
+
+    for (let i = 0; i < inputs.length; i++) {
+        inputs[i].addEventListener("input", () => {
+            let costInput = document.getElementsByClassName("number-input");
+            let totalCost = 0;
+
+            for (let i = 0; i < costInput.length; i++) {
+                if (costInput[i].value.length > 0) { totalCost += parseInt(costInput[i].value); }
+            }
+            document.getElementById("displayCost").innerHTML = totalCost + " kr";
+        });
+    }
 
     gridlayers();
     getBounds();
 };
-
-/*document.getElementById("UpdateCostButton").addEventListener("click", () => {
-    let costInput = document.getElementsByClassName("costInput");
-    let totalCost = 0;
-
-    for (let i = 0; i < costInput.length; i++) {
-        totalCost += parseInt(costInput[i].value);
-    }
-    console.log("Total cost: " + totalCost);
-    document.getElementById("displayCost").innerHTML = totalCost + " kr";
-});*/
 
 
 /**
