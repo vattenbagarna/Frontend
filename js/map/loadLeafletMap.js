@@ -498,7 +498,7 @@ let loadProducts = () => {
                             object.innerHTML =
                                 `<div class="obj-container">
 							<div id="${json[i].Modell}" class="obj ${json[i].Kategori}">
-								<img src="img/${json[i].Modell}.png"/>
+								<img src="${json[i].Bild}"/>
 							</div>
 							<div class="obj-desc">${json[i].Modell}</div>
 						 </div>`;
@@ -513,7 +513,7 @@ let loadProducts = () => {
                             object.innerHTML =
                                 `<div class="obj-container">
 							<div id="${json[i].Modell}" class="obj ${json[i].Kategori}">
-						   		<img src="img/${json[i].Modell}.png"/>
+						   		<img src="${json[i].Bild}"/>
 					   		</div>
 					   		<div class="obj-desc">${json[i].Modell}</div>
 						 </div>`;
