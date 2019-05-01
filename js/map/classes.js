@@ -9,7 +9,7 @@ import { polylines, markers, polygons, add, getLength, clearHouse } from "./add.
 
 import { edit } from "./edit.js";
 
-import { show } from "./show.js";
+import { show, mouseCoord } from "./show.js";
 
 export let guideline = null;
 
@@ -330,8 +330,36 @@ export class Pipe {
     createPolyline() {
         if (this.type == 0) {
             this.polyline = new L.polyline(this.latlngs, options.pipe);
+            this.polyline.decorator = L.polylineDecorator(this.polyline, {
+                patterns: [{
+                    offset: '28%',
+                    repeat: '25%',
+                    symbol: L.Symbol.arrowHead({
+                        pixelSize: 15,
+                        polygon: false,
+                        pathOptions: {
+                            stroke: true,
+                            color: '#004377'
+                        }
+                    })
+                }]
+            }).addTo(map);
         } else if (this.type == 1) {
             this.polyline = new L.polyline(this.latlngs, options.stemPipe);
+            this.polyline.decorator = L.polylineDecorator(this.polyline, {
+                patterns: [{
+                    offset: '28%',
+                    repeat: '25%',
+                    symbol: L.Symbol.arrowHead({
+                        pixelSize: 15,
+                        polygon: false,
+                        pathOptions: {
+                            stroke: true,
+                            color: '#004377'
+                        }
+                    })
+                }]
+            }).addTo(map);
         }
 
 
@@ -348,6 +376,9 @@ export class Pipe {
         this.polyline.on('click', add.pipe);
         this.polyline.on('popupopen', this.updateValues);
         this.polyline.editingDrag.removeHooks();
+        if (mouseCoord != null) {
+            map.on('mousemove', show.mouseCoordOnMap);
+        }
     }
 
     /**
