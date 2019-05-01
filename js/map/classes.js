@@ -9,7 +9,7 @@ import { polylines, markers, polygons, add, getLength, clearHouse } from "./add.
 
 import { edit } from "./edit.js";
 
-import { show } from "./show.js";
+import { show, mouseCoord } from "./show.js";
 
 export let guideline = null;
 
@@ -376,6 +376,9 @@ export class Pipe {
         this.polyline.on('click', add.pipe);
         this.polyline.on('popupopen', this.updateValues);
         this.polyline.editingDrag.removeHooks();
+        if (mouseCoord != null) {
+            map.on('mousemove', show.mouseCoordOnMap);
+        }
     }
 
     /**

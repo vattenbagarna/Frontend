@@ -7,6 +7,8 @@ import { map, token, projectInfo } from "./loadLeafletMap.js";
 
 import { add, polylines, markers, polygons, getLength } from "./add.js";
 
+import { show, mouseCoord } from "./show.js";
+
 import { popup } from "./popup.js";
 
 import { Marker, House, Pipe } from "./classes.js";
@@ -73,10 +75,6 @@ export const edit = {
      */
     clearMapsEvents: () => {
         //Gets each polylines and removes the "editing hooks".
-        polylines.eachLayer((polyline) => {
-            polyline.closePopup();
-            polyline.editingDrag.removeHooks();
-        });
 
         //Turn off click events for markers and polylines.
         map.off("click", add.marker);
@@ -88,8 +86,10 @@ export const edit = {
             //for each element in polylines
 
             polylines.eachLayer((polyline) => {
+                polyline.editingDrag.removeHooks();
                 polyline.decorator.addTo(map);
                 polyline.decorator.setPaths(polyline._latlngs);
+
                 //if amount of points has changed
                 if (polyline._latlngs.length != tempPolylineArray[i++]) {
                     //Calculates new length of pipe
@@ -99,12 +99,15 @@ export const edit = {
                 }
             });
             isEdit = null;
+            if (mouseCoord != null) {
+                map.on('mousemove', show.mouseCoordOnMap);
+            }
         }
 
         //Closes popups and turns off click events for remove and addPipe.
         map.closePopup();
         map.eachLayer((layer) => {
-            if (layer._popup != undefined) {layer._popup.options.autoPan = true;}
+            if (layer._popup != undefined) { layer._popup.options.autoPan = true; }
 
             layer.off("click", edit.remove);
             layer.off("click", add.pipe);

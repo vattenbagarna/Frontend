@@ -258,7 +258,7 @@ let addPipeOnClick = () => {
         // and all polygons but not the map itself
         map.eachLayer((layer) => {
             // On click, call addPipe function from add.js file
-            if (layer._popup != undefined) {layer._popup.options.autoPan = false;}
+            if (layer._popup != undefined) { layer._popup.options.autoPan = false; }
 
             layer.on("click", add.pipe);
         });
@@ -271,7 +271,7 @@ let addPipeOnClick = () => {
         // On each layer of the map => this means all markers, all polylines
         // and all polygons but not the map itself
         map.eachLayer((layer) => {
-            if (layer._popup != undefined) {layer._popup.options.autoPan = false;}
+            if (layer._popup != undefined) { layer._popup.options.autoPan = false; }
             // On click on add call addPipe function
             layer.on("click", add.pipe);
         });
@@ -385,7 +385,7 @@ let deleteOnClick = () => {
         // On each layer of the map => this means all markers, all polylines
         // and all polygons but not the map itself
         map.eachLayer((layer) => {
-            if (layer._popup != undefined) {layer._popup.options.autoPan = false;}
+            if (layer._popup != undefined) { layer._popup.options.autoPan = false; }
             // On click on add call remove function
             layer.on("click", edit.remove);
         });
@@ -732,7 +732,6 @@ let getPermission = () => {
     })
         .then(response => response.json())
         .then(function(response) {
-            console.log(response);
             //if user has permission w(write) load onLoadWrite()
             if (response.permission == "r") {
                 onLoadRead();
