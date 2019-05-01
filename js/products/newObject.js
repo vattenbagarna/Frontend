@@ -1,6 +1,6 @@
 /*global configuration, Chart */
 let token = localStorage.getItem('token');
-let base64Image;
+let base64Image = undefined;
 let myLineChart;
 
 /**
