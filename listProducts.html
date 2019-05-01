@@ -11,26 +11,35 @@
 	</head>
 	<body>
 		<div class="topnav">
-            <div class="links">
-                <a href="home.html">Hem</a>
-                <a href="calculations.html">Beräkningar</a>
-                <a class="active" href="listProducts.html">Produkter</a>
-                <a class="right" id="logout" href="#logout">Logga ut</a>
-            </div>
-            <div class="greet-user">
-                <span id="userName"></span>
-            </div>
-        </div>
+			<div class="links">
+				<a href="home.html">Hem</a>
+				<a href="calculations.html">Beräkningar</a>
+				<a class="active" href="listProducts.html">Produkter</a>
+				<a class="right" id="logout" href="#logout">Logga ut</a>
+			</div>
+			<div class="greet-user">
+				<span id="userName"></span>
+			</div>
+		</div>
 		<div class="wrap">
 			<h1 class="title">Egenskapade produkter</h1>
-			<div class="productList"></div>
-			<br>
-		</br>
-		<div class="button-wrap">
-			<a href="newObject.html" class="button">Ny produkt</a>
+			<div id="activeProducts" class="productList">
+				<p>
+					Aktiva
+				</p>
+			</div>
+			<br></br>
+			<div id="inactiveProducts" class="productList inactive">
+				<p>
+					Inaktiva
+				</p>
+			</div>
+			<br></br>
+			<div class="button-wrap">
+				<a href="newObject.html" class="button">Ny produkt</a>
+			</div>
 		</div>
-	</div>
-	<script src="js/configVariables.js" charset="utf-8"></script>
-	<script src="js/products/listProducts.js"></script>
-</body>
+		<script src="js/configVariables.js" charset="utf-8"></script>
+		<script src="js/products/listProducts.js"></script>
+	</body>
 </html>

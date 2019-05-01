@@ -316,6 +316,8 @@ let createObject = () => {
     }
 
     data.Bild = base64Image;
+    data.isDisabled = 0;
+    data.approved = 0;
 
     for (let i = 0; i < newFields.length; i++) {
         data[newFields[i].children[0].value] = newFields[i].children[1].value;

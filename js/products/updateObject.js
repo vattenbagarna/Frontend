@@ -66,6 +66,8 @@ let loadObject = () => {
                         case 'Antal pumpar':
                         case '_id':
                         case 'creatorID':
+                        case 'isDisabled':
+                        case 'approved':
                             break;
 
                         default:
@@ -296,7 +298,8 @@ let saveObject = (json) => {
             case 'Bild':
                 data[key] = base64Image;
                 break;
-
+            case 'isDisabled':
+            case 'approved':
             case 'creatorID':
                 data[key] = json[0][key];
                 break;
