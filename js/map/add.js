@@ -33,7 +33,6 @@ export const add = {
                 break;
             }
         }
-
         new Marker(event.latlng, object, add.activeIcon);
     },
 

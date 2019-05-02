@@ -16,7 +16,7 @@ import { show } from "./show.js";
 
 // If it is 'pipe' or 'stemPipe', uses in add.pipe function
 export let pipeChoice = null;
-export let objectData;
+export let objectData = [];
 
 // Initialize the map with center coordinates on BAGA HQ and zoom 18.
 export const map = L.map("myMap", {
@@ -479,7 +479,6 @@ let loadProducts = () => {
         })
         .then((json) => {
             if (!json.error) {
-                objectData = json;
                 let list = document.getElementsByClassName('obj-list')[0];
 
                 for (let i = 0; i < json.length; i++) {
@@ -498,12 +497,17 @@ let loadProducts = () => {
                             object.innerHTML =
                                 `<div class="obj-container">
 							<div id="${json[i].Modell}" class="obj ${json[i].Kategori}">
-								<img src="img/${json[i].Modell}.png"/>
+								<img src="${json[i].Bild}"/>
 							</div>
 							<div class="obj-desc">${json[i].Modell}</div>
 						 </div>`;
 
                             panel.appendChild(object);
+
+                            delete json[i].Bild;
+                            delete json[i].creatorID;
+                            delete json[i]._id;
+                            objectData.push(json[i]);
                         } else if (json[i].Kategori != "Pump") {
                             let elements = document.getElementsByClassName(json[i].Kategori);
                             let panel = elements[0].parentElement.parentElement.parentElement;
@@ -513,16 +517,20 @@ let loadProducts = () => {
                             object.innerHTML =
                                 `<div class="obj-container">
 							<div id="${json[i].Modell}" class="obj ${json[i].Kategori}">
-						   		<img src="img/${json[i].Modell}.png"/>
+						   		<img src="${json[i].Bild}"/>
 					   		</div>
 					   		<div class="obj-desc">${json[i].Modell}</div>
 						 </div>`;
 
                             panel.appendChild(object);
+
+                            delete json[i].Bild;
+                            delete json[i].creatorID;
+                            delete json[i]._id;
+                            objectData.push(json[i]);
                         }
                     }
                 }
-
                 accordions();
                 show.activeObj();
 
