@@ -257,8 +257,8 @@ export const edit = {
                     break;
                 case "polygon":
                     newObj = new House(json[i].coordinates[0], ["", ""]);
-                    newObj.drawFromLoad(json[i].coordinates, json[i].address, json[i].definition,
-                        json[i].nop, json[i].flow);
+                    newObj.drawFromLoad(json[i].coordinates, json[i].popup, json[i].nop,
+                        json[i].flow, json[i].options);
                     break;
             }
         }

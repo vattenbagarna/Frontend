@@ -27,31 +27,25 @@ export let popup = {
     </li>`;
     },
 
-    house: (address, type, nop, flow) => {
-        return `<b>${address}</b><br>
+    house: (address, type, nop, flow, color) => {
+        return `<b id="address">${address}</b><br>
 		<div class="housePopup">
-	    <select>
-	    <option value="${type}">${type}</option>
-	    <option value="Garage">Garage</option>
-	    <option value="Restaurang">Restaurang</option>
-	    <option value="Sommarstuga">Sommarstuga</option>
-	    </select>
+	    Typ: <input type="text" id="houseType" value="${type}"><br>
+		Färg: <br><input type="color" id="houseColor" value="${color}"><br>
 
-	    <form action="">
-	    Personer per hushåll: <input type="text" name="per" value="${nop}"><br>
-	    Vatten per person/dygn: <input type="text" name="cons" value="${flow}"><br>
-	    <input type="button" value="Ändra">
-	    </form>
+	    Personer per hushåll: <input type="text" id="per" value="${nop}"><br>
+	    Vatten per person/dygn: <input type="text" id="cons" value="${flow}"><br>
+	    <input type="button" class="updateValuesInHouse" value="Ändra">
 	    </div>`;
     },
 
     pipe: (dimension, tilt) => {
         return `<b>Rör</b><br>
-<label>Innerdiameter</label>
-<input type="number" id="dimension" name="dimension" placeholder="${dimension}">
-<label>Lutning</label>
-<input type="number" id="tilt" name="tilt" placeholder="${tilt}">
-<input type="button" value="Skicka">`;
+		<label>Innerdiameter</label>
+		<input type="number" id="dimension" name="dimension" value="${dimension}">
+		<label>Lutning</label>
+		<input type="number" id="tilt" name="tilt" value="${tilt}">
+		<input type="button" class="updateValuesInPipe" value="Ändra">`;
     },
 
     branch: `<b>Förgrening<br>`,

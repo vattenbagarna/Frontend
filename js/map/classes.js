@@ -1,5 +1,5 @@
 /*global L*/
-import { map } from "./loadLeafletMap.js";
+import { map, projectInfo } from "./loadLeafletMap.js";
 
 import { popup } from "./popup.js";
 
@@ -102,6 +102,7 @@ export class House {
      * @returns {void}
      */
     constructor(latlng, attributes) {
+        this.completed = false;
         this.attributes = attributes;
         this.polygon = L.polygon([latlng], options.house);
 
@@ -142,17 +143,18 @@ export class House {
      *
      * @returns {void}
      */
-    drawFromLoad(latlngs, address, definition, nop, flow) {
+    drawFromLoad(latlngs, popup, nop, flow, options) {
+        this.polygon.setStyle(options);
         this.polygon.setLatLngs(latlngs);
-        this.polygon.bindPopup(popup.house(address, definition, nop, flow));
+        this.polygon.bindPopup(popup);
         polygons.addLayer(this.polygon).addTo(map);
 
-        this.polygon.address = address;
-        this.polygon.definition = definition;
         this.polygon.nop = nop;
         this.polygon.flow = flow;
+        this.completed = true;
 
         map.off('mousemove', this.updateGuideLine);
+        this.polygon.on('popupopen', this.updateValues);
         guideline.remove();
     }
 
@@ -184,7 +186,8 @@ export class House {
         document.addEventListener("keyup", (event) => {
             // If user keyup is key 'esc'
             if (event.keyCode == 27) {
-                if (guideline != null && this.polygon != null) {
+                if (guideline != null && this.polygon != null && this.completed == false) {
+                    this.completed = true;
                     let addr;
 
                     L.esri.Geocoding.reverseGeocode()
@@ -192,19 +195,63 @@ export class House {
                         .run((error, result) => {
                             addr = result.address.Match_addr;
 
-                            this.polygon.bindPopup(popup.house(addr, "Hus", 5,
-                                "150 l/person"));
+                            this.polygon.bindPopup(popup.house(
+                                addr,
+                                "Hus",
+                                projectInfo.default.peoplePerHouse,
+                                projectInfo.default.litrePerPerson,
+                                "#3388ff",
+                            ));
+
                             this.polygon.address = addr;
                         });
 
                     this.polygon.definition = "Hus";
-                    this.polygon.nop = 5;
-                    this.polygon.flow = "150 l/person";
+                    this.polygon.nop = projectInfo.default.personPerHouse;
+                    this.polygon.flow = projectInfo.default.litrePerHouse;
+                    this.polygon.on('popupopen', this.updateValues);
                     map.off('mousemove', this.updateGuideLine);
                     guideline.remove();
                     clearHouse();
                 }
             }
+        }), { once: true };
+    }
+
+    /**
+     * updateValues - Updates house values from user input and updates popup content with
+     * 			 	- the new values
+     *
+     * @param {object} event
+     *
+     * @returns {void}
+     */
+    updateValues(event) {
+        // Get button after popup is open
+        let buttons = document.getElementsByClassName('updateValuesInHouse');
+        //console.log(buttons);
+
+        // Add event listener on click on button
+        buttons[buttons.length - 1].addEventListener('click', () => {
+            // Get new values after click
+            let addr = document.getElementById('address').innerHTML;
+            let type = document.getElementById('houseType').value;
+            let newColor = document.getElementById('houseColor').value;
+            let nop = document.getElementById('per').value;
+            let flow = document.getElementById('cons').value;
+
+            // Close active popup
+            event.target.closePopup();
+
+            event.target.setStyle({
+                color: newColor,
+                fillColor: newColor,
+                fillOpacity: 0.5,
+                weight: 1.5
+            });
+
+            // Update popup content with new values
+            event.target.setPopupContent(popup.house(addr, type, nop, flow, newColor));
         }), { once: true };
     }
 }
@@ -299,6 +346,37 @@ export class Pipe {
         this.polyline.dimension = this.dimension;
         this.polyline.tilt = this.tilt;
         this.polyline.on('click', add.pipe);
+        this.polyline.on('popupopen', this.updateValues);
         this.polyline.editingDrag.removeHooks();
+    }
+
+    /**
+     * updateValues - Updates pipe values from user input and updates popup content with
+     * 			 	- the new values
+     *
+     * @param {object} event
+     *
+     * @returns {void}
+     */
+    updateValues(event) {
+        // Get button after popup is open
+        let buttons = document.getElementsByClassName('updateValuesInPipe');
+        //console.log(buttons);
+
+        // Add event listener on click on button
+        buttons[buttons.length - 1].addEventListener('click', () => {
+            // Get new values after click
+            let dim = document.getElementById('dimension').value;
+            let tilt = document.getElementById('tilt').value;
+
+            event.target.dimension = dim;
+            event.target.tilt = tilt;
+
+            // Close active popup
+            event.target.closePopup();
+
+            // Update popup content with new values
+            event.target.setPopupContent(popup.pipe(dim, tilt));
+        }), { once: true };
     }
 }
