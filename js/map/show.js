@@ -1,5 +1,5 @@
 /* global L */
-let mouseCoord = null;
+export let mouseCoord = null;
 
 // Imports the map object.
 import { map } from "./loadLeafletMap.js";
