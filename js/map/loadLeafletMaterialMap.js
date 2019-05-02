@@ -68,14 +68,19 @@ let gridlayers = () => {
 let getBounds = () => {
     markers.eachLayer((marker) => {
         boundsArray.push(marker._latlng);
+        marker.off("click");
+        marker.options.interactive = false;
     });
 
     polylines.eachLayer((polyline) => {
         boundsArray.push(polyline._latlngs);
+        polyline.options.interactive = false;
+        polyline.off("click");
     });
 
     polygons.eachLayer((polygon) => {
         boundsArray.push(polygon._latlngs);
+        polygon.off("click");
     });
 
     var bounds = new L.LatLngBounds(boundsArray);
