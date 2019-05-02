@@ -12,7 +12,6 @@ fetch(`${configuration.apiURL}/obj/created?token=${token}`)
             let inactiveProducts = document.getElementById('inactiveProducts');
 
             if (json.length > 0) {
-                console.log(json);
                 for (let i = 0; i < json.length; i++) {
                     if (json[i].isDisabled == 0) {
                         activeProducts.innerHTML +=
