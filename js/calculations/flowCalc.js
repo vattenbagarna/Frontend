@@ -342,8 +342,11 @@ function recommendPump(pumps, dimension) {
     let inputHeight = parseFloat(document.getElementById("height").value);
     let select = document.getElementById("pumps");
     let margin = 0.5;
+    let found = false;
 
+    console.log(pumps);
     for (let i = 0; i < pumps.length; i++) {
+        console.log(i);
         for (let k = 0; k < pumps[i].Pumpkurva.length; k++) {
             if (pumps[i].Pumpkurva[k].y == inputHeight) {
                 let mps = calcVelocity(pumps[i].Pumpkurva[k].x, dimension);
@@ -355,12 +358,15 @@ function recommendPump(pumps, dimension) {
                     select.add(option);
                     break;
                 }
+                found = true;
+                console.log("Found");
             }
         }
+        if (!found) {
+            console.log("test");
+            estPumpValue(inputHeight, pumps[i].Pumpkurva);
+        }
     }
-
-    //document.getElementById("pumpLabel").innerText = "Pumpförslag";
-    //document.getElementById("pumps").style.display = "block";
 }
 
 /**
@@ -530,16 +536,43 @@ function totalPressure(lostPress, height) {
 function estPumpValue(yValue, pumpCurve) {
     let min1 = 100;
     let min2 = 100;
+    let both = false;
 
     for (let i = 0; i < pumpCurve.length; i++) {
         let temp = Math.abs(yValue - pumpCurve[i].Pumpkurva.y);
 
         if (temp < min1) {
-            min1 = temp;
+            y1 = pumpCurve[i].Pumpkurva.y;
+            x1 = pumpCurve[i].Pumpkurva.x;
         } else if (temp < min2) {
-            min2 = temp;
+            y2 = pumpCurve[i].Pumpkurva.y;
+            x2 = pumpCurve[i].Pumpkurva.x;
+        }
+        console.log(i);
+        if (i == pumpCurve.length && !both) {
+            i = 0;
+            both = true;
         }
     }
+
+    if (min1 > min2) {
+        let temp = x2;
+
+        x2 = x1;
+        x1 = temp;
+        temp = y2;
+        y2 = y1;
+        y1 = temp;
+    }
+
+    deltaX = x2 - x1;
+    deltaY = y2 - y1;
+
+    let k = deltaX/deltaY;
+
+    console.log("K: " + k);
+
+    let minus = Math.abs(yValue);
 }
 
 /**
