@@ -57,6 +57,22 @@ body {
 }
 
 /*
+    General link style
+*/
+.small-link {
+    color: #1280c4;
+    text-decoration: none;
+    border-bottom: 1px solid #1280c4;
+}
+
+/*
+    General link hover style
+*/
+.small-link:hover {
+    border-bottom: 1px solid #1280c4;
+}
+
+/*
     General larger button style
 */
 .button {

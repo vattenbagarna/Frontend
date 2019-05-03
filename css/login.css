@@ -12,6 +12,15 @@
     border-radius: 8px;
     color: #fff;
     background: #c0392b;
+    cursor: pointer;
+}
+
+.ok-msg {
+    padding: 1rem;
+    border-radius: 8px;
+    color: #fff;
+    background: #27ae60;
+    cursor: pointer;
 }
 
 .login-label {
@@ -20,4 +29,8 @@
 
 .text-input {
     min-width: 350px;
+}
+
+.login-helpers {
+    margin: 1.5rem 0;
 }
