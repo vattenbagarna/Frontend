@@ -196,30 +196,6 @@ let saveBox = () => {
 };
 
 /**
- * addMarkerOnClick - Displays a marker on the map with its custom icon
- *
- * @param {array} elements All elements with the same class
- * @param {L.icon} icon    Leaflet icon @see {@link https://leafletjs.com/reference-1.4.0.html#icon}
- *
- * @returns {void}
- */
-let addMarkerOnClick = (elements, icon) => {
-    // For each element
-    for (let i = 0; i < elements.length; i++) {
-        // Add a click event listenr
-        elements[i].parentElement.addEventListener("click", () => {
-            // Set markers info and icon
-            add.activeObjName = elements[i].id;
-            add.activeIcon = icon;
-
-            // Call addMarker function in add.js
-            map.on("click", add.marker);
-            document.getElementById("myMap").style.cursor = "pointer";
-        });
-    }
-};
-
-/**
  * addHouseOnClick - On click the user draws polygons on the map and a house
  * 					 add are created
  *
@@ -393,77 +369,61 @@ let deleteOnClick = () => {
 };
 
 /**
+ * addMarkerOnClick - Displays a marker on the map with its custom icon
+ *
+ * @param {array} elements All elements with the same class
+ * @param {L.icon} icon    Leaflet icon @see {@link https://leafletjs.com/reference-1.4.0.html#icon}
+ *
+ * @returns {void}
+ */
+let addMarkerOnClick = (elements, icon) => {
+    // For each element
+    for (let i = 0; i < elements.length; i++) {
+        // Add a click event listenr
+        elements[i].parentElement.addEventListener("click", () => {
+            // Set markers info and icon
+            add.activeObjName = elements[i].id;
+            add.activeIcon = icon;
+
+            // Call addMarker function in add.js
+            map.on("click", add.marker);
+            document.getElementById("myMap").style.cursor = "pointer";
+        });
+    }
+};
+
+/**
  * loadClickEvent - Description
  *
  * @returns {type} Description
  */
 let loadClickEvent = () => {
-    addMarkerOnClick(document.getElementsByClassName('Pumpstationer'),
-        L.icon({
-            iconAnchor: [19.5, 19.5],
-            iconSize: [39, 39],
-            iconUrl: `img/pump.png`,
-            popupAnchor: [0, -19.5]
-        }));
+    fetch(`${configuration.apiURL}/obj/categories/icon/all?token=${token}`)
+        .then((response) => {
+            return response.json();
+        })
+        .then((json) => {
+            if (!json.error) {
+                for (let i = 0; i < json.length; i++) {
+                    let image = new Image();
 
-    addMarkerOnClick(document.getElementsByClassName("Fettavskiljare"),
-        L.icon({
-            iconAnchor: [19.5, 19.5],
-            iconSize: [39, 39],
-            iconUrl: `img/symbol_fettavskiljare.png`,
-            popupAnchor: [0, -19.5]
-        }));
+                    image.src = json[i].Bild;
 
-    addMarkerOnClick(document.getElementsByClassName("Oljeavskiljare"),
-        L.icon({
-            iconAnchor: [19.5, 19.5],
-            iconSize: [39, 39],
-            iconUrl: `img/symbol_oljeavskiljare.png`,
-            popupAnchor: [0, -19.5]
-        }));
+                    let iconSize = calculateAspectRatioFit(image.naturalWidth,
+                        image.naturalHeight, 75, 40);
 
-
-
-    addMarkerOnClick(document.getElementsByClassName("Slamavskiljare"),
-        L.icon({
-            iconAnchor: [19.5, 19.5],
-            iconSize: [39, 39],
-            iconUrl: `img/symbol_slamavskiljare.png`,
-            popupAnchor: [0, -19.5]
-        }));
-
-    addMarkerOnClick(document.getElementsByClassName("BioTank"),
-        L.icon({
-            iconAnchor: [36.5, 19.5],
-            iconSize: [73, 39],
-            iconUrl: `img/symbol_utjämningsbrunn.png`,
-            popupAnchor: [0, -19.5]
-        }));
-
-    addMarkerOnClick(document.getElementsByClassName("Källsorterat avlopp"),
-        L.icon({
-            iconAnchor: [36.5, 19.5],
-            iconSize: [73, 39],
-            iconUrl: `img/symbol_elementbrunn.png`,
-            popupAnchor: [0, -19.5]
-        }));
-
-
-    addMarkerOnClick(document.getElementsByClassName("Kompaktbädd"),
-        L.icon({
-            iconAnchor: [36.5, 19.5],
-            iconSize: [73, 39],
-            iconUrl: `img/symbol_utjämningsbrunn.png`,
-            popupAnchor: [0, -19.5]
-        }));
-
-    addMarkerOnClick(document.getElementsByClassName("endpoint"),
-        L.icon({
-            iconAnchor: [19.5, 19.5],
-            iconSize: [39, 39],
-            iconUrl: `img/endpointmarker.png`,
-            popupAnchor: [0, -19.5]
-        }));
+                    addMarkerOnClick(document.getElementsByClassName(json[i].Kategori),
+                        L.icon({
+                            iconAnchor: [iconSize.width / 2, iconSize.height / 2],
+                            iconSize: [iconSize.width, iconSize.height],
+                            iconUrl: json[i].Bild,
+                            popupAnchor: [0, -(iconSize.height / 2)]
+                        }));
+                }
+            } else {
+                console.log(json);
+            }
+        });
 };
 
 
@@ -744,3 +704,19 @@ let getPermission = () => {
 };
 
 getPermission();
+
+/**
+ * Conserve aspect ratio of the original region. Useful when shrinking/enlarging
+ * images to fit into a certain area.
+ *
+ * @param {Number} srcWidth width of source image
+ * @param {Number} srcHeight height of source image
+ * @param {Number} maxWidth maximum available width
+ * @param {Number} maxHeight maximum available height
+ * @return {Object} { width, height }
+ */
+function calculateAspectRatioFit(srcWidth, srcHeight, maxWidth, maxHeight) {
+    var ratio = Math.min(maxWidth / srcWidth, maxHeight / srcHeight);
+
+    return { width: srcWidth * ratio, height: srcHeight * ratio };
+}
