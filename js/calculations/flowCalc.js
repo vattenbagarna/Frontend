@@ -17,15 +17,13 @@ function showStyling() {
 }
 
 /**
-    * hideStyling - Hides the input boxes
+    * hideStyling - Uncheck the radio buttons
     *
     * @returns {void}
     */
 function hideStyling() {
     document.getElementById("pressure1").checked = false;
     document.getElementById("pressure2").checked = false;
-    // document.getElementById("pumpLabel").innerText = "";
-    // document.getElementById("pumps").style.display = "none";
 }
 hideStyling();
 
@@ -275,6 +273,7 @@ function calcAll() {
     let mu = 0.015;
 
     selectedDim = changeDim(selectedDim);
+    //wantedFlow = checkUnit(selectedUnit, wantedFlow);
 
     switch (selectedUnit) {
         case "lps":
@@ -292,14 +291,21 @@ function calcAll() {
 
     let lostPress = calcPressure(wantedFlow, selectedDim, mu, length);
 
+
+
     lostPress *= 9.81;
+    console.log("lostPress: ", lostPress);
     let roundPress = lostPress.toFixed(2);
+
     //let rFlow = calcQPump(selectedDim, mu, length, height);
     //let roundFlow = rFlow.toFixed(2);
+
+    console.log("lps: ", wantedFlow);
     let velocity = calcVelocity(wantedFlow, selectedDim);
     let roundVel = velocity.toFixed(2);
     let totalPress = totalPressure(lostPress, height);
     let roundTotal = totalPress.toFixed(2);
+
 
     document.getElementById("flowSpeed").innerText = roundVel;
     document.getElementById("staticPressure").innerText = height;
@@ -308,7 +314,7 @@ function calcAll() {
     //document.getElementById("capacity").innerText = roundFlow;
 
     resetPumps();
-    getPumps(selectedDim);
+    getPumps(wantedFlow, height, selectedDim);
 }
 
 /**
@@ -318,16 +324,31 @@ function calcAll() {
     *
     * @returns {void}
     */
-function getPumps(selectedDim) {
+function getPumps(wantedFlow, height, selectedDim) {
     fetch(configuration.apiURL + "/obj/type/Pump?token=" + localStorage.getItem("token"), {
         method: 'GET'
     })
         .then(function (response) {
             return response.json();
         }).then(function(json) {
-            recommendPump(json, selectedDim);
+            recommendPump(json, wantedFlow, height, selectedDim);
         });
 }
+
+// function checkUnit(selectedUnit, wantedFlow) {
+//     switch (selectedUnit) {
+//         case "lpm":
+//             wantedFlow *= 60;
+//             break;
+//         case "m3ph":
+//             wantedFlow /= 3.6;
+//             break;
+//         default:
+//             break;
+//     }
+//
+//     return wantedFlow;
+// }
 
 /**
     * recommendPump - Recommends pumps according to calculations
@@ -337,34 +358,41 @@ function getPumps(selectedDim) {
     *
     * @returns {void}
     */
-function recommendPump(pumps, dimension) {
-    let wantedFlow = parseFloat(document.getElementById("flow").value);
-    let inputHeight = parseFloat(document.getElementById("height").value);
+function recommendPump(pumps, wantedFlow, height, dimension) {
+    let selectedUnit = document.getElementById("selectUnit").value;
     let select = document.getElementById("pumps");
     let margin = 0.5;
     let found = false;
+    let mps = 0;
+    let option = "";
+    let xValue = 0;
 
-    console.log(pumps);
     for (let i = 0; i < pumps.length; i++) {
-        console.log(i);
         for (let k = 0; k < pumps[i].Pumpkurva.length; k++) {
-            if (pumps[i].Pumpkurva[k].y == inputHeight) {
-                let mps = calcVelocity(pumps[i].Pumpkurva[k].x, dimension);
-
+            if (pumps[i].Pumpkurva[k].y == height) {
+                mps = calcVelocity(pumps[i].Pumpkurva[k].x, dimension);
+                //mps = checkUnit(selectedUnit, mps);
                 if (mps >= wantedFlow - margin && mps <= wantedFlow + margin) {
-                    let option = document.createElement("option");
+                    option = document.createElement("option");
 
                     option.text = pumps[i].Modell;
                     select.add(option);
                     break;
                 }
                 found = true;
-                console.log("Found");
             }
         }
         if (!found) {
-            console.log("test");
-            estPumpValue(inputHeight, pumps[i].Pumpkurva);
+            xValue = estPumpValue(height, pumps[i].Pumpkurva);
+            mps = calcVelocity(xValue, dimension);
+
+            // if (mps >= wantedFlow - margin && mps <= wantedFlow + margin) {
+            //     option = document.createElement("option");
+            //
+            //     option.text = pumps[i].Modell;
+            //     select.add(option);
+            //     break;
+            // }
         }
     }
 }
@@ -437,6 +465,61 @@ function changeDim(chosen) {
 /************************ Math functions ************************************/
 
 /**
+  * estPumpValue - Estimates the amount of fluid capacity a given pump can
+  * give within a previosly unknown interval.
+  *
+  * @param {number} Y value
+  * @param {number} The pumpcurve to calculate on
+  *
+  * @returns {number} X value
+  */
+function estPumpValue(yValue, pumpCurve) {
+    let min1 = 100;
+    let min2 = 100;
+    let both = false;
+    let y1 = 0;
+    let y2 = 0;
+    let x1 = 0;
+    let x2 = 0;
+
+    for (let i = 0; i < pumpCurve.length; i++) {
+        let temp = Math.abs(yValue - pumpCurve[i].y);
+
+        if (temp < min1) {
+            min1 = temp;
+            y1 = pumpCurve[i].y;
+            x1 = pumpCurve[i].x;
+        } else if (temp < min2) {
+            min2 = temp;
+            y2 = pumpCurve[i].y;
+            x2 = pumpCurve[i].x;
+        }
+        if (i == pumpCurve.length && !both) {
+            i = 0;
+            both = true;
+        }
+    }
+    if (min1 > min2) {
+        let temp = x2;
+
+        x2 = x1;
+        x1 = temp;
+        temp = y2;
+        y2 = y1;
+        y1 = temp;
+    }
+
+    let deltaX = x2 - x1;
+    let deltaY = y2 - y1;
+
+    let k = deltaX / deltaY;
+
+    let plus = Math.abs((y1 - yValue) * k);
+
+    return x1 + plus;
+}
+
+/**
   * calcPressure - Calculates lost pressure
   *
   * @param {number} Flowcapacity
@@ -448,20 +531,17 @@ function changeDim(chosen) {
   *
   */
 function calcPressure(q, di, mu, l) {
-    let inDi = di; // mm
-    let pLength = l; // m
-    let inMu = mu; // mm
     let rho = 1000; // kg/m3
     let viscosity = 1e-6; // m2/s
 
-    let top = 2 * pLength * rho * q * q;
-    let bot = (Math.PI * Math.PI * Math.pow(inDi / 1000, 5));
+    let top = 2 * l * rho * q * q;
+    let bot = (Math.PI * Math.PI * Math.pow(di / 1000, 5));
     let a =  top/bot;
 
-    let b = inMu / (3.7 * inDi);
+    let b = mu / (3.7 * di);
 
     top = 2.51 * viscosity;
-    bot = (Math.sqrt(2 / (pLength * rho)) * Math.pow(inDi / 1000, 1.5));
+    bot = (Math.sqrt(2 / (l * rho)) * Math.pow(di / 1000, 1.5));
     let c = top/bot;
 
     let oldP = 100000;
@@ -469,6 +549,7 @@ function calcPressure(q, di, mu, l) {
     let error;
 
     for (let i = 0; i < 20; i++) {
+        console.log("oldP: ", oldP);
         newP = a / square(log10(b + c * Math.pow(oldP, -0.5)));
         error = newP / oldP - 1;
         oldP = newP;
@@ -492,23 +573,23 @@ function calcPressure(q, di, mu, l) {
   * @return {number} Capacity
   *
   */
-function calcQPump(di, mu, l, height) {
-    let dim = di / 1000;
-    let inMu = mu; // mm
-    let length = l; // m
-    let viscosity = 1e-6; // m2/s
-    let rho = 1000; // kg/m3
-
-    let deltap = (0.0981 * (height) * rho / 1000) * 100000;
-
-    let top = -Math.PI / 2 * Math.pow(dim, 2.5);
-    let top2 = Math.sqrt(2 * deltap / (length * rho));
-    let inside = inMu / 1000 / (3.7 * dim);
-    let rightInside = (Math.pow(dim, 1.5) * Math.sqrt(2 * deltap / (length * rho)));
-    let avgQ = top * top2 * log10(inside + 2.51 * viscosity/ rightInside);
-
-    return avgQ*1000;
-}
+// function calcQPump(di, mu, l, height) {
+//     let dim = di / 1000;
+//     let mu = mu; // mm
+//     let length = l; // m
+//     let viscosity = 1e-6; // m2/s
+//     let rho = 1000; // kg/m3
+//
+//     let deltap = (0.0981 * (height) * rho / 1000) * 100000;
+//
+//     let top = -Math.PI / 2 * Math.pow(dim, 2.5);
+//     let top2 = Math.sqrt(2 * deltap / (length * rho));
+//     let inside = mu / 1000 / (3.7 * dim);
+//     let rightInside = (Math.pow(dim, 1.5) * Math.sqrt(2 * deltap / (length * rho)));
+//     let avgQ = top * top2 * log10(inside + 2.51 * viscosity/ rightInside);
+//
+//     return avgQ*1000;
+// }
 
 /**
     * totalPressure - Calculates total pressure
@@ -522,57 +603,6 @@ function totalPressure(lostPress, height) {
     let total = lostPress + height;
 
     return total;
-}
-
-/**
-  * estPumpValue - Estimates the amount of fluid capacity a given pump can
-  * give within a previosly unknown interval.
-  *
-  * @param {number} Y value
-  * @param {number} The pumpcurve to calculate on
-  *
-  * @returns {number} X value
-  */
-function estPumpValue(yValue, pumpCurve) {
-    let min1 = 100;
-    let min2 = 100;
-    let both = false;
-
-    for (let i = 0; i < pumpCurve.length; i++) {
-        let temp = Math.abs(yValue - pumpCurve[i].Pumpkurva.y);
-
-        if (temp < min1) {
-            y1 = pumpCurve[i].Pumpkurva.y;
-            x1 = pumpCurve[i].Pumpkurva.x;
-        } else if (temp < min2) {
-            y2 = pumpCurve[i].Pumpkurva.y;
-            x2 = pumpCurve[i].Pumpkurva.x;
-        }
-        console.log(i);
-        if (i == pumpCurve.length && !both) {
-            i = 0;
-            both = true;
-        }
-    }
-
-    if (min1 > min2) {
-        let temp = x2;
-
-        x2 = x1;
-        x1 = temp;
-        temp = y2;
-        y2 = y1;
-        y1 = temp;
-    }
-
-    deltaX = x2 - x1;
-    deltaY = y2 - y1;
-
-    let k = deltaX/deltaY;
-
-    console.log("K: " + k);
-
-    let minus = Math.abs(yValue);
 }
 
 /**
