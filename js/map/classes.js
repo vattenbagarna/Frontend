@@ -143,14 +143,16 @@ export class House {
      *
      * @returns {void}
      */
-    drawFromLoad(latlngs, popup, nop, flow, options) {
+    drawFromLoad(latlngs, values, options) {
         this.polygon.setStyle(options);
         this.polygon.setLatLngs(latlngs);
-        this.polygon.bindPopup(popup);
+        this.polygon.bindPopup(popup.house(values[0], values[1], values[2], values[3], values[4]));
         polygons.addLayer(this.polygon).addTo(map);
 
-        this.polygon.nop = nop;
-        this.polygon.flow = flow;
+        this.polygon.address = values[0];
+        this.polygon.definition = values[1];
+        this.polygon.nop = values[2];
+        this.polygon.flow = values[3];
         this.completed = true;
 
         map.off('mousemove', this.updateGuideLine);
@@ -207,8 +209,8 @@ export class House {
                         });
 
                     this.polygon.definition = "Hus";
-                    this.polygon.nop = projectInfo.default.personPerHouse;
-                    this.polygon.flow = projectInfo.default.litrePerHouse;
+                    this.polygon.nop = projectInfo.default.peoplePerHouse;
+                    this.polygon.flow = projectInfo.default.litrePerPerson;
                     this.polygon.on('popupopen', this.updateValues);
                     map.off('mousemove', this.updateGuideLine);
                     guideline.remove();
@@ -249,6 +251,10 @@ export class House {
                 fillOpacity: 0.5,
                 weight: 1.5
             });
+
+            event.target.nop = nop;
+            event.target.flow = flow;
+            event.target.definition = type;
 
             // Update popup content with new values
             event.target.setPopupContent(popup.house(addr, type, nop, flow, newColor));

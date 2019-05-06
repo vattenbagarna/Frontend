@@ -136,10 +136,12 @@ let newPump = (pumps) => {
     div.id = "newPump";
 
     div.innerHTML =
-        `<label>Pump</label>
-		<select id="pumpSelect"><option disabled selected></option></select>
-		<label>Antal pumpar</label>
-		<input id="nrOfPumps" type="text">`;
+        `<br><label>Pump</label>
+		<select class="select-input" id="pumpSelect">
+            <option disabled selected></option>
+        </select>
+		<label>Antal pumpar</label><br>
+		<input class="number-input" id="nrOfPumps" type="number">`;
 
     document.getElementById('Modell').after(div);
     let select = document.getElementById('pumpSelect');
@@ -347,6 +349,8 @@ let createObject = () => {
     }
 
     data.Bild = base64Image;
+    data.isDisabled = 0;
+    data.approved = 0;
 
     for (let i = 0; i < newFields.length; i++) {
         data[newFields[i].children[0].value] = newFields[i].children[1].value;

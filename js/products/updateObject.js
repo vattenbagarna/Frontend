@@ -66,6 +66,8 @@ let loadObject = () => {
                         case 'Antal pumpar':
                         case '_id':
                         case 'creatorID':
+                        case 'isDisabled':
+                        case 'approved':
                             break;
 
                         default:
@@ -167,10 +169,12 @@ let pumpChoice = (currentPump, nr, pumps) => {
     div.id = "newPump";
 
     div.innerHTML =
-        `<label>Pump</label>
-		<select id="pumpSelect"><option selected>${currentPump}</option></select>
-		<label>Antal pumpar</label>
-		<input id="nrOfPumps" type="text" value="${nr}">`;
+        `<br><label>Pump</label><br>
+		<select class="select-input" id="pumpSelect">
+            <option selected>${currentPump}</option>
+        </select><br>
+		<label>Antal pumpar</label><br>
+		<input class="number-input" id="nrOfPumps" type="number" value="${nr}">`;
 
     document.getElementById('Kategori').after(div);
     let select = document.getElementById('pumpSelect');
@@ -296,7 +300,8 @@ let saveObject = (json) => {
             case 'Bild':
                 data[key] = base64Image;
                 break;
-
+            case 'isDisabled':
+            case 'approved':
             case 'creatorID':
                 data[key] = json[0][key];
                 break;

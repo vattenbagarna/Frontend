@@ -157,17 +157,16 @@ let addBranchConnection = (event, target) => {
 
     firstLatlngs.push(event.latlng);
     target.setLatLngs(firstLatlngs);
+    target.decorator.setPaths(firstLatlngs);
 
     secondLatlngs.unshift(event.latlng);
 
-    let url = 'https://cdn4.iconfinder.com/data/icons/bathroom-accessory-outline/32/14-512.png';
-
     // Creates the marker for branch connector.
     let branchMarker = new Marker(event.latlng, ["Förgrening"], L.icon({
-        iconAnchor: [19.5, 19.5],
-        iconSize: [39, 39],
-        iconUrl: url,
-        popupAnchor: [0, -19.5]
+        iconAnchor: [10, 10],
+        iconSize: [20, 20],
+        iconUrl: '../img/symbol_grenanslutning.png',
+        popupAnchor: [0, -10]
     }));
 
     newLine = {

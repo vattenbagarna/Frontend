@@ -154,7 +154,6 @@ export const edit = {
                 type: "polyline",
                 connected_with: polyline.connected_with,
                 options: polyline.options,
-                popup: polyline.getPopup().getContent(),
                 getLength: polyline.getLength,
                 tilt: polyline.tilt,
                 dimension: polyline.dimension,
@@ -171,7 +170,6 @@ export const edit = {
                 type: "marker",
                 options: marker.options,
                 id: marker.id,
-                popup: marker.getPopup().getContent(),
                 attributes: marker.attributes,
             };
 
@@ -183,11 +181,10 @@ export const edit = {
                 coordinates: polygon._latlngs,
                 type: "polygon",
                 options: polygon.options,
-                popup: polygon.getPopup().getContent(),
                 definition: polygon.definition,
                 address: polygon.address,
                 nop: polygon.nop,
-                flow: polygon.flow
+                flow: polygon.flow,
             };
 
             json.push(temp);
@@ -245,6 +242,7 @@ export const edit = {
     load: (json) => {
         let icon;
         let newObj;
+        let popup;
 
         map.setView(json[0].center, json[0].zoom);
 
@@ -265,8 +263,15 @@ export const edit = {
                     break;
                 case "polygon":
                     newObj = new House(json[i].coordinates[0], ["", ""]);
-                    newObj.drawFromLoad(json[i].coordinates, json[i].popup, json[i].nop,
-                        json[i].flow, json[i].options);
+                    popup = [
+                        json[i].address,
+                        json[i].definition,
+                        json[i].nop,
+                        json[i].flow,
+                        json[i].options.color
+                    ];
+
+                    newObj.drawFromLoad(json[i].coordinates, popup, json[i].options);
                     break;
             }
         }

@@ -1,6 +1,10 @@
 /* global L configuration */
 export let token = localStorage.getItem('token');
+let id = new URL(window.location.href).searchParams.get('id');
+
 export let projectInfo;
+export let pipeChoice = null;
+export let objectData = [];
 
 // Imports Google maps javascript api key from getKey.js file
 import { key } from "./getKey.js";
@@ -15,10 +19,6 @@ import { edit } from "./edit.js";
 import { show } from "./show.js";
 
 import { popup } from "./popup.js";
-
-// If it is 'pipe' or 'stemPipe', uses in add.pipe function
-export let pipeChoice = null;
-export let objectData;
 
 // Initialize the map with center coordinates on BAGA HQ and zoom 18.
 export let map;
@@ -426,85 +426,87 @@ let loadClickEvent = () => {
         });
 };
 
+export let loadMap = {
+    /**
+     * loadProducts - Loads all products from database and each category creates a new accordion
+     *
+     * @returns {void}
+     */
+    loadProducts: () => {
+        fetch(
+            `${configuration.apiURL}/obj/all/local/${id}?token=${token}`
+        )
+            .then((response) => {
+                return response.json();
+            })
+            .then((json) => {
+                if (!json.error) {
+                    objectData = json;
+                    let list = document.getElementsByClassName('obj-list')[0];
 
-/**
- * loadProducts - Loads all products from database and with each category creates a new accordion
- *
- * @returns {void}
- */
-let loadProducts = () => {
-    fetch(
-        `${configuration.apiURL}/obj/all?token=${token}`
-    )
-        .then((response) => {
-            return response.json();
-        })
-        .then((json) => {
-            if (!json.error) {
-                objectData = json;
-                let list = document.getElementsByClassName('obj-list')[0];
+                    for (let i = 0; i < json.length; i++) {
+                        if (json[i].Kategori != undefined) {
+                            if (document.getElementsByClassName(json[i].Kategori).length == 0 &&
+                                json[i].Kategori != "Pump") {
+                                list.innerHTML +=
+                                    `<button class="accordion desc">${json[i].Kategori}</button>
+							 <div class="panel"></div>`;
 
-                for (let i = 0; i < json.length; i++) {
-                    if (json[i].Kategori != undefined) {
-                        if (document.getElementsByClassName(json[i].Kategori).length == 0 &&
-                            json[i].Kategori != "Pump") {
-                            list.innerHTML +=
-                                `<button class="accordion desc">${json[i].Kategori}</button>
-						 <div class="panel"></div>`;
+                                let panels = document.getElementsByClassName('panel');
+                                let panel = panels[panels.length - 1];
 
-                            let panels = document.getElementsByClassName('panel');
-                            let panel = panels[panels.length - 1];
+                                let object = document.createElement('div');
 
-                            let object = document.createElement('div');
+                                object.innerHTML =
+                                    `<div class="obj-container">
+								<div id="${json[i].Modell}" class="obj ${json[i].Kategori}">
+									<img src="${json[i].Bild}"/>
+								</div>
+								<div class="obj-desc">${json[i].Modell}</div>
+							 </div>`;
 
-                            object.innerHTML =
-                                `<div class="obj-container">
-							<div id="${json[i].Modell}" class="obj ${json[i].Kategori}">
-								<img src="${json[i].Bild}"/>
-							</div>
-							<div class="obj-desc">${json[i].Modell}</div>
-						 </div>`;
+                                panel.appendChild(object);
 
-                            panel.appendChild(object);
-                        } else if (json[i].Kategori != "Pump") {
-                            let elements = document.getElementsByClassName(json[i].Kategori);
-                            let panel = elements[0].parentElement.parentElement.parentElement;
+                                delete json[i].Bild;
+                                delete json[i].creatorID;
+                                delete json[i]._id;
+                                objectData.push(json[i]);
+                            } else if (json[i].Kategori != "Pump") {
+                                let elements = document.getElementsByClassName(json[i].Kategori);
+                                let panel = elements[0].parentElement.parentElement.parentElement;
 
-                            let object = document.createElement('div');
+                                let object = document.createElement('div');
 
-                            object.innerHTML =
-                                `<div class="obj-container">
-							<div id="${json[i].Modell}" class="obj ${json[i].Kategori}">
-						   		<img src="${json[i].Bild}"/>
-					   		</div>
-					   		<div class="obj-desc">${json[i].Modell}</div>
-						 </div>`;
+                                object.innerHTML =
+                                    `<div class="obj-container">
+								<div id="${json[i].Modell}" class="obj ${json[i].Kategori}">
+							   		<img src="${json[i].Bild}"/>
+						   		</div>
+						   		<div class="obj-desc">${json[i].Modell}</div>
+							 </div>`;
 
-                            panel.appendChild(object);
+                                panel.appendChild(object);
+                            }
                         }
                     }
-                }
 
-                accordions();
-                show.activeObj();
+                    accordions();
+                    show.activeObj();
 
-                loadClickEvent();
-                addPipeOnClick();
-                addHouseOnClick();
-            } else {
-                if (json.info == "token failed to validate") {
-                    localStorage.removeItem('token');
-                    document.location.href = "index.html";
+                    loadClickEvent();
+                    addPipeOnClick();
+                    addHouseOnClick();
                 } else {
-                    console.log(json);
+                    if (json.info == "token failed to validate") {
+                        localStorage.removeItem('token');
+                        document.location.href = "index.html";
+                    } else {
+                        console.log(json);
+                    }
                 }
-            }
-        })
-        .catch(error => console.log(error));
-};
-
-export let loadMap = {
-    id: new URL(window.location.href).searchParams.get('id'),
+            })
+            .catch(error => console.log(error));
+    },
 
     /**
      * loadData - Get project map json data and calls load function in edit.js
@@ -512,7 +514,7 @@ export let loadMap = {
      * @returns {void}
      */
     loadData: (editPermission) => {
-        fetch(`${configuration.apiURL}/proj/data/${loadMap.id}?token=${token}`)
+        fetch(`${configuration.apiURL}/proj/data/${id}?token=${token}`)
             .then((response) => {
                 return response.json();
             })
@@ -560,7 +562,7 @@ export let loadMap = {
      * @returns {void}
      */
     loadProjectInfo: () => {
-        fetch(`${configuration.apiURL}/proj/info/${loadMap.id}?token=${token}`)
+        fetch(`${configuration.apiURL}/proj/info/${id}?token=${token}`)
             .then((response) => {
                 return response.json();
             })
@@ -596,7 +598,7 @@ let onLoadWrite = () => {
     loadMap.loadData(false);
     loadMap.loadProjectInfo();
     //loads all the products to the map
-    loadProducts();
+    loadMap.loadProducts();
     //loads the gridlayers, satellite or map
     gridlayers();
     //loads all the custom controls
@@ -647,7 +649,7 @@ let onLoadRead = () => {
     loadMap.loadData(true);
     loadMap.loadProjectInfo;
     //loads the gridlayers, satellite or map
-    gridlayers();
+    loadMap.loadProducts();
     //loads the custom controls for read property
     customControl('map');
     customControl('control_camera');
