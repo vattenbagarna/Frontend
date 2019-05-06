@@ -131,10 +131,12 @@ let newPump = (pumps) => {
     div.id = "newPump";
 
     div.innerHTML =
-        `<label>Pump</label>
-		<select id="pumpSelect"><option disabled selected></option></select>
-		<label>Antal pumpar</label>
-		<input id="nrOfPumps" type="text">`;
+        `<br><label>Pump</label>
+		<select class="select-input" id="pumpSelect">
+            <option disabled selected></option>
+        </select>
+		<label>Antal pumpar</label><br>
+		<input class="number-input" id="nrOfPumps" type="number">`;
 
     document.getElementById('Modell').after(div);
     let select = document.getElementById('pumpSelect');
