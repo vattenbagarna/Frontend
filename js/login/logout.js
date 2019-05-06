@@ -12,6 +12,9 @@ let logout = () => {
     });
 };
 
+/**
+* setUsername - Sets the username for logged in user in the navbar
+*/
 let setUsername = () => {
     let userName = document.getElementById('userName');
 
