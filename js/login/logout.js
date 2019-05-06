@@ -12,6 +12,14 @@ let logout = () => {
     });
 };
 
+let setUsername = () => {
+    let userName = document.getElementById('userName');
+
+    userName.innerHTML = localStorage.getItem("username");
+    userName.style = "display: flex; align-items:center;";
+};
+
 addEventListener("DOMContentLoaded", () => {
+    setUsername();
     logout();
 });
