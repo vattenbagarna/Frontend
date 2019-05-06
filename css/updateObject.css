@@ -37,3 +37,10 @@
 .newField {
     margin-top: 1rem;
 }
+
+.select-input {
+    width: 53%;
+}
+.number-input {
+    width: 50%;
+}
