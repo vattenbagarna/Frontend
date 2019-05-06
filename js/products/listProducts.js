@@ -23,7 +23,7 @@ fetch(`${configuration.apiURL}/obj/created?token=${token}`)
 				<i class="material-icons">settings</i>
 			</a>
 <a class="tablepart tablelink"
-onclick="disable('${configuration.apiURL}/obj/disable/${json[i]._id}?token=${token}', 1);">
+onclick="disable('${json[i]._id}', 1);">
 				<i class="material-icons">clear</i>
 			</a>
 			</div>`;
@@ -37,12 +37,12 @@ onclick="disable('${configuration.apiURL}/obj/disable/${json[i]._id}?token=${tok
 				<i class="material-icons">settings</i>
 			</a>
 <a class="tablepart tablelink"
-onclick="disable('${configuration.apiURL}/obj/disable/${json[i]._id}?token=${token}', 0);">
+onclick="disable('${json[i]._id}', 0);">
 				<i class="material-icons">done</i>
 			</a>
 
 			<a class="tablepart tablelink"
-onclick="remove('${configuration.apiURL}/obj/delete/${json[i]._id}/?token=${token}');">
+onclick="remove('${json[i]._id}');">
 				<i class="material-icons">delete</i>
 			</a>
 			</div>`;
@@ -71,14 +71,14 @@ onclick="remove('${configuration.apiURL}/obj/delete/${json[i]._id}/?token=${toke
 /**
  * disable - disable the selected product by calling backend API
  *
- * @param {url} url The url to the API call
+ * @param {string} id the id of the product to be disabled
  * @param {int} value this is the value for isDisabled (0=active, 1=inactive)
  *
  */
-let disable = (url, value) => {
+let disable = (id, value) => {
     let data = `isDisabled=${value}`;
 
-    fetch(url, {
+    fetch(configuration.apiURL + "/obj/disable/" + id + "?token=" + token, {
         method: "POST",
         body: data,
         headers: {
@@ -98,11 +98,11 @@ let disable = (url, value) => {
 /**
  * remove - Removes the selected product by calling backend API
  *
- * @param {type} url The url to the API call
+ * @param {type} id The id of the item to delete
  *
  */
-let remove = (url) => {
-    fetch(url)
+let remove = (id) => {
+    fetch(configuration.apiURL + "/obj/delete/"  + id + "?token=" + token)
         .then((response) => {
             return response.json();
         })
