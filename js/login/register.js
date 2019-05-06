@@ -58,11 +58,15 @@ const sendErrorResponse = (errorToDisplay, type="error-msg") => {
 const sendResetRequest = () => {
     if (!validateFieldList(inputElements)) {
         sendErrorResponse("Vänligen fyll i samtliga fält.");
+        pass.value = "";
+        confirm.value = "";
         return false;
     }
 
     if (!checkPasswordsMatch(pass, confirm)) {
         sendErrorResponse("Lösenorden matchar inte, de måste vara samma.");
+        pass.value = "";
+        confirm.value = "";
         return false;
     }
 
@@ -79,11 +83,16 @@ const sendResetRequest = () => {
         if (res.error != undefined && res.error == false) {
             //All is good and we got a good response. Notify the user.
             sendErrorResponse("Ditt lösenord har uppdaterats!", "ok-msg");
+            for (var i = 0; i < inputElements.length; i++) {
+                inputElements[i].value = "";
+            }
             return true;
         }
         //Something with the request went wrong
         sendErrorResponse("Uppdatering av lösenord misslyckades! " +
         "Kontrollera att din kod är korrekt och att du är ansluten till internet.");
+        pass.value = "";
+        confirm.value = "";
         return false;
     });
 };
