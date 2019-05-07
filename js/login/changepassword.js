@@ -54,10 +54,20 @@ const preChangePasswordCheck = () => {
 
 
 /**
+* clearForm - Clears the form Elements
+*/
+// const clearForm = () => {
+//     username.value = "";
+//     oldpass.value = "";
+//     newpass.value = "";
+//     confirm.value = "";
+// };
+
+/**
 * changePassword - Sends a request to the server to change the users password.
 * @return {bool} success / failure
 */
-const changePassword = () => {
+const changePassword = async () => {
     let data = new URLSearchParams(new FormData(formElement));
 
     errorHolder.innerHTML = "";
@@ -89,7 +99,7 @@ const changePassword = () => {
             return true;
         }
         //Something with the request went wrong
-        sendErrorResponse("Ett fel uppstod, kontrollera att du har anget rätt lösenord");
+        sendErrorResponse("Ett fel uppstod, kontrollera att du angev rätt lösenord");
         return false;
     });
 };
@@ -99,4 +109,10 @@ preChangePasswordCheck();
 
 sendButton.addEventListener("click", () => {
     changePassword();
+});
+
+confirm.addEventListener("keyup", (key) => {
+    if (key.keyCode == 13) {
+        changePassword();
+    }
 });
