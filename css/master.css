@@ -73,6 +73,25 @@ body {
 }
 
 /*
+    Popup boxes colors
+*/
+.error-msg {
+    padding: 1rem;
+    border-radius: 8px;
+    color: #fff;
+    background: #c0392b;
+    cursor: pointer;
+}
+
+.ok-msg {
+    padding: 1rem;
+    border-radius: 8px;
+    color: #fff;
+    background: #27ae60;
+    cursor: pointer;
+}
+
+/*
     General larger button style
 */
 .button {
@@ -80,7 +99,6 @@ body {
     padding: 1rem 1.5rem;
     border: 2px solid #1280c4;
     border-radius: 5px;
-    /* box-shadow: 1px 1px 3px rgba(102, 102, 102, 0.6); */
     font-size: 1.1rem;
     color: #fff;
     background: #1280c4;
@@ -93,6 +111,21 @@ body {
     color: #1280c4;
     border: 2px solid #1280c4;
     cursor: pointer;
+}
+
+/*
+    Disabled/Inactive button style
+*/
+
+.disabled {
+    padding: 1rem 1.5rem;
+    border: 2px solid #666;
+    border-radius: 5px;
+    font-size: 1.1rem;
+    color: #fff;
+    background: #666;
+    text-decoration: none;
+    transition: 0.3s;
 }
 
 /*
