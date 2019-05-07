@@ -6,13 +6,15 @@ L.LineUtil.PolylineDecorator = {
 
     getPointPathPixelLength: function(pts) {
         var nbPts = pts.length;
-        if(nbPts < 2) {
+
+        if (nbPts < 2) {
             return 0;
         }
         var dist = 0,
             prevPt = pts[0],
             pt;
-        for(var i=1; i<nbPts; i++) {
+
+        for (var i=1; i<nbPts; i++) {
             dist += prevPt.distanceTo(pt = pts[i]);
             prevPt = pt;
         }
@@ -22,12 +24,14 @@ L.LineUtil.PolylineDecorator = {
     getPixelLength: function(pl, map) {
         var ll = (pl instanceof L.Polyline) ? pl.getLatLngs() : pl,
             nbPts = ll.length;
-        if(nbPts < 2) {
+
+        if (nbPts < 2) {
             return 0;
         }
         var dist = 0,
             prevPt = map.project(ll[0]), pt;
-        for(var i=1; i<nbPts; i++) {
+
+        for (var i=1; i<nbPts; i++) {
             dist += prevPt.distanceTo(pt = map.project(ll[i]));
             prevPt = pt;
         }
@@ -44,13 +48,14 @@ L.LineUtil.PolylineDecorator = {
     projectPatternOnPath: function (path, offsetRatio, endOffsetRatio, repeatRatio, map) {
         var pathAsPoints = [], i;
 
-        for(i=0, l=path.length; i<l; i++) {
+        for (i=0, l=path.length; i<l; i++) {
             pathAsPoints[i] = map.project(path[i]);
         }
         // project the pattern as pixel points
         var pattern = this.projectPatternOnPointPath(pathAsPoints, offsetRatio, endOffsetRatio, repeatRatio);
         // and convert it to latlngs;
-        for(i=0, l=pattern.length; i<l; i++) {
+
+        for (i=0, l=pattern.length; i<l; i++) {
             pattern[i].latLng = map.unproject(pattern[i].pt);
         }
         return pattern;
@@ -65,9 +70,10 @@ L.LineUtil.PolylineDecorator = {
         var endOffsetPixels = endOffsetRatio > 0 ? this.getPointPathPixelLength(pts) * endOffsetRatio : 0;
 
         positions.push(previous);
-        if(repeatRatio > 0) {
+        if (repeatRatio > 0) {
             // 3. consider only the rest of the path, starting at the previous point
             var remainingPath = pts;
+
             remainingPath = remainingPath.slice(previous.predecessor);
 
             remainingPath[0] = previous.pt;
@@ -76,7 +82,7 @@ L.LineUtil.PolylineDecorator = {
             // 4. project as a ratio of the remaining length,
             // and repeat while there is room for another point of the pattern
 
-            while(repeatIntervalLength <= remainingLength-endOffsetPixels) {
+            while (repeatIntervalLength <= remainingLength-endOffsetPixels) {
                 previous = this.interpolateOnPointPath(remainingPath, repeatIntervalLength/remainingLength);
                 positions.push(previous);
                 remainingPath = remainingPath.slice(previous.predecessor);
@@ -133,6 +139,7 @@ L.LineUtil.PolylineDecorator = {
         // follow the path segments until we find the one
         // on which the point must lie => [ab]
         var i = 1;
+
         for (; i < nbVertices && ratioB < ratio; i++) {
             a = b;
             ratioA = ratioB;
@@ -156,7 +163,7 @@ L.LineUtil.PolylineDecorator = {
     * at the given ratio of the distance from A to B, by linear interpolation.
     */
     interpolateBetweenPoints: function (ptA, ptB, ratio) {
-        if(ptB.x != ptA.x) {
+        if (ptB.x != ptA.x) {
             return new L.Point(
                 (ptA.x * (1 - ratio)) + (ratio * ptB.x),
                 (ptA.y * (1 - ratio)) + (ratio * ptB.y)
@@ -188,11 +195,12 @@ L.PolylineDecorator = L.FeatureGroup.extend({
     _initPaths: function(p) {
         this._paths = [];
         var isPolygon = false;
-        if(p instanceof L.Polyline) {
+
+        if (p instanceof L.Polyline) {
             this._initPath(p.getLatLngs(), (p instanceof L.Polygon));
-        } else if(L.Util.isArray(p) && p.length > 0) {
-            if(p[0] instanceof L.Polyline) {
-                for(var i=0; i<p.length; i++) {
+        } else if (L.Util.isArray(p) && p.length > 0) {
+            if (p[0] instanceof L.Polyline) {
+                for (var i=0; i<p.length; i++) {
                     this._initPath(p[i].getLatLngs(), (p[i] instanceof L.Polygon));
                 }
             } else {
@@ -202,7 +210,7 @@ L.PolylineDecorator = L.FeatureGroup.extend({
     },
 
     _isCoordArray: function(ll) {
-        return(L.Util.isArray(ll) && ll.length > 0 && (
+        return (L.Util.isArray(ll) && ll.length > 0 && (
             ll[0] instanceof L.LatLng ||
             (L.Util.isArray(ll[0]) && ll[0].length == 2 && typeof ll[0][0] === 'number')
         ));
@@ -212,15 +220,16 @@ L.PolylineDecorator = L.FeatureGroup.extend({
         var latLngs;
         // It may still be an array of array of coordinates
         // (ex: polygon with rings)
-        if(this._isCoordArray(path)) {
+
+        if (this._isCoordArray(path)) {
             latLngs = [path];
         } else {
             latLngs = path;
         }
-        for(var i=0; i<latLngs.length; i++) {
+        for (var i=0; i<latLngs.length; i++) {
             // As of Leaflet >= v0.6, last polygon vertex (=first) isn't repeated.
             // Our algorithm needs it, so we add it back explicitly.
-            if(isPolygon) {
+            if (isPolygon) {
                 latLngs[i].push(latLngs[i][0]);
             }
             this._paths.push(latLngs[i]);
@@ -232,7 +241,8 @@ L.PolylineDecorator = L.FeatureGroup.extend({
         this._patterns = [];
         var pattern;
         // parse pattern definitions and precompute some values
-        for(var i=0;i<this.options.patterns.length;i++) {
+
+        for (var i=0; i<this.options.patterns.length; i++) {
             pattern = this._parsePatternDef(this.options.patterns[i]);
             this._patterns.push(pattern);
             // determines if we have to recompute the pattern on each zoom change
@@ -277,35 +287,35 @@ L.PolylineDecorator = L.FeatureGroup.extend({
 
         // Parse offset and repeat values, managing the two cases:
         // absolute (in pixels) or relative (in percentage of the polyline length)
-        if(typeof patternDef.offset === 'string' && patternDef.offset.indexOf('%') != -1) {
+        if (typeof patternDef.offset === 'string' && patternDef.offset.indexOf('%') != -1) {
             pattern.offset = parseFloat(patternDef.offset) / 100;
         } else {
             pattern.offset = patternDef.offset ? parseFloat(patternDef.offset) : 0;
             pattern.isOffsetInPixels = (pattern.offset > 0);
         }
 
-        if(typeof patternDef.endOffset === 'string' && patternDef.endOffset.indexOf('%') != -1) {
+        if (typeof patternDef.endOffset === 'string' && patternDef.endOffset.indexOf('%') != -1) {
             pattern.endOffset = parseFloat(patternDef.endOffset) / 100;
         } else {
             pattern.endOffset = patternDef.endOffset ? parseFloat(patternDef.endOffset) : 0;
             pattern.isEndOffsetInPixels = (pattern.endOffset > 0);
         }
 
-        if(typeof patternDef.repeat === 'string' && patternDef.repeat.indexOf('%') != -1) {
+        if (typeof patternDef.repeat === 'string' && patternDef.repeat.indexOf('%') != -1) {
             pattern.repeat = parseFloat(patternDef.repeat) / 100;
         } else {
             pattern.repeat = parseFloat(patternDef.repeat);
             pattern.isRepeatInPixels = (pattern.repeat > 0);
         }
 
-        return(pattern);
+        return (pattern);
     },
 
     onAdd: function (map) {
         this._map = map;
         this._draw();
         // listen to zoom changes to redraw pixel-spaced patterns
-        if(this._isZoomDependant) {
+        if (this._isZoomDependant) {
             this._map.on('zoomend', this._softRedraw, this);
         }
     },
@@ -322,7 +332,8 @@ L.PolylineDecorator = L.FeatureGroup.extend({
     */
     _buildSymbols: function(latLngs, symbolFactory, directionPoints) {
         var symbols = [];
-        for(var i=0, l=directionPoints.length; i<l; i++) {
+
+        for (var i=0, l=directionPoints.length; i<l; i++) {
             symbols.push(symbolFactory.buildSymbol(directionPoints[i], latLngs, this._map, i, l));
         }
         return symbols;
@@ -330,7 +341,8 @@ L.PolylineDecorator = L.FeatureGroup.extend({
 
     _getCache: function(pattern, zoom, pathIndex) {
         var zoomCache = pattern.cache[zoom];
-        if(typeof zoomCache === 'undefined') {
+
+        if (typeof zoomCache === 'undefined') {
             pattern.cache[zoom] = [];
             return null;
         }
@@ -345,24 +357,26 @@ L.PolylineDecorator = L.FeatureGroup.extend({
     _getDirectionPoints: function(pathIndex, pattern) {
         var zoom = this._map.getZoom();
         var dirPoints = this._getCache(pattern, zoom, pathIndex);
-        if(dirPoints) {
+
+        if (dirPoints) {
             return dirPoints;
         }
 
         var offset, endOffset, repeat, pathPixelLength = null, latLngs = this._paths[pathIndex];
-        if(pattern.isOffsetInPixels) {
+
+        if (pattern.isOffsetInPixels) {
             pathPixelLength =  L.LineUtil.PolylineDecorator.getPixelLength(latLngs, this._map);
             offset = pattern.offset/pathPixelLength;
         } else {
             offset = pattern.offset;
         }
-        if(pattern.isEndOffsetInPixels) {
+        if (pattern.isEndOffsetInPixels) {
             pathPixelLength = (pathPixelLength !== null) ? pathPixelLength : L.LineUtil.PolylineDecorator.getPixelLength(latLngs, this._map);
             endOffset = pattern.endOffset/pathPixelLength;
         } else {
             endOffset = pattern.endOffset;
         }
-        if(pattern.isRepeatInPixels) {
+        if (pattern.isRepeatInPixels) {
             pathPixelLength = (pathPixelLength !== null) ? pathPixelLength : L.LineUtil.PolylineDecorator.getPixelLength(latLngs, this._map);
             repeat = pattern.repeat/pathPixelLength;
         } else {
@@ -391,11 +405,10 @@ L.PolylineDecorator = L.FeatureGroup.extend({
     },
 
     _redraw: function(clearCache) {
-        if(this._map === null)
-            return;
+        if (this._map === null) {return;}
         this.clearLayers();
-        if(clearCache) {
-            for(var i=0; i<this._patterns.length; i++) {
+        if (clearCache) {
+            for (var i=0; i<this._patterns.length; i++) {
                 this._patterns[i].cache = [];
             }
         }
@@ -407,10 +420,11 @@ L.PolylineDecorator = L.FeatureGroup.extend({
     */
     _drawPattern: function(pattern) {
         var directionPoints, symbols;
-        for(var i=0; i < this._paths.length; i++) {
+
+        for (var i=0; i < this._paths.length; i++) {
             directionPoints = this._getDirectionPoints(i, pattern);
             symbols = this._buildSymbols(this._paths[i], pattern.symbolFactory, directionPoints);
-            for(var j=0; j < symbols.length; j++) {
+            for (var j=0; j < symbols.length; j++) {
                 this.addLayer(symbols[j]);
             }
         }
@@ -420,7 +434,7 @@ L.PolylineDecorator = L.FeatureGroup.extend({
     * Draw all patterns
     */
     _draw: function () {
-        for(var i=0; i<this._patterns.length; i++) {
+        for (var i=0; i<this._patterns.length; i++) {
             this._drawPattern(this._patterns[i]);
         }
     }
@@ -464,11 +478,12 @@ L.RotatedMarker = L.Marker.extend({
         if (L.DomUtil.TRANSFORM) {
             // use the CSS transform rule if available
             this._icon.style[L.DomUtil.TRANSFORM] += ' rotate(' + this.options.angle + 'deg)';
-        } else if(L.Browser.ie) {
+        } else if (L.Browser.ie) {
             // fallback for IE6, IE7, IE8
             var rad = this.options.angle * (Math.PI / 180),
                 costheta = Math.cos(rad),
                 sintheta = Math.sin(rad);
+
             this._icon.style.filter += ' progid:DXImageTransform.Microsoft.Matrix(sizingMethod=\'auto expand\', M11=' +
                 costheta + ', M12=' + (-sintheta) + ', M21=' + sintheta + ', M22=' + costheta + ')';
         }
@@ -512,18 +527,19 @@ L.Symbol.Dash = L.Class.extend({
             d2r = Math.PI / 180;
 
         // for a dot, nothing more to compute
-        if(opts.pixelSize <= 1) {
+        if (opts.pixelSize <= 1) {
             return new L.Polyline([dirPoint.latLng, dirPoint.latLng], opts.pathOptions);
         }
 
         var midPoint = map.project(dirPoint.latLng);
         var angle = (-(dirPoint.heading - 90)) * d2r;
         var a = new L.Point(
-                midPoint.x + opts.pixelSize * Math.cos(angle + Math.PI) / 2,
-                midPoint.y + opts.pixelSize * Math.sin(angle) / 2
-            );
+            midPoint.x + opts.pixelSize * Math.cos(angle + Math.PI) / 2,
+            midPoint.y + opts.pixelSize * Math.sin(angle) / 2
+        );
         // compute second point by central symmetry to avoid unecessary cos/sin
         var b = midPoint.add(midPoint.subtract(a));
+
         return new L.Polyline([map.unproject(a), map.unproject(b)], opts.pathOptions);
     }
 });
@@ -553,7 +569,8 @@ L.Symbol.ArrowHead = L.Class.extend({
     buildSymbol: function(dirPoint, latLngs, map, index, total) {
         var opts = this.options;
         var path;
-        if(opts.polygon) {
+
+        if (opts.polygon) {
             path = new L.Polygon(this._buildArrowPath(dirPoint, map), opts.pathOptions);
         } else {
             path = new L.Polyline(this._buildArrowPath(dirPoint, map), opts.pathOptions);
@@ -604,10 +621,9 @@ L.Symbol.Marker = L.Class.extend({
     },
 
     buildSymbol: function(directionPoint, latLngs, map, index, total) {
-        if(!this.options.rotate) {
+        if (!this.options.rotate) {
             return new L.Marker(directionPoint.latLng, this.options.markerOptions);
-        }
-        else {
+        } else {
             this.options.markerOptions.angle = directionPoint.heading + (this.options.angleCorrection || 0);
             return new L.RotatedMarker(directionPoint.latLng, this.options.markerOptions);
         }
