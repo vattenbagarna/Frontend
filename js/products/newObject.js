@@ -62,22 +62,17 @@ let loadrequiredFields = async () => {
         createObject(json);
     });
 
-    document.getElementById('Kategori').addEventListener('change', (event) => {
+    document.getElementById('Kategori').addEventListener('change', async (event) => {
         let value = event.target.value;
         let newInput = document.getElementById('newCategoryInput');
         let pumpCurve = document.getElementById('pumpCurve');
         let newPumpDiv = document.getElementById('newPump');
 
         if (value == "Pumpstationer") {
-            fetch(
-                `${configuration.apiURL}/obj/type/Pump?token=${token}`
-            )
-                .then(function(response) {
-                    return response.json();
-                })
-                .then(function(json) {
-                    newPump(json);
-                });
+            let json = await API.get(
+                `${configuration.apiURL}/obj/type/Pump?token=${token}`);
+
+            newPump(json);
         } else if (newPumpDiv) {
             newPumpDiv.parentElement.removeChild(newPumpDiv);
         }
