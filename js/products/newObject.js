@@ -1,4 +1,4 @@
-/*global configuration, Chart */
+/*global configuration, Chart, API */
 let token = localStorage.getItem('token');
 let base64Image = undefined;
 let myLineChart;
@@ -6,46 +6,38 @@ let myLineChart;
 /**
  * loadrequiredFields - Load basic required input fields for all new object.
  * 					  - Add event listener for new fields, new category and send.
- * 					  - If a error is thrown from API check if token is validated otherwise remove
  * 					  - old token and redirect to login page.
  * 					  - Other errors are put in console
  *
  * @returns {void}
  */
-let loadrequiredFields = () => {
-    fetch(
-        `${configuration.apiURL}/obj/categories?token=${token}`
-    )
-        .then(function(response) {
-            return response.json();
-        })
-        .then(function(json) {
-            if (!json.error) {
-                let main = document.getElementsByClassName('main-wrap')[0];
+let loadrequiredFields = async () => {
+    let json = await API.get(`${configuration.apiURL}/obj/categories?token=${token}`);
+    let main = document.getElementsByClassName('main-wrap')[0];
 
-                main.innerHTML +=
-                    `<label>Kategori</label><br>
+    main.innerHTML +=
+        `<label>Kategori</label><br>
 				<select class="select-input" id="Kategori">
                 <option disabled selected></option></select><br>`;
 
-                let select = document.getElementById("Kategori");
+    let select = document.getElementById("Kategori");
 
-                for (let i = 0; i < json.length; i++) {
-                    let option = document.createElement('option');
+    for (let i = 0; i < json.length; i++) {
+        let option = document.createElement('option');
 
-                    option.id = json[i];
-                    option.text = json[i];
-                    select.add(option);
-                }
+        option.id = json[i];
+        option.text = json[i];
+        select.add(option);
+    }
 
-                let option = document.createElement('option');
+    let option = document.createElement('option');
 
-                option.text = "Ny kategori";
-                select.add(option);
+    option.text = "Ny kategori";
+    select.add(option);
 
 
-                main.innerHTML +=
-                    `<br><label>Modell</label><br>
+    main.innerHTML +=
+        `<br><label>Modell</label><br>
 			 <input class="text-input" id="Modell" type="text"><br><br>
 			 <label>Produktbild</label><br>
 			 <img id="currentImage"/>
@@ -58,61 +50,52 @@ let loadrequiredFields = () => {
 					<a id="send" class="button">SKAPA</a>
 				</div>`;
 
-                document.getElementById('imageFile').addEventListener('change', () => {
-                    encodeImageFileAsURL(document.getElementById('imageFile'));
+    document.getElementById('imageFile').addEventListener('change', () => {
+        encodeImageFileAsURL(document.getElementById('imageFile'));
+    });
+
+    document.getElementById('newFieldButton').addEventListener('click', () => {
+        newField(main);
+    });
+
+    document.getElementById('send').addEventListener('click', () => {
+        createObject(json);
+    });
+
+    document.getElementById('Kategori').addEventListener('change', (event) => {
+        let value = event.target.value;
+        let newInput = document.getElementById('newCategoryInput');
+        let pumpCurve = document.getElementById('pumpCurve');
+        let newPumpDiv = document.getElementById('newPump');
+
+        if (value == "Pumpstationer") {
+            fetch(
+                `${configuration.apiURL}/obj/type/Pump?token=${token}`
+            )
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(json) {
+                    newPump(json);
                 });
+        } else if (newPumpDiv) {
+            newPumpDiv.parentElement.removeChild(newPumpDiv);
+        }
 
-                document.getElementById('newFieldButton').addEventListener('click', () => {
-                    newField(main);
-                });
+        if (value == "Ny kategori") {
+            newCategory(value);
+        } else if (newInput) {
+            let parent = newInput.parentElement;
 
-                document.getElementById('send').addEventListener('click', () => {
-                    createObject(json);
-                });
+            parent.parentElement.removeChild(parent);
+        }
 
-                document.getElementById('Kategori').addEventListener('change', (event) => {
-                    let value = event.target.value;
-                    let newInput = document.getElementById('newCategoryInput');
-                    let pumpCurve = document.getElementById('pumpCurve');
-                    let newPumpDiv = document.getElementById('newPump');
-
-                    if (value == "Pumpstationer") {
-                        fetch(
-                            `${configuration.apiURL}/obj/type/Pump?token=${token}`
-                        )
-                            .then(function(response) {
-                                return response.json();
-                            })
-                            .then(function(json) {
-                                newPump(json);
-                            });
-                    } else if (newPumpDiv) {
-                        newPumpDiv.parentElement.removeChild(newPumpDiv);
-                    }
-
-                    if (value == "Ny kategori") {
-                        newCategory(value);
-                    } else if (newInput) {
-                        let parent = newInput.parentElement;
-
-                        parent.parentElement.removeChild(parent);
-                    }
-
-                    if (value == "Pump") {
-                        newPumpCurve();
-                    } else if (pumpCurve) {
-                        pumpCurve.parentElement.removeChild(pumpCurve);
-                    }
-                });
-            } else {
-                if (json.info == "token failed to validate") {
-                    localStorage.removeItem('token');
-                    document.location.href = "index.html";
-                } else {
-                    console.log(json);
-                }
-            }
-        });
+        if (value == "Pump") {
+            newPumpCurve();
+        } else if (pumpCurve) {
+            pumpCurve.parentElement.removeChild(pumpCurve);
+        }
+    });
 };
 
 loadrequiredFields();
@@ -292,7 +275,7 @@ let newField = () => {
  *
  * @returns {void}
  */
-let createObject = () => {
+let createObject = async () => {
     let data = {};
     let newCategory = document.getElementById('newCategoryInput');
     let pumpCurve = document.getElementById('pumpCurve');
@@ -325,24 +308,10 @@ let createObject = () => {
         data[newFields[i].children[0].value] = newFields[i].children[1].value;
     }
 
-    let url =
-        `${configuration.apiURL}/obj/insert?token=${token}`;
+    await API.post(`${configuration.apiURL}/obj/insert?token=${token}`, 'application/json',
+        JSON.stringify(data));
 
-    fetch(url, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-    }).then(res => res.json())
-        .then((data) => {
-            if (data.error) {
-                console.log(data);
-            } else {
-                document.location.href = "listProducts.html";
-            }
-        })
-        .catch(error => console.log(error));
+    document.location.href = "listProducts.html";
 };
 
 

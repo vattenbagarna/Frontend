@@ -1,4 +1,4 @@
-/*global configuration, Chart*/
+/*global configuration, Chart, API*/
 let token = localStorage.getItem('token');
 let id = new URL(window.location.href).searchParams.get('id');
 let base64Image;
@@ -9,78 +9,66 @@ let myLineChart;
  *
  * @returns {void}
  */
-let loadObject = () => {
-    fetch(
-        `${configuration.apiURL}/obj/id/${id}?token=${token}`
-    )
-        .then((response) => {
-            return response.json();
-        })
-        .then((json) => {
-            if (!json.error) {
-                let main = document.getElementsByClassName('main-wrap')[0];
+let loadObject = async () => {
+    let json = await API.get(`${configuration.apiURL}/obj/id/${id}?token=${token}`);
+    let main = document.getElementsByClassName('main-wrap')[0];
+    let pumps;
 
-                for (let key in json[0]) {
-                    switch (key) {
-                        case 'Modell':
-                            main.innerHTML +=
-                                `<label for="${key}">${key}</label><br>
+    for (let key in json[0]) {
+        switch (key) {
+            case 'Modell':
+                main.innerHTML +=
+                    `<label for="${key}">${key}</label><br>
                         <input class="text-input" id=${key} type="text" value="${json[0][key]}">
                             <br><br>`;
-                            break;
-                        case 'Kategori':
-                            main.innerHTML +=
-                                `<label for="${key}">${key}</label><br>
+                break;
+            case 'Kategori':
+                main.innerHTML +=
+                    `<label for="${key}">${key}</label><br>
         <input class="text-input" type="text" id="${key}" value=${json[0][key]} disabled><br><br>`;
-                            break;
+                break;
 
-                        case 'Pump':
-                            fetch(
-                                `${configuration.apiURL}/obj/type/Pump?token=${token}`
-                            )
-                                .then(function(response) {
-                                    return response.json();
-                                })
-                                .then(function(pumps) {
-                                    pumpChoice(json[0].Pump, json[0]["Antal pumpar"], pumps);
-                                });
-                            break;
-                        case 'Bildkurva':
-                            main.innerHTML +=
-                                `<div><label for="${key}">Pumpkurva</label><br>
+            case 'Pump':
+                pumps = await API.get(`${configuration.apiURL}/obj/type/Pump?token=${token}`);
+
+                pumpChoice(json[0].Pump, json[0]["Antal pumpar"], pumps);
+                break;
+            case 'Bildkurva':
+                main.innerHTML +=
+                    `<div><label for="${key}">Pumpkurva</label><br>
 							 <img id=${key} src="${json[0][key]}"/>
 							 <a id="newPumpCurve"
 							 class="removeButton">Skapa en ny pumpkurva</a><br><br></div>`;
-                            break;
-                        case 'Pumpkurva':
-                            break;
-                        case 'Bild':
-                            main.innerHTML +=
-                                `<label for="${key}">Produktbild</label><br>
+                break;
+            case 'Pumpkurva':
+                break;
+            case 'Bild':
+                main.innerHTML +=
+                    `<label for="${key}">Produktbild</label><br>
 								 <img id="currentImage" src="${json[0][key]}"/>
 					  	 		<input id="imageFile" type="file" name="pic" accept=".png">`;
 
-                            base64Image = json[0][key];
-                            break;
+                base64Image = json[0][key];
+                break;
 
-                        case 'Antal pumpar':
-                        case '_id':
-                        case 'creatorID':
-                        case 'isDisabled':
-                        case 'approved':
-                            break;
+            case 'Antal pumpar':
+            case '_id':
+            case 'creatorID':
+            case 'isDisabled':
+            case 'approved':
+                break;
 
-                        default:
-                            main.innerHTML +=
-                                `<div class="oldInputDiv"><label for="${key}">${key}</label><br>
+            default:
+                main.innerHTML +=
+                    `<div class="oldInputDiv"><label for="${key}">${key}</label><br>
                 <input id=${key} class="oldInput text-input" type="text" value="${json[0][key]}">
                     <a class="removeButton button small-button danger-bt">Ta bort fält</a></div>`;
-                            break;
-                    }
-                }
+                break;
+        }
+    }
 
-                main.innerHTML +=
-                    `<div class="button-wrap">
+    main.innerHTML +=
+        `<div class="button-wrap">
 						<a id="newFieldButton" class="button small-button">Lägg till nytt fält</a>
 					</div>
 					<div id="sendButton" class="button-wrap">
@@ -88,42 +76,33 @@ let loadObject = () => {
 					<a id="send" class="button">Uppdatera</a>
 				</div>`;
 
-                let buttons = document.getElementsByClassName('removeButton');
+    let buttons = document.getElementsByClassName('removeButton');
 
-                for (let i = 0; i < buttons.length; i++) {
-                    buttons[i].addEventListener('click', () => {
-                        let parent = buttons[i].parentElement;
+    for (let i = 0; i < buttons.length; i++) {
+        buttons[i].addEventListener('click', () => {
+            let parent = buttons[i].parentElement;
 
-                        parent.parentElement.removeChild(parent);
-                    });
-                }
-
-                if (document.getElementById('newPumpCurve')) {
-                    document.getElementById('newPumpCurve').addEventListener('click', () => {
-                        newPumpCurve();
-                    });
-                }
-
-                document.getElementById('imageFile').addEventListener('change', () => {
-                    encodeImageFileAsURL(document.getElementById('imageFile'));
-                });
-
-                document.getElementById('newFieldButton').addEventListener('click', () => {
-                    newField(main);
-                });
-
-                document.getElementById('send').addEventListener('click', () => {
-                    saveObject(json);
-                });
-            } else {
-                if (json.info == "token failed to validate") {
-                    localStorage.removeItem('token');
-                    document.location.href = "index.html";
-                } else {
-                    console.log(json);
-                }
-            }
+            parent.parentElement.removeChild(parent);
         });
+    }
+
+    if (document.getElementById('newPumpCurve')) {
+        document.getElementById('newPumpCurve').addEventListener('click', () => {
+            newPumpCurve();
+        });
+    }
+
+    document.getElementById('imageFile').addEventListener('change', () => {
+        encodeImageFileAsURL(document.getElementById('imageFile'));
+    });
+
+    document.getElementById('newFieldButton').addEventListener('click', () => {
+        newField(main);
+    });
+
+    document.getElementById('send').addEventListener('click', () => {
+        saveObject(json);
+    });
 };
 
 loadObject();
@@ -291,7 +270,7 @@ let newPumpCurve = () => {
  *
  * @returns {void}
  */
-let saveObject = (json) => {
+let saveObject = async (json) => {
     let data = {};
     let newFields = document.getElementsByClassName('newField');
 
@@ -334,24 +313,11 @@ let saveObject = (json) => {
         data[newFields[i].children[0].value] = newFields[i].children[1].value;
     }
 
-    let url =
-        `${configuration.apiURL}/obj/update/${id}?token=${token}`;
 
-    fetch(url, {
-        method: "POST",
-        body: JSON.stringify(data),
-        headers: {
-            "Content-Type": "application/json",
-        },
-    }).then(res => res.json())
-        .then((data) => {
-            if (data.error) {
-                console.log(data);
-            } else {
-                document.location.href = "listProducts.html";
-            }
-        })
-        .catch(error => console.log(error));
+    await API.post(`${configuration.apiURL}/obj/update/${id}?token=${token}`, 'application/json',
+        JSON.stringify(data));
+
+    document.location.href = "listProducts.html";
 };
 
 
