@@ -5,6 +5,7 @@ let id = new URL(window.location.href).searchParams.get('id');
 export let projectInfo;
 export let pipeChoice = null;
 export let objectData = [];
+export let icons = [];
 
 // Imports Google maps javascript api key from getKey.js file
 import { key } from "./getKey.js";
@@ -397,8 +398,8 @@ let addMarkerOnClick = (elements, icon) => {
  *
  * @returns {type} Description
  */
-let loadClickEvent = () => {
-    fetch(`${configuration.apiURL}/obj/categories/icon/all?token=${token}`)
+let loadClickEvent = async () => {
+    await fetch(`${configuration.apiURL}/obj/categories/icon/all?token=${token}`)
         .then((response) => {
             return response.json();
         })
@@ -412,13 +413,19 @@ let loadClickEvent = () => {
                     let iconSize = calculateAspectRatioFit(image.naturalWidth,
                         image.naturalHeight, 75, 40);
 
-                    addMarkerOnClick(document.getElementsByClassName(json[i].Kategori),
-                        L.icon({
+                    let icon = {
+                        category: json[i].Kategori,
+                        icon: L.icon({
                             iconAnchor: [iconSize.width / 2, iconSize.height / 2],
                             iconSize: [iconSize.width, iconSize.height],
                             iconUrl: json[i].Bild,
                             popupAnchor: [0, -(iconSize.height / 2)]
-                        }));
+                        })
+                    };
+
+                    icons.push(icon);
+
+                    addMarkerOnClick(document.getElementsByClassName(json[i].Kategori), icon.icon);
                 }
             } else {
                 console.log(json);
@@ -432,8 +439,8 @@ export let loadMap = {
      *
      * @returns {void}
      */
-    loadProducts: () => {
-        fetch(
+    loadProducts: async () => {
+        await fetch(
             `${configuration.apiURL}/obj/all/local/${id}?token=${token}`
         )
             .then((response) => {
@@ -441,15 +448,15 @@ export let loadMap = {
             })
             .then((json) => {
                 if (!json.error) {
-                    objectData = json;
                     let list = document.getElementsByClassName('obj-list')[0];
 
                     for (let i = 0; i < json.length; i++) {
                         if (json[i].Kategori != undefined) {
-                            if (document.getElementsByClassName(json[i].Kategori).length == 0 &&
-                                json[i].Kategori != "Pump") {
+                            if (document.getElementsByClassName(json[i].Kategori).length ==
+                                    0 &&
+                                    json[i].Kategori != "Pump") {
                                 list.innerHTML +=
-                                    `<button class="accordion desc">${json[i].Kategori}</button>
+                                        `<button class="accordion desc">${json[i].Kategori}</button>
 							 <div class="panel"></div>`;
 
                                 let panels = document.getElementsByClassName('panel');
@@ -458,7 +465,7 @@ export let loadMap = {
                                 let object = document.createElement('div');
 
                                 object.innerHTML =
-                                    `<div class="obj-container">
+                                        `<div class="obj-container">
 								<div id="${json[i].Modell}" class="obj ${json[i].Kategori}">
 									<img src="${json[i].Bild}"/>
 								</div>
@@ -478,7 +485,7 @@ export let loadMap = {
                                 let object = document.createElement('div');
 
                                 object.innerHTML =
-                                    `<div class="obj-container">
+                                        `<div class="obj-container">
 								<div id="${json[i].Modell}" class="obj ${json[i].Kategori}">
 							   		<img src="${json[i].Bild}"/>
 						   		</div>
@@ -509,10 +516,10 @@ export let loadMap = {
     },
 
     /**
-     * loadData - Get project map json data and calls load function in edit.js
-     *
-     * @returns {void}
-     */
+         * loadData - Get project map json data and calls load function in edit.js
+         *
+         * @returns {void}
+         */
     loadData: (editPermission) => {
         fetch(`${configuration.apiURL}/proj/data/${id}?token=${token}`)
             .then((response) => {
@@ -557,10 +564,10 @@ export let loadMap = {
     },
 
     /**
-     * loadProjectInfo - Get project info and sets project title and saves info for later
-     *
-     * @returns {void}
-     */
+         * loadProjectInfo - Get project info and sets project title and saves info for later
+         *
+         * @returns {void}
+         */
     loadProjectInfo: () => {
         fetch(`${configuration.apiURL}/proj/info/${id}?token=${token}`)
             .then((response) => {
@@ -588,17 +595,15 @@ export let loadMap = {
  *
  * @returns {void}
  */
-let onLoadWrite = () => {
+let onLoadWrite = async () => {
     map = L.map("myMap", {
         center: [56.208640, 15.632630],
         editable: true,
         zoom: 18
     });
-    //gets project data and info
-    loadMap.loadData(false);
-    loadMap.loadProjectInfo();
     //loads all the products to the map
-    loadMap.loadProducts();
+    await loadMap.loadProducts();
+    loadMap.loadProjectInfo();
     //loads the gridlayers, satellite or map
     gridlayers();
     //loads all the custom controls
@@ -620,6 +625,9 @@ let onLoadWrite = () => {
 
     //make the blue border appear on mouse icon button on load
     document.getElementById('map').click();
+
+    //gets project data and info
+    loadMap.loadData(false);
 };
 
 /**
@@ -645,11 +653,9 @@ let onLoadRead = () => {
         zoom: 18
     });
 
-    //loads project data and info
-    loadMap.loadData(true);
-    loadMap.loadProjectInfo;
-    //loads the gridlayers, satellite or map
     loadMap.loadProducts();
+    loadMap.loadProjectInfo();
+
     //loads the custom controls for read property
     customControl('map');
     customControl('control_camera');
@@ -674,7 +680,11 @@ let onLoadRead = () => {
     backLink.style.fontSize = "60px";
     backLink.style.textDecoration = "none";
     backLink.style.color = "gray";
+
+    //loads project data and info
+    loadMap.loadData(true);
 };
+//loads the gridlayers, satellite or map
 
 /**
  * getPermission - Gets the permission of the user and loads the correct

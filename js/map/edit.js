@@ -1,9 +1,9 @@
-/* global L, configuration */
+/* global configuration */
 export let isEdit = null;
 let tempPolylineArray = [];
 
 //imports the map object
-import { map, token, projectInfo } from "./loadLeafletMap.js";
+import { map, icons, token, projectInfo } from "./loadLeafletMap.js";
 
 import { add, polylines, markers, polygons, getLength } from "./add.js";
 
@@ -153,7 +153,6 @@ export const edit = {
                 coordinates: polyline._latlngs,
                 type: "polyline",
                 connected_with: polyline.connected_with,
-                options: polyline.options,
                 getLength: polyline.getLength,
                 tilt: polyline.tilt,
                 dimension: polyline.dimension,
@@ -166,9 +165,8 @@ export const edit = {
         //loop through all markers and save them in a json format
         markers.eachLayer((marker) => {
             temp = {
-                coordinates: [marker._latlng.lat, marker._latlng.lng],
+                coordinates: { lat: marker._latlng.lat, lng: marker._latlng.lng },
                 type: "marker",
-                options: marker.options,
                 id: marker.id,
                 attributes: marker.attributes,
             };
@@ -180,11 +178,11 @@ export const edit = {
             temp = {
                 coordinates: polygon._latlngs,
                 type: "polygon",
-                options: polygon.options,
                 definition: polygon.definition,
                 address: polygon.address,
                 nop: polygon.nop,
                 flow: polygon.flow,
+                color: polygon.options.color
             };
 
             json.push(temp);
@@ -251,27 +249,29 @@ export const edit = {
             switch (json[i].type) {
                 //if marker add it to the map with its options
                 case "marker":
-                    icon = L.icon(json[i].options.icon.options);
+                    icon = icons.find(element => element.category == json[i].attributes.Kategori);
 
-                    newObj = new Marker(json[i].coordinates, json[i].attributes, icon, json[i].id);
+                    newObj = new Marker(json[i].coordinates, json[i].attributes, icon.icon,
+                        json[i].id);
                     break;
                     //if polyline
                 case "polyline":
                     newObj = new Pipe(json[i].coordinates, ["", ""], json[i].pipeType,
                         json[i].connected_with.first);
-                    newObj.draw(json[i].connected_with.last, null, json[i].dimension, json[i].tilt);
+                    newObj.draw(json[i].connected_with.last, null, json[i].dimension, json[i]
+                        .tilt);
                     break;
                 case "polygon":
-                    newObj = new House(json[i].coordinates[0], ["", ""]);
+                    newObj = new House(json[i].coordinates[0], ["", ""], json[i].color);
                     popup = [
                         json[i].address,
                         json[i].definition,
                         json[i].nop,
                         json[i].flow,
-                        json[i].options.color
+                        json[i].color
                     ];
 
-                    newObj.drawFromLoad(json[i].coordinates, popup, json[i].options);
+                    newObj.drawFromLoad(json[i].coordinates, popup);
                     break;
             }
         }

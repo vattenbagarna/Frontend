@@ -48,7 +48,7 @@ export const add = {
         if (house != null) {
             house.draw(event.latlng);
         } else {
-            house = new House(event.latlng, ["house"]);
+            house = new House(event.latlng, ["house"], '#3388ff');
         }
     },
 
