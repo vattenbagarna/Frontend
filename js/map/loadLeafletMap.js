@@ -394,9 +394,10 @@ let addMarkerOnClick = (elements, icon) => {
 };
 
 /**
- * loadClickEvent - Description
+ * loadClickEvent - loads all icons to each category that is desplayed on map
+ *					Calls addMarkerOnClick function to add eventListener to each product
  *
- * @returns {type} Description
+ * @returns {void}
  */
 let loadClickEvent = async () => {
     await fetch(`${configuration.apiURL}/obj/categories/icon/all?token=${token}`)
