@@ -618,8 +618,6 @@ export let loadMap = {
     },
 };
 
-
-
 /**
  * onLoadWrite - Initialize the map functionality with the html objects for
  * when a user has the write property

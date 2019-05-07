@@ -5,7 +5,7 @@ import { popup } from "./popup.js";
 
 import { options } from "./options.js";
 
-import { polylines, markers, polygons, add, getLength, clearHouse } from "./add.js";
+import { polylines, markers, polygons, add, getLength, clearHouse, addElevation } from "./add.js";
 
 import { edit } from "./edit.js";
 
@@ -37,6 +37,7 @@ export class Marker {
         this.marker = new L.Marker(latlng, options.marker(icon))
             .bindPopup(popup.marker(this.attributes) + popup.changeCoord(latlng))
             .on("drag", edit.moveMarker)
+            .on("dragend", edit.updateElevation)
             .on('popupopen', this.updateCoords);
 
         this.marker.attributes = this.attributes;
@@ -379,6 +380,8 @@ export class Pipe {
         if (mouseCoord != null) {
             map.on('mousemove', show.mouseCoordOnMap);
         }
+
+        addElevation(this.polyline);
     }
 
     /**

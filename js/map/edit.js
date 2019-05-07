@@ -5,7 +5,7 @@ let tempPolylineArray = [];
 //imports the map object
 import { map, token, projectInfo } from "./loadLeafletMap.js";
 
-import { add, polylines, markers, polygons, getLength } from "./add.js";
+import { add, polylines, markers, polygons, getLength, addElevation } from "./add.js";
 
 import { show, mouseCoord } from "./show.js";
 
@@ -43,9 +43,20 @@ export const edit = {
                 polyline.decorator.setPaths(newLatlng);
             }
         });
+    },
+
+    updateElevation: (event) => {
+        polylines.eachLayer((polyline) => {
+            if (event.target.id === polyline.connected_with.first) {
+                addElevation(polyline);
+            } else if (event.target.id === polyline.connected_with.last) {
+                addElevation(polyline);
+            }
+        });
+
         event.target.setPopupContent(popup.marker(event.target.attributes) + popup.changeCoord({
-            lat: event.latlng.lat,
-            lng: event.latlng.lng
+            lat: event.target._latlng.lat,
+            lng: event.target._latlng.lng
         }));
 
         edit.warning.unsavedChanges(true);
