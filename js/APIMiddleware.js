@@ -7,7 +7,7 @@
  */
 const API = {
     get: async (url) => {
-        await fetch(url)
+        return await fetch(url)
             .then(response => response.json())
             .then((json) => {
                 if (json.info == "token failed to validate") {
@@ -20,7 +20,7 @@ const API = {
     },
 
     post: async (url, contentType, data) => {
-        await fetch(url, {
+        return await fetch(url, {
             method: "POST",
             headers: { "Content-Type": contentType, },
             body: data,
