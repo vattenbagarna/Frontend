@@ -1,4 +1,4 @@
-/* global L configuration */
+/* global L configuration, API */
 export let token = localStorage.getItem('token');
 let id = new URL(window.location.href).searchParams.get('id');
 
@@ -11,7 +11,7 @@ export let icons = [];
 import { key } from "./getKey.js";
 
 // Imports object add with multible functions from add.js file that uses the leaflet library
-import { add, markers, polylines, polygons } from "./add.js";
+import { add, markers } from "./add.js";
 
 // Imports object edit with multible functions from eidt.js file that uses the leaflet library
 import { edit } from "./edit.js";
@@ -212,14 +212,6 @@ let addHouseOnClick = () => {
 };
 
 /**
- * houseDrawing - Stops drawing guideline if user keyup on 'esc' key
- *
- * @param {type} event - here inside exist the keyCode that the user did a keyup on
- *
- * @returns {void}
- */
-
-/**
  * addPipeOnClick - Adds a polyline (pipe) between two objects after the
  * 					user clicks on two outplaced objects on map
  * 					(marker, polyline, or polygon)
@@ -380,7 +372,7 @@ let deleteOnClick = () => {
 let addMarkerOnClick = (elements, icon) => {
     // For each element
     for (let i = 0; i < elements.length; i++) {
-        // Add a click event listenr
+        // Add a click event listener
         elements[i].parentElement.addEventListener("click", () => {
             // Set markers info and icon
             add.activeObjName = elements[i].id;
@@ -400,39 +392,11 @@ let addMarkerOnClick = (elements, icon) => {
  * @returns {void}
  */
 let loadClickEvent = async () => {
-    await fetch(`${configuration.apiURL}/obj/categories/icon/all?token=${token}`)
-        .then((response) => {
-            return response.json();
-        })
-        .then((json) => {
-            if (!json.error) {
-                for (let i = 0; i < json.length; i++) {
-                    let image = new Image();
-
-                    image.src = json[i].Bild;
-
-                    let iconSize = calculateAspectRatioFit(image.naturalWidth,
-                        image.naturalHeight, 75, 40);
-
-                    let icon = {
-                        category: json[i].Kategori,
-                        icon: L.icon({
-                            iconAnchor: [iconSize.width / 2, iconSize.height / 2],
-                            iconSize: [iconSize.width, iconSize.height],
-                            iconUrl: json[i].Bild,
-                            popupAnchor: [0, -(iconSize.height / 2)]
-                        })
-                    };
-
-                    icons.push(icon);
-
-                    addMarkerOnClick(document.getElementsByClassName(json[i].Kategori), icon.icon);
-                }
-            } else {
-                console.log(json);
-            }
-        });
+    for (let i = 0; i < icons.length; i++) {
+        addMarkerOnClick(document.getElementsByClassName(icons[i].category), icons[i].icon);
+    }
 };
+
 
 export let loadMap = {
     /**
@@ -441,154 +405,105 @@ export let loadMap = {
      * @returns {void}
      */
     loadProducts: async () => {
-        await fetch(
-            `${configuration.apiURL}/obj/all/local/${id}?token=${token}`
-        )
-            .then((response) => {
-                return response.json();
-            })
-            .then((json) => {
-                if (!json.error) {
-                    let list = document.getElementsByClassName('obj-list')[0];
+        let json = await API.get(`${configuration.apiURL}/obj/all/local/${id}?token=${token}`);
+        let list = document.getElementsByClassName('obj-list')[0];
 
-                    for (let i = 0; i < json.length; i++) {
-                        if (json[i].Kategori != undefined) {
-                            if (document.getElementsByClassName(json[i].Kategori).length ==
-                                    0 &&
-                                    json[i].Kategori != "Pump") {
-                                list.innerHTML +=
-                                        `<button class="accordion desc">${json[i].Kategori}</button>
-							 <div class="panel"></div>`;
+        for (let i = 0; i < json.length; i++) {
+            if (json[i].Kategori != undefined) {
+                if (document.getElementsByClassName(json[i].Kategori).length == 0 &&
+                        json[i].Kategori != "Pump") {
+                    list.innerHTML +=
+                            `<button class="accordion desc">${json[i].Kategori}</button>
+							<div class="panel"></div>`;
 
-                                let panels = document.getElementsByClassName('panel');
-                                let panel = panels[panels.length - 1];
+                    let panels = document.getElementsByClassName('panel');
+                    let panel = panels[panels.length - 1];
 
-                                let object = document.createElement('div');
+                    let object = document.createElement('div');
 
-                                object.innerHTML =
-                                        `<div class="obj-container">
-								<div id="${json[i].Modell}" class="obj ${json[i].Kategori}">
-									<img src="${json[i].Bild}"/>
-								</div>
-								<div class="obj-desc">${json[i].Modell}</div>
-							 </div>`;
+                    object.innerHTML =
+                            `<div class="obj-container">
+							   <div id="${json[i].Modell}" class="obj ${json[i].Kategori}">
+								   <img src="${json[i].Bild}"/>
+							   </div>
+							   <div class="obj-desc">${json[i].Modell}</div>
+							</div>`;
 
-                                panel.appendChild(object);
+                    panel.appendChild(object);
 
-                                delete json[i].Bild;
-                                delete json[i].creatorID;
-                                delete json[i]._id;
-                                objectData.push(json[i]);
-                            } else if (json[i].Kategori != "Pump") {
-                                let elements = document.getElementsByClassName(json[i].Kategori);
-                                let panel = elements[0].parentElement.parentElement.parentElement;
+                    delete json[i].Bild;
+                    delete json[i].creatorID;
+                    delete json[i]._id;
+                    objectData.push(json[i]);
+                } else if (json[i].Kategori != "Pump") {
+                    let elements = document.getElementsByClassName(json[i].Kategori);
+                    let panel = elements[0].parentElement.parentElement.parentElement;
 
-                                let object = document.createElement('div');
+                    let object = document.createElement('div');
 
-                                object.innerHTML =
-                                        `<div class="obj-container">
-								<div id="${json[i].Modell}" class="obj ${json[i].Kategori}">
-							   		<img src="${json[i].Bild}"/>
-						   		</div>
-						   		<div class="obj-desc">${json[i].Modell}</div>
-							 </div>`;
+                    object.innerHTML =
+                            `<div class="obj-container">
+							   <div id="${json[i].Modell}" class="obj ${json[i].Kategori}">
+								   <img src="${json[i].Bild}"/>
+							   </div>
+							   <div class="obj-desc">${json[i].Modell}</div>
+							</div>`;
 
-                                panel.appendChild(object);
-                            }
-                        }
-                    }
-
-                    accordions();
-                    show.activeObj();
-
-                    loadClickEvent();
-                    addPipeOnClick();
-                    addHouseOnClick();
-                } else {
-                    if (json.info == "token failed to validate") {
-                        localStorage.removeItem('token');
-                        document.location.href = "index.html";
-                    } else {
-                        console.log(json);
-                    }
+                    panel.appendChild(object);
                 }
-            })
-            .catch(error => console.log(error));
-    },
+            }
+        }
 
+        accordions();
+        show.activeObj();
+        loadClickEvent();
+        addPipeOnClick();
+        addHouseOnClick();
+    },
     /**
          * loadData - Get project map json data and calls load function in edit.js
          *
          * @returns {void}
          */
-    loadData: (editPermission) => {
-        fetch(`${configuration.apiURL}/proj/data/${id}?token=${token}`)
-            .then((response) => {
-                return response.json();
-            })
-            .then((json) => {
-                if (!json.error) {
-                    if (json[0].data.length > 0) {
-                        edit.load(json[0].data);
-                    }
+    loadData: async (editPermission) => {
+        let json = await API.get(
+            `${configuration.apiURL}/proj/data/${id}?token=${token}`
+        );
 
-                    map.on('layeradd', () => {
-                        edit.warning.unsavedChanges(true);
-                    });
+        if (json[0].data.length > 0) {
+            edit.load(json[0].data);
+        }
 
-                    edit.clearMapsEvents();
-                    if (editPermission == true) {
-                        markers.eachLayer((marker) => {
-                            marker.disableDragging();
-                            marker.bindPopup(popup.marker(marker.attributes));
-                            marker.off("popupopen");
-                        });
+        map.on('layeradd', () => {
+            edit.warning.unsavedChanges(true);
+        });
 
-                        polylines.eachLayer((polyline) => {
-                            polyline.options.interactive = false;
-                            polyline.off("click");
-                        });
-
-                        polygons.eachLayer((polygon) => {
-                            polygon.off("click");
-                        });
-                    }
-                } else {
-                    if (json.info == "token failed to validate") {
-                        localStorage.removeItem('token');
-                        document.location.href = "index.html";
-                    } else {
-                        console.log(json);
-                    }
-                }
+        edit.clearMapsEvents();
+        if (editPermission == true) {
+            markers.eachLayer((marker) => {
+                marker.disableDragging();
+                marker.bindPopup(popup.marker(marker.attributes));
+                marker.off("popupopen");
             });
+        }
     },
 
     /**
-         * loadProjectInfo - Get project info and sets project title and saves info for later
-         *
-         * @returns {void}
-         */
-    loadProjectInfo: () => {
-        fetch(`${configuration.apiURL}/proj/info/${id}?token=${token}`)
-            .then((response) => {
-                return response.json();
-            })
-            .then((json) => {
-                if (!json.error) {
-                    let title = document.getElementsByClassName('projekt-titel')[0];
+             * loadProjectInfo - Get project info and sets project title and saves info for later
+             *
+             * @returns {void}
+             */
+    loadProjectInfo: async () => {
+        let json = await API.get(
+            `${configuration.apiURL}/proj/info/${id}?token=${token}`
+        );
+        let title = document.getElementsByClassName('projekt-titel')[0];
 
-                    title.innerHTML = `${json[0].name} ${json[0].version}`;
+        title.innerHTML = `${json[0].name} ${json[0].version}`;
 
-                    projectInfo = json[0];
-                } else {
-                    console.log(json);
-                }
-            });
+        projectInfo = json[0];
     },
 };
-
-
 
 /**
  * onLoadWrite - Initialize the map functionality with the html objects for
@@ -596,14 +511,14 @@ export let loadMap = {
  *
  * @returns {void}
  */
-let onLoadWrite = async () => {
+let onLoadWrite = () => {
     map = L.map("myMap", {
         center: [56.208640, 15.632630],
         editable: true,
         zoom: 18
     });
     //loads all the products to the map
-    await loadMap.loadProducts();
+    loadMap.loadProducts();
     loadMap.loadProjectInfo();
     //loads the gridlayers, satellite or map
     gridlayers();
@@ -639,8 +554,10 @@ let onLoadWrite = async () => {
  */
 let onLoadRead = () => {
     //Gets the HTML objets which needs to change
-    let sidebar = document.getElementsByClassName("sidebar");
-    let mapElem = document.getElementsByClassName("map");
+    let sidebar = document.getElementsByClassName(
+        "sidebar");
+    let mapElem = document.getElementsByClassName(
+        "map");
     let back = document.getElementById("readBack");
 
     //hides the sidebar
@@ -693,27 +610,47 @@ let onLoadRead = () => {
  *
  * @returns {void}
  */
-let getPermission = () => {
-    //gets the project ID from the url
-    let projectId = new URL(window.location.href).searchParams.get("id");
-    //gets token from localStorage
-    let token = localStorage.getItem("token");
+let getPermission = async () => {
+    let json = await API.get(
+        `${configuration.apiURL}/obj/categories/icon/all?token=${token}`);
+
+    for (let i = 0; i < json.length; i++) {
+        let image = new Image();
+        let iconSize;
+
+        image.src = json[i].Bild;
+        image.onload = () => {
+            if (json[i].Kategori != 'Förgrening') {
+                iconSize = calculateAspectRatioFit(image.naturalWidth,
+                    image.naturalHeight, 75, 40);
+            } else {
+                iconSize = { width: 20, height: 20 };
+            }
+
+            let icon = {
+                category: json[i].Kategori,
+                icon: L.icon({
+                    iconAnchor: [iconSize.width / 2, iconSize.height / 2],
+                    iconSize: [iconSize.width, iconSize.height],
+                    iconUrl: json[i].Bild,
+                    popupAnchor: [0, -(iconSize.height / 2)]
+                })
+            };
+
+            icons.push(icon);
+        };
+    }
 
     //fetches the users permission from database to decide which load to use
-    fetch(configuration.apiURL + "/proj/permission/" + projectId + "?token=" + token, {
-        method: "GET",
-    })
-        .then(response => response.json())
-        .then(function(response) {
-            //if user has permission w(write) load onLoadWrite()
-            if (response.permission == "r") {
-                onLoadRead();
-                //if user has permission r(read) load onLoadRead()
-            } else {
-                onLoadWrite();
-            }
-        })
-        .catch(error => console.error('Error:', error));
+    let response = await API.get(configuration.apiURL + "/proj/permission/" + id +
+        "?token=" + token);
+
+    if (response.permission == "r") {
+        //if user has permission r(read) load onLoadRead()
+        onLoadRead();
+    } else {
+        onLoadWrite();
+    }
 };
 
 getPermission();

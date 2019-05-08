@@ -9,7 +9,7 @@ export let markers = L.layerGroup();
 export let polygons = L.layerGroup();
 
 // Imports the map object.
-import { map, pipeChoice, objectData } from "./loadLeafletMap.js";
+import { map, icons, pipeChoice, objectData } from "./loadLeafletMap.js";
 
 // Imports three classes that are used for the project.
 import { Marker, House, Pipe } from "./classes.js";
@@ -33,7 +33,6 @@ export const add = {
                 break;
             }
         }
-
         new Marker(event.latlng, object, add.activeIcon);
     },
 
@@ -162,12 +161,9 @@ let addBranchConnection = (event, target) => {
     secondLatlngs.unshift(event.latlng);
 
     // Creates the marker for branch connector.
-    let branchMarker = new Marker(event.latlng, ["Förgrening"], L.icon({
-        iconAnchor: [10, 10],
-        iconSize: [20, 20],
-        iconUrl: '../img/symbol_grenanslutning.png',
-        popupAnchor: [0, -10]
-    }));
+    let icon = icons.find(element => element.category == "Förgrening");
+
+    let branchMarker = new Marker(event.latlng, {Kategori: "Förgrening"}, icon.icon);
 
     newLine = {
         latlngs: secondLatlngs,

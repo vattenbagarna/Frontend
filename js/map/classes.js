@@ -403,6 +403,7 @@ export class Pipe {
         this.polyline.tilt = this.tilt;
         this.polyline.on('click', add.pipe);
         this.polyline.on('popupopen', this.updateValues);
+        this.polyline.on('remove', () => this.polyline.decorator.remove());
         this.polyline.editingDrag.removeHooks();
         if (mouseCoord != null) {
             map.on('mousemove', show.mouseCoordOnMap);

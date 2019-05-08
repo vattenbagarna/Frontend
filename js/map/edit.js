@@ -1,9 +1,9 @@
-/* global configuration */
+/* global configuration, API */
 export let isEdit = null;
 let tempPolylineArray = [];
 
 //imports the map object
-import { map, icons, token, projectInfo } from "./loadLeafletMap.js";
+import { map, token, icons, projectInfo } from "./loadLeafletMap.js";
 
 import { add, polylines, markers, polygons, getLength } from "./add.js";
 
@@ -136,7 +136,7 @@ export const edit = {
      * @param {string} version version number the user wants to save the project under
      * @returns {void}
      */
-    save: (version) => {
+    save: async (version) => {
         let json = [];
         let temp;
 
@@ -191,53 +191,32 @@ export const edit = {
         if (version == projectInfo.version) {
             let id = new URL(window.location.href).searchParams.get('id');
 
-            fetch(`${configuration.apiURL}/proj/update/data/${id}?token=${token}`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(json),
-            }).then(res => res.json())
-                .then(() => edit.warning.unsavedChanges(false))
-                .catch(error => console.log(error));
+            await API.post(`${configuration.apiURL}/proj/update/data/${id}?token=${token}`,
+                'application/json', JSON.stringify(json));
+
+            edit.warning.unsavedChanges(false);
         } else {
-            let id;
-
             projectInfo.version = version;
-            fetch(`${configuration.apiURL}/proj/insert?token=${token}`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(projectInfo),
-            }).then(res => res.json())
-                .then((response) => {
-                    id = response._id;
 
-                    fetch(`${configuration.apiURL}/proj/update/data/${id}?token=${token}`, {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify(json),
-                    }).then(res => res.json())
-                        .then(() => {
-                            edit.warning.unsavedChanges(false);
-                            document.location.href = `map.html?id=${id}`;
-                        })
-                        .catch(error => console.log(error));
-                })
-                .catch(error => console.log(error));
+            let response = await API.post(
+                `${configuration.apiURL}/proj/insert?token=${token}`,
+                'application/json', JSON.stringify(projectInfo));
+
+            await API.post(
+                `${configuration.apiURL}/proj/update/data/${response._id}?token=${token}`,
+                'application/json', JSON.stringify(json));
+
+            edit.warning.unsavedChanges(false);
+            document.location.href = `map.html?id=${response._id}`;
         }
     },
 
     /**
-     * load - Load objects(markers, polylines, polygons) to the map using json
-     * data
-     *
-     * @returns {void}
-     */
-    load: (json) => {
+         * load - Load objects(markers, polylines, polygons) to the map using json data
+         *
+         * @returns {void}
+         */
+    load: async (json) => {
         let icon;
         let newObj;
         let popup;
@@ -250,7 +229,6 @@ export const edit = {
                 //if marker add it to the map with its options
                 case "marker":
                     icon = icons.find(element => element.category == json[i].attributes.Kategori);
-
                     newObj = new Marker(json[i].coordinates, json[i].attributes, icon.icon,
                         json[i].id);
                     break;
@@ -278,17 +256,17 @@ export const edit = {
     },
 
     /**
-     * warning - Warning message object
-     *
-     * @returns {void}
-     */
+    * warning - Warning message object
+    *
+    * @returns {void}
+    */
     warning: {
         /**
-         * unsavedChanges - Display a warning box when user tries to leave the page that some
-         * 				  - information may not be saved if user exit the page.
-         *				  - Uses window.onbeforeunload.
-         * @returns {void}
-         */
+    	* unsavedChanges - Display a warning box when user tries to leave the page that some
+        * 				  - information may not be saved if user exit the page.
+        *				  - Uses window.onbeforeunload.
+        * @returns {void}
+        */
         unsavedChanges: (value) => {
             if (value) {
                 window.onbeforeunload = () => {
