@@ -1,4 +1,3 @@
-let result;
 /**
  * API - contains get and post methods to specified url that uses fetch calls.
  * 		 This replaces repeated fetch code with a simple function call instead.
@@ -11,14 +10,13 @@ const API = {
         await fetch(url)
             .then(response => response.json())
             .then((json) => {
-                result = json;
-
                 if (json.info == "token failed to validate") {
                     localStorage.removeItem('token');
                     document.location.href = "index.html";
+                    return false;
                 }
+                return json;
             });
-        return result;
     },
 
     post: async (url, contentType, data) => {
@@ -29,14 +27,13 @@ const API = {
         })
             .then(response => response.json())
             .then((json) => {
-                result = json;
-
                 if (json.info == "token failed to validate") {
                     localStorage.removeItem('token');
                     document.location.href = "index.html";
+                    return false;
                 }
+                return json;
             });
-        return result;
     }
 };
 
