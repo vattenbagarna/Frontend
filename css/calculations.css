@@ -116,3 +116,54 @@ Responsive Media Queries
         margin: 1.5rem 2rem;
     }
 }
+
+.obj-container {
+    width: 100%;
+    height: 120px;
+    margin: 0.3rem 0;
+    background: #fff;
+    display: flex;
+    text-align: left;
+    cursor: pointer;
+    outline: none;
+    font-size: 15px;
+    color: #444;
+    border-top: 1px solid rgba(255, 255, 255, 0);
+    border-bottom: 1px solid rgba(255, 255, 255, 0);
+}
+
+.obj:hover {
+    cursor: pointer;
+}
+
+.obj img {
+    max-height: 88%;
+    max-width: 80px !important;
+    align-self: center;
+    width: auto;
+    margin-left: auto;
+    margin-right: auto;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    display: block;
+}
+
+.pumpCurve {
+    float: right;
+    max-height: 88%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    display: block;
+}
+
+.obj-icon {
+    padding: 0.8rem;
+    font-size: 2.2rem;
+    align-self: center;
+}
+
+.obj-desc {
+    margin: auto 0;
+}
