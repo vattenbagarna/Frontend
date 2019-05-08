@@ -1,4 +1,4 @@
-/* global configuration */
+/* global configuration, API */
 let token = localStorage.getItem("token");
 let projectId = new URL(window.location.href).searchParams.get("id");
 let usernameObj = {};
@@ -14,30 +14,14 @@ let deleteButtonNumber = 0;
  *
  * @returns {json}
  */
-let getAllUsers = () => {
-    let url = configuration.apiURL + "/user/all?token=" + token;
+let getAllUsers = async () => {
+    let json = await API.get(configuration.apiURL + "/user/all?token=" + token);
 
-    //Fetches all users from database
-    fetch(url, {
-        method: 'GET',
-    }).then(response => {
-        return response.json();
-    }).then((json) => {
-        if (!json.error) {
-            for (var i = 0; i < json.length; i++) {
-                usernameObj[json[i].id] = json[i].username;
-                usernameArray.push(json[i].username);
-                userIdArray.push(json[i].id);
-            }
-        } else {
-            if (json.info == "token failed to validate") {
-                localStorage.removeItem("token");
-                document.location.href = "index.html";
-            } else {
-                console.log(json);
-            }
-        }
-    });
+    for (var i = 0; i < json.length; i++) {
+        usernameObj[json[i].id] = json[i].username;
+        usernameArray.push(json[i].username);
+        userIdArray.push(json[i].id);
+    }
 };
 
 /**
@@ -45,68 +29,60 @@ let getAllUsers = () => {
  *
  * @returns {json}
  */
-let getProject = () => {
-    let url = configuration.apiURL +"/proj/id/" + projectId + "?token=" + token;
+let getProject = async () => {
+    let json = await API.get(configuration.apiURL + "/proj/id/" + projectId + "?token=" + token);
 
-    //fetch to get project
-    fetch(url, {
-        method: 'GET',
-    }).then(response => {
-        return response.json();
-    }).then((json) => {
-        //sets the form values to the projects name and version
-        document.getElementById("projectName").value = json[0].name;
-        document.getElementById("projectVersion").value = json[0].version;
-        document.getElementById("peopleperhouse").value = json[0].default.peoplePerHouse;
-        document.getElementById("litreperperson").value = json[0].default.litrePerPerson;
+    document.getElementById("projectName").value = json[0].name;
+    document.getElementById("projectVersion").value = json[0].version;
+    document.getElementById("peopleperhouse").value = json[0].default.peoplePerHouse;
+    document.getElementById("litreperperson").value = json[0].default.litrePerPerson;
 
-        //loops through the amount of users given access starting on 1 as the
-        //first place is the creator
-        for (var i = 0; i < json[0].access.length; i++) {
-            //creates the select element
-            var selectUser = document.createElement("select");
+    //loops through the amount of users given access starting on 1 as the
+    //first place is the creator
+    for (var i = 0; i < json[0].access.length; i++) {
+        //creates the select element
+        var selectUser = document.createElement("select");
 
-            selectUser.setAttribute("class", "accessSelect select-input");
+        selectUser.setAttribute("class", "accessSelect select-input");
 
-            var newField = document.getElementById("newField");
-            var h = document.createElement("h3");
+        var newField = document.getElementById("newField");
+        var h = document.createElement("h3");
 
-            newField.appendChild(h);
-            //appends select element
-            newField.appendChild(selectUser);
+        newField.appendChild(h);
+        //appends select element
+        newField.appendChild(selectUser);
 
-            var option = document.createElement("option");
+        var option = document.createElement("option");
 
-            //sets the value and text of the select element
-            option.setAttribute("value", json[0].access[i].userID);
-            option.text = json[0].access[i].username;
-            selectUser.appendChild(option);
+        //sets the value and text of the select element
+        option.setAttribute("value", json[0].access[i].userID);
+        option.text = json[0].access[i].username;
+        selectUser.appendChild(option);
 
-            //create another select element
-            var selectCompetence = document.createElement("select");
+        //create another select element
+        var selectCompetence = document.createElement("select");
 
-            //give it the class accessCompetence
-            selectCompetence.setAttribute("class", "accessCompetence select-input");
+        //give it the class accessCompetence
+        selectCompetence.setAttribute("class", "accessCompetence select-input");
 
-            //append element
-            newField.appendChild(selectCompetence);
-            let accessData = json[0].access[i];
+        //append element
+        newField.appendChild(selectCompetence);
+        let accessData = json[0].access[i];
 
-            //checks what permission the current user has and adds it first in
-            //the select and then also adds the second value so the user can
-            //change permissions
-            if (accessData.permission == "r") {
-                createSelect(accessData.permission, "Läsbehörighet", selectCompetence);
-                createSelect("w", "Skrivbehörighet", selectCompetence);
-            } else if (accessData.permission == "w") {
-                createSelect(accessData.permission, "Skrivbehörighet", selectCompetence);
-                createSelect("r", "Läsbehörighet", selectCompetence);
-            }
-
-            //adds the remove button to remove user which has been given access
-            addRemoveButtons();
+        //checks what permission the current user has and adds it first in
+        //the select and then also adds the second value so the user can
+        //change permissions
+        if (accessData.permission == "r") {
+            createSelect(accessData.permission, "Läsbehörighet", selectCompetence);
+            createSelect("w", "Skrivbehörighet", selectCompetence);
+        } else if (accessData.permission == "w") {
+            createSelect(accessData.permission, "Skrivbehörighet", selectCompetence);
+            createSelect("r", "Läsbehörighet", selectCompetence);
         }
-    });
+
+        //adds the remove button to remove user which has been given access
+        addRemoveButtons();
+    }
 };
 
 /**
@@ -212,7 +188,7 @@ button.addEventListener("click", () => {
  *
  * @returns {void}
  */
-let updateProject = () => {
+let updateProject = async () => {
     //gets all the values from the form and the selects
     let projectName = document.getElementById("projectName").value;
     let projectVersion = document.getElementById("projectVersion").value;
@@ -237,18 +213,10 @@ let updateProject = () => {
     data += "&default[peoplePerHouse]=" + peoplePerHouse;
     data += "&default[litrePerPerson]=" + litrePerPerson;
 
-    let url = configuration.apiURL + "/proj/update/info/" + projectId + "?token=" + token;
+    await API.post(configuration.apiURL + "/proj/update/info/" + projectId + "?token=" + token,
+        'application/x-www-form-urlencoded', data);
 
-    //fetch to post the data to db
-    fetch(url, {
-        method: 'POST',
-        body: data,
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        }
-    }).then(res => res.json())
-        .then(()=> location.href = "home.html")
-        .catch(error => alert(error));
+    location.href = "home.html";
 };
 
 /**
@@ -269,14 +237,10 @@ let createSelect = (value, text, selectCompetence) => {
  *
  * @returns {void}
  */
-let deleteProject = () => {
-    let url = configuration.apiURL + "/proj/delete/" + projectId + "?token=" + token;
+let deleteProject = async () => {
+    await API.get(configuration.apiURL + "/proj/delete/" + projectId + "?token=" + token);
 
-    fetch(url, {
-        method: 'GET'
-    }).then(res => res.json())
-        .then(()=> location.href = "home.html")
-        .catch(error => alert(error));
+    location.href = "home.html";
 };
 
 //gets button to update project

@@ -1,4 +1,4 @@
-/*global configuration */
+/*global configuration, API*/
 let token = localStorage.getItem('token');
 
 /**
@@ -6,34 +6,29 @@ let token = localStorage.getItem('token');
  *
  * @returns {void}
  */
-let loadAllProjects = () => {
-    fetch(configuration.apiURL + `/proj/all?token=${token}`)
-        .then((response) => {
-            return response.json();
-        })
-        .then((json) => {
-            if (!json.error) {
-                let projectlist = document.getElementsByClassName('projectlist')[0];
+let loadAllProjects = async () => {
+    let json = await API.get(configuration.apiURL + `/proj/all?token=${token}`);
+    let projectlist = document.getElementsByClassName('projectlist')[0];
 
-                if (json.length > 0) {
-                    for (let i = 0; i < json.length; i++) {
-                        let permission = "";
+    if (json.length > 0) {
+        for (let i = 0; i < json.length; i++) {
+            let permission = "";
 
-                        if (json[i].access.length > 0) {
-                            permission += "Rättigheter till övriga: <br>";
-                        }
-                        for (let n = 0; n < json[i].access.length; n++) {
-                            if (json[i].access[n].permission == "w") {
-                                permission +=
-                                    `${json[i].access[n].username}`;
-                            } else {
-                                permission +=
-                                    `${json[i].access[n].username}`;
-                            }
-                        }
+            if (json[i].access.length > 0) {
+                permission += "Rättigheter till övriga: <br>";
+            }
+            for (let n = 0; n < json[i].access.length; n++) {
+                if (json[i].access[n].permission == "w") {
+                    permission +=
+                        `${json[i].access[n].username}`;
+                } else {
+                    permission +=
+                        `${json[i].access[n].username}`;
+                }
+            }
 
-                        projectlist.innerHTML +=
-                        `<div class="table">
+            projectlist.innerHTML +=
+                `<div class="table">
     						<h2 class="tablepart">${json[i].name}</h2>
     						<h2 class="tablepart">${json[i].version}</h2>
     						<div class="creators tablepart">
@@ -53,26 +48,16 @@ let loadAllProjects = () => {
                                 </a>
     						</span>
 					    </div>`;
-                    }
-                    // Add last-project class to last element
-                    projectlist.innerHTML +=
-                        `<div class="last-project"></div>`;
-                } else {
-                    projectlist.innerHTML +=
-                        `<div class="project">
+        }
+        // Add last-project class to last element
+        projectlist.innerHTML +=
+            `<div class="last-project"></div>`;
+    } else {
+        projectlist.innerHTML +=
+            `<div class="project">
 					<h2>Inga projekt skapade ännu</h2>
 				</div>`;
-                }
-            } else {
-                if (json.info == "token failed to validate") {
-                    localStorage.removeItem('token');
-                    document.location.href = "index.html";
-                } else {
-                    console.log(json);
-                }
-            }
-        })
-        .catch(error => console.log(error));
+    }
 };
 
 loadAllProjects();
