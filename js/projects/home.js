@@ -1,6 +1,5 @@
 /*global configuration, API*/
 let token = localStorage.getItem('token');
-let user = localStorage.getItem('username');
 
 /**
  * loadAllProjects - Load all project connected to user and display it on page
@@ -10,9 +9,6 @@ let user = localStorage.getItem('username');
 let loadAllProjects = async () => {
     let json = await API.get(configuration.apiURL + `/proj/all?token=${token}`);
     let projectlist = document.getElementsByClassName('projectlist')[0];
-    let userName = document.getElementById('userName');
-
-    userName.innerHTML = `${user}`;
 
     if (json.length > 0) {
         for (let i = 0; i < json.length; i++) {
