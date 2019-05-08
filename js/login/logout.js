@@ -1,3 +1,5 @@
+/* global configuration */
+
 /**
  * logout - Destroys local storage token and redirect user to login page
  *
@@ -22,7 +24,31 @@ let setUsername = () => {
     userName.style = "display: flex; align-items:center;";
 };
 
+/**
+* checkAdminSetNav - adds admin button in nav bar IFF user is admin
+*/
+let checkAdminSetNav = () => {
+    fetch(configuration.apiURL + "/admin/user" + "?token=" + localStorage.getItem('token'))
+        .then((response) => {
+            return response.json();
+        })
+        .then((data) => {
+            console.log(data);
+            if (data.user.isAdmin == 1) {
+                let target = document.getElementById('extraLinks');
+                let element = document.createElement("a");
+
+                element.href = "admin.html";
+                element.innerText = "Admin";
+                target.appendChild(element);
+            }
+            return false;
+        });
+};
+
+
 addEventListener("DOMContentLoaded", () => {
     setUsername();
     logout();
+    checkAdminSetNav();
 });
