@@ -1,4 +1,4 @@
-/* global L configuration */
+/* global L configuration, API */
 export let token = localStorage.getItem('token');
 let id = new URL(window.location.href).searchParams.get('id');
 
@@ -235,14 +235,6 @@ let addHouseOnClick = () => {
 };
 
 /**
- * houseDrawing - Stops drawing guideline if user keyup on 'esc' key
- *
- * @param {type} event - here inside exist the keyCode that the user did a keyup on
- *
- * @returns {void}
- */
-
-/**
  * addPipeOnClick - Adds a polyline (pipe) between two objects after the
  * 					user clicks on two outplaced objects on map
  * 					(marker, polyline, or polygon)
@@ -472,75 +464,59 @@ let loadClickEvent = () => {
  *
  * @returns {void}
  */
-let loadProducts = () => {
-    fetch(
-        `${configuration.apiURL}/obj/all/local/${id}?token=${token}`
-    )
-        .then((response) => {
-            return response.json();
-        })
-        .then((json) => {
-            if (!json.error) {
-                objectData = json;
-                let list = document.getElementsByClassName('obj-list')[0];
+let loadProducts = async () => {
+    let json = await API.get(`${configuration.apiURL}/obj/all/local/${id}?token=${token}`);
 
-                for (let i = 0; i < json.length; i++) {
-                    if (json[i].Kategori != undefined) {
-                        if (document.getElementsByClassName(json[i].Kategori).length == 0 &&
-                            json[i].Kategori != "Pump") {
-                            list.innerHTML +=
-                                `<button class="accordion desc">${json[i].Kategori}</button>
+    objectData = json;
+    let list = document.getElementsByClassName('obj-list')[0];
+
+    for (let i = 0; i < json.length; i++) {
+        if (json[i].Kategori != undefined) {
+            if (document.getElementsByClassName(json[i].Kategori).length == 0 &&
+                json[i].Kategori != "Pump") {
+                list.innerHTML +=
+                    `<button class="accordion desc">${json[i].Kategori}</button>
 						 <div class="panel"></div>`;
 
-                            let panels = document.getElementsByClassName('panel');
-                            let panel = panels[panels.length - 1];
+                let panels = document.getElementsByClassName('panel');
+                let panel = panels[panels.length - 1];
 
-                            let object = document.createElement('div');
+                let object = document.createElement('div');
 
-                            object.innerHTML =
-                                `<div class="obj-container">
+                object.innerHTML =
+                    `<div class="obj-container">
 							<div id="${json[i].Modell}" class="obj ${json[i].Kategori}">
 								<img src="img/${json[i].Modell}.png"/>
 							</div>
 							<div class="obj-desc">${json[i].Modell}</div>
 						 </div>`;
 
-                            panel.appendChild(object);
-                        } else if (json[i].Kategori != "Pump") {
-                            let elements = document.getElementsByClassName(json[i].Kategori);
-                            let panel = elements[0].parentElement.parentElement.parentElement;
+                panel.appendChild(object);
+            } else if (json[i].Kategori != "Pump") {
+                let elements = document.getElementsByClassName(json[i].Kategori);
+                let panel = elements[0].parentElement.parentElement.parentElement;
 
-                            let object = document.createElement('div');
+                let object = document.createElement('div');
 
-                            object.innerHTML =
-                                `<div class="obj-container">
+                object.innerHTML =
+                    `<div class="obj-container">
 							<div id="${json[i].Modell}" class="obj ${json[i].Kategori}">
 						   		<img src="img/${json[i].Modell}.png"/>
 					   		</div>
 					   		<div class="obj-desc">${json[i].Modell}</div>
 						 </div>`;
 
-                            panel.appendChild(object);
-                        }
-                    }
-                }
-
-                accordions();
-                show.activeObj();
-
-                loadClickEvent();
-                addPipeOnClick();
-                addHouseOnClick();
-            } else {
-                if (json.info == "token failed to validate") {
-                    localStorage.removeItem('token');
-                    document.location.href = "index.html";
-                } else {
-                    console.log(json);
-                }
+                panel.appendChild(object);
             }
-        })
-        .catch(error => console.log(error));
+        }
+    }
+
+    accordions();
+    show.activeObj();
+
+    loadClickEvent();
+    addPipeOnClick();
+    addHouseOnClick();
 };
 
 export let loadMap = {
@@ -549,74 +525,50 @@ export let loadMap = {
      *
      * @returns {void}
      */
-    loadData: (editPermission) => {
-        fetch(`${configuration.apiURL}/proj/data/${id}?token=${token}`)
-            .then((response) => {
-                return response.json();
-            })
-            .then((json) => {
-                if (!json.error) {
-                    if (json[0].data.length > 0) {
-                        edit.load(json[0].data);
-                    }
+    loadData: async (editPermission) => {
+        let json = await API.get(`${configuration.apiURL}/proj/data/${id}?token=${token}`);
 
-                    map.on('layeradd', () => {
-                        edit.warning.unsavedChanges(true);
-                    });
+        if (json[0].data.length > 0) {
+            edit.load(json[0].data);
+        }
 
-                    edit.clearMapsEvents();
-                    if (editPermission == true) {
-                        markers.eachLayer((marker) => {
-                            marker.disableDragging();
-                            marker.bindPopup(popup.marker(marker.attributes));
-                            marker.off("popupopen");
-                        });
+        map.on('layeradd', () => {
+            edit.warning.unsavedChanges(true);
+        });
 
-                        polylines.eachLayer((polyline) => {
-                            polyline.options.interactive = false;
-                            polyline.off("click");
-                        });
-
-                        polygons.eachLayer((polygon) => {
-                            polygon.off("click");
-                        });
-                    }
-                } else {
-                    if (json.info == "token failed to validate") {
-                        localStorage.removeItem('token');
-                        document.location.href = "index.html";
-                    } else {
-                        console.log(json);
-                    }
-                }
+        edit.clearMapsEvents();
+        if (editPermission == true) {
+            markers.eachLayer((marker) => {
+                marker.disableDragging();
+                marker.bindPopup(popup.marker(marker.attributes));
+                marker.off("popupopen");
             });
+
+            polylines.eachLayer((polyline) => {
+                polyline.options.interactive = false;
+                polyline.off("click");
+            });
+
+            polygons.eachLayer((polygon) => {
+                polygon.off("click");
+            });
+        }
     },
 
     /**
-     * loadProjectInfo - Get project info and sets project title and saves info for later
-     *
-     * @returns {void}
-     */
-    loadProjectInfo: () => {
-        fetch(`${configuration.apiURL}/proj/info/${id}?token=${token}`)
-            .then((response) => {
-                return response.json();
-            })
-            .then((json) => {
-                if (!json.error) {
-                    let title = document.getElementsByClassName('projekt-titel')[0];
+         * loadProjectInfo - Get project info and sets project title and saves info for later
+         *
+         * @returns {void}
+         */
+    loadProjectInfo: async () => {
+        let json = await API.get(`${configuration.apiURL}/proj/info/${id}?token=${token}`);
+        let title = document.getElementsByClassName('projekt-titel')[0];
 
-                    title.innerHTML = `${json[0].name} ${json[0].version}`;
+        title.innerHTML = `${json[0].name} ${json[0].version}`;
 
-                    projectInfo = json[0];
-                } else {
-                    console.log(json);
-                }
-            });
+        projectInfo = json[0];
     },
 };
-
-
 
 /**
  * onLoadWrite - Initialize the map functionality with the html objects for
@@ -718,27 +670,22 @@ let onLoadRead = () => {
  *
  * @returns {void}
  */
-let getPermission = () => {
+let getPermission = async () => {
     //gets the project ID from the url
     let projectId = new URL(window.location.href).searchParams.get("id");
     //gets token from localStorage
     let token = localStorage.getItem("token");
 
     //fetches the users permission from database to decide which load to use
-    fetch(configuration.apiURL + "/proj/permission/" + projectId + "?token=" + token, {
-        method: "GET",
-    })
-        .then(response => response.json())
-        .then(function(response) {
-            //if user has permission w(write) load onLoadWrite()
-            if (response.permission == "r") {
-                onLoadRead();
-                //if user has permission r(read) load onLoadRead()
-            } else {
-                onLoadWrite();
-            }
-        })
-        .catch(error => console.error('Error:', error));
+    let response = await API.get(configuration.apiURL + "/proj/permission/" + projectId +
+        "?token=" + token);
+
+    if (response.permission == "r") {
+        //if user has permission r(read) load onLoadRead()
+        onLoadRead();
+    } else {
+        onLoadWrite();
+    }
 };
 
 getPermission();
