@@ -216,7 +216,7 @@ export const edit = {
          *
          * @returns {void}
          */
-    load: async (json) => {
+    load: (json) => {
         let icon;
         let newObj;
         let popup;

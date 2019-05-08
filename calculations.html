@@ -15,7 +15,8 @@
               <a href="home.html">Hem</a>
               <a class="active" href="calculations.html">Beräkningar</a>
               <a href="listProducts.html">Produkter</a>
-              <a class="right" id="logout" href="#logout">Logga ut</a>
+			  <a href="changepassword.html">Byt lösenord</a>
+              <a id="logout" href="#logout">Logga ut</a>
           </div>
           <div class="greet-user">
               <span id="userName"></span>
@@ -38,10 +39,6 @@
 							<input class="number-input" data-digits-only step="0.1" type="number" id="height" name="height" placeholder="Höjd" onkeypress="enterPressed(this, event);">&nbsp; m
 						</span>
 						<span class="form-element-pair">
-							<label for="pressure">Statiskt tryck</label><br>
-							<input class="number-input" data-digits-only step="0.1" type="number" id="inPressure" name="pressure" placeholder="Tryck" onkeypress="enterPressed(this, event);">&nbsp; bar
-						</span>
-						<span class="form-element-pair">
 							<label for="material">Material</label><br>
 							<select class="select-input" id="material" name="material">
 								<option value="choose" disabled selected>Välj material</option>
@@ -50,34 +47,27 @@
 								<option value="stainless">Rostfria</option>
 							</select>
 						</span>
-						<span class="form-element-pair radio-bt-txt">
-							<label name="dimension"></label>
-							<input type="radio" id="innerdimension" name="dimension">
-						</span>
-						<span class="form-element-pair radio-bt-txt">
-							<label name="dimension"></label>
-							<input type="radio" id="outerdimension" name="dimension">
-						</span>
-						<span class="form-element-pair radio-bt-txt">
-							<label name="dimension"></label>
-							<input type="radio" id="inches" name="dimension">
-						</span>
 						<span class="form-element-pair">
 							<select class="select-input" id="selectDim">
 							</select>
 						</span>
 						<span class="form-element-pair radio-bt-txt">
 							<label name="pressureChoice"></label>
-							<input type="radio" id="pressure1" name="PN" value="PN6,3"><p></p>
+							<input type="radio" id="pressure1" name="PN" value="PN6,3">
 						</span>
 						<span class="form-element-pair radio-bt-txt">
 							<label name="pressureChoice"></label>
-							<input type="radio" id="pressure2" name="PN" value="PN10"><p></p>
+							<input type="radio" id="pressure2" name="PN" value="PN10">
 						</span>
 						<span class="form-element-pair">
-							<label for="flow" id ="flowLabel"><p></p></label>
+							<label for="flow" id ="flowLabel">Önskat flöde</label>
 							<span id="flow-wrap">
-								<input class="number-input" data-digits-only step="0.1" type="number" id="flow" name="flow" placeholder="0" onkeypress="enterPressed(this, event);">&nbsp; l/s
+								<input class="number-input" data-digits-only step="0.1" type="number" id="flow" name="flow" placeholder="0" onkeypress="enterPressed(this, event);">&nbsp;
+								<select class="select-input" id="selectUnit">
+									<option value="lps" selected>l/s</option>
+									<option value="lpm">l/m</option>
+									<option value="m3ph">m³/h</option>
+								</select>
 							</span>
 						</span>
 						<span class="form-element-pair">
@@ -86,29 +76,40 @@
 							</div>
 						</span>
 					</form>
-					<form class="form-inline results" autocomplete="off">
-						<span class="form-element-pair">
-							<label for="waterSpeed">Flödeshastighet</label><br>
-							<input class="number-input" disabled="disabled" type="number" id="flowSpeed" name="flowSpeed" placeholder="0">&nbsp; m/s
-						</span>
-						<span class="form-element-pair">
-							<label for="loss">Tryckförluster</label><br>
-							<input class="number-input" disabled="disabled" type="number" id="pressureLoss" name="pressureLoss" placeholder="0">&nbsp; bar
-						</span>
-						<span class="form-element-pair">
-								<label for="totalPressure">Totaltryck</label><br>
-								<input class="number-input" disabled="disabled" type="number" id="totalPressure" name="totalPressure" placeholder="0">&nbsp; m
-						</span>
-						<span class="form-element-pair">
-							<label for="capacity">Kapacitet</label><br>
-							<input class="number-input" disabled="disabled" type="number" id="capacity" name="capacity" placeholder="0">&nbsp; l/s
-						</span>
-						<span class="form-element-pair">
-							<label for="pumps" id="pumpLabel"><p></p></label><br>
-							<select class="select-input" id="pumps">
-							</select>
-						</span>
-					</form>
+
+					<div class="all-results">
+						<h3 class="result-header">Resultat</h3>
+						<div class="result">
+							<span class="result-name">Flödeshastighet</span>
+							<span class="result-valueUnit">
+								<span class="result-value" id="flowSpeed"></span>
+								<span class="result-unit">m/s</span>
+							</span>
+						</div>
+						<div class="result">
+							<span class="result-name">Statiskt tryck</span>
+							<span class="result-valueUnit">
+								<span class="result-value" id="staticPressure"></span>
+								<span class="result-unit">m</span>
+							</span>
+						</div>
+						<div class="result">
+							<span class="result-name">Tryckförluster</span>
+							<span class="result-valueUnit">
+								<span class="result-value" id="pressureLoss"></span>
+								<span class="result-unit">m</span>
+							</span>
+						</div>
+						<div class="result">
+							<span class="result-name">Totaltryck</span>
+							<span class="result-valueUnit">
+								<span class="result-value" id="totalPressure"></span>
+								<span class="result-unit">m</span>
+							</span>
+						</div>
+						<div id="pump-suggestions">
+						</div>
+					</div>
 				</div>
 			</div>
 		</body>
