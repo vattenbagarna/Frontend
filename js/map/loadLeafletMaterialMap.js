@@ -120,6 +120,7 @@ map.on("moveend", () => {
                 `Nummer på kartan: ${numbersObj[marker.attributes.Modell].join(', ')}`;
         }
     });
+    map.off("moveend");
 });
 
 let id = new URL(window.location.href).searchParams.get('id');
@@ -162,8 +163,6 @@ let load = (json) => {
 
     //Loop through json data.
     for (let i = 1; i < json.length; i++) {
-        let row;
-
         switch (json[i].type) {
             //if marker add it to the map with its options
             case "marker":
@@ -171,39 +170,31 @@ let load = (json) => {
 
                 newObj = new Marker(json[i].coordinates, json[i].attributes, icon, json[i].id);
 
-                row = table.insertRow(-1);
-
-                if (json[i].attributes != undefined) {
+                if (json[i].attributes != undefined && json[i].attributes != "Förgrening") {
                     if (!objects.hasOwnProperty(json[i].attributes.Modell)) {
-                        row.insertCell(0).innerHTML =
-                            `${json[i].attributes.Modell}`;
-
-                        row.insertCell(1).innerHTML +=
-                            `Antal: 1`;
-
-                        row.insertCell(2).innerHTML +=
-                            `Kategori: ${json[i].attributes.Kategori}`;
+                        let id;
 
                         if (json[i].attributes.RSK != undefined) {
-                            row.insertCell(3).innerHTML +=
-                                `RSK: ${json[i].attributes.RSK}`;
+                            id = `<td>RSK: ${json[i].attributes.RSK}</td>`;
                         } else {
-                            row.insertCell(3).innerHTML +=
-                                `Artikel nummer: ${json[i].attributes.ArtikelNr}`;
+                            id = `<td>Artikel nummer: ${json[i].attributes.ArtikelNr}</td>`;
                         }
 
-                        row.insertCell(4).innerHTML = "test";
-                        row.cells[4].id = json[i].attributes.Modell;
+                        table.innerHTML +=
+                            `<td>${json[i].attributes.Modell}</td>
+						<td id="${json[i].attributes.Modell}Amount">Antal: 1</td>
+						<td>Kategori: ${json[i].attributes.Kategori}</td>
+						${id}
+						<td id="${json[i].attributes.Modell}"></td>
+						<td class="right">
+							Kostnad <input type="number" class='number-input' value=''/>
+						</td>`;
 
-                        row.insertCell(5).innerHTML =
-                            `Kostnad <input type="number" class='number-input' value=''/>`;
-                        row.cells[5].className = "right";
-
-                        objects[json[i].attributes.Modell] = { antal: 1, cell: row.cells[1] };
+                        objects[json[i].attributes.Modell] = { antal: 1 };
                     } else {
                         objects[json[i].attributes.Modell].antal += 1;
-                        objects[json[i].attributes.Modell].cell.innerHTML =
-                            `Antal: ${objects[json[i].attributes.Modell].antal}`;
+                        document.getElementById(`${json[i].attributes.Modell}Amount`).innerHTML =
+                            `<td>Antal: ${objects[json[i].attributes.Modell].antal}</td>`;
                     }
                 }
                 break;
@@ -215,33 +206,32 @@ let load = (json) => {
                     null, json[i].dimension, json[i].tilt);
 
                 if (!pipes.hasOwnProperty(json[i].options.id)) {
-                    let row = table.insertRow(-1);
+                    let id;
 
                     if (json[i].options.id == 'pipe') {
-                        row.insertCell(0).innerHTML = 'Rör';
+                        id = 'Rör';
                     } else {
-                        row.insertCell(0).innerHTML = "Stam rör";
+                        id = "Stam rör";
                     }
-                    let newCell = row.insertCell(1);
 
-                    newCell.innerHTML = json[i].length.toFixed(2) + " m";
-                    row.insertCell(2).innerHTML = "dimension: " + json[i].dimension;
-                    row.insertCell(3).innerHTML = "";
-                    row.insertCell(4).innerHTML = "";
+                    table.innerHTML +=
+                        `<td>${id}</td>
+						<td id="${json[i].options.id}">${json[i].length.toFixed(2)} m</td>
+					<td>dimension: ${json[i].dimension}</td>
+					<td></td>
+					<td></td>
+					<td class="right">
+						Kostnad <input type="number" class='number-input' value=''/>
+					</td>`;
 
                     pipes[json[i].options.id] = {
                         "totalLength": parseInt(json[i].length.toFixed(2)),
-                        "cell": newCell
+                        "cell": document.getElementById(json[i].options.id)
                     };
-                    row.insertCell(5).innerHTML =
-                        `Kostnad <input type="number" class='number-input' value=''/>`;
-
-                    row.cells[5].className = "right";
                 } else {
-                    pipes[json[i].options.id].totalLength += parseInt(json[i].length.toFixed(
-                        2));
+                    pipes[json[i].options.id].totalLength += parseInt(json[i].length.toFixed(2));
                     pipes[json[i].options.id].cell.innerHTML =
-                        pipes[json[i].options.id].totalLength.toFixed(2) + " m";
+                        pipes[json[i].options.id].totalLength + " m";
                 }
                 break;
             case "polygon":
@@ -265,7 +255,7 @@ let load = (json) => {
     let cost = row.insertCell(5);
 
     cost.id = 'displayCost';
-    cost.innerHTML = "";
+    cost.innerHTML = "0 kr";
     cost.className = "right";
 
     let inputs = document.getElementsByClassName('number-input');
