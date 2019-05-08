@@ -7,6 +7,8 @@ import { map, token, projectInfo } from "./loadLeafletMap.js";
 
 import { add, polylines, markers, polygons, getLength } from "./add.js";
 
+import { show, mouseCoord } from "./show.js";
+
 import { popup } from "./popup.js";
 
 import { Marker, House, Pipe } from "./classes.js";
@@ -30,12 +32,15 @@ export const edit = {
                 newLatlng.unshift(event.latlng);
 
                 polyline.setLatLngs(newLatlng);
+                polyline.decorator.setPaths(newLatlng);
             } else if (event.target.id === polyline.connected_with.last) {
                 let newLatlng = polyline.getLatLngs();
 
                 newLatlng.pop();
                 newLatlng.push(event.latlng);
+
                 polyline.setLatLngs(newLatlng);
+                polyline.decorator.setPaths(newLatlng);
             }
         });
         event.target.setPopupContent(popup.marker(event.target.attributes) + popup.changeCoord({
@@ -55,6 +60,7 @@ export const edit = {
     polylines: () => {
         polylines.eachLayer((polyline) => {
             polyline.editingDrag.addHooks();
+            polyline.decorator.removeFrom(map);
             tempPolylineArray.push(polyline._latlngs.length);
         });
 
@@ -69,10 +75,6 @@ export const edit = {
      */
     clearMapsEvents: () => {
         //Gets each polylines and removes the "editing hooks".
-        polylines.eachLayer((polyline) => {
-            polyline.closePopup();
-            polyline.editingDrag.removeHooks();
-        });
 
         //Turn off click events for markers and polylines.
         map.off("click", add.marker);
@@ -84,27 +86,33 @@ export const edit = {
             //for each element in polylines
 
             polylines.eachLayer((polyline) => {
+                polyline.editingDrag.removeHooks();
+                polyline.decorator.addTo(map);
+                polyline.decorator.setPaths(polyline._latlngs);
+
                 //if amount of points has changed
-                if (polyline._latlngs.length != tempPolylineArray[i]) {
+                if (polyline._latlngs.length != tempPolylineArray[i++]) {
                     //Calculates new length of pipe
                     polyline.length = getLength(polyline);
-                    polyline.bindTooltip("Längd: " + Math.round(polyline.length * 100) /
-                        100 + "m");
+                    polyline.bindTooltip(
+                        "Längd: " + Math.round(polyline.length * 100) / 100 + "m");
                 }
-                i++;
             });
-
             isEdit = null;
+            if (mouseCoord != null) {
+                map.on('mousemove', show.mouseCoordOnMap);
+            }
         }
-
-        document.getElementById("myMap").style.cursor = "grab";
 
         //Closes popups and turns off click events for remove and addPipe.
         map.closePopup();
         map.eachLayer((layer) => {
+            if (layer._popup != undefined) { layer._popup.options.autoPan = true; }
+
             layer.off("click", edit.remove);
             layer.off("click", add.pipe);
         });
+        document.getElementById("myMap").style.cursor = "grab";
     },
 
     /**

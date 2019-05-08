@@ -1,6 +1,10 @@
 /* global L configuration */
 export let token = localStorage.getItem('token');
+let id = new URL(window.location.href).searchParams.get('id');
+
 export let projectInfo;
+export let pipeChoice = null;
+export let objectData;
 
 // Imports Google maps javascript api key from getKey.js file
 import { key } from "./getKey.js";
@@ -15,10 +19,6 @@ import { edit } from "./edit.js";
 import { show } from "./show.js";
 
 import { popup } from "./popup.js";
-
-// If it is 'pipe' or 'stemPipe', uses in add.pipe function
-export let pipeChoice = null;
-export let objectData;
 
 // Initialize the map with center coordinates on BAGA HQ and zoom 18.
 export let map;
@@ -258,6 +258,8 @@ let addPipeOnClick = () => {
         // and all polygons but not the map itself
         map.eachLayer((layer) => {
             // On click, call addPipe function from add.js file
+            if (layer._popup != undefined) { layer._popup.options.autoPan = false; }
+
             layer.on("click", add.pipe);
         });
     });
@@ -269,6 +271,7 @@ let addPipeOnClick = () => {
         // On each layer of the map => this means all markers, all polylines
         // and all polygons but not the map itself
         map.eachLayer((layer) => {
+            if (layer._popup != undefined) { layer._popup.options.autoPan = false; }
             // On click on add call addPipe function
             layer.on("click", add.pipe);
         });
@@ -382,6 +385,7 @@ let deleteOnClick = () => {
         // On each layer of the map => this means all markers, all polylines
         // and all polygons but not the map itself
         map.eachLayer((layer) => {
+            if (layer._popup != undefined) { layer._popup.options.autoPan = false; }
             // On click on add call remove function
             layer.on("click", edit.remove);
         });
@@ -470,7 +474,7 @@ let loadClickEvent = () => {
  */
 let loadProducts = () => {
     fetch(
-        `${configuration.apiURL}/obj/all?token=${token}`
+        `${configuration.apiURL}/obj/all/local/${id}?token=${token}`
     )
         .then((response) => {
             return response.json();
@@ -540,15 +544,13 @@ let loadProducts = () => {
 };
 
 export let loadMap = {
-    id: new URL(window.location.href).searchParams.get('id'),
-
     /**
      * loadData - Get project map json data and calls load function in edit.js
      *
      * @returns {void}
      */
     loadData: (editPermission) => {
-        fetch(`${configuration.apiURL}/proj/data/${loadMap.id}?token=${token}`)
+        fetch(`${configuration.apiURL}/proj/data/${id}?token=${token}`)
             .then((response) => {
                 return response.json();
             })
@@ -596,7 +598,7 @@ export let loadMap = {
      * @returns {void}
      */
     loadProjectInfo: () => {
-        fetch(`${configuration.apiURL}/proj/info/${loadMap.id}?token=${token}`)
+        fetch(`${configuration.apiURL}/proj/info/${id}?token=${token}`)
             .then((response) => {
                 return response.json();
             })
@@ -728,11 +730,10 @@ let getPermission = () => {
     })
         .then(response => response.json())
         .then(function(response) {
-            console.log(response);
             //if user has permission w(write) load onLoadWrite()
             if (response.permission == "r") {
                 onLoadRead();
-            //if user has permission r(read) load onLoadRead()
+                //if user has permission r(read) load onLoadRead()
             } else {
                 onLoadWrite();
             }
