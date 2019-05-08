@@ -17,16 +17,17 @@ function showStyling() {
 }
 
 /**
-    * hideStyling - Uncheck the radio buttons
+    * uncheckButtons - Unchecks the radio buttons
     *
     * @returns {void}
     */
-function hideStyling() {
+function uncheckButtons() {
     document.getElementById("pressure1").checked = false;
     document.getElementById("pressure2").checked = false;
 }
-hideStyling();
+uncheckButtons();
 
+// Changes material to the selected one
 document.getElementById("material").addEventListener("change", () => {
     if (document.getElementById("material").value === "PEM") {
         PEMPipe();
@@ -198,7 +199,10 @@ function enterPressed(enter, event) {
     }
 }
 
+// Used for selecting unit
 var selectedUnit = document.getElementById("selectUnit");
+
+// Used for selecting pumps
 var selectedPumps = document.getElementById("pumps");
 
 /**
@@ -211,7 +215,7 @@ function calcAll() {
     let length = parseFloat(document.getElementById("length").value);
     let selectedDim = parseFloat(document.getElementById("selectDim").value);
     let wantedFlow = parseFloat(document.getElementById("flow").value);
-    let mu = 0.01;
+    let mu = 0.1;
 
     selectedDim = changeDim(selectedDim);
     getPumps(wantedFlow, height, selectedDim);
@@ -221,21 +225,15 @@ function calcAll() {
 
     lostPress *= 9.81;
     let roundPress = lostPress.toFixed(2);
-
-    //let rFlow = calcQPump(selectedDim, mu, length, height);
-    //let roundFlow = rFlow.toFixed(2);
-
     let velocity = calcVelocity(wantedFlow, selectedDim);
     let roundVel = velocity.toFixed(2);
     let totalPress = totalPressure(lostPress, height);
     let roundTotal = totalPress.toFixed(2);
 
-
     document.getElementById("flowSpeed").innerText = roundVel;
     document.getElementById("staticPressure").innerText = height;
     document.getElementById("pressureLoss").innerText = roundPress;
     document.getElementById("totalPressure").innerText = roundTotal;
-    //document.getElementById("capacity").innerText = roundFlow;
 
     resetPumps();
 }
@@ -243,6 +241,8 @@ function calcAll() {
 /**
     * getPumps - Fetches all the pumps from the database
     *
+    * @param {number} Flow
+    * @param {number} Height
     * @param {number} Dimension
     *
     * @returns {void}
@@ -261,7 +261,7 @@ function getPumps(wantedFlow, height, selectedDim) {
 /**
     * checkUnit - Changes to the right unit
     *
-    *  @param {number} Wanted flow
+    *  @param {number} Flow
     *
     * @returns {number} Wanted flow
     */
@@ -285,8 +285,8 @@ function checkUnit(wantedFlow) {
 /**
     * changeDim - Converts units
     *
-    *  @param {number} Wanted flow
-    *
+    *  @param {number} Flow
+    *''
     * @returns {number} Wanted flow
     */
 function convertUnit(wantedFlow) {
@@ -308,7 +308,7 @@ function convertUnit(wantedFlow) {
     * recommendPump - Recommends pumps according to calculations
     *
     * @param {object} Pumps
-    * @param {number} Flowcapacity
+    * @param {number} Flow
     * @param {number} Height
     * @param {number} Dimension
     *
@@ -418,8 +418,8 @@ function changeDim(selectedDim) {
   * estPumpValue - Estimates the amount of fluid capacity a given pump can
   * give within a previosly unknown interval.
   *
-  * @param {number} Y value
-  * @param {number} The pumpcurve to calculate on
+  * @param {number} Height
+  * @param {number} Pumpcurve
   *
   * @returns {number} X value
   */
@@ -471,10 +471,10 @@ function estPumpValue(yValue, pumpCurve) {
 /**
   * calcPressure - Calculates lost pressure
   *
-  * @param {number} Flowcapacity
-  * @param {number} Innerdimension
+  * @param {number} Flow
+  * @param {number} Dimension
   * @param {number} MU (friction)
-  * @param {number} Pipelength
+  * @param {number} Length
   *
   * @return {number} Lost pressure
   *
@@ -543,7 +543,7 @@ function calcPressure(wantedFlow, selectedDim, mu, length) {
 /**
     * totalPressure - Calculates total pressure
     *
-    * @param {number} Lost pressure
+    * @param {number} pressure
     * @param {number} Height
     *
     * @returns {number} Total pressure
@@ -557,8 +557,8 @@ function totalPressure(lostPress, height) {
 /**
   * calcVelocity - Calculates velocity
   *
-  * @param {number} Wanted flow
-  * @param {number} Innerdimension
+  * @param {number} Flow
+  * @param {number} Dimension
   *
   * @return {number} Velocity
   *
