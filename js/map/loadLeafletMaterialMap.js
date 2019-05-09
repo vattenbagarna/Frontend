@@ -190,8 +190,10 @@ let load = (json) => {
 
                         if (json[i].attributes.RSK != undefined) {
                             id = `<td>RSK: ${json[i].attributes.RSK}</td>`;
-                        } else {
+                        } else if (json[i].attributes.ArtikelNr != undefined) {
                             id = `<td>Artikel nummer: ${json[i].attributes.ArtikelNr}</td>`;
+                        } else {
+                            id = `<td></td>`;
                         }
 
                         table.innerHTML +=
