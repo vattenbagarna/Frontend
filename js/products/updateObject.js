@@ -181,7 +181,7 @@ let newPumpCurve = () => {
     div.innerHTML =
         `<label>Pumpkurva</label><br>
 	<input class="newKey" id="height" type="number" step="0.1" placeholder="Höjd (m)">
-	<input class="newInput" id="velocity" type="number" step="0.1" placeholder="Hastighet (l/s)">
+	<input class="newInput" id="velocity" type="number" step="0.1" placeholder="Flöde (l/s)">
 	<a class="button2">Lägg till</a>
 	<canvas id="myChart"></canvas>`;
 

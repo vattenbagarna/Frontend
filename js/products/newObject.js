@@ -1,6 +1,7 @@
 /*global configuration, Chart, API */
 let token = localStorage.getItem('token');
 let base64Image = undefined;
+let base64Icon = "../img/exampleIcon.png";
 let myLineChart;
 
 /**
@@ -51,7 +52,11 @@ let loadrequiredFields = async () => {
 				</div>`;
 
     document.getElementById('imageFile').addEventListener('change', () => {
-        encodeImageFileAsURL(document.getElementById('imageFile'));
+        encodeImageFileAsURL(
+            document.getElementById('imageFile'),
+            0,
+            document.getElementById('currentImage')
+        );
     });
 
     document.getElementById('newFieldButton').addEventListener('click', () => {
@@ -137,8 +142,19 @@ let newCategory = () => {
 
     div.innerHTML =
         `<br><label>Den nya kategorin </label><br>
-		<input class="text-input" id="newCategoryInput" type="text">`;
+		<input class="text-input" id="newCategoryInput" type="text">
+		 <label>Kategori ikon</label><br>
+		<img id="currentIcon"/>
+	   <input id="iconFile" type="file" name="pic" accept=".png">`;
     document.getElementById('Kategori').after(div);
+
+    document.getElementById('iconFile').addEventListener('change', () => {
+        encodeImageFileAsURL(
+            document.getElementById('iconFile'),
+            1,
+            document.getElementById('currentIcon')
+        );
+    });
 };
 
 
@@ -156,7 +172,7 @@ let newPumpCurve = () => {
         `<br><label>Pumpkurva</label><br>
 	<input class="number-input newKey" id="height" type="number" step="0.1" placeholder="Höjd (m)">
     <input class="number-input newInput" id="velocity"
-    type="number" step="0.1" placeholder="Hastighet (l/s)">
+    type="number" step="0.1" placeholder="Flöde (l/s)">
 	<a class="button2 button small-button">Lägg till</a>
     <br><br>
 	<canvas id="myChart"></canvas>`;
@@ -281,6 +297,21 @@ let createObject = async () => {
 
     if (newCategory) {
         data.Kategori = newCategory.value;
+
+        let icon = { Kategori: newCategory.value, Bild: base64Icon };
+
+        fetch(`${configuration.apiURL}/obj/categories/icon/insert?token=${token}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(icon),
+        }).then(res => res.json())
+            .then((data) => {
+                if (data.error) {
+                    console.log(data);
+                }
+            });
     } else {
         data.Kategori = document.getElementById('Kategori').value;
     }
@@ -316,17 +347,23 @@ let createObject = async () => {
  * 						- This is done to be able to save image inside database
  *
  * @param {input type="file"} element Input field that contains uploaded image from user
+ * @param {number} id Dictates if base64Image or base64Icon should get overwritten
+ * @param {img} image This image element shows the user which image they have selected
  *
  * @returns {void}
  */
-let encodeImageFileAsURL = (element) => {
+let encodeImageFileAsURL = (element, id, image) => {
     let file = element.files[0];
     let reader = new FileReader();
 
     reader.readAsDataURL(file);
 
     reader.onloadend = () => {
-        base64Image = reader.result;
-        document.getElementById('currentImage').src = reader.result;
+        if (id == 0) {
+            base64Image = reader.result;
+        } else {
+            base64Icon = reader.result;
+        }
+        image.src = reader.result;
     };
 };

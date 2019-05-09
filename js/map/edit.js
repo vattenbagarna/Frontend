@@ -1,9 +1,9 @@
-/* global L, configuration, API */
+/* global configuration, API */
 export let isEdit = null;
 let tempPolylineArray = [];
 
 //imports the map object
-import { map, token, projectInfo } from "./loadLeafletMap.js";
+import { map, token, icons, projectInfo } from "./loadLeafletMap.js";
 
 import { add, polylines, markers, polygons, getLength } from "./add.js";
 
@@ -153,8 +153,6 @@ export const edit = {
                 coordinates: polyline._latlngs,
                 type: "polyline",
                 connected_with: polyline.connected_with,
-                options: polyline.options,
-                popup: polyline.getPopup().getContent(),
                 getLength: polyline.getLength,
                 tilt: polyline.tilt,
                 dimension: polyline.dimension,
@@ -167,11 +165,9 @@ export const edit = {
         //loop through all markers and save them in a json format
         markers.eachLayer((marker) => {
             temp = {
-                coordinates: [marker._latlng.lat, marker._latlng.lng],
+                coordinates: { lat: marker._latlng.lat, lng: marker._latlng.lng },
                 type: "marker",
-                options: marker.options,
                 id: marker.id,
-                popup: marker.getPopup().getContent(),
                 attributes: marker.attributes,
             };
 
@@ -182,12 +178,11 @@ export const edit = {
             temp = {
                 coordinates: polygon._latlngs,
                 type: "polygon",
-                options: polygon.options,
-                popup: polygon.getPopup().getContent(),
                 definition: polygon.definition,
                 address: polygon.address,
                 nop: polygon.nop,
-                flow: polygon.flow
+                flow: polygon.flow,
+                color: polygon.options.color
             };
 
             json.push(temp);
@@ -224,6 +219,7 @@ export const edit = {
     load: (json) => {
         let icon;
         let newObj;
+        let popup;
 
         map.setView(json[0].center, json[0].zoom);
 
@@ -232,37 +228,45 @@ export const edit = {
             switch (json[i].type) {
                 //if marker add it to the map with its options
                 case "marker":
-                    icon = L.icon(json[i].options.icon.options);
-
-                    newObj = new Marker(json[i].coordinates, json[i].attributes, icon, json[i].id);
+                    icon = icons.find(element => element.category == json[i].attributes.Kategori);
+                    newObj = new Marker(json[i].coordinates, json[i].attributes, icon.icon,
+                        json[i].id);
                     break;
                     //if polyline
                 case "polyline":
                     newObj = new Pipe(json[i].coordinates, ["", ""], json[i].pipeType,
                         json[i].connected_with.first);
-                    newObj.draw(json[i].connected_with.last, null, json[i].dimension, json[i].tilt);
+                    newObj.draw(json[i].connected_with.last, null, json[i].dimension, json[i]
+                        .tilt);
                     break;
                 case "polygon":
-                    newObj = new House(json[i].coordinates[0], ["", ""]);
-                    newObj.drawFromLoad(json[i].coordinates, json[i].popup, json[i].nop,
-                        json[i].flow, json[i].options);
+                    newObj = new House(json[i].coordinates[0], ["", ""], json[i].color);
+                    popup = [
+                        json[i].address,
+                        json[i].definition,
+                        json[i].nop,
+                        json[i].flow,
+                        json[i].color
+                    ];
+
+                    newObj.drawFromLoad(json[i].coordinates, popup);
                     break;
             }
         }
     },
 
     /**
-         * warning - Warning message object
-         *
-         * @returns {void}
-         */
+    * warning - Warning message object
+    *
+    * @returns {void}
+    */
     warning: {
         /**
-             * unsavedChanges - Display a warning box when user tries to leave the page that some
-             * 				  - information may not be saved if user exit the page.
-             *				  - Uses window.onbeforeunload.
-             * @returns {void}
-             */
+    	* unsavedChanges - Display a warning box when user tries to leave the page that some
+        * 				  - information may not be saved if user exit the page.
+        *				  - Uses window.onbeforeunload.
+        * @returns {void}
+        */
         unsavedChanges: (value) => {
             if (value) {
                 window.onbeforeunload = () => {

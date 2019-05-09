@@ -33,7 +33,6 @@ export class Marker {
      */
     constructor(latlng, attributes, icon, id = null) {
         this.attributes = attributes;
-
         this.marker = new L.Marker(latlng, options.marker(icon))
             .bindPopup(popup.marker(this.attributes) + popup.changeCoord(latlng))
             .on("drag", edit.moveMarker)
@@ -68,18 +67,42 @@ export class Marker {
         // Add event listener on click on button
         buttons[buttons.length - 1].addEventListener('click', () => {
             // Get new values after click
-            let lat = document.getElementById('latitud').value;
-            let lng = document.getElementById('longitud').value;
+            let latLng = L.latLng(
+                parseFloat(document.getElementById('latitud').value),
+                parseFloat(document.getElementById('longitud').value)
+            );
 
             // Close active popup
             event.target.closePopup();
             // Insert new values to active marker
-            event.target.setLatLng([lat, lng]);
+            event.target.setLatLng(latLng);
             // Move center to map to new values (coordinates)
-            map.panTo([lat, lng]);
+            map.panTo(latLng);
+
+            //get each polyline
+            polylines.eachLayer((polyline) => {
+                //check if polylines are connected to a marker, by first point and last point.
+                if (event.target.id === polyline.connected_with.first) {
+                    //if polyline is connected with marker change lat lng to match marker
+                    let newLatlng = polyline.getLatLngs();
+
+                    newLatlng.shift();
+                    newLatlng.unshift(latLng);
+
+                    polyline.setLatLngs(newLatlng);
+                    polyline.decorator.setPaths(newLatlng);
+                } else if (event.target.id === polyline.connected_with.last) {
+                    let newLatlng = polyline.getLatLngs();
+
+                    newLatlng.pop();
+                    newLatlng.push(latLng);
+
+                    polyline.setLatLngs(newLatlng);
+                    polyline.decorator.setPaths(newLatlng);
+                }
+            });
             // Update popup content with new values
-            event.target.setPopupContent(popup.marker(add.activeObjName) +
-                popup.changeCoord({ lat: lat, lng: lng }));
+            event.target.setPopupContent(popup.marker(this.attributes) + popup.changeCoord(latLng));
         });
     }
 }
@@ -101,10 +124,10 @@ export class House {
      *
      * @returns {void}
      */
-    constructor(latlng, attributes) {
+    constructor(latlng, attributes, color) {
         this.completed = false;
         this.attributes = attributes;
-        this.polygon = L.polygon([latlng], options.house);
+        this.polygon = L.polygon([latlng], options.house(color));
 
         guideline = L.polyline([latlng, latlng], {
             dashArray: '5, 10'
@@ -143,14 +166,15 @@ export class House {
      *
      * @returns {void}
      */
-    drawFromLoad(latlngs, popup, nop, flow, options) {
-        this.polygon.setStyle(options);
+    drawFromLoad(latlngs, values) {
         this.polygon.setLatLngs(latlngs);
-        this.polygon.bindPopup(popup);
+        this.polygon.bindPopup(popup.house(values[0], values[1], values[2], values[3], values[4]));
         polygons.addLayer(this.polygon).addTo(map);
 
-        this.polygon.nop = nop;
-        this.polygon.flow = flow;
+        this.polygon.address = values[0];
+        this.polygon.definition = values[1];
+        this.polygon.nop = values[2];
+        this.polygon.flow = values[3];
         this.completed = true;
 
         map.off('mousemove', this.updateGuideLine);
@@ -207,8 +231,8 @@ export class House {
                         });
 
                     this.polygon.definition = "Hus";
-                    this.polygon.nop = projectInfo.default.personPerHouse;
-                    this.polygon.flow = projectInfo.default.litrePerHouse;
+                    this.polygon.nop = projectInfo.default.peoplePerHouse;
+                    this.polygon.flow = projectInfo.default.litrePerPerson;
                     this.polygon.on('popupopen', this.updateValues);
                     map.off('mousemove', this.updateGuideLine);
                     guideline.remove();
@@ -249,6 +273,10 @@ export class House {
                 fillOpacity: 0.5,
                 weight: 1.5
             });
+
+            event.target.nop = nop;
+            event.target.flow = flow;
+            event.target.definition = type;
 
             // Update popup content with new values
             event.target.setPopupContent(popup.house(addr, type, nop, flow, newColor));
@@ -375,6 +403,7 @@ export class Pipe {
         this.polyline.tilt = this.tilt;
         this.polyline.on('click', add.pipe);
         this.polyline.on('popupopen', this.updateValues);
+        this.polyline.on('remove', () => this.polyline.decorator.remove());
         this.polyline.editingDrag.removeHooks();
         if (mouseCoord != null) {
             map.on('mousemove', show.mouseCoordOnMap);
