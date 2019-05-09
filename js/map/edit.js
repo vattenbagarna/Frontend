@@ -155,6 +155,7 @@ export const edit = {
                 connected_with: polyline.connected_with,
                 getLength: polyline.getLength,
                 tilt: polyline.tilt,
+                material: polyline.material,
                 dimension: polyline.dimension,
                 pipeType: polyline.type,
             };
@@ -179,6 +180,7 @@ export const edit = {
                 coordinates: polygon._latlngs,
                 type: "polygon",
                 definition: polygon.definition,
+                id: polygon.id,
                 address: polygon.address,
                 nop: polygon.nop,
                 flow: polygon.flow,
@@ -236,8 +238,13 @@ export const edit = {
                 case "polyline":
                     newObj = new Pipe(json[i].coordinates, ["", ""], json[i].pipeType,
                         json[i].connected_with.first);
-                    newObj.draw(json[i].connected_with.last, null, json[i].dimension, json[i]
-                        .tilt);
+                    newObj.draw(
+                        json[i].connected_with.last,
+                        null,
+                        json[i].material,
+                        json[i].dimension,
+                        json[i].tilt
+                    );
                     break;
                 case "polygon":
                     newObj = new House(json[i].coordinates[0], ["", ""], json[i].color);
@@ -256,17 +263,17 @@ export const edit = {
     },
 
     /**
-    * warning - Warning message object
-    *
-    * @returns {void}
-    */
+         * warning - Warning message object
+         *
+         * @returns {void}
+         */
     warning: {
         /**
-    	* unsavedChanges - Display a warning box when user tries to leave the page that some
-        * 				  - information may not be saved if user exit the page.
-        *				  - Uses window.onbeforeunload.
-        * @returns {void}
-        */
+             * unsavedChanges - Display a warning box when user tries to leave the page that some
+             * 				  - information may not be saved if user exit the page.
+             *				  - Uses window.onbeforeunload.
+             * @returns {void}
+             */
         unsavedChanges: (value) => {
             if (value) {
                 window.onbeforeunload = () => {
@@ -275,7 +282,7 @@ export const edit = {
             } else {
                 window.onbeforeunload = () => {};
             }
-        },
+        }
     },
 
 };

@@ -11,6 +11,8 @@ import { edit } from "./edit.js";
 
 import { show, mouseCoord } from "./show.js";
 
+import { pipe } from "./pipes.js";
+
 export let guideline = null;
 
 /**
@@ -151,6 +153,8 @@ export class House {
 
         let coord = guideline.getLatLngs();
 
+        this.polygon.id = this.polygon._leaflet_id;
+
         coord.shift();
         coord.unshift(latlng);
     }
@@ -175,6 +179,7 @@ export class House {
         this.polygon.definition = values[1];
         this.polygon.nop = values[2];
         this.polygon.flow = values[3];
+        this.polygon.id = this.polygon._leaflet_id;
         this.completed = true;
 
         map.off('mousemove', this.updateGuideLine);
@@ -320,27 +325,30 @@ export class Pipe {
      *
      * @returns {void}
      **/
-    draw(id, latlng = null, dimension = null, tilt = null) {
+    draw(id, latlng = null, material = null, dimension = null, tilt = null) {
         this.last = id;
         if (latlng != null) { this.latlngs.push(latlng); }
 
-        if (dimension == null && tilt == null) {
+        if (material == null && dimension == null && tilt == null) {
             show.openModal(document.getElementById('pipeModal'));
+            pipe.listen();
 
             document.getElementById("pipeSpecifications").onclick = () => {
-                let modal = document.getElementById("pipeModal");
-                let dimension = document.getElementById("dimension");
-                let tilt = document.getElementById("tilt");
+                document.getElementById("pipeModal").style.display = "none";
+                this.material = document.getElementById('material').value;
+                let value = document.getElementById("dimension").value;
 
-
-                modal.style.display = "none";
-
-                this.dimension = dimension.value;
-                this.tilt = tilt.value;
+                value = value.split(",");
+                this.dimension = {
+                    inner: value[0],
+                    outer: value[1],
+                };
+                this.tilt = document.getElementById("tilt").value;
 
                 this.createPolyline();
             };
         } else {
+            this.material = material;
             this.dimension = dimension;
             this.tilt = tilt;
 
@@ -396,9 +404,10 @@ export class Pipe {
             last: this.last
         };
         polylines.addLayer(this.polyline).addTo(map);
-        this.polyline.bindPopup(popup.pipe(this.dimension, this.tilt));
+        this.polyline.bindPopup(popup.pipe(this.material, this.dimension.outer, this.tilt));
         this.polyline.length = getLength(this.polyline);
         this.polyline.type = this.type;
+        this.polyline.material = this.material;
         this.polyline.dimension = this.dimension;
         this.polyline.tilt = this.tilt;
         this.polyline.on('click', add.pipe);
@@ -426,6 +435,7 @@ export class Pipe {
         // Add event listener on click on button
         buttons[buttons.length - 1].addEventListener('click', () => {
             // Get new values after click
+            let material = document.getElementById('pipeMaterial').value;
             let dim = document.getElementById('dimension').value;
             let tilt = document.getElementById('tilt').value;
 
@@ -436,7 +446,7 @@ export class Pipe {
             event.target.closePopup();
 
             // Update popup content with new values
-            event.target.setPopupContent(popup.pipe(dim, tilt));
+            event.target.setPopupContent(popup.pipe(material, dim, tilt));
         }), { once: true };
     }
 }
