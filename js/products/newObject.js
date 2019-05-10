@@ -1,51 +1,44 @@
-/*global configuration, Chart */
+/*global configuration, Chart, API */
 let token = localStorage.getItem('token');
-let base64Image;
+let base64Image = undefined;
+let base64Icon = "../img/exampleIcon.png";
 let myLineChart;
 
 /**
  * loadrequiredFields - Load basic required input fields for all new object.
  * 					  - Add event listener for new fields, new category and send.
- * 					  - If a error is thrown from API check if token is validated otherwise remove
  * 					  - old token and redirect to login page.
  * 					  - Other errors are put in console
  *
  * @returns {void}
  */
-let loadrequiredFields = () => {
-    fetch(
-        `${configuration.apiURL}/obj/categories?token=${token}`
-    )
-        .then(function(response) {
-            return response.json();
-        })
-        .then(function(json) {
-            if (!json.error) {
-                let main = document.getElementsByClassName('main-wrap')[0];
+let loadrequiredFields = async () => {
+    let json = await API.get(`${configuration.apiURL}/obj/categories?token=${token}`);
+    let main = document.getElementsByClassName('main-wrap')[0];
 
-                main.innerHTML +=
-                    `<label>Kategori</label><br>
+    main.innerHTML +=
+        `<label>Kategori</label><br>
 				<select class="select-input" id="Kategori">
                 <option disabled selected></option></select><br>`;
 
-                let select = document.getElementById("Kategori");
+    let select = document.getElementById("Kategori");
 
-                for (let i = 0; i < json.length; i++) {
-                    let option = document.createElement('option');
+    for (let i = 0; i < json.length; i++) {
+        let option = document.createElement('option');
 
-                    option.id = json[i];
-                    option.text = json[i];
-                    select.add(option);
-                }
+        option.id = json[i];
+        option.text = json[i];
+        select.add(option);
+    }
 
-                let option = document.createElement('option');
+    let option = document.createElement('option');
 
-                option.text = "Ny kategori";
-                select.add(option);
+    option.text = "Ny kategori";
+    select.add(option);
 
 
-                main.innerHTML +=
-                    `<br><label>Modell</label><br>
+    main.innerHTML +=
+        `<br><label>Modell</label><br>
 			 <input class="text-input" id="Modell" type="text"><br><br>
 			 <label>Produktbild</label><br>
 			 <img id="currentImage"/>
@@ -58,61 +51,51 @@ let loadrequiredFields = () => {
 					<a id="send" class="button">SKAPA</a>
 				</div>`;
 
-                document.getElementById('imageFile').addEventListener('change', () => {
-                    encodeImageFileAsURL(document.getElementById('imageFile'));
-                });
+    document.getElementById('imageFile').addEventListener('change', () => {
+        encodeImageFileAsURL(
+            document.getElementById('imageFile'),
+            0,
+            document.getElementById('currentImage')
+        );
+    });
 
-                document.getElementById('newFieldButton').addEventListener('click', () => {
-                    newField(main);
-                });
+    document.getElementById('newFieldButton').addEventListener('click', () => {
+        newField(main);
+    });
 
-                document.getElementById('send').addEventListener('click', () => {
-                    createObject(json);
-                });
+    document.getElementById('send').addEventListener('click', () => {
+        createObject(json);
+    });
 
-                document.getElementById('Kategori').addEventListener('change', (event) => {
-                    let value = event.target.value;
-                    let newInput = document.getElementById('newCategoryInput');
-                    let pumpCurve = document.getElementById('pumpCurve');
-                    let newPumpDiv = document.getElementById('newPump');
+    document.getElementById('Kategori').addEventListener('change', async (event) => {
+        let value = event.target.value;
+        let newInput = document.getElementById('newCategoryInput');
+        let pumpCurve = document.getElementById('pumpCurve');
+        let newPumpDiv = document.getElementById('newPump');
 
-                    if (value == "Pumpstationer") {
-                        fetch(
-                            `${configuration.apiURL}/obj/type/Pump?token=${token}`
-                        )
-                            .then(function(response) {
-                                return response.json();
-                            })
-                            .then(function(json) {
-                                newPump(json);
-                            });
-                    } else if (newPumpDiv) {
-                        newPumpDiv.parentElement.removeChild(newPumpDiv);
-                    }
+        if (value == "Pumpstationer") {
+            let json = await API.get(
+                `${configuration.apiURL}/obj/type/Pump?token=${token}`);
 
-                    if (value == "Ny kategori") {
-                        newCategory(value);
-                    } else if (newInput) {
-                        let parent = newInput.parentElement;
+            newPump(json);
+        } else if (newPumpDiv) {
+            newPumpDiv.parentElement.removeChild(newPumpDiv);
+        }
 
-                        parent.parentElement.removeChild(parent);
-                    }
+        if (value == "Ny kategori") {
+            newCategory(value);
+        } else if (newInput) {
+            let parent = newInput.parentElement;
 
-                    if (value == "Pump") {
-                        newPumpCurve();
-                    } else if (pumpCurve) {
-                        pumpCurve.parentElement.removeChild(pumpCurve);
-                    }
-                });
-            } else {
-                if (json.info == "token failed to validate") {
-                    localStorage.removeItem('token');
-                    document.location.href = "index.html";
-                } else {
-                    console.log(json);
-                }
-            }
-        });
+            parent.parentElement.removeChild(parent);
+        }
+
+        if (value == "Pump") {
+            newPumpCurve();
+        } else if (pumpCurve) {
+            pumpCurve.parentElement.removeChild(pumpCurve);
+        }
+    });
 };
 
 loadrequiredFields();
@@ -131,10 +114,12 @@ let newPump = (pumps) => {
     div.id = "newPump";
 
     div.innerHTML =
-        `<label>Pump</label>
-		<select id="pumpSelect"><option disabled selected></option></select>
-		<label>Antal pumpar</label>
-		<input id="nrOfPumps" type="text">`;
+        `<br><label>Pump</label>
+		<select class="select-input" id="pumpSelect">
+            <option disabled selected></option>
+        </select>
+		<label>Antal pumpar</label><br>
+		<input class="number-input" id="nrOfPumps" type="number">`;
 
     document.getElementById('Modell').after(div);
     let select = document.getElementById('pumpSelect');
@@ -157,8 +142,19 @@ let newCategory = () => {
 
     div.innerHTML =
         `<br><label>Den nya kategorin </label><br>
-		<input class="text-input" id="newCategoryInput" type="text">`;
+		<input class="text-input" id="newCategoryInput" type="text">
+		 <label>Kategori ikon</label><br>
+		<img id="currentIcon"/>
+	   <input id="iconFile" type="file" name="pic" accept=".png">`;
     document.getElementById('Kategori').after(div);
+
+    document.getElementById('iconFile').addEventListener('change', () => {
+        encodeImageFileAsURL(
+            document.getElementById('iconFile'),
+            1,
+            document.getElementById('currentIcon')
+        );
+    });
 };
 
 
@@ -176,7 +172,7 @@ let newPumpCurve = () => {
         `<br><label>Pumpkurva</label><br>
 	<input class="number-input newKey" id="height" type="number" step="0.1" placeholder="Höjd (m)">
     <input class="number-input newInput" id="velocity"
-    type="number" step="0.1" placeholder="Hastighet (l/s)">
+    type="number" step="0.1" placeholder="Flöde (l/s)">
 	<a class="button2 button small-button">Lägg till</a>
     <br><br>
 	<canvas id="myChart"></canvas>`;
@@ -290,7 +286,7 @@ let newField = () => {
  *
  * @returns {void}
  */
-let createObject = () => {
+let createObject = async () => {
     let data = {};
     let newCategory = document.getElementById('newCategoryInput');
     let pumpCurve = document.getElementById('pumpCurve');
@@ -301,6 +297,21 @@ let createObject = () => {
 
     if (newCategory) {
         data.Kategori = newCategory.value;
+
+        let icon = { Kategori: newCategory.value, Bild: base64Icon };
+
+        fetch(`${configuration.apiURL}/obj/categories/icon/insert?token=${token}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(icon),
+        }).then(res => res.json())
+            .then((data) => {
+                if (data.error) {
+                    console.log(data);
+                }
+            });
     } else {
         data.Kategori = document.getElementById('Kategori').value;
     }
@@ -316,29 +327,17 @@ let createObject = () => {
     }
 
     data.Bild = base64Image;
+    data.isDisabled = 0;
+    data.approved = 0;
 
     for (let i = 0; i < newFields.length; i++) {
         data[newFields[i].children[0].value] = newFields[i].children[1].value;
     }
 
-    let url =
-        `${configuration.apiURL}/obj/insert?token=${token}`;
+    await API.post(`${configuration.apiURL}/obj/insert?token=${token}`, 'application/json',
+        JSON.stringify(data));
 
-    fetch(url, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-    }).then(res => res.json())
-        .then((data) => {
-            if (data.error) {
-                console.log(data);
-            } else {
-                document.location.href = "listProducts.html";
-            }
-        })
-        .catch(error => console.log(error));
+    document.location.href = "listProducts.html";
 };
 
 
@@ -348,17 +347,23 @@ let createObject = () => {
  * 						- This is done to be able to save image inside database
  *
  * @param {input type="file"} element Input field that contains uploaded image from user
+ * @param {number} id Dictates if base64Image or base64Icon should get overwritten
+ * @param {img} image This image element shows the user which image they have selected
  *
  * @returns {void}
  */
-let encodeImageFileAsURL = (element) => {
+let encodeImageFileAsURL = (element, id, image) => {
     let file = element.files[0];
     let reader = new FileReader();
 
     reader.readAsDataURL(file);
 
     reader.onloadend = () => {
-        base64Image = reader.result;
-        document.getElementById('currentImage').src = reader.result;
+        if (id == 0) {
+            base64Image = reader.result;
+        } else {
+            base64Icon = reader.result;
+        }
+        image.src = reader.result;
     };
 };

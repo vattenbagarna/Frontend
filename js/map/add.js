@@ -9,7 +9,7 @@ export let markers = L.layerGroup();
 export let polygons = L.layerGroup();
 
 // Imports the map object.
-import { map, pipeChoice, objectData } from "./loadLeafletMap.js";
+import { map, icons, pipeChoice, objectData } from "./loadLeafletMap.js";
 
 // Imports three classes that are used for the project.
 import { Marker, House, Pipe } from "./classes.js";
@@ -47,7 +47,7 @@ export const add = {
         if (house != null) {
             house.draw(event.latlng);
         } else {
-            house = new House(event.latlng, ["house"]);
+            house = new House(event.latlng, ["house"], '#3388ff');
         }
     },
 
@@ -156,18 +156,14 @@ let addBranchConnection = (event, target) => {
 
     firstLatlngs.push(event.latlng);
     target.setLatLngs(firstLatlngs);
+    target.decorator.setPaths(firstLatlngs);
 
     secondLatlngs.unshift(event.latlng);
 
-    let url = 'https://cdn4.iconfinder.com/data/icons/bathroom-accessory-outline/32/14-512.png';
-
     // Creates the marker for branch connector.
-    let branchMarker = new Marker(event.latlng, ["Förgrening"], L.icon({
-        iconAnchor: [19.5, 19.5],
-        iconSize: [39, 39],
-        iconUrl: url,
-        popupAnchor: [0, -19.5]
-    }));
+    let icon = icons.find(element => element.category == "Förgrening");
+
+    let branchMarker = new Marker(event.latlng, {Kategori: "Förgrening"}, icon.icon);
 
     newLine = {
         latlngs: secondLatlngs,

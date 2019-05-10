@@ -1,11 +1,13 @@
-/* global L, configuration */
+/* global configuration, API */
 export let isEdit = null;
 let tempPolylineArray = [];
 
 //imports the map object
-import { map, token, projectInfo } from "./loadLeafletMap.js";
+import { map, token, icons, projectInfo } from "./loadLeafletMap.js";
 
 import { add, polylines, markers, polygons, getLength } from "./add.js";
+
+import { show, mouseCoord } from "./show.js";
 
 import { popup } from "./popup.js";
 
@@ -30,20 +32,24 @@ export const edit = {
                 newLatlng.unshift(event.latlng);
 
                 polyline.setLatLngs(newLatlng);
+                polyline.decorator.setPaths(newLatlng);
             } else if (event.target.id === polyline.connected_with.last) {
                 let newLatlng = polyline.getLatLngs();
 
                 newLatlng.pop();
                 newLatlng.push(event.latlng);
-                polyline.setLatLngs(newLatlng);
-            }
-        });
-        event.target.setPopupContent(popup.marker(event.target.attributes) + popup.changeCoord({
-            lat: event.latlng.lat,
-            lng: event.latlng.lng
-        }));
 
-        edit.warning.unsavedChanges(true);
+                polyline.setLatLngs(newLatlng);
+                polyline.decorator.setPaths(newLatlng);
+            }
+
+            event.target.setPopupContent(popup.marker(event.target.attributes) + popup.changeCoord({
+                lat: event.latlng.lat,
+                lng: event.latlng.lng
+            }));
+
+            edit.warning.unsavedChanges(true);
+        });
     },
 
     /**
@@ -55,6 +61,7 @@ export const edit = {
     polylines: () => {
         polylines.eachLayer((polyline) => {
             polyline.editingDrag.addHooks();
+            polyline.decorator.removeFrom(map);
             tempPolylineArray.push(polyline._latlngs.length);
         });
 
@@ -69,10 +76,6 @@ export const edit = {
      */
     clearMapsEvents: () => {
         //Gets each polylines and removes the "editing hooks".
-        polylines.eachLayer((polyline) => {
-            polyline.closePopup();
-            polyline.editingDrag.removeHooks();
-        });
 
         //Turn off click events for markers and polylines.
         map.off("click", add.marker);
@@ -84,27 +87,33 @@ export const edit = {
             //for each element in polylines
 
             polylines.eachLayer((polyline) => {
+                polyline.editingDrag.removeHooks();
+                polyline.decorator.addTo(map);
+                polyline.decorator.setPaths(polyline._latlngs);
+
                 //if amount of points has changed
-                if (polyline._latlngs.length != tempPolylineArray[i]) {
+                if (polyline._latlngs.length != tempPolylineArray[i++]) {
                     //Calculates new length of pipe
                     polyline.length = getLength(polyline);
-                    polyline.bindTooltip("Längd: " + Math.round(polyline.length * 100) /
-                        100 + "m");
+                    polyline.bindTooltip(
+                        "Längd: " + Math.round(polyline.length * 100) / 100 + "m");
                 }
-                i++;
             });
-
             isEdit = null;
+            if (mouseCoord != null) {
+                map.on('mousemove', show.mouseCoordOnMap);
+            }
         }
-
-        document.getElementById("myMap").style.cursor = "grab";
 
         //Closes popups and turns off click events for remove and addPipe.
         map.closePopup();
         map.eachLayer((layer) => {
+            if (layer._popup != undefined) { layer._popup.options.autoPan = true; }
+
             layer.off("click", edit.remove);
             layer.off("click", add.pipe);
         });
+        document.getElementById("myMap").style.cursor = "grab";
     },
 
     /**
@@ -128,7 +137,7 @@ export const edit = {
      * @param {string} version version number the user wants to save the project under
      * @returns {void}
      */
-    save: (version) => {
+    save: async (version) => {
         let json = [];
         let temp;
 
@@ -145,9 +154,7 @@ export const edit = {
                 coordinates: polyline._latlngs,
                 type: "polyline",
                 connected_with: polyline.connected_with,
-                options: polyline.options,
-                popup: polyline.getPopup().getContent(),
-                length: polyline.length,
+                getLength: polyline.getLength,
                 tilt: polyline.tilt,
                 dimension: polyline.dimension,
                 pipeType: polyline.type,
@@ -159,11 +166,9 @@ export const edit = {
         //loop through all markers and save them in a json format
         markers.eachLayer((marker) => {
             temp = {
-                coordinates: [marker._latlng.lat, marker._latlng.lng],
+                coordinates: { lat: marker._latlng.lat, lng: marker._latlng.lng },
                 type: "marker",
-                options: marker.options,
                 id: marker.id,
-                popup: marker.getPopup().getContent(),
                 attributes: marker.attributes,
             };
 
@@ -174,12 +179,11 @@ export const edit = {
             temp = {
                 coordinates: polygon._latlngs,
                 type: "polygon",
-                options: polygon.options,
-                popup: polygon.getPopup().getContent(),
                 definition: polygon.definition,
                 address: polygon.address,
                 nop: polygon.nop,
-                flow: polygon.flow
+                flow: polygon.flow,
+                color: polygon.options.color
             };
 
             json.push(temp);
@@ -188,55 +192,35 @@ export const edit = {
         if (version == projectInfo.version) {
             let id = new URL(window.location.href).searchParams.get('id');
 
-            fetch(`${configuration.apiURL}/proj/update/data/${id}?token=${token}`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(json),
-            }).then(res => res.json())
-                .then(() => edit.warning.unsavedChanges(false))
-                .catch(error => console.log(error));
+            await API.post(`${configuration.apiURL}/proj/update/data/${id}?token=${token}`,
+                'application/json', JSON.stringify(json));
+
+            edit.warning.unsavedChanges(false);
         } else {
-            let id;
-
             projectInfo.version = version;
-            fetch(`${configuration.apiURL}/proj/insert?token=${token}`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(projectInfo),
-            }).then(res => res.json())
-                .then((response) => {
-                    id = response._id;
 
-                    fetch(`${configuration.apiURL}/proj/update/data/${id}?token=${token}`, {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify(json),
-                    }).then(res => res.json())
-                        .then(() => {
-                            edit.warning.unsavedChanges(false);
-                            document.location.href = `map.html?id=${id}`;
-                        })
-                        .catch(error => console.log(error));
-                })
-                .catch(error => console.log(error));
+            let response = await API.post(
+                `${configuration.apiURL}/proj/insert?token=${token}`,
+                'application/json', JSON.stringify(projectInfo));
+
+            await API.post(
+                `${configuration.apiURL}/proj/update/data/${response._id}?token=${token}`,
+                'application/json', JSON.stringify(json));
+
+            edit.warning.unsavedChanges(false);
+            document.location.href = `map.html?id=${response._id}`;
         }
     },
 
     /**
-     * load - Load objects(markers, polylines, polygons) to the map using json
-     * data
-     *
-     * @returns {void}
-     */
+         * load - Load objects(markers, polylines, polygons) to the map using json data
+         *
+         * @returns {void}
+         */
     load: (json) => {
         let icon;
         let newObj;
+        let popup;
 
         map.setView(json[0].center, json[0].zoom);
 
@@ -245,37 +229,45 @@ export const edit = {
             switch (json[i].type) {
                 //if marker add it to the map with its options
                 case "marker":
-                    icon = L.icon(json[i].options.icon.options);
-
-                    newObj = new Marker(json[i].coordinates, json[i].attributes, icon, json[i].id);
+                    icon = icons.find(element => element.category == json[i].attributes.Kategori);
+                    newObj = new Marker(json[i].coordinates, json[i].attributes, icon.icon,
+                        json[i].id);
                     break;
                     //if polyline
                 case "polyline":
                     newObj = new Pipe(json[i].coordinates, ["", ""], json[i].pipeType,
                         json[i].connected_with.first);
-                    newObj.draw(json[i].connected_with.last, null, json[i].dimension, json[i].tilt);
+                    newObj.draw(json[i].connected_with.last, null, json[i].dimension, json[i]
+                        .tilt);
                     break;
                 case "polygon":
-                    newObj = new House(json[i].coordinates[0], ["", ""]);
-                    newObj.drawFromLoad(json[i].coordinates, json[i].popup, json[i].nop,
-                        json[i].flow, json[i].options);
+                    newObj = new House(json[i].coordinates[0], ["", ""], json[i].color);
+                    popup = [
+                        json[i].address,
+                        json[i].definition,
+                        json[i].nop,
+                        json[i].flow,
+                        json[i].color
+                    ];
+
+                    newObj.drawFromLoad(json[i].coordinates, popup);
                     break;
             }
         }
     },
 
     /**
-     * warning - Warning message object
-     *
-     * @returns {void}
-     */
+    * warning - Warning message object
+    *
+    * @returns {void}
+    */
     warning: {
         /**
-         * unsavedChanges - Display a warning box when user tries to leave the page that some
-         * 				  - information may not be saved if user exit the page.
-         *				  - Uses window.onbeforeunload.
-         * @returns {void}
-         */
+    	* unsavedChanges - Display a warning box when user tries to leave the page that some
+        * 				  - information may not be saved if user exit the page.
+        *				  - Uses window.onbeforeunload.
+        * @returns {void}
+        */
         unsavedChanges: (value) => {
             if (value) {
                 window.onbeforeunload = () => {

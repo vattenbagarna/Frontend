@@ -1,12 +1,17 @@
-/* global L configuration */
+/* global L configuration, API */
 export let token = localStorage.getItem('token');
+let id = new URL(window.location.href).searchParams.get('id');
+
 export let projectInfo;
+export let pipeChoice = null;
+export let objectData = [];
+export let icons = [];
 
 // Imports Google maps javascript api key from getKey.js file
 import { key } from "./getKey.js";
 
 // Imports object add with multible functions from add.js file that uses the leaflet library
-import { add } from "./add.js";
+import { add, markers } from "./add.js";
 
 // Imports object edit with multible functions from eidt.js file that uses the leaflet library
 import { edit } from "./edit.js";
@@ -14,16 +19,10 @@ import { edit } from "./edit.js";
 // Imports object show with multible functions from show.js file that uses the leaflet library
 import { show } from "./show.js";
 
-// If it is 'pipe' or 'stemPipe', uses in add.pipe function
-export let pipeChoice = null;
-export let objectData = [];
+import { popup } from "./popup.js";
 
 // Initialize the map with center coordinates on BAGA HQ and zoom 18.
-export const map = L.map("myMap", {
-    center: [56.208640, 15.632630],
-    editable: true,
-    zoom: 18
-});
+export let map;
 
 // Creates script link to Google Maps javascript API with our key
 // then append it to head of map.html.
@@ -198,30 +197,6 @@ let saveBox = () => {
 };
 
 /**
- * addMarkerOnClick - Displays a marker on the map with its custom icon
- *
- * @param {array} elements All elements with the same class
- * @param {L.icon} icon    Leaflet icon @see {@link https://leafletjs.com/reference-1.4.0.html#icon}
- *
- * @returns {void}
- */
-let addMarkerOnClick = (elements, icon) => {
-    // For each element
-    for (let i = 0; i < elements.length; i++) {
-        // Add a click event listenr
-        elements[i].parentElement.addEventListener("click", () => {
-            // Set markers info and icon
-            add.activeObjName = elements[i].id;
-            add.activeIcon = icon;
-
-            // Call addMarker function in add.js
-            map.on("click", add.marker);
-            document.getElementById("myMap").style.cursor = "pointer";
-        });
-    }
-};
-
-/**
  * addHouseOnClick - On click the user draws polygons on the map and a house
  * 					 add are created
  *
@@ -235,14 +210,6 @@ let addHouseOnClick = () => {
         document.getElementById("myMap").style.cursor = "pointer";
     });
 };
-
-/**
- * houseDrawing - Stops drawing guideline if user keyup on 'esc' key
- *
- * @param {type} event - here inside exist the keyCode that the user did a keyup on
- *
- * @returns {void}
- */
 
 /**
  * addPipeOnClick - Adds a polyline (pipe) between two objects after the
@@ -260,6 +227,8 @@ let addPipeOnClick = () => {
         // and all polygons but not the map itself
         map.eachLayer((layer) => {
             // On click, call addPipe function from add.js file
+            if (layer._popup != undefined) { layer._popup.options.autoPan = false; }
+
             layer.on("click", add.pipe);
         });
     });
@@ -271,6 +240,7 @@ let addPipeOnClick = () => {
         // On each layer of the map => this means all markers, all polylines
         // and all polygons but not the map itself
         map.eachLayer((layer) => {
+            if (layer._popup != undefined) { layer._popup.options.autoPan = false; }
             // On click on add call addPipe function
             layer.on("click", add.pipe);
         });
@@ -384,6 +354,7 @@ let deleteOnClick = () => {
         // On each layer of the map => this means all markers, all polylines
         // and all polygons but not the map itself
         map.eachLayer((layer) => {
+            if (layer._popup != undefined) { layer._popup.options.autoPan = false; }
             // On click on add call remove function
             layer.on("click", edit.remove);
         });
@@ -391,240 +362,173 @@ let deleteOnClick = () => {
 };
 
 /**
- * loadClickEvent - Description
+ * addMarkerOnClick - Displays a marker on the map with its custom icon
  *
- * @returns {type} Description
- */
-let loadClickEvent = () => {
-    addMarkerOnClick(document.getElementsByClassName('Pumpstationer'),
-        L.icon({
-            iconAnchor: [19.5, 19.5],
-            iconSize: [39, 39],
-            iconUrl: `img/pump.png`,
-            popupAnchor: [0, -19.5]
-        }));
-
-    addMarkerOnClick(document.getElementsByClassName("Fettavskiljare"),
-        L.icon({
-            iconAnchor: [19.5, 19.5],
-            iconSize: [39, 39],
-            iconUrl: `img/symbol_fettavskiljare.png`,
-            popupAnchor: [0, -19.5]
-        }));
-
-    addMarkerOnClick(document.getElementsByClassName("Oljeavskiljare"),
-        L.icon({
-            iconAnchor: [19.5, 19.5],
-            iconSize: [39, 39],
-            iconUrl: `img/symbol_oljeavskiljare.png`,
-            popupAnchor: [0, -19.5]
-        }));
-
-
-
-    addMarkerOnClick(document.getElementsByClassName("Slamavskiljare"),
-        L.icon({
-            iconAnchor: [19.5, 19.5],
-            iconSize: [39, 39],
-            iconUrl: `img/symbol_slamavskiljare.png`,
-            popupAnchor: [0, -19.5]
-        }));
-
-    addMarkerOnClick(document.getElementsByClassName("BioTank"),
-        L.icon({
-            iconAnchor: [36.5, 19.5],
-            iconSize: [73, 39],
-            iconUrl: `img/symbol_utjämningsbrunn.png`,
-            popupAnchor: [0, -19.5]
-        }));
-
-    addMarkerOnClick(document.getElementsByClassName("Källsorterat avlopp"),
-        L.icon({
-            iconAnchor: [36.5, 19.5],
-            iconSize: [73, 39],
-            iconUrl: `img/symbol_elementbrunn.png`,
-            popupAnchor: [0, -19.5]
-        }));
-
-
-    addMarkerOnClick(document.getElementsByClassName("Kompaktbädd"),
-        L.icon({
-            iconAnchor: [36.5, 19.5],
-            iconSize: [73, 39],
-            iconUrl: `img/symbol_utjämningsbrunn.png`,
-            popupAnchor: [0, -19.5]
-        }));
-
-    addMarkerOnClick(document.getElementsByClassName("endpoint"),
-        L.icon({
-            iconAnchor: [19.5, 19.5],
-            iconSize: [39, 39],
-            iconUrl: `img/endpointmarker.png`,
-            popupAnchor: [0, -19.5]
-        }));
-};
-
-
-/**
- * loadProducts - Loads all products from database and with each category creates a new accordion
+ * @param {array} elements All elements with the same class
+ * @param {L.icon} icon    Leaflet icon @see {@link https://leafletjs.com/reference-1.4.0.html#icon}
  *
  * @returns {void}
  */
-let loadProducts = () => {
-    fetch(
-        `${configuration.apiURL}/obj/all?token=${token}`
-    )
-        .then((response) => {
-            return response.json();
-        })
-        .then((json) => {
-            if (!json.error) {
-                let list = document.getElementsByClassName('obj-list')[0];
+let addMarkerOnClick = (elements, icon) => {
+    // For each element
+    for (let i = 0; i < elements.length; i++) {
+        // Add a click event listener
+        elements[i].parentElement.addEventListener("click", () => {
+            // Set markers info and icon
+            add.activeObjName = elements[i].id;
+            add.activeIcon = icon;
 
-                for (let i = 0; i < json.length; i++) {
-                    if (json[i].Kategori != undefined) {
-                        if (document.getElementsByClassName(json[i].Kategori).length == 0 &&
-                            json[i].Kategori != "Pump") {
-                            list.innerHTML +=
-                                `<button class="accordion desc">${json[i].Kategori}</button>
-						 <div class="panel"></div>`;
-
-                            let panels = document.getElementsByClassName('panel');
-                            let panel = panels[panels.length - 1];
-
-                            let object = document.createElement('div');
-
-                            object.innerHTML =
-                                `<div class="obj-container">
-							<div id="${json[i].Modell}" class="obj ${json[i].Kategori}">
-								<img src="${json[i].Bild}"/>
-							</div>
-							<div class="obj-desc">${json[i].Modell}</div>
-						 </div>`;
-
-                            panel.appendChild(object);
-
-                            delete json[i].Bild;
-                            delete json[i].creatorID;
-                            delete json[i]._id;
-                            objectData.push(json[i]);
-                        } else if (json[i].Kategori != "Pump") {
-                            let elements = document.getElementsByClassName(json[i].Kategori);
-                            let panel = elements[0].parentElement.parentElement.parentElement;
-
-                            let object = document.createElement('div');
-
-                            object.innerHTML =
-                                `<div class="obj-container">
-							<div id="${json[i].Modell}" class="obj ${json[i].Kategori}">
-						   		<img src="${json[i].Bild}"/>
-					   		</div>
-					   		<div class="obj-desc">${json[i].Modell}</div>
-						 </div>`;
-
-                            panel.appendChild(object);
-
-                            delete json[i].Bild;
-                            delete json[i].creatorID;
-                            delete json[i]._id;
-                            objectData.push(json[i]);
-                        }
-                    }
-                }
-                accordions();
-                show.activeObj();
-
-                loadClickEvent();
-                addPipeOnClick();
-                addHouseOnClick();
-            } else {
-                if (json.info == "token failed to validate") {
-                    localStorage.removeItem('token');
-                    document.location.href = "index.html";
-                } else {
-                    console.log(json);
-                }
-            }
-        })
-        .catch(error => console.log(error));
+            // Call addMarker function in add.js
+            map.on("click", add.marker);
+            document.getElementById("myMap").style.cursor = "pointer";
+        });
+    }
 };
+
+/**
+ * loadClickEvent - loads all icons to each category that is desplayed on map
+ *					Calls addMarkerOnClick function to add eventListener to each product
+ *
+ * @returns {void}
+ */
+let loadClickEvent = async () => {
+    for (let i = 0; i < icons.length; i++) {
+        addMarkerOnClick(document.getElementsByClassName(icons[i].category), icons[i].icon);
+    }
+};
+
 
 export let loadMap = {
-    id: new URL(window.location.href).searchParams.get('id'),
-
     /**
-     * loadData - Get project map json data and calls load function in edit.js
+     * loadProducts - Loads all products from database and each category creates a new accordion
      *
      * @returns {void}
      */
-    loadData: () => {
-        fetch(`${configuration.apiURL}/proj/data/${loadMap.id}?token=${token}`)
-            .then((response) => {
-                return response.json();
-            })
-            .then((json) => {
-                if (!json.error) {
-                    if (json[0].data.length > 0) {
-                        edit.load(json[0].data);
-                    }
+    loadProducts: async () => {
+        let json = await API.get(`${configuration.apiURL}/obj/all/local/${id}?token=${token}`);
+        let list = document.getElementsByClassName('obj-list')[0];
 
-                    map.on('layeradd', () => {
-                        edit.warning.unsavedChanges(true);
-                    });
+        for (let i = 0; i < json.length; i++) {
+            if (json[i].Kategori != undefined) {
+                if (document.getElementsByClassName(json[i].Kategori).length == 0 &&
+                        json[i].Kategori != "Pump") {
+                    list.innerHTML +=
+                            `<button class="accordion desc">${json[i].Kategori}</button>
+							<div class="panel"></div>`;
 
-                    edit.clearMapsEvents();
-                } else {
-                    if (json.info == "token failed to validate") {
-                        localStorage.removeItem('token');
-                        document.location.href = "index.html";
-                    } else {
-                        console.log(json);
-                    }
+                    let panels = document.getElementsByClassName('panel');
+                    let panel = panels[panels.length - 1];
+
+                    let object = document.createElement('div');
+
+                    object.innerHTML =
+                            `<div class="obj-container">
+							   <div id="${json[i].Modell}" class="obj ${json[i].Kategori}">
+								   <img src="${json[i].Bild}"/>
+							   </div>
+							   <div class="obj-desc">${json[i].Modell}</div>
+							</div>`;
+
+                    panel.appendChild(object);
+
+                    delete json[i].Bild;
+                    delete json[i].creatorID;
+                    delete json[i]._id;
+                    objectData.push(json[i]);
+                } else if (json[i].Kategori != "Pump") {
+                    let elements = document.getElementsByClassName(json[i].Kategori);
+                    let panel = elements[0].parentElement.parentElement.parentElement;
+
+                    let object = document.createElement('div');
+
+                    object.innerHTML =
+                            `<div class="obj-container">
+							   <div id="${json[i].Modell}" class="obj ${json[i].Kategori}">
+								   <img src="${json[i].Bild}"/>
+							   </div>
+							   <div class="obj-desc">${json[i].Modell}</div>
+							</div>`;
+
+                    panel.appendChild(object);
                 }
+            }
+        }
+
+        accordions();
+        show.activeObj();
+        loadClickEvent();
+        addPipeOnClick();
+        addHouseOnClick();
+    },
+    /**
+         * loadData - Get project map json data and calls load function in edit.js
+         *
+         * @returns {void}
+         */
+    loadData: async (editPermission) => {
+        let json = await API.get(
+            `${configuration.apiURL}/proj/data/${id}?token=${token}`
+        );
+
+        if (json[0].data.length > 0) {
+            edit.load(json[0].data);
+        }
+
+        map.on('layeradd', () => {
+            edit.warning.unsavedChanges(true);
+        });
+
+        edit.clearMapsEvents();
+        if (editPermission == true) {
+            markers.eachLayer((marker) => {
+                marker.disableDragging();
+                marker.bindPopup(popup.marker(marker.attributes));
+                marker.off("popupopen");
             });
+        }
     },
 
     /**
-     * loadProjectInfo - Get project info and sets project title and saves info for later
-     *
-     * @returns {void}
-     */
-    loadProjectInfo: () => {
-        fetch(`${configuration.apiURL}/proj/info/${loadMap.id}?token=${token}`)
-            .then((response) => {
-                return response.json();
-            })
-            .then((json) => {
-                if (!json.error) {
-                    let title = document.getElementsByClassName('projekt-titel')[0];
+             * loadProjectInfo - Get project info and sets project title and saves info for later
+             *
+             * @returns {void}
+             */
+    loadProjectInfo: async () => {
+        let json = await API.get(
+            `${configuration.apiURL}/proj/info/${id}?token=${token}`
+        );
+        let title = document.getElementsByClassName('projekt-titel')[0];
 
-                    title.innerHTML = `${json[0].name} ${json[0].version}`;
+        title.innerHTML = `${json[0].name} ${json[0].version}`;
 
-                    projectInfo = json[0];
-                } else {
-                    console.log(json);
-                }
-            });
+        projectInfo = json[0];
     },
 };
 
-
-
 /**
- * onLoad - Initialize the map functionality with html objects
+ * onLoadWrite - Initialize the map functionality with the html objects for
+ * when a user has the write property
  *
  * @returns {void}
  */
-let onLoad = () => {
-    loadMap.loadData();
+let onLoadWrite = () => {
+    map = L.map("myMap", {
+        center: [56.208640, 15.632630],
+        editable: true,
+        zoom: 18
+    });
+    //loads all the products to the map
+    loadMap.loadProducts();
     loadMap.loadProjectInfo();
-    loadProducts();
+    //loads the gridlayers, satellite or map
     gridlayers();
+    //loads all the custom controls
     customControl('map');
     customControl('timeline');
     customControl('control_camera');
     customControl('bar_chart');
     customControl('delete');
+    //loads search functionality
     add.search();
 
     doNothingonClick();
@@ -637,6 +541,132 @@ let onLoad = () => {
 
     //make the blue border appear on mouse icon button on load
     document.getElementById('map').click();
+
+    //gets project data and info
+    loadMap.loadData(false);
 };
 
-onLoad();
+/**
+ * onLoadRead - Initialize the map functionality with html objects, when user
+ * has read property
+ *
+ * @returns {void}
+ */
+let onLoadRead = () => {
+    //Gets the HTML objets which needs to change
+    let sidebar = document.getElementsByClassName(
+        "sidebar");
+    let mapElem = document.getElementsByClassName(
+        "map");
+    let back = document.getElementById("readBack");
+
+    //hides the sidebar
+    sidebar[0].style.display = "none";
+    //map width to 100%
+    mapElem[0].style.width = "100%";
+    //reinitializes the map after it has gotten width = 100% to remove gray area
+    map = L.map("myMap", {
+        center: [56.208640, 15.632630],
+        editable: true,
+        zoom: 18
+    });
+
+    loadMap.loadProducts();
+    loadMap.loadProjectInfo();
+
+    //loads the custom controls for read property
+    customControl('map');
+    customControl('control_camera');
+    customControl('bar_chart');
+    //loads search functionality
+    add.search();
+    doNothingonClick();
+    toggleMouseCoordOnClick();
+    getDistanceOnClick();
+
+    //create an a tag to go back to home
+    var backLink = document.createElement("a");
+
+    //sets the CSS and attributes for the a tag
+    backLink.setAttribute("class", "material-icons");
+    backLink.setAttribute("href", "/home.html");
+    backLink.innerHTML = "arrow_back";
+    back.appendChild(backLink);
+    backLink.style.position = "fixed";
+    backLink.style.bottom = "35px";
+    backLink.style.zIndex = "9999";
+    backLink.style.fontSize = "60px";
+    backLink.style.textDecoration = "none";
+    backLink.style.color = "gray";
+
+    //loads project data and info
+    loadMap.loadData(true);
+};
+//loads the gridlayers, satellite or map
+
+/**
+ * getPermission - Gets the permission of the user and loads the correct
+ * function depending on permission
+ *
+ * @returns {void}
+ */
+let getPermission = async () => {
+    let json = await API.get(
+        `${configuration.apiURL}/obj/categories/icon/all?token=${token}`);
+
+    for (let i = 0; i < json.length; i++) {
+        let image = new Image();
+        let iconSize;
+
+        image.src = json[i].Bild;
+        image.onload = () => {
+            if (json[i].Kategori != 'Förgrening') {
+                iconSize = calculateAspectRatioFit(image.naturalWidth,
+                    image.naturalHeight, 75, 40);
+            } else {
+                iconSize = { width: 20, height: 20 };
+            }
+
+            let icon = {
+                category: json[i].Kategori,
+                icon: L.icon({
+                    iconAnchor: [iconSize.width / 2, iconSize.height / 2],
+                    iconSize: [iconSize.width, iconSize.height],
+                    iconUrl: json[i].Bild,
+                    popupAnchor: [0, -(iconSize.height / 2)]
+                })
+            };
+
+            icons.push(icon);
+        };
+    }
+
+    //fetches the users permission from database to decide which load to use
+    let response = await API.get(configuration.apiURL + "/proj/permission/" + id +
+        "?token=" + token);
+
+    if (response.permission == "r") {
+        //if user has permission r(read) load onLoadRead()
+        onLoadRead();
+    } else {
+        onLoadWrite();
+    }
+};
+
+getPermission();
+
+/**
+ * Conserve aspect ratio of the original region. Useful when shrinking/enlarging
+ * images to fit into a certain area.
+ *
+ * @param {Number} srcWidth width of source image
+ * @param {Number} srcHeight height of source image
+ * @param {Number} maxWidth maximum available width
+ * @param {Number} maxHeight maximum available height
+ * @return {Object} { width, height }
+ */
+function calculateAspectRatioFit(srcWidth, srcHeight, maxWidth, maxHeight) {
+    var ratio = Math.min(maxWidth / srcWidth, maxHeight / srcHeight);
+
+    return { width: srcWidth * ratio, height: srcHeight * ratio };
+}

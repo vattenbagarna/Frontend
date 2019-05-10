@@ -12,12 +12,14 @@
         <script type="module" src="js/map/show.js"></script>
         <script type="module" src="js/map/edit.js"></script>
         <script src="js/configVariables.js" charset="utf-8"></script>
+		<script src="js/APIMiddleware.js" charset="utf-8"></script>
         <script type="text/javascript" src="https://revh.github.io/leaflet-draggable-polyline/leaflet.geometryutil.js"></script>
         <script type="text/javascript" src="https://rawgit.com/RevH/leaflet-draggable-polyline/master/leaflet-draggable-polyline.js"></script>
         <script src="https://unpkg.com/esri-leaflet"></script>
         <link rel="stylesheet" href="https://unpkg.com/esri-leaflet-geocoder/dist/esri-leaflet-geocoder.css">
         <script src="https://unpkg.com/esri-leaflet-geocoder"></script>
         <script src='https://unpkg.com/leaflet.gridlayer.googlemutant@latest/Leaflet.GoogleMutant.js'></script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/leaflet-polylinedecorator/1.1.0/leaflet.polylineDecorator.js'></script>
     </head>
     <body>
         <div class="wrap-all">
@@ -52,7 +54,7 @@
                                 </div>
                             </div>
                             <div class="obj-container">
-                                <div id="Utsläppspunkt" class="obj obj-icon endpoint">
+                                <div id="Utsläppspunkt" class="obj obj-icon Utsläppspunkt">
                                     <i class="material-icons obj-icon">explicit</i>
                                 </div>
                                 <div class="obj-desc">
@@ -64,6 +66,10 @@
                 </div>
                 <div class="buttons">
                     <a class="link">
+											<div class="fancy-light-button">
+													<span id="calcButton">Beräkna</span>
+													<i class="material-icons">chevron_right</i>
+											</div>
                         <div class="fancy-light-button">
                             <span>SE OBJEKTDATA</span>
                             <i class="material-icons">chevron_right</i>
@@ -76,13 +82,14 @@
             </div>
             <div class="map" id="myMap"></div>
         </div>
+		<div id="readBack"></div>
         <div id="pipeModal" class="modal">
             <div class="modal-content">
                 <span class="close">&times;</span>
                 <b>Rör</b>
                 <br></br>
-                <label>Inner Dimension</label>
-                <input type="number" id="dimension" name="dimension" placeholder="Inner dimension..">
+                <label>Innerdiameter</label>
+                <input type="number" id="dimension" name="dimension" placeholder="Innerdiameter..">
                 <label>Lutning</label>
                 <input type="number" id="tilt" name="tilt" placeholder="Luting på röret..">
                 <input type="button" id="pipeSpecifications" value="Skicka">
