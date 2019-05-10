@@ -459,6 +459,8 @@ export let loadMap = {
             }
         }
 
+        objectData.push({ Modell: "Utsläppspunkt", Kategori: "Utsläppspunkt" });
+
         accordions();
         show.activeObj();
         loadClickEvent();
