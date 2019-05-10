@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-/* global configuration */
+/* global configuration, calculations */
 
 /**
  * showStyling - Displays the boxes
@@ -347,8 +347,8 @@ function recommendPump(pumps, wantedFlow, height, selectedDim) {
         if (!found) {
             if (height < pumps[i].Pumpkurva[0].y && height >
                 pumps[i].Pumpkurva[pumps[i].Pumpkurva.length - 1].y) {
-                mps = convertUnit(checkUnit(calculations.calcVelocity(estPumpValue(height, pumps[i].Pumpkurva),
-                    selectedDim)));
+                mps = convertUnit(checkUnit(calculations.calcVelocity(estPumpValue(height,
+                    pumps[i].Pumpkurva), selectedDim)));
                 if (mps >= 0.6 && mps <= 3) {
                     div = document.createElement("div");
                     div.className = "obj-container";
