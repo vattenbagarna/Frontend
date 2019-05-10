@@ -99,6 +99,13 @@ map.on("moveend", () => {
             } else {
                 numbersObj[marker.attributes.Modell].push(i);
             }
+
+            if (!numbersObj.hasOwnProperty(marker.attributes.Pump)) {
+                numbersObj[marker.attributes.Pump] = [i];
+            } else {
+                numbersObj[marker.attributes.Pump].push(i);
+            }
+
             var pixelPosition = map.latLngToLayerPoint(marker._latlng);
             //console.log(pixelPosition);
 
@@ -115,9 +122,14 @@ map.on("moveend", () => {
 
             var currentDiv = document.getElementById("mapDiv");
 
+            console.log(marker.attributes.Pump);
             document.body.insertBefore(newDiv, currentDiv);
             document.getElementById(marker.attributes.Modell).innerHTML =
                 `Nummer på kartan: ${numbersObj[marker.attributes.Modell].join(', ')}`;
+            if (marker.attributes.Pump != undefined) {
+                document.getElementById(marker.attributes.Pump).innerHTML =
+                    `Nummer på kartan: ${numbersObj[marker.attributes.Pump].join(', ')}`;
+            }
         }
     });
     map.off("moveend");
@@ -157,6 +169,7 @@ let load = (json) => {
 
 
     let objects = {};
+    let pumps = {};
     let pipes = {};
 
     //map.setView(json[0].center, json[0].zoom);
@@ -176,8 +189,10 @@ let load = (json) => {
 
                         if (json[i].attributes.RSK != undefined) {
                             id = `<td>RSK: ${json[i].attributes.RSK}</td>`;
-                        } else {
+                        } else if (json[i].attributes.ArtikelNr != undefined) {
                             id = `<td>Artikel nummer: ${json[i].attributes.ArtikelNr}</td>`;
+                        } else {
+                            id = `<td></td>`;
                         }
 
                         table.innerHTML +=
@@ -190,11 +205,33 @@ let load = (json) => {
 							Kostnad <input type="number" class='number-input' value=''/>
 						</td>`;
 
+                        if (json[i].attributes.Pump != undefined &&
+                            !pumps.hasOwnProperty(json[i].attributes.Pump)) {
+                            table.innerHTML +=
+                                `<td>${json[i].attributes.Pump}</td>
+    						<td id="${json[i].attributes.Pump}Amount">Antal: 1</td>
+    						<td>Kategori: Pump</td>
+    						<td></td>
+    						<td id="${json[i].attributes.Pump}"></td>
+    						<td class="right">
+    							Kostnad <input type="number" class='number-input' value=''/>
+    						</td>`;
+                            pumps[json[i].attributes.Pump] = { antal: 1 };
+                        } else if (json[i].attributes.Pump != undefined) {
+                            pumps[json[i].attributes.Pump].antal += 1;
+                            document.getElementById(`${json[i].attributes.Pump}Amount`).innerHTML =
+                                `<td>Antal: ${pumps[json[i].attributes.Pump].antal}</td>`;
+                        }
                         objects[json[i].attributes.Modell] = { antal: 1 };
                     } else {
                         objects[json[i].attributes.Modell].antal += 1;
                         document.getElementById(`${json[i].attributes.Modell}Amount`).innerHTML =
                             `<td>Antal: ${objects[json[i].attributes.Modell].antal}</td>`;
+                        if (json[i].attributes.Pump != undefined) {
+                            pumps[json[i].attributes.Pump].antal += 1;
+                            document.getElementById(`${json[i].attributes.Pump}Amount`).innerHTML =
+                                `<td>Antal: ${pumps[json[i].attributes.Pump].antal}</td>`;
+                        }
                     }
                 }
                 break;
@@ -258,6 +295,9 @@ let load = (json) => {
     cost.innerHTML = "0 kr";
     cost.className = "right";
 
+    //let strValue = table.children[0].children[0].children[1].innerHTML;
+    //console.log(stringToNumber(strValue));
+
     let inputs = document.getElementsByClassName('number-input');
 
     for (let i = 0; i < inputs.length; i++) {
@@ -266,7 +306,12 @@ let load = (json) => {
             let totalCost = 0;
 
             for (let i = 0; i < costInput.length; i++) {
-                if (costInput[i].value.length > 0) { totalCost += parseInt(costInput[i].value); }
+                if (costInput[i].value.length > 0) {
+                    let strValue = table.children[i].children[0].children[1].innerHTML;
+                    let multiplier = stringToNumber(strValue);
+
+                    totalCost += parseInt(costInput[i].value * multiplier);
+                }
             }
             document.getElementById("displayCost").innerHTML = totalCost + " kr";
         });
@@ -276,6 +321,23 @@ let load = (json) => {
     getBounds();
 };
 
+/**
+ * stringToNumber
+ *
+ * @returns {string} ret
+ */
+const stringToNumber = (strValue) => {
+    let number = strValue.split(" ");
+    let ret = "No Number";
+
+    for (let i = 0; i < number.length; i++) {
+        if (!isNaN(number[i])) {
+            return parseInt(number[i]);
+        }
+    }
+
+    return ret;
+};
 
 /**
  * Marker - Class for creation of marker and underlying functionality for each object
