@@ -247,6 +247,23 @@ body {
     width: 20%;
 }
 
+.loading {
+    animation: spin 1s linear infinite;
+    text-align: center;
+    margin: auto;
+    width: 100%;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.elevation {
+    display: none;
+}
+
 .close {
     color: #aaaaaa;
     float: right;
