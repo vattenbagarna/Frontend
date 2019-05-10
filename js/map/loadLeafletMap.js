@@ -450,6 +450,11 @@ export let loadMap = {
 							</div>`;
 
                     panel.appendChild(object);
+
+                    delete json[i].Bild;
+                    delete json[i].creatorID;
+                    delete json[i]._id;
+                    objectData.push(json[i]);
                 }
             }
         }
@@ -617,7 +622,13 @@ let getPermission = async () => {
         let iconSize;
 
         image.src = json[i].Bild;
-        image.onload = () => {
+
+        /**
+         * resizeImage - Save icon object with category and L.icon
+         * 			   - Leaflet icon @see {@link https://leafletjs.com/reference-1.4.0.html#icon}
+         * 			   - The icon size is changed to below W:75 & H:40 but keeps aspect ratio
+         */
+        let resizeImage = () => {
             if (json[i].Kategori != 'Förgrening') {
                 iconSize = calculateAspectRatioFit(image.naturalWidth,
                     image.naturalHeight, 75, 40);
@@ -637,6 +648,8 @@ let getPermission = async () => {
 
             icons.push(icon);
         };
+
+        image.onload = await resizeImage();
     }
 
     //fetches the users permission from database to decide which load to use
