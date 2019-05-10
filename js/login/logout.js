@@ -33,11 +33,11 @@ let checkAdminSetNav = () => {
             return response.json();
         })
         .then((data) => {
-            console.log(data);
             if (data.user.isAdmin == 1) {
                 let target = document.getElementById('extraLinks');
                 let element = document.createElement("a");
 
+                element.classList += "admin-active";
                 element.href = "admin.html";
                 element.innerText = "Admin";
                 target.appendChild(element);
