@@ -1,5 +1,5 @@
 export let popup = {
-    marker: (attributes) => {
+    marker: (attributes, elevation) => {
         let temp = "";
 
         for (let key in attributes) {
@@ -22,6 +22,7 @@ export let popup = {
         <div class='content'>
 			<table>
 		        	${temp}
+                    <tr><td>M ö.h: ${elevation}</td></tr>
 			</table>
 		</div>
     </li>`;

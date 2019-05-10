@@ -5,11 +5,13 @@ import { popup } from "./popup.js";
 
 import { options } from "./options.js";
 
-import { polylines, markers, polygons, add, getLength, clearHouse, addElevation } from "./add.js";
+import { polylines, markers, polygons, add, getLength, clearHouse } from "./add.js";
 
 import { edit } from "./edit.js";
 
 import { show, mouseCoord } from "./show.js";
+
+import { elevationKey } from "./getKey.js";
 
 export let guideline = null;
 
@@ -33,13 +35,12 @@ export class Marker {
      */
     constructor(latlng, attributes, icon, id = null) {
         this.attributes = attributes;
-
         this.marker = new L.Marker(latlng, options.marker(icon))
-            .bindPopup(popup.marker(this.attributes) + popup.changeCoord(latlng))
+            .on("dragend", this.getElevation)
             .on("drag", edit.moveMarker)
-            .on("dragend", edit.updateElevation)
             .on('popupopen', this.updateCoords);
 
+        this.getElevation(latlng);
         this.marker.attributes = this.attributes;
         this.marker.disableDragging = () => { this.marker.dragging.disable(); return this.marker; };
         this.marker.enableDragging = () => { this.marker.dragging.enable(); };
@@ -69,19 +70,67 @@ export class Marker {
         // Add event listener on click on button
         buttons[buttons.length - 1].addEventListener('click', () => {
             // Get new values after click
-            let lat = document.getElementById('latitud').value;
-            let lng = document.getElementById('longitud').value;
+            let latLng = L.latLng(
+                parseFloat(document.getElementById('latitud').value),
+                parseFloat(document.getElementById('longitud').value)
+            );
 
             // Close active popup
             event.target.closePopup();
             // Insert new values to active marker
-            event.target.setLatLng([lat, lng]);
+            event.target.setLatLng(latLng);
             // Move center to map to new values (coordinates)
-            map.panTo([lat, lng]);
+            map.panTo(latLng);
+
+            //get each polyline
+            polylines.eachLayer((polyline) => {
+                //check if polylines are connected to a marker, by first point and last point.
+                if (event.target.id === polyline.connected_with.first) {
+                    //if polyline is connected with marker change lat lng to match marker
+                    let newLatlng = polyline.getLatLngs();
+
+                    newLatlng.shift();
+                    newLatlng.unshift(latLng);
+
+                    polyline.setLatLngs(newLatlng);
+                    polyline.decorator.setPaths(newLatlng);
+                } else if (event.target.id === polyline.connected_with.last) {
+                    let newLatlng = polyline.getLatLngs();
+
+                    newLatlng.pop();
+                    newLatlng.push(latLng);
+
+                    polyline.setLatLngs(newLatlng);
+                    polyline.decorator.setPaths(newLatlng);
+                }
+            });
             // Update popup content with new values
-            event.target.setPopupContent(popup.marker(add.activeObjName) +
-                popup.changeCoord({ lat: lat, lng: lng }));
+            event.target.setPopupContent(popup.marker(this.attributes) + popup.changeCoord(latLng));
         });
+    }
+
+    async getElevation(event) {
+        console.log(event);
+        let latlngString = "";
+        let latlngObj = {};
+        if ("target" in event) {
+            latlngString = event.target._latlng.lat + "," + event.target._latlng.lng;
+            latlngObj = {lat: event.target._latlng.lat, lng: event.target._latlng.lng};
+        } else {
+            latlngString = event.lat + "," + event.lng;
+            latlngObj = {lat: event.lat, lng: event.lng};
+        }
+        let url = "https://cors-anywhere.herokuapp.com/https://maps.googleapis.com" +
+        "/maps/api/elevation/json?locations=" + latlngString + "&key=" + elevationKey;
+
+        let response = await API.get(url);
+        if ("target" in event) {
+            event.target.elevation = response.results[0].elevation.toFixed(2);
+            event.target.bindPopup(popup.marker(this.attributes, event.target.elevation) + popup.changeCoord(latlngObj));
+        } else {
+            this.marker.elevation = response.results[0].elevation.toFixed(2);
+            this.marker.bindPopup(popup.marker(this.attributes, this.marker.elevation) + popup.changeCoord(latlngObj));
+        }
     }
 }
 
@@ -102,10 +151,10 @@ export class House {
      *
      * @returns {void}
      */
-    constructor(latlng, attributes) {
+    constructor(latlng, attributes, color) {
         this.completed = false;
         this.attributes = attributes;
-        this.polygon = L.polygon([latlng], options.house);
+        this.polygon = L.polygon([latlng], options.house(color));
 
         guideline = L.polyline([latlng, latlng], {
             dashArray: '5, 10'
@@ -144,14 +193,15 @@ export class House {
      *
      * @returns {void}
      */
-    drawFromLoad(latlngs, popup, nop, flow, options) {
-        this.polygon.setStyle(options);
+    drawFromLoad(latlngs, values) {
         this.polygon.setLatLngs(latlngs);
-        this.polygon.bindPopup(popup);
+        this.polygon.bindPopup(popup.house(values[0], values[1], values[2], values[3], values[4]));
         polygons.addLayer(this.polygon).addTo(map);
 
-        this.polygon.nop = nop;
-        this.polygon.flow = flow;
+        this.polygon.address = values[0];
+        this.polygon.definition = values[1];
+        this.polygon.nop = values[2];
+        this.polygon.flow = values[3];
         this.completed = true;
 
         map.off('mousemove', this.updateGuideLine);
@@ -208,8 +258,8 @@ export class House {
                         });
 
                     this.polygon.definition = "Hus";
-                    this.polygon.nop = projectInfo.default.personPerHouse;
-                    this.polygon.flow = projectInfo.default.litrePerHouse;
+                    this.polygon.nop = projectInfo.default.peoplePerHouse;
+                    this.polygon.flow = projectInfo.default.litrePerPerson;
                     this.polygon.on('popupopen', this.updateValues);
                     map.off('mousemove', this.updateGuideLine);
                     guideline.remove();
@@ -251,6 +301,10 @@ export class House {
                 weight: 1.5
             });
 
+            event.target.nop = nop;
+            event.target.flow = flow;
+            event.target.definition = type;
+
             // Update popup content with new values
             event.target.setPopupContent(popup.house(addr, type, nop, flow, newColor));
         }), { once: true };
@@ -277,6 +331,33 @@ export class Pipe {
         this.attribute = attributes;
         this.type = type;
         this.first = id;
+    }
+
+    async getElevation(latlngs) {
+        let latlngsArray = [];
+        let elevationObj = {};
+        for (var i = 0; i < 2; i++) {
+            latlngsArray.push(this.polyline._latlngs[i].lat + "," + this.polyline._latlngs[i].lng);
+        }
+        latlngsArray = latlngsArray.join('|');
+        let samples = Math.round(getLength(this.polyline) / 2);
+        let url = "https://cors-anywhere.herokuapp.com/https://maps.googleapis.com" +
+        "/maps/api/elevation/json?path=" + latlngsArray + "&samples=" +
+        samples + "&key=" + elevationKey;
+
+        let response = await API.get(url);
+        let highestElevation = Math.max(...response.results.map(o => o.elevation), 0);
+        let lowestElevation = Math.min(...response.results.map(o => o.elevation));
+        let firstElevation = response.results[0].elevation;
+        let lastElevation = response.results[response.results.length - 1].elevation;
+        elevationObj = {
+            highestElevation: highestElevation,
+            lowestElevation: lowestElevation,
+            firstElevation: firstElevation,
+            lastElevation: lastElevation
+        };
+        console.log(elevationObj);
+        return elevationObj;
     }
 
     /**
@@ -331,6 +412,7 @@ export class Pipe {
     createPolyline() {
         if (this.type == 0) {
             this.polyline = new L.polyline(this.latlngs, options.pipe);
+            this.getElevation(this.latlngs);
             this.polyline.decorator = L.polylineDecorator(this.polyline, {
                 patterns: [{
                     offset: '28%',
@@ -347,6 +429,7 @@ export class Pipe {
             }).addTo(map);
         } else if (this.type == 1) {
             this.polyline = new L.polyline(this.latlngs, options.stemPipe);
+            this.getElevation(this.latlngs);
             this.polyline.decorator = L.polylineDecorator(this.polyline, {
                 patterns: [{
                     offset: '28%',
@@ -376,12 +459,11 @@ export class Pipe {
         this.polyline.tilt = this.tilt;
         this.polyline.on('click', add.pipe);
         this.polyline.on('popupopen', this.updateValues);
+        this.polyline.on('remove', () => this.polyline.decorator.remove());
         this.polyline.editingDrag.removeHooks();
         if (mouseCoord != null) {
             map.on('mousemove', show.mouseCoordOnMap);
         }
-
-        addElevation(this.polyline);
     }
 
     /**

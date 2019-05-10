@@ -9,7 +9,7 @@ export let markers = L.layerGroup();
 export let polygons = L.layerGroup();
 
 // Imports the map object.
-import { map, pipeChoice, objectData } from "./loadLeafletMap.js";
+import { map, icons, pipeChoice, objectData } from "./loadLeafletMap.js";
 
 import { elevationKey } from "./getKey.js";
 
@@ -35,7 +35,6 @@ export const add = {
                 break;
             }
         }
-
         new Marker(event.latlng, object, add.activeIcon);
     },
 
@@ -50,7 +49,7 @@ export const add = {
         if (house != null) {
             house.draw(event.latlng);
         } else {
-            house = new House(event.latlng, ["house"]);
+            house = new House(event.latlng, ["house"], '#3388ff');
         }
     },
 
@@ -127,68 +126,6 @@ export let getLength = (polyline) => {
 };
 
 /**
- * addValueToPolyline - Adds the values recieved from addElevation() to the polyline
- *
- * @param {object} polyline - the polyline which the values will be added to
- * @param {int} value - Value from addElevation() fetch
- * @param {string} which - specifies where a value will be added
- *
- * @returns {void}
- */
-let addValueToPolyline = (polyline, value, which) => {
-    if (which == "maxHeight") {
-        polyline.highestElevation = value;
-    } else if (which == "firstHeight") {
-        polyline.firstElevation = value;
-    } else if (which == "lastHeight") {
-        polyline.lastElevation = value;
-    }
-};
-
-/**
- * addElevation - gets elevation values from google elevation API and calls
- * addValueToPolyline() to add them
- *
- * @param {object} polyline - which polyline to add the values to and get latlng
- * for the API call
- *
- * @returns {void}
- */
-export let addElevation = (polyline) => {
-    let latlngsArray = [];
-
-    //Loops through polyline and creates and array with its lats and lngs
-    for (var i = 0; i < 2; i++) {
-        latlngsArray.push(polyline._latlngs[i].lat + "," + polyline._latlngs[i].lng);
-    }
-    //Instead of the array being separated by commas google API wants it separated
-    //with a "pipe" which is why this is done
-    latlngsArray = latlngsArray.join('|');
-
-    //fetches google elevation API. https://cors-anywhere.herokuapp.com/ is
-    //used to avoid cors error/network error when trying to call the API
-    fetch("https://cors-anywhere.herokuapp.com/https://maps.googleapis.com" +
-    "/maps/api/elevation/json?path=" + latlngsArray + "&samples=10&key=" + elevationKey, {
-        method: "GET",
-    })
-        .then(response => response.json())
-        .then(function(response) {
-            //Find the highest elevation from the response
-            let highestElevation = Math.max(...response.results.map(o => o.elevation), 0);
-            //elevation where polyline starts
-            let firstElevation = response.results[0].elevation;
-            //elevation where polyline ends
-            let lastElevation = response.results[9].elevation;
-
-            //adds all the values we got to the polyline
-            addValueToPolyline(polyline, highestElevation, "maxHeight");
-            addValueToPolyline(polyline, firstElevation, "firstHeight");
-            addValueToPolyline(polyline, lastElevation, "lastHeight");
-        })
-        .catch(error => console.error('Error:', error));
-};
-
-/**
  * addBranchConnection - Connecting pipes with each other and add a branch
  * connector between them.
  *
@@ -221,20 +158,14 @@ let addBranchConnection = (event, target) => {
 
     firstLatlngs.push(event.latlng);
     target.setLatLngs(firstLatlngs);
-
-    addElevation(target);
+    target.decorator.setPaths(firstLatlngs);
 
     secondLatlngs.unshift(event.latlng);
 
-    let url = 'https://cdn4.iconfinder.com/data/icons/bathroom-accessory-outline/32/14-512.png';
-
     // Creates the marker for branch connector.
-    let branchMarker = new Marker(event.latlng, ["Förgrening"], L.icon({
-        iconAnchor: [19.5, 19.5],
-        iconSize: [39, 39],
-        iconUrl: url,
-        popupAnchor: [0, -19.5]
-    }));
+    let icon = icons.find(element => element.category == "Förgrening");
+
+    let branchMarker = new Marker(event.latlng, {Kategori: "Förgrening"}, icon.icon);
 
     newLine = {
         latlngs: secondLatlngs,

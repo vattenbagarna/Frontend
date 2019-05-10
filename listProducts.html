@@ -7,6 +7,7 @@
 		<link href="https://fonts.googleapis.com/css?family=Fira+Sans:300,400" rel="stylesheet">
 		<link rel="stylesheet" href="css/master.css">
 		<link rel="stylesheet" href="css/listProducts.css">
+		<script src="js/APIMiddleware.js" charset="utf-8"></script>
 		<script src="js/login/logout.js"></script>
 	</head>
 	<body>
@@ -15,7 +16,8 @@
                 <a href="home.html">Hem</a>
                 <a href="calculations.html">Beräkningar</a>
                 <a class="active" href="listProducts.html">Produkter</a>
-                <a class="right" id="logout" href="#logout">Logga ut</a>
+				        <a href="changepassword.html">Byt lösenord</a>
+                <a id="logout" href="#logout">Logga ut</a>
             </div>
             <div class="greet-user">
                 <span id="userName"></span>
@@ -23,14 +25,23 @@
         </div>
 		<div class="wrap">
 			<h1 class="title">Egenskapade produkter</h1>
-			<div class="productList"></div>
-			<br>
-		</br>
-		<div class="button-wrap">
-			<a href="newObject.html" class="button">Ny produkt</a>
+			<div id="activeProducts" class="productList">
+				<h3>
+					Aktiva
+				</h3>
+			</div>
+			<br><br><br><br>
+			<div id="inactiveProducts" class="productList inactive">
+				<h3>
+					Inaktiva
+				</h3>
+			</div>
+			<br></br>
+			<div class="button-wrap">
+				<a href="newObject.html" class="button">Ny produkt</a>
+			</div>
 		</div>
-	</div>
-	<script src="js/configVariables.js" charset="utf-8"></script>
-	<script src="js/products/listProducts.js"></script>
-</body>
+		<script src="js/configVariables.js" charset="utf-8"></script>
+		<script src="js/products/listProducts.js"></script>
+	</body>
 </html>
