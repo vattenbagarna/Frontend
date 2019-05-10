@@ -11,8 +11,6 @@ export let polygons = L.layerGroup();
 // Imports the map object.
 import { map, icons, pipeChoice, objectData } from "./loadLeafletMap.js";
 
-import { elevationKey } from "./getKey.js";
-
 // Imports three classes that are used for the project.
 import { Marker, House, Pipe } from "./classes.js";
 
