@@ -42,13 +42,14 @@ export const edit = {
                 polyline.setLatLngs(newLatlng);
                 polyline.decorator.setPaths(newLatlng);
             }
-        });
-        event.target.setPopupContent(popup.marker(event.target.attributes) + popup.changeCoord({
-            lat: event.latlng.lat,
-            lng: event.latlng.lng
-        }));
 
-        edit.warning.unsavedChanges(true);
+            event.target.setPopupContent(popup.marker(event.target.attributes) + popup.changeCoord({
+                lat: event.latlng.lat,
+                lng: event.latlng.lng
+            }));
+
+            edit.warning.unsavedChanges(true);
+        });
     },
 
     /**

@@ -1,4 +1,4 @@
-/*global L*/
+/*global L API*/
 import { map, projectInfo } from "./loadLeafletMap.js";
 
 import { popup } from "./popup.js";
@@ -10,6 +10,8 @@ import { polylines, markers, polygons, add, getLength, clearHouse } from "./add.
 import { edit } from "./edit.js";
 
 import { show, mouseCoord } from "./show.js";
+
+import { elevationKey } from "./getKey.js";
 
 export let guideline = null;
 
@@ -34,10 +36,11 @@ export class Marker {
     constructor(latlng, attributes, icon, id = null) {
         this.attributes = attributes;
         this.marker = new L.Marker(latlng, options.marker(icon))
-            .bindPopup(popup.marker(this.attributes) + popup.changeCoord(latlng))
+            .on("dragend", this.getElevation)
             .on("drag", edit.moveMarker)
             .on('popupopen', this.updateCoords);
 
+        this.getElevation(latlng);
         this.marker.attributes = this.attributes;
         this.marker.disableDragging = () => { this.marker.dragging.disable(); return this.marker; };
         this.marker.enableDragging = () => { this.marker.dragging.enable(); };
@@ -104,6 +107,43 @@ export class Marker {
             // Update popup content with new values
             event.target.setPopupContent(popup.marker(this.attributes) + popup.changeCoord(latLng));
         });
+    }
+
+    /**
+     * getElevation - Gets elevation on a location using Google elevation API.
+     *
+     * @param {event} event
+     *
+     * @returns {void}
+     **/
+    async getElevation(event) {
+        let latlngString = "";
+        let latlngObj = {};
+
+        if ("target" in event) {
+            latlngString = event.target._latlng.lat + "," + event.target._latlng.lng;
+            latlngObj = {lat: event.target._latlng.lat, lng: event.target._latlng.lng};
+        } else {
+            latlngString = event.lat + "," + event.lng;
+            latlngObj = {lat: event.lat, lng: event.lng};
+        }
+        let url = "https://cors-anywhere.herokuapp.com/https://maps.googleapis.com" +
+        "/maps/api/elevation/json?locations=" + latlngString + "&key=" + elevationKey;
+
+        let response = await API.get(url);
+
+        if ("target" in event) {
+            event.target.elevation = response.results[0].elevation.toFixed(2);
+            this.attributes["M ö.h"] = event.target.elevation;
+            event.target.bindPopup(
+                popup.marker(this.attributes)
+                + popup.changeCoord(latlngObj));
+        } else {
+            this.marker.elevation = response.results[0].elevation.toFixed(2);
+            this.attributes["M ö.h"] = this.marker.elevation;
+            this.marker.bindPopup(popup.marker(this.attributes)
+            + popup.changeCoord(latlngObj));
+        }
     }
 }
 
@@ -307,6 +347,45 @@ export class Pipe {
     }
 
     /**
+     * getElevation - Gets elevation along a path using Google elevation API.
+     *
+     * @returns {object} elevationObj
+     **/
+    async getElevation() {
+        let latlngsArray = [];
+        let elevationObj = {};
+        let samples = 0;
+
+        for (var i = 0; i < 2; i++) {
+            latlngsArray.push(this.polyline._latlngs[i].lat + "," + this.polyline._latlngs[i].lng);
+        }
+        latlngsArray = latlngsArray.join('|');
+        if (Math.round(getLength(this.polyline) / 2) > 500) {
+            samples = 500;
+        } else {
+            samples = Math.round(getLength(this.polyline) / 2);
+        }
+
+        let url = "https://cors-anywhere.herokuapp.com/https://maps.googleapis.com" +
+        "/maps/api/elevation/json?path=" + latlngsArray + "&samples=" +
+        samples + "&key=" + elevationKey;
+
+        let response = await API.get(url);
+        let highestElevation = Math.max(...response.results.map(o => o.elevation), 0);
+        let lowestElevation = Math.min(...response.results.map(o => o.elevation));
+        let firstElevation = response.results[0].elevation;
+        let lastElevation = response.results[response.results.length - 1].elevation;
+
+        elevationObj = {
+            highestElevation: highestElevation,
+            lowestElevation: lowestElevation,
+            firstElevation: firstElevation,
+            lastElevation: lastElevation
+        };
+        return elevationObj;
+    }
+
+    /**
      * draw - Creates a L.polyline with preconfigured attributes from options.js, popup.js and type
      * 		- @see {@link https://leafletjs.com/reference-1.4.0.html#polyline}
      * 		- Set connected_with values so the object knows what is it connected to
@@ -358,6 +437,7 @@ export class Pipe {
     createPolyline() {
         if (this.type == 0) {
             this.polyline = new L.polyline(this.latlngs, options.pipe);
+            this.getElevation();
             this.polyline.decorator = L.polylineDecorator(this.polyline, {
                 patterns: [{
                     offset: '28%',
@@ -374,6 +454,7 @@ export class Pipe {
             }).addTo(map);
         } else if (this.type == 1) {
             this.polyline = new L.polyline(this.latlngs, options.stemPipe);
+            this.getElevation(this.latlngs);
             this.polyline.decorator = L.polylineDecorator(this.polyline, {
                 patterns: [{
                     offset: '28%',

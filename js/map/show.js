@@ -116,7 +116,7 @@ export const show = {
         var firstPoint;
         var secondPoint;
 
-        // Loop each polyline and adds a function to each.
+        // Loop each polyline
         polylines.eachLayer((polyline) => {
             var tempPolyline = polyline._latlngs;
 
@@ -126,7 +126,7 @@ export const show = {
                 thisPipeDistance = tempPolyline[0].distanceTo(tempPolyline[1]);
                 // Bind a popup with length for current polyline.
                 polyline.bindTooltip("Längd: " + Math.round(thisPipeDistance * 100) / 100 +
-                    "m", {
+                    "m" + "<br>Statisk höjd: ", {
                     autoClose: false
                 }).openTooltip();
                 // If polylines have more than 2 points.
@@ -137,7 +137,7 @@ export const show = {
                     thisPipeDistance += L.latLng(firstPoint).distanceTo(secondPoint);
                 }
                 polyline.bindTooltip("Längd: " + Math.round(thisPipeDistance * 100) / 100 +
-                    "m", {
+                    "m" + "<br>Statisk höjd: ", {
                     autoClose: false
                 }).openTooltip();
             }
