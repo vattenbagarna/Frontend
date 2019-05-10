@@ -86,7 +86,7 @@ export const edit = {
             var i = 0;
             //for each element in polylines
 
-            polylines.eachLayer((polyline) => {
+            polylines.eachLayer(async (polyline) => {
                 polyline.editingDrag.removeHooks();
                 polyline.decorator.addTo(map);
                 polyline.decorator.setPaths(polyline._latlngs);
@@ -94,9 +94,13 @@ export const edit = {
                 //if amount of points has changed
                 if (polyline._latlngs.length != tempPolylineArray[i++]) {
                     //Calculates new length of pipe
-                    polyline.length = getLength(polyline);
-                    polyline.bindTooltip(
-                        "Längd: " + Math.round(polyline.length * 100) / 100 + "m");
+                    polyline.length = getLength(polyline._latlngs);
+                    polyline.elevation = await polyline.updateElevation(polyline._latlngs);
+                    polyline.bindTooltip("Längd: " + Math.round(polyline.length * 100) /
+                        100 + "m" + "<br>Statisk höjd: " +
+                        (polyline.elevation.highest - polyline.elevation.first).toFixed(
+                            1)
+                    );
                 }
             });
             isEdit = null;
@@ -154,8 +158,10 @@ export const edit = {
                 coordinates: polyline._latlngs,
                 type: "polyline",
                 connected_with: polyline.connected_with,
-                getLength: polyline.getLength,
+                elevation: polyline.elevation,
+                length: polyline.length,
                 tilt: polyline.tilt,
+                material: polyline.material,
                 dimension: polyline.dimension,
                 pipeType: polyline.type,
             };
@@ -180,6 +186,7 @@ export const edit = {
                 coordinates: polygon._latlngs,
                 type: "polygon",
                 definition: polygon.definition,
+                id: polygon.id,
                 address: polygon.address,
                 nop: polygon.nop,
                 flow: polygon.flow,
@@ -237,8 +244,14 @@ export const edit = {
                 case "polyline":
                     newObj = new Pipe(json[i].coordinates, ["", ""], json[i].pipeType,
                         json[i].connected_with.first);
-                    newObj.draw(json[i].connected_with.last, null, json[i].dimension, json[i]
-                        .tilt);
+                    newObj.draw(
+                        json[i].connected_with.last,
+                        null,
+                        json[i].elevation,
+                        json[i].material,
+                        json[i].dimension,
+                        json[i].tilt
+                    );
                     break;
                 case "polygon":
                     newObj = new House(json[i].coordinates[0], ["", ""], json[i].color);
@@ -257,17 +270,17 @@ export const edit = {
     },
 
     /**
-    * warning - Warning message object
-    *
-    * @returns {void}
-    */
+         * warning - Warning message object
+         *
+         * @returns {void}
+         */
     warning: {
         /**
-    	* unsavedChanges - Display a warning box when user tries to leave the page that some
-        * 				  - information may not be saved if user exit the page.
-        *				  - Uses window.onbeforeunload.
-        * @returns {void}
-        */
+             * unsavedChanges - Display a warning box when user tries to leave the page that some
+             * 				  - information may not be saved if user exit the page.
+             *				  - Uses window.onbeforeunload.
+             * @returns {void}
+             */
         unsavedChanges: (value) => {
             if (value) {
                 window.onbeforeunload = () => {
@@ -276,7 +289,7 @@ export const edit = {
             } else {
                 window.onbeforeunload = () => {};
             }
-        },
+        }
     },
 
 };

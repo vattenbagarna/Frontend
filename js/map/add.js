@@ -104,18 +104,16 @@ export const add = {
  * @param {L.polyline} polyline @see {@link https://leafletjs.com/reference-1.4.0.html#polyline}
  * @returns {void}
  */
-export let getLength = (polyline) => {
-    // Gets the coords.
-    var tempPolyline = polyline._latlngs;
-    var thisPipeDistance = 0;
+export let getLength = (latlngs) => {
+    let thisPipeDistance = 0;
 
     // Calulates the total length according to number of points in the polyline.
-    if (tempPolyline.length == 2) {
-        return tempPolyline[0].distanceTo(tempPolyline[1]);
-    } else if (tempPolyline.length > 2) {
-        for (var i = 0; i < tempPolyline.length - 1; i++) {
-            var firstPoint = tempPolyline[i];
-            var secondPoint = tempPolyline[i + 1];
+    if (latlngs.length == 2) {
+        return L.latLng(latlngs[0]).distanceTo(latlngs[1]);
+    } else if (latlngs.length > 2) {
+        for (var i = 0; i < latlngs.length - 1; i++) {
+            var firstPoint = latlngs[i];
+            var secondPoint = latlngs[i + 1];
 
             thisPipeDistance += L.latLng(firstPoint).distanceTo(secondPoint);
         }
@@ -163,7 +161,7 @@ let addBranchConnection = (event, target) => {
     // Creates the marker for branch connector.
     let icon = icons.find(element => element.category == "Förgrening");
 
-    let branchMarker = new Marker(event.latlng, {Kategori: "Förgrening"}, icon.icon);
+    let branchMarker = new Marker(event.latlng, { Kategori: "Förgrening" }, icon.icon);
 
     newLine = {
         latlngs: secondLatlngs,
@@ -174,7 +172,14 @@ let addBranchConnection = (event, target) => {
 
     let newPipe = new Pipe(newLine.latlngs, [""], target.type, newLine.first);
 
-    newPipe.draw(newLine.last, null, target.dimension, target.tilt);
+    newPipe.draw(
+        newLine.last,
+        null,
+        target.elevation,
+        target.material,
+        target.dimension,
+        target.tilt
+    );
 
     return {
         marker: branchMarker.marker,
