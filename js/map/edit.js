@@ -42,13 +42,14 @@ export const edit = {
                 polyline.setLatLngs(newLatlng);
                 polyline.decorator.setPaths(newLatlng);
             }
-        });
-        event.target.setPopupContent(popup.marker(event.target.attributes) + popup.changeCoord({
-            lat: event.latlng.lat,
-            lng: event.latlng.lng
-        }));
 
-        edit.warning.unsavedChanges(true);
+            event.target.setPopupContent(popup.marker(event.target.attributes) + popup.changeCoord({
+                lat: event.latlng.lat,
+                lng: event.latlng.lng
+            }));
+
+            edit.warning.unsavedChanges(true);
+        });
     },
 
     /**
@@ -85,7 +86,7 @@ export const edit = {
             var i = 0;
             //for each element in polylines
 
-            polylines.eachLayer((polyline) => {
+            polylines.eachLayer(async (polyline) => {
                 polyline.editingDrag.removeHooks();
                 polyline.decorator.addTo(map);
                 polyline.decorator.setPaths(polyline._latlngs);
@@ -93,9 +94,13 @@ export const edit = {
                 //if amount of points has changed
                 if (polyline._latlngs.length != tempPolylineArray[i++]) {
                     //Calculates new length of pipe
-                    polyline.length = getLength(polyline);
-                    polyline.bindTooltip(
-                        "Längd: " + Math.round(polyline.length * 100) / 100 + "m");
+                    polyline.length = getLength(polyline._latlngs);
+                    polyline.elevation = await polyline.updateElevation(polyline._latlngs);
+                    polyline.bindTooltip("Längd: " + Math.round(polyline.length * 100) /
+                        100 + "m" + "<br>Statisk höjd: " +
+                        (polyline.elevation.highest - polyline.elevation.first).toFixed(
+                            1)
+                    );
                 }
             });
             isEdit = null;
@@ -153,7 +158,8 @@ export const edit = {
                 coordinates: polyline._latlngs,
                 type: "polyline",
                 connected_with: polyline.connected_with,
-                getLength: polyline.getLength,
+                elevation: polyline.elevation,
+                length: polyline.length,
                 tilt: polyline.tilt,
                 material: polyline.material,
                 dimension: polyline.dimension,
@@ -241,6 +247,7 @@ export const edit = {
                     newObj.draw(
                         json[i].connected_with.last,
                         null,
+                        json[i].elevation,
                         json[i].material,
                         json[i].dimension,
                         json[i].tilt

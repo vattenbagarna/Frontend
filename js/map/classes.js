@@ -1,4 +1,4 @@
-/*global L*/
+/*global L API*/
 import { map, projectInfo } from "./loadLeafletMap.js";
 
 import { popup } from "./popup.js";
@@ -10,6 +10,8 @@ import { polylines, markers, polygons, add, getLength, clearHouse } from "./add.
 import { edit } from "./edit.js";
 
 import { show, mouseCoord } from "./show.js";
+
+import { elevationKey } from "./getKey.js";
 
 import { pipe } from "./pipes.js";
 
@@ -36,11 +38,13 @@ export class Marker {
     constructor(latlng, attributes, icon, id = null) {
         this.attributes = attributes;
         this.marker = new L.Marker(latlng, options.marker(icon))
-            .bindPopup(popup.marker(this.attributes) + popup.changeCoord(latlng))
+            .on("dragend", this.dragEnd)
             .on("drag", edit.moveMarker)
             .on('popupopen', this.updateCoords);
 
+        this.getElevation(latlng);
         this.marker.attributes = this.attributes;
+        this.marker.updateElevation = (event) => { this.getElevation(event); };
         this.marker.disableDragging = () => { this.marker.dragging.disable(); return this.marker; };
         this.marker.enableDragging = () => { this.marker.dragging.enable(); };
 
@@ -106,6 +110,65 @@ export class Marker {
             // Update popup content with new values
             event.target.setPopupContent(popup.marker(this.attributes) + popup.changeCoord(latLng));
         });
+    }
+
+    /**
+     * dragEnd - Update elevation values for marker and connected polylines when user stop dragging
+     *
+     * @param {type} event
+     *
+     * @returns {void}
+     */
+    dragEnd(event) {
+        event.target.updateElevation(event);
+        //get each polyline
+        polylines.eachLayer(async (polyline) => {
+            //check if polylines are connected to a marker, by first point and last point.
+            if (event.target.id === polyline.connected_with.first) {
+                //update elevation for polyline
+                polyline.elevation = await polyline.updateElevation(polyline._latlngs);
+            } else if (event.target.id === polyline.connected_with.last) {
+                //update elevation for polyline
+                polyline.elevation = await polyline.updateElevation(polyline._latlngs);
+            }
+        });
+    }
+
+    /**
+     * getElevation - Gets elevation on a location using Google elevation API.
+     *
+     * @param {event} event
+     *
+     * @returns {void}
+     **/
+    async getElevation(event) {
+        let latlngString = "";
+        let latlngObj = {};
+
+        if ("target" in event) {
+            latlngString = event.target._latlng.lat + "," + event.target._latlng.lng;
+            latlngObj = { lat: event.target._latlng.lat, lng: event.target._latlng.lng };
+        } else {
+            latlngString = event.lat + "," + event.lng;
+            latlngObj = { lat: event.lat, lng: event.lng };
+        }
+        let url = "https://cors-anywhere.herokuapp.com/https://maps.googleapis.com" +
+            "/maps/api/elevation/json?locations=" + latlngString + "&key=" + elevationKey;
+
+        let response = await API.get(url);
+
+        if ("target" in event) {
+            event.target.elevation = response.results[0].elevation.toFixed(2);
+            this.attributes["M ö.h"] = event.target.elevation;
+            event.target.bindPopup(
+                popup.marker(this.attributes) +
+                popup.changeCoord(latlngObj));
+        } else {
+            this.marker.elevation = response.results[0].elevation.toFixed(2);
+            this.attributes["M ö.h"] = this.marker.elevation;
+            this.marker.bindPopup(popup.marker(this.attributes) +
+                popup.changeCoord(latlngObj));
+        }
     }
 }
 
@@ -311,6 +374,7 @@ export class Pipe {
         this.first = id;
     }
 
+
     /**
      * draw - Creates a L.polyline with preconfigured attributes from options.js, popup.js and type
      * 		- @see {@link https://leafletjs.com/reference-1.4.0.html#polyline}
@@ -320,21 +384,36 @@ export class Pipe {
      *
      * @param {let} id            		Unique number to last connected_with
      * @param {array} [latlng=null] 	Option to push new point into new polyline
-     * @param {null} [dimension=null]	Option to add preconfigured dimension
+     * @param {null} [dim=null]			Option to add preconfigured dimension
      * @param {null} [tilt=null]      	Option to add preconfigured tilt
      *
      * @returns {void}
      **/
-    draw(id, latlng = null, material = null, dimension = null, tilt = null) {
+    async draw(id, latlng = null, elevation = null, material = null, dim = null, tilt = null) {
         this.last = id;
         if (latlng != null) { this.latlngs.push(latlng); }
 
-        if (material == null && dimension == null && tilt == null) {
+        if (material == null && dim == null && tilt == null) {
             show.openModal(document.getElementById('pipeModal'));
             pipe.listen();
 
+            this.elevation = await this.getElevation(this.latlngs);
+
+            document.getElementById('tilt').value = (this.elevation.highest - this.elevation.first)
+                .toFixed(1);
+            document.getElementById('elevation').style.display = 'block';
+            document.getElementById('loading').style.display = 'none';
+
+            document.getElementById('pipeModal').children[0].children[0].onclick = () => {
+                document.getElementById("pipeModal").style.display = "none";
+                document.getElementById("elevation").style.display = "none";
+                document.getElementById('loading').style.display = 'block';
+            };
+
             document.getElementById("pipeSpecifications").onclick = () => {
                 document.getElementById("pipeModal").style.display = "none";
+                document.getElementById("elevation").style.display = "none";
+                document.getElementById('loading').style.display = 'block';
                 this.material = document.getElementById('material').value;
                 let value = document.getElementById("dimension").value;
 
@@ -348,8 +427,9 @@ export class Pipe {
                 this.createPolyline();
             };
         } else {
+            this.elevation = elevation;
             this.material = material;
-            this.dimension = dimension;
+            this.dimension = dim;
             this.tilt = tilt;
 
             this.createPolyline();
@@ -363,7 +443,7 @@ export class Pipe {
      *
      * @returns {void}
      */
-    createPolyline() {
+    async createPolyline() {
         if (this.type == 0) {
             this.polyline = new L.polyline(this.latlngs, options.pipe);
             this.polyline.decorator = L.polylineDecorator(this.polyline, {
@@ -405,7 +485,11 @@ export class Pipe {
         };
         polylines.addLayer(this.polyline).addTo(map);
         this.polyline.bindPopup(popup.pipe(this.material, this.dimension.outer, this.tilt));
-        this.polyline.length = getLength(this.polyline);
+        this.polyline.length = getLength(this.latlngs);
+        this.polyline.elevation = this.elevation;
+        this.polyline.updateElevation = async (latlngs) => {
+            return await this.getElevation(latlngs);
+        };
         this.polyline.type = this.type;
         this.polyline.material = this.material;
         this.polyline.dimension = this.dimension;
@@ -448,5 +532,44 @@ export class Pipe {
             // Update popup content with new values
             event.target.setPopupContent(popup.pipe(material, dim, tilt));
         }), { once: true };
+    }
+
+    /**
+     * getElevation - Gets elevation along a path using Google elevation API.
+     *
+     * @returns {object} elevationObj
+     **/
+    async getElevation(latlngs) {
+        let latlngsArray = [];
+        let elevationObj = {};
+        let samples = 0;
+
+        for (var i = 0; i < latlngs.length; i++) {
+            latlngsArray.push(latlngs[i].lat + "," + latlngs[i].lng);
+        }
+        latlngsArray = latlngsArray.join('|');
+        if (Math.round(getLength(latlngs) / 2) > 500) {
+            samples = 500;
+        } else {
+            samples = Math.round(getLength(latlngs) / 2);
+        }
+
+        let url = "https://cors-anywhere.herokuapp.com/https://maps.googleapis.com" +
+            "/maps/api/elevation/json?path=" + latlngsArray + "&samples=" +
+            samples + "&key=" + elevationKey;
+
+        let response = await API.get(url);
+        let highestElevation = Math.max(...response.results.map(o => o.elevation), 0);
+        let lowestElevation = Math.min(...response.results.map(o => o.elevation));
+        let firstElevation = response.results[0].elevation;
+        let lastElevation = response.results[response.results.length - 1].elevation;
+
+        elevationObj = {
+            highest: highestElevation,
+            lowest: lowestElevation,
+            first: firstElevation,
+            last: lastElevation
+        };
+        return elevationObj;
     }
 }

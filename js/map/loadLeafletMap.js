@@ -554,10 +554,8 @@ let onLoadWrite = () => {
  */
 let onLoadRead = () => {
     //Gets the HTML objets which needs to change
-    let sidebar = document.getElementsByClassName(
-        "sidebar");
-    let mapElem = document.getElementsByClassName(
-        "map");
+    let sidebar = document.getElementsByClassName("sidebar");
+    let mapElem = document.getElementsByClassName("map");
     let back = document.getElementById("readBack");
 
     //hides the sidebar
