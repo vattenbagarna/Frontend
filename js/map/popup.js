@@ -30,10 +30,12 @@ export let popup = {
 	    </div>`;
     },
 
-    pipe: (dimension, tilt) => {
+    pipe: (material, dimension, tilt) => {
         return `<b>Rör</b><br>
-		<label>Innerdiameter</label>
-		<input type="number" id="dimension" name="dimension" value="${dimension}">
+		<label>Material</label>
+		<input type="text" id="pipeMaterial" name="material" value="${material}">
+		<label>Ytterdiameter</label>
+		<input type="text" id="dimension" name="dimension" value="${dimension}">
 		<label>Lutning</label>
 		<input type="number" id="tilt" name="tilt" value="${tilt}">
 		<input type="button" class="updateValuesInPipe" value="Ändra">`;
