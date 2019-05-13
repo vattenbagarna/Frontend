@@ -25,7 +25,7 @@ export const add = {
      * @returns {void}
      */
     marker: (event) => {
-        let object;
+        let object = {};
 
         for (let i = 0; i < objectData.length; i++) {
             if (add.activeObjName == objectData[i].Modell) {

@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-/* global configuration */
+/* global configuration, calculations */
 
 /**
  * showStyling - Displays the boxes
@@ -215,17 +215,17 @@ function calcAll() {
     let length = parseFloat(document.getElementById("length").value);
     let selectedDim = parseFloat(document.getElementById("selectDim").value);
     let wantedFlow = parseFloat(document.getElementById("flow").value);
-    let mu = 0.1;
+    let mu = parseFloat(document.getElementById("mu").value);
 
     selectedDim = changeDim(selectedDim);
     getPumps(wantedFlow, height, selectedDim);
     wantedFlow = checkUnit(wantedFlow);
 
-    let lostPress = calcPressure(wantedFlow, selectedDim, mu, length);
+    let lostPress = calculations.calcPressure(wantedFlow, mu, selectedDim, length);
 
     lostPress *= 9.81;
     let roundPress = lostPress.toFixed(2);
-    let velocity = calcVelocity(wantedFlow, selectedDim);
+    let velocity = calculations.calcVelocity(wantedFlow, selectedDim);
     let roundVel = velocity.toFixed(2);
     let totalPress = totalPressure(lostPress, height);
     let roundTotal = totalPress.toFixed(2);
@@ -324,7 +324,7 @@ function recommendPump(pumps, wantedFlow, height, selectedDim) {
     for (let i = 0; i < pumps.length; i++) {
         for (let k = 0; k < pumps[i].Pumpkurva.length; k++) {
             if (pumps[i].Pumpkurva[k].y == height) {
-                mps = checkUnit(calcVelocity(pumps[i].Pumpkurva[k].x));
+                mps = checkUnit(calculations.calcVelocity(pumps[i].Pumpkurva[k].x));
                 if (mps >= 0.6 && mps <= 3) {
                     div = document.createElement("div");
                     div.className = "obj-container";
@@ -347,8 +347,8 @@ function recommendPump(pumps, wantedFlow, height, selectedDim) {
         if (!found) {
             if (height < pumps[i].Pumpkurva[0].y && height >
                 pumps[i].Pumpkurva[pumps[i].Pumpkurva.length - 1].y) {
-                mps = convertUnit(checkUnit(calcVelocity(estPumpValue(height, pumps[i].Pumpkurva),
-                    selectedDim)));
+                mps = convertUnit(checkUnit(calculations.calcVelocity(estPumpValue(height,
+                    pumps[i].Pumpkurva), selectedDim)));
                 if (mps >= 0.6 && mps <= 3) {
                     div = document.createElement("div");
                     div.className = "obj-container";
@@ -487,46 +487,6 @@ function estPumpValue(yValue, pumpCurve) {
     return x1 + plus;
 }
 
-/**
- * calcPressure - Calculates lost pressure
- *
- * @param {number} Flow
- * @param {number} Dimension
- * @param {number} MU (friction)
- * @param {number} Length
- *
- * @return {number} Lost pressure
- *
- */
-function calcPressure(wantedFlow, selectedDim, mu, length) {
-    let rho = 1000; // kg/m3
-    let viscosity = 1e-6; // m2/s
-
-    let top = 2 * length * rho * wantedFlow * wantedFlow;
-    let bot = (Math.PI * Math.PI * Math.pow(selectedDim / 1000, 5));
-    let a = top / bot;
-
-    let b = mu / (3.7 * selectedDim);
-
-    top = 2.51 * viscosity;
-    bot = (Math.sqrt(2 / (length * rho)) * Math.pow(selectedDim / 1000, 1.5));
-    let c = top / bot;
-
-    let oldPress = 100000;
-    let newPress;
-    let error;
-
-    for (let i = 0; i < 20; i++) {
-        newPress = a / square(log10(b + c * Math.pow(oldPress, -0.5)));
-        error = newPress / oldPress - 1;
-        oldPress = newPress;
-        if (Math.abs(error) < 1e-10) {
-            break;
-        }
-    }
-
-    return newPress / 100000;
-}
 
 /**
  * calcQPump - Calculates capacity for pump pipes
@@ -571,41 +531,4 @@ function totalPressure(lostPress, height) {
     let total = lostPress + height;
 
     return total;
-}
-
-/**
- * calcVelocity - Calculates velocity
- *
- * @param {number} Flow
- * @param {number} Dimension
- *
- * @return {number} Velocity
- *
- */
-function calcVelocity(wantedFlow, selectedDim) {
-    return 4 * 1000000 * wantedFlow / (selectedDim * selectedDim * Math.PI);
-}
-
-/**
- * square - Calculates X squared
- *
- * @param {number} Value to square
- *
- * @return {number} Result of value squared
- *
- */
-function square(x) {
-    return Math.pow(x, 2);
-}
-
-/**
- * log10 - Calculates X log10
- *
- * @param {number} Value to log10
- *
- * @return {number} Result of value log10
- *
- */
-function log10(x) {
-    return Math.LOG10E * Math.log(x);
 }
