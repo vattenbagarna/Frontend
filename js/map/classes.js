@@ -321,7 +321,6 @@ export class House {
     updateValues(event) {
         // Get button after popup is open
         let buttons = document.getElementsByClassName('updateValuesInHouse');
-        //console.log(buttons);
 
         // Add event listener on click on button
         buttons[buttons.length - 1].addEventListener('click', () => {
@@ -486,7 +485,6 @@ export class Pipe {
             last: this.last
         };
         polylines.addLayer(this.polyline).addTo(map);
-        console.log(this.material);
         this.polyline.bindPopup(popup.pipe(this.tilt));
         this.polyline.length = getLength(this.latlngs);
         this.polyline.elevation = this.elevation;
@@ -520,11 +518,9 @@ export class Pipe {
     updateValues(event) {
         // Get button after popup is open
         let buttons = document.getElementById('pipeSpecifications');
-        //console.log(buttons);
         let elem = document.getElementsByClassName("materialPopup");
 
         elem = elem[elem.length - 1];
-        console.log(elem);
         pipe.listen(elem);
         elem.value = event.target.material;
         elem.dispatchEvent(new Event('change'));
@@ -532,8 +528,6 @@ export class Pipe {
         let elem2 = document.getElementsByClassName("dimension");
 
         elem2 = elem2[elem2.length - 1];
-        console.log(elem2);
-        console.log(event.target.material);
 
         let option = document.createElement("option");
 
