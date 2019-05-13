@@ -396,6 +396,7 @@ export class Pipe {
         if (material == null && dim == null && tilt == null) {
             show.openModal(document.getElementById('pipeModal'));
             let elem = document.getElementsByClassName("material")[0];
+
             pipe.listen(elem);
 
             this.elevation = await this.getElevation(this.latlngs);
@@ -491,6 +492,7 @@ export class Pipe {
         this.polyline.elevation = this.elevation;
         this.polyline.updateElevation = async (latlngs) => {
             let elevation = await this.getElevation(latlngs);
+
             this.polyline.bindPopup(popup.pipe((elevation.highest - elevation.first).toFixed(1)));
             return elevation;
         };
@@ -520,6 +522,7 @@ export class Pipe {
         let buttons = document.getElementById('pipeSpecifications');
         //console.log(buttons);
         let elem = document.getElementsByClassName("materialPopup");
+
         elem = elem[elem.length - 1];
         console.log(elem);
         pipe.listen(elem);
@@ -527,11 +530,13 @@ export class Pipe {
         elem.dispatchEvent(new Event('change'));
 
         let elem2 = document.getElementsByClassName("dimension");
+
         elem2 = elem2[elem2.length - 1];
         console.log(elem2);
         console.log(event.target.material);
 
         let option = document.createElement("option");
+
         option.text = event.target.dimension.outer;
         option.value = `${event.target.dimension.inner},${event.target.dimension.outer}`;
         elem2.add(option, 0);
@@ -544,6 +549,7 @@ export class Pipe {
             let tilt = document.getElementById('tilt').value;
             let material = document.getElementsByClassName("materialPopup");
             let dimension = document.getElementsByClassName("dimension");
+
             material = material[material.length - 1];
             dimension = dimension[dimension.length - 1];
             dimension = dimension.value.split(",");
