@@ -93,7 +93,8 @@ map.on("moveend", () => {
     var i = 1;
 
     markers.eachLayer((marker) => {
-        if (marker.attributes != "Förgrening" && marker.attributes != undefined) {
+        if (marker.attributes.Kategori != "Förgrening" &&
+            marker.attributes.Kategori != "Utsläppspunkt") {
             if (!numbersObj.hasOwnProperty(marker.attributes.Modell)) {
                 numbersObj[marker.attributes.Modell] = [i];
             } else {
@@ -212,23 +213,28 @@ let load = async (json) => {
     for (let i = 1; i < json.length; i++) {
         let id = "";
         let listName = "";
+        let popup;
+        let icon;
 
         switch (json[i].type) {
             //if marker add it to the map with its options
             case "marker":
-                if (json[i].attributes != undefined && json[i].attributes != "Förgrening") {
-                    let icon = icons.find(element =>
-                        element.category == json[i].attributes.Kategori);
+                icon = icons.find(element =>
+                    element.category == json[i].attributes.Kategori);
 
-                    newObj = new Marker(json[i].coordinates, json[i].attributes, icon.icon,
-                        json[i].id);
+                newObj = new Marker(json[i].coordinates, json[i].attributes, icon.icon,
+                    json[i].id);
+
+                if (json[i].attributes != undefined &&
+                    json[i].attributes.Kategori != "Förgrening" &&
+                    json[i].attributes.Kategori != "Utsläppspunkt") {
                     if (!objects.hasOwnProperty(json[i].attributes.Modell)) {
                         let id;
 
                         if (json[i].attributes.RSK != undefined) {
                             id = `<td>RSK: ${json[i].attributes.RSK}</td>`;
                         } else if (json[i].attributes.ArtikelNr != undefined) {
-                            id = `<td>Artikel nummer: ${json[i].attributes.ArtikelNr}</td>`;
+                            id = `<td>Artikelnummer: ${json[i].attributes.ArtikelNr}</td>`;
                         } else {
                             id = `<td></td>`;
                         }
@@ -272,6 +278,7 @@ let load = async (json) => {
                         }
                     }
                 }
+
                 break;
                 //if polyline
             case "polyline":
@@ -280,18 +287,17 @@ let load = async (json) => {
                 newObj.draw(json[i].connected_with.last,
                     null, json[i].dimension, json[i].tilt);
 
-                id = "Rör";
+                id = "Ledning";
 
-                if (json[i].pipeType == 1) { id = "Stamrör"; }
+                if (json[i].pipeType == 1) { id = "Stamledning"; }
 
-                listName = id+json[i].material+json[i].dimension.inner;
+                listName = id+json[i].material+json[i].dimension.outer;
                 if (!pipes.hasOwnProperty(listName)) {
-                    console.log(listName);
                     table.innerHTML +=
                         `<td>${id}</td>
                         <td id="${listName}">${Math.round(json[i].length)} m</td>
                         <td>Material: ${json[i].material}</td>
-                        <td>dimension: ${json[i].dimension.inner}</td>
+                        <td>Dimension: ${json[i].dimension.outer}</td>
                         <td></td>
                         <td class="right">
                         Kostnad <input type="number" class='number-input' value=''/>
@@ -300,7 +306,6 @@ let load = async (json) => {
                     pipes[listName] = {"material": json[i].material, "dimension": json[i].dimension,
                         "length": json[i].length, "pipeType": json[i].pipeType};
                 } else {
-                    console.log("isUpdate");
                     pipes[listName].length += json[i].length;
                     document.getElementById(listName).innerHTML =
                         `<td>${Math.round(pipes[listName].length)} m</td>`;
@@ -308,10 +313,16 @@ let load = async (json) => {
 
                 break;
             case "polygon":
-                newObj = new House(json[i].coordinates[0], ["", ""]);
-                newObj.drawFromLoad(
-                    json[i].coordinates, json[i].popup, json[i].nop,
-                    json[i].flow, json[i].options);
+                newObj = new House(json[i].coordinates[0], ["", ""], json[i].color);
+                popup = [
+                    json[i].address,
+                    json[i].definition,
+                    json[i].nop,
+                    json[i].flow,
+                    json[i].color
+                ];
+
+                newObj.drawFromLoad(json[i].coordinates, popup);
                 break;
         }
     }
@@ -433,42 +444,44 @@ export class Marker {
  */
 export class House {
     /**
-    * constructor - Creates a L.polygon with preconfigured attributes from options.js and popup.js
-    * 			   - @see {@link https://leafletjs.com/reference-1.4.0.html#polygon}
-    * 			   - Creates a guideline with a dashed line to help user to line up the next point
-    * 			   - Guideline update it's position on mousemove
-    * 			   - Calls stopDrawListener() to listen for escape presses to stop drawing
-    *
-    * @param {array} latlng     Coordinates (latitude and longitude) for the first point
-    * 							 to the new house
-    * @param {array} attributes Specific characteristics (values) for the new house
-    *
-    * @returns {void}
-    */
+     * constructor - Creates a L.polygon with preconfigured attributes from options.js and popup.js
+     * 			   - @see {@link https://leafletjs.com/reference-1.4.0.html#polygon}
+     * 			   - Creates a guideline with a dashed line to help user to line up the next point
+     * 			   - Guideline update it's position on mousemove
+     * 			   - Calls stopDrawListener() to listen for escape presses to stop drawing
+     *
+     * @param {array} latlng     Coordinates (latitude and longitude) for the first point
+     * 							 to the new house
+     * @param {array} attributes Specific characteristics (values) for the new house
+     *
+     * @returns {void}
+     */
     constructor(latlng, attributes, color) {
         this.completed = false;
         this.attributes = attributes;
         this.polygon = L.polygon([latlng], options.house(color));
-
-        L.polyline([latlng, latlng], {
-            dashArray: '5, 10'
-        }).addTo(map);
-
-        map.on('mousemove', this.updateGuideLine);
-        this.stopDrawListener();
     }
 
     /**
-    * drawFromLoad - Draws polygon from saved data
-    *
-    * @param {array} latlngs     The rest of the coordinates of the corners on the polygon
-    * @param {string} address    The address of the polygon
-    * @param {string} definition What type of building is it
-    * @param {string} nop        number of people is living there
-    * @param {string} flow       water flow per person
-    *
-    * @returns {void}
-    */
+     * draw - Adds new point with coordinates and displays polygon on map.
+     * 		- Updates guideline start position to new coordinates
+     *
+     * @param {array} latlng Coordinates (latitude and longitude) for the new point in polygon
+     *
+     * @returns {void}
+     */
+
+    /**
+     * drawFromLoad - Draws polygon from saved data
+     *
+     * @param {array} latlngs     The rest of the coordinates of the corners on the polygon
+     * @param {string} address    The address of the polygon
+     * @param {string} definition What type of building is it
+     * @param {string} nop        number of people is living there
+     * @param {string} flow       water flow per person
+     *
+     * @returns {void}
+     */
     drawFromLoad(latlngs, values) {
         this.polygon.setLatLngs(latlngs);
         this.polygon.bindPopup(popup.house(values[0], values[1], values[2], values[3], values[4]));
@@ -478,10 +491,8 @@ export class House {
         this.polygon.definition = values[1];
         this.polygon.nop = values[2];
         this.polygon.flow = values[3];
+        this.polygon.id = this.polygon._leaflet_id;
         this.completed = true;
-
-        map.off('mousemove', this.updateGuideLine);
-        this.polygon.on('popupopen', this.updateValues);
     }
 }
 
@@ -556,3 +567,12 @@ export class Pipe {
         this.polyline.tilt = this.tilt;
     }
 }
+
+//SDFS
+document.getElementById("printMateriallist").addEventListener('click', () => {
+    window.print();
+});
+
+document.getElementById("backToMap").addEventListener('click', () => {
+    document.location.href = "map.html?id=" + id;
+});
