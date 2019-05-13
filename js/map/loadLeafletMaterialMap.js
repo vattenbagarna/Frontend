@@ -9,12 +9,12 @@ let boundsArray = [];
 let numbersObj = {};
 let token = localStorage.getItem('token');
 let table = document.getElementById('myMaterialTable');
+let icons = [];
 
 // Imports Google maps javascript api key from getKey.js file
 import { key } from "./getKey.js";
 import { options } from "./options.js";
 import { popup } from "./popup.js";
-
 
 // Initialize the map with center coordinates on BAGA HQ and zoom 18.
 export const map = L.map("myMaterialMap", {
@@ -122,7 +122,7 @@ map.on("moveend", () => {
 
             var currentDiv = document.getElementById("mapDiv");
 
-            console.log(marker.attributes.Pump);
+            //console.log(marker.attributes.Pump);
             document.body.insertBefore(newDiv, currentDiv);
             document.getElementById(marker.attributes.Modell).innerHTML =
                 `Nummer på kartan: ${numbersObj[marker.attributes.Modell].join(', ')}`;
@@ -141,7 +141,7 @@ fetch(`${configuration.apiURL}/proj/data/${id}?token=${token}`)
     .then((response) => {
         return response.json();
     })
-    .then((json) => {
+    .then(async (json) => {
         if (!json.error) {
             if (json[0].data.length > 0) {
                 load(json[0].data);
@@ -163,7 +163,7 @@ fetch(`${configuration.apiURL}/proj/data/${id}?token=${token}`)
  *
  * @returns {void}
  */
-let load = (json) => {
+let load = async (json) => {
     let icon;
     let newObj;
 
@@ -173,17 +173,47 @@ let load = (json) => {
     let pipes = {};
 
     //map.setView(json[0].center, json[0].zoom);
+    let iconJson = await API.get(
+        `${configuration.apiURL}/obj/categories/icon/all?token=${token}`);
+
+    for (let i = 0; i < iconJson.length; i++) {
+        let image = new Image();
+        let iconSize;
+
+        image.src = iconJson[i].Bild;
+        let scaleImage = async () => {
+            if (iconJson[i].Kategori != 'Förgrening') {
+                iconSize = calculateAspectRatioFit(image.naturalWidth,
+                    image.naturalHeight, 75, 40);
+            } else {
+                iconSize = { width: 20, height: 20 };
+            }
+
+            let icon = {
+                category: iconJson[i].Kategori,
+                icon: L.icon({
+                    iconAnchor: [iconSize.width / 2, iconSize.height / 2],
+                    iconSize: [iconSize.width, iconSize.height],
+                    iconUrl: iconJson[i].Bild,
+                    popupAnchor: [0, -(iconSize.height / 2)]
+                })
+            };
+
+            icons.push(icon);
+        };
+        image.onload = await scaleImage();
+    }
+
 
     //Loop through json data.
     for (let i = 1; i < json.length; i++) {
         switch (json[i].type) {
             //if marker add it to the map with its options
             case "marker":
-                icon = L.icon(json[i].options.icon.options);
-
-                newObj = new Marker(json[i].coordinates, json[i].attributes, icon, json[i].id);
-
                 if (json[i].attributes != undefined && json[i].attributes != "Förgrening") {
+                    let icon = icons.find(element => element.category == json[i].attributes.Kategori);
+                    newObj = new Marker(json[i].coordinates, json[i].attributes, icon.icon,
+                        json[i].id);
                     if (!objects.hasOwnProperty(json[i].attributes.Modell)) {
                         let id;
 
@@ -242,34 +272,33 @@ let load = (json) => {
                 newObj.draw(json[i].connected_with.last,
                     null, json[i].dimension, json[i].tilt);
 
-                if (!pipes.hasOwnProperty(json[i].options.id)) {
-                    let id;
+                    let id = "Rör";
+                    if(json[i].pipeType == 1) id = "Stamrör";
 
-                    if (json[i].options.id == 'pipe') {
-                        id = 'Rör';
-                    } else {
-                        id = "Stam rör";
+                    let listName = id+json[i].material+json[i].dimension.inner;
+                    if(!pipes.hasOwnProperty(listName)){
+                        console.log(listName);
+                        table.innerHTML +=
+                            `<td>${id}</td>
+    						<td id="${listName}">${Math.round(json[i].length)} m</td>
+                            <td>Material: ${json[i].material}</td>
+        					<td>dimension: ${json[i].dimension.inner}</td>
+        					<td></td>
+        					<td class="right">
+        						Kostnad <input type="number" class='number-input' value=''/>
+        					</td>`;
+
+                        pipes[listName] = {"material": json[i].material, "dimension": json[i].dimension,
+                            "length": json[i].length, "pipeType": json[i].pipeType};
+                    }
+                    else {
+                        console.log("isUpdate");
+                        pipes[listName].length += json[i].length;
+                        document.getElementById(listName).innerHTML =
+                            `<td>${Math.round(pipes[listName].length)} m</td>`;
                     }
 
-                    table.innerHTML +=
-                        `<td>${id}</td>
-						<td id="${json[i].options.id}">${json[i].length.toFixed(2)} m</td>
-					<td>dimension: ${json[i].dimension}</td>
-					<td></td>
-					<td></td>
-					<td class="right">
-						Kostnad <input type="number" class='number-input' value=''/>
-					</td>`;
 
-                    pipes[json[i].options.id] = {
-                        "totalLength": parseInt(json[i].length.toFixed(2)),
-                        "cell": document.getElementById(json[i].options.id)
-                    };
-                } else {
-                    pipes[json[i].options.id].totalLength += parseInt(json[i].length.toFixed(2));
-                    pipes[json[i].options.id].cell.innerHTML =
-                        pipes[json[i].options.id].totalLength + " m";
-                }
                 break;
             case "polygon":
                 newObj = new House(json[i].coordinates[0], ["", ""]);
@@ -340,132 +369,179 @@ const stringToNumber = (strValue) => {
 };
 
 /**
+ * Conserve aspect ratio of the original region. Useful when shrinking/enlarging
+ * images to fit into a certain area.
+ *
+ * @param {Number} srcWidth width of source image
+ * @param {Number} srcHeight height of source image
+ * @param {Number} maxWidth maximum available width
+ * @param {Number} maxHeight maximum available height
+ * @return {Object} { width, height }
+ */
+function calculateAspectRatioFit(srcWidth, srcHeight, maxWidth, maxHeight) {
+    var ratio = Math.min(maxWidth / srcWidth, maxHeight / srcHeight);
+
+    return { width: srcWidth * ratio, height: srcHeight * ratio };
+}
+
+/**
  * Marker - Class for creation of marker and underlying functionality for each object
  *
  */
-export class Marker {
-    /**
-     * constructor - Creates a L.Marker with preconfiged attributes from options.js and popup.js
-     * 			   - @see {@link https://leafletjs.com/reference-1.4.0.html#marker}
-     * 			   - Adds functionality for drag and when popup is open
-     * 			   - Lastly displays the new marker on the map
-     *
-     * @param {array} latlng     Coordinates (latitude and longitude) for the new marker
-     * @param {array} attributes Specific characteristics (values) for the new marker
-     * @param {L.Icon} icon		 @see {@link https://leafletjs.com/reference-1.4.0.html#icon}
-     * @param {null} [id=null]   Option to specify leaflet_id on creation
-     *
-     * @returns {void}
-     */
-    constructor(latlng, attributes, icon, id = null) {
-        this.attributes = attributes;
+ export class Marker {
+     /**
+      * constructor - Creates a L.Marker with preconfiged attributes from options.js and popup.js
+      * 			   - @see {@link https://leafletjs.com/reference-1.4.0.html#marker}
+      * 			   - Adds functionality for drag and when popup is open
+      * 			   - Lastly displays the new marker on the map
+      *
+      * @param {array} latlng     Coordinates (latitude and longitude) for the new marker
+      * @param {array} attributes Specific characteristics (values) for the new marker
+      * @param {L.Icon} icon		 @see {@link https://leafletjs.com/reference-1.4.0.html#icon}
+      * @param {null} [id=null]   Option to specify leaflet_id on creation
+      *
+      * @returns {void}
+      */
+     constructor(latlng, attributes, icon, id = null) {
+         this.attributes = attributes;
+         this.marker = new L.Marker(latlng, options.marker(icon));
 
-        this.marker = new L.Marker(latlng, {
-            draggable: false,
-            icon: icon
-        })
-            .bindPopup(popup.marker(this.attributes) + popup.changeCoord(latlng));
+         this.marker.attributes = this.attributes;
+         this.marker.disableDragging = () => { this.marker.dragging.disable(); return this.marker; };
+         this.marker.enableDragging = () => { this.marker.dragging.enable(); };
 
-        this.marker.attributes = this.attributes;
-        // Add marker to markers layer
-        markers.addLayer(this.marker).addTo(map);
+         // Add marker to markers layer
+         markers.addLayer(this.marker).addTo(map);
 
-        if (id) {
-            this.marker.id = id;
-        } else {
-            this.marker.id = this.marker._leaflet_id;
-        }
-    }
+         if (id) {
+             this.marker.id = id;
+         } else {
+             this.marker.id = this.marker._leaflet_id;
+         }
+     }
 }
 
 /**
  * House - Class for creation of house and underlying functionality for each
  */
-export class House {
-    /**
-     * constructor - Creates a L.polygon with preconfigured attributes from options.js and popup.js
-     * 			   - @see {@link https://leafletjs.com/reference-1.4.0.html#polygon}
-     * 			   - Creates a guideline with a dashed line to help user to line up the next point
-     * 			   - Guideline update it's position on mousemove
-     * 			   - Calls stopDrawListener() to listen for escape presses to stop drawing
-     *
-     * @param {array} latlng     Coordinates (latitude and longitude) for the first point
-     * 							 to the new house
-     * @param {array} attributes Specific characteristics (values) for the new house
-     *
-     * @returns {void}
-     */
-    constructor(latlng, attributes) {
-        this.completed = false;
-        this.attributes = attributes;
-        this.polygon = L.polygon([latlng], options.house);
-    }
+ export class House {
+     /**
+      * constructor - Creates a L.polygon with preconfigured attributes from options.js and popup.js
+      * 			   - @see {@link https://leafletjs.com/reference-1.4.0.html#polygon}
+      * 			   - Creates a guideline with a dashed line to help user to line up the next point
+      * 			   - Guideline update it's position on mousemove
+      * 			   - Calls stopDrawListener() to listen for escape presses to stop drawing
+      *
+      * @param {array} latlng     Coordinates (latitude and longitude) for the first point
+      * 							 to the new house
+      * @param {array} attributes Specific characteristics (values) for the new house
+      *
+      * @returns {void}
+      */
+     constructor(latlng, attributes, color) {
+         this.completed = false;
+         this.attributes = attributes;
+         this.polygon = L.polygon([latlng], options.house(color));
 
-    /**
-     * drawFromLoad - Draws polygon from saved data
-     *
-     * @param {array} latlngs     The rest of the coordinates of the corners on the polygon
-     * @param {string} address    The address of the polygon
-     * @param {string} definition What type of building is it
-     * @param {string} nop        number of people is living there
-     * @param {string} flow       water flow per person
-     *
-     * @returns {void}
-     */
-    drawFromLoad(latlngs, popup, nop, flow, options) {
-        this.polygon.setStyle(options);
-        this.polygon.setLatLngs(latlngs);
-        this.polygon.bindPopup(popup);
-        polygons.addLayer(this.polygon).addTo(map);
+         guideline = L.polyline([latlng, latlng], {
+             dashArray: '5, 10'
+         }).addTo(map);
 
-        this.polygon.nop = nop;
-        this.polygon.flow = flow;
-        this.completed = true;
-    }
+         map.on('mousemove', this.updateGuideLine);
+         this.stopDrawListener();
+     }
+
+     /**
+      * drawFromLoad - Draws polygon from saved data
+      *
+      * @param {array} latlngs     The rest of the coordinates of the corners on the polygon
+      * @param {string} address    The address of the polygon
+      * @param {string} definition What type of building is it
+      * @param {string} nop        number of people is living there
+      * @param {string} flow       water flow per person
+      *
+      * @returns {void}
+      */
+     drawFromLoad(latlngs, values) {
+         this.polygon.setLatLngs(latlngs);
+         this.polygon.bindPopup(popup.house(values[0], values[1], values[2], values[3], values[4]));
+         polygons.addLayer(this.polygon).addTo(map);
+
+         this.polygon.address = values[0];
+         this.polygon.definition = values[1];
+         this.polygon.nop = values[2];
+         this.polygon.flow = values[3];
+         this.completed = true;
+
+         map.off('mousemove', this.updateGuideLine);
+         this.polygon.on('popupopen', this.updateValues);
+         guideline.remove();
+     }
 }
 
 /**
  * Pipe - Class for creation of pipe and underlying functionality for each
  */
-export class Pipe {
-    /**
-     * constructor - Saves params values to object
-     *
-     * @param {array} latlngs   Coordinates (latitude and longitude) for the new polyline
-     * 							latlngs -> can be one och more points (latlng)
-     * @param {let} attributes Specific characteristics (values) for the new pipe
-     * @param {let} type       0 -> pipe, 1 -> stem pipe
-     * @param {let} id         Unique number to first connected_with
-     *
-     * @returns {void}
-     */
-    constructor(latlngs, attributes, type, id) {
-        this.latlngs = latlngs;
-        this.attribute = attributes;
-        this.type = type;
-        this.first = id;
-    }
+ export class Pipe {
+     /**
+      * constructor - Saves params values to object
+      *
+      * @param {array} latlngs   Coordinates (latitude and longitude) for the new polyline
+      * 							latlngs -> can be one och more points (latlng)
+      * @param {let} attributes Specific characteristics (values) for the new pipe
+      * @param {let} type       0 -> pipe, 1 -> stem pipe
+      * @param {let} id         Unique number to first connected_with
+      *
+      * @returns {void}
+      */
+     constructor(latlngs, attributes, type, id) {
+         this.latlngs = latlngs;
+         this.attribute = attributes;
+         this.type = type;
+         this.first = id;
+     }
 
-    /**
-     * draw - Creates a L.polyline with preconfigured attributes from options.js, popup.js and type
-     * 		- @see {@link https://leafletjs.com/reference-1.4.0.html#polyline}
-     * 		- Set connected_with values so the object knows what is it connected to
-     * 		- Set length for new polyline
-     * 		- Displays new polyline on map
-     *
-     * @param {let} id            		Unique number to last connected_with
-     * @param {array} [latlng=null] 	Option to push new point into new polyline
-     * @param {null} [dimension=null]	Option to add preconfigured dimension
-     * @param {null} [tilt=null]      	Option to add preconfigured tilt
-     *
-     * @returns {void}
-     **/
-    draw(id, latlng = null) {
-        this.last = id;
-        if (latlng != null) { this.latlngs.push(latlng); }
+     /**
+      * draw - Creates a L.polyline with preconfigured attributes from options.js, popup.js and type
+      * 		- @see {@link https://leafletjs.com/reference-1.4.0.html#polyline}
+      * 		- Set connected_with values so the object knows what is it connected to
+      * 		- Set length for new polyline
+      * 		- Displays new polyline on map
+      *
+      * @param {let} id            		Unique number to last connected_with
+      * @param {array} [latlng=null] 	Option to push new point into new polyline
+      * @param {null} [dimension=null]	Option to add preconfigured dimension
+      * @param {null} [tilt=null]      	Option to add preconfigured tilt
+      *
+      * @returns {void}
+      **/
+     draw(id, latlng = null, dimension = null, tilt = null) {
+         this.last = id;
+         if (latlng != null) { this.latlngs.push(latlng); }
 
-        this.createPolyline();
-    }
+         if (dimension == null && tilt == null) {
+             show.openModal(document.getElementById('pipeModal'));
+
+             document.getElementById("pipeSpecifications").onclick = () => {
+                 let modal = document.getElementById("pipeModal");
+                 let dimension = document.getElementById("dimension");
+                 let tilt = document.getElementById("tilt");
+
+
+                 modal.style.display = "none";
+
+                 this.dimension = dimension.value;
+                 this.tilt = tilt.value;
+
+                 this.createPolyline();
+             };
+         } else {
+             this.dimension = dimension;
+             this.tilt = tilt;
+
+             this.createPolyline();
+         }
+     }
 
     /**
      * createPolyline - Creates a new polyline depending on what type is choosen with preconfigured
