@@ -281,7 +281,7 @@ body {
 input[type=text],
 input[type="number"],
 select {
-    width: 100%;
+    width: 175px;
     padding: 12px 20px;
     margin: 8px 0;
     display: block;

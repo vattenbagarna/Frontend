@@ -39,15 +39,16 @@ export let popup = {
 	    </div>`;
     },
 
-    pipe: (material, dimension, tilt) => {
-        return `<b>Rör</b><br>
-		<label>Material</label>
-		<input type="text" id="pipeMaterial" name="material" value="${material}">
-		<label>Ytterdiameter</label>
-		<input type="text" id="dimension" name="dimension" value="${dimension}">
-		<label>Lutning</label>
-		<input type="number" id="tilt" name="tilt" value="${tilt}">
-		<input type="button" class="updateValuesInPipe" value="Ändra">`;
+    pipe: (tilt) => {
+        return `<label>Material</label>
+				<select class="materialPopup">
+					<option>PEM</option>
+					<option>PE</option>
+					<option>Rostfria</option>
+				</select>
+				<label>Statisk höjd</label>
+				<input type="number" step="0.1" id="tilt" name="tilt" value=${tilt}>
+				<input type="button" id="pipeSpecifications" value="Skicka">`;
     },
 
     branch: `<b>Förgrening<br>`,
