@@ -517,28 +517,28 @@ export class Pipe {
      */
     updateValues(event) {
         // Get button after popup is open
-        let buttons = document.getElementById('pipeSpecifications');
-        let elem = document.getElementsByClassName("materialPopup");
+        let button = document.getElementById('pipeSpecifications');
+        let material = document.getElementsByClassName("materialPopup");
 
-        elem = elem[elem.length - 1];
-        pipe.listen(elem);
-        elem.value = event.target.material;
-        elem.dispatchEvent(new Event('change'));
+        material = material[material.length - 1];
+        pipe.listen(material);
+        material.value = event.target.material;
+        material.dispatchEvent(new Event('change'));
 
-        let elem2 = document.getElementsByClassName("dimension");
+        let dimension = document.getElementsByClassName("dimension");
 
-        elem2 = elem2[elem2.length - 1];
+        dimension = dimension[dimension.length - 1];
 
         let option = document.createElement("option");
 
         option.text = event.target.dimension.outer;
         option.value = `${event.target.dimension.inner},${event.target.dimension.outer}`;
-        elem2.add(option, 0);
-        elem2.options[0].selected = "selected";
+        dimension.add(option, 0);
+        dimension.options[0].selected = "selected";
 
 
         // Add event listener on click on button
-        buttons.addEventListener('click', () => {
+        button.addEventListener('click', () => {
             // Get new value after click
             let tilt = document.getElementById('tilt').value;
             let material = document.getElementsByClassName("materialPopup");
