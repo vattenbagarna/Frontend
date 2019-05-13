@@ -6,11 +6,13 @@ export let options = {
         };
     },
 
-    house: {
-        color: '#3388ff',
-        fillColor: '#3388ff',
-        fillOpacity: 0.5,
-        weight: 1.5
+    house: (color) => {
+        return {
+            color: color,
+            fillColor: color,
+            fillOpacity: 0.5,
+            weight: 1.5
+        };
     },
 
     pipe: {

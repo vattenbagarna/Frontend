@@ -1,5 +1,5 @@
-/* global configuration */
-//Gets the users tokEn
+/* global configuration, API*/
+//Gets the users token
 let token = localStorage.getItem("token");
 let deleteButtonNumber = 0;
 let usernameObj = {};
@@ -13,29 +13,14 @@ let optionArrayValue = ["r", "w"];
  *
  * @returns {json}
  */
-let getAllUsers = () => {
-    let url = configuration.apiURL + "/user/all?token=" + token;
+let getAllUsers = async () => {
+    let json = await API.get(configuration.apiURL + "/user/all?token=" + token);
 
-    fetch(url, {
-        method: 'GET',
-    }).then(response => {
-        return response.json();
-    }).then((json) => {
-        if (!json.error) {
-            for (var i = 0; i < json.length; i++) {
-                usernameObj[json[i].id] = json[i].username;
-                usernameArray.push(json[i].username);
-                userIdArray.push(json[i].id);
-            }
-        } else {
-            if (json.info == "token failed to validate") {
-                localStorage.removeItem("token");
-                document.location.href = "index.html";
-            } else {
-                console.log(json);
-            }
-        }
-    });
+    for (var i = 0; i < json.length; i++) {
+        usernameObj[json[i].id] = json[i].username;
+        usernameArray.push(json[i].username);
+        userIdArray.push(json[i].id);
+    }
 };
 
 /**
@@ -43,7 +28,7 @@ let getAllUsers = () => {
  *
  * @returns {void}
  */
-let createNewProject = () => {
+let createNewProject = async () => {
     //Get all values from the form
     let projectName = document.getElementById("projectName").value;
     let accessUser = document.getElementsByClassName("accessSelect");
@@ -69,18 +54,10 @@ let createNewProject = () => {
     data += `&default[litrePerPerson]=${litreperperson}`;
 
     //Url to call API/Backend
-    let url = configuration.apiURL + "/proj/insert" + "?token=" + token;
+    await API.post(configuration.apiURL + "/proj/insert" + "?token=" + token,
+        'application/x-www-form-urlencoded', data);
 
-    //Fetch to post the data to the database
-    fetch(url, {
-        method: 'POST',
-        body: data,
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        }
-    }).then(res => res.json())
-        .then(()=> location.href = "home.html")
-        .catch(error => alert(error));
+    location.href = "home.html";
 };
 
 /**

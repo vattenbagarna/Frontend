@@ -11,7 +11,9 @@
         <script type="module" src="js/map/loadLeafletMap.js"></script>
         <script type="module" src="js/map/show.js"></script>
         <script type="module" src="js/map/edit.js"></script>
+        <script type="module" src="js/map/pipes.js"></script>
         <script src="js/configVariables.js" charset="utf-8"></script>
+        <script src="js/APIMiddleware.js" charset="utf-8"></script>
         <script type="text/javascript" src="js/vendor/leaflet.geometryutil.js"></script>
         <script type="text/javascript" src="js/vendor/leaflet-draggable-polyline.js"></script>
         <script src="js/vendor/esri-leaflet.js"></script>
@@ -78,31 +80,38 @@
             <div class="map" id="myMap"></div>
         </div>
 		<div id="readBack"></div>
-        <div id="pipeModal" class="modal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <b>Rör</b>
-                <br></br>
-                <label>Inner Dimension</label>
-                <input type="number" id="dimension" name="dimension" placeholder="Inner dimension..">
-                <label>Lutning</label>
-                <input type="number" id="tilt" name="tilt" placeholder="Luting på röret..">
-                <input type="button" id="pipeSpecifications" value="Skicka">
-            </div>
-        </div>
-        <div id="saveModal" class="modal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <b>Spara Projekt 1</b>
-                <br></br>
-                <label>Välj version</label>
-                <select id="versions">
-                </select>
-                <label>Lägg till ny version</label>
-                <input autocomplete="off" type="text" id="newVersion" placeholder="tex 2.0"/>
-
-                <input type="button" id="saveButton" value="Spara">
-            </div>
-        </div>
-    </body>
+		<div id="pipeModal" class="modal">
+			<div class="modal-content">
+				<span class="close">&times;</span>
+				<b>Rör</b>
+				<br></br>
+				<label>Material</label>
+				<select id="material">
+					<option>PEM</option>
+					<option>PE</option>
+					<option>Rostfria</option>
+				</select>
+				<div id="loading">
+					<i class="material-icons loading">autorenew</i>
+				</div>
+				<div class="elevation" id="elevation">
+					<label>Statisk höjd</label>
+					<input type="number" step="0.1" id="tilt" name="tilt">
+					<input type="button" id="pipeSpecifications" value="Skicka">
+				</div>
+			</div>
+		</div>
+		<div id="saveModal" class="modal">
+			<div class="modal-content">
+				<span class="close">&times;</span>
+				<b>Spara Projekt 1</b>
+				<br></br>
+				<label>Välj version</label>
+				<select id="versions"></select>
+				<label>Lägg till ny version</label>
+				<input autocomplete="off" type="text" id="newVersion" placeholder="tex 2.0"/>
+				<input type="button" id="saveButton" value="Spara">
+			</div>
+		</div>
+	</body>
 </html>

@@ -7,20 +7,22 @@
 		<link href="https://fonts.googleapis.com/css?family=Fira+Sans:300,400" rel="stylesheet">
 		<link rel="stylesheet" href="css/master.css">
 		<link rel="stylesheet" href="css/listProducts.css">
+		<script src="js/APIMiddleware.js" charset="utf-8"></script>
 		<script src="js/login/logout.js"></script>
 	</head>
 	<body>
 		<div class="topnav">
-			<div class="links">
-				<a href="home.html">Hem</a>
-				<a href="calculations.html">Beräkningar</a>
-				<a class="active" href="listProducts.html">Produkter</a>
-				<a class="right" id="logout" href="#logout">Logga ut</a>
-			</div>
-			<div class="greet-user">
-				<span id="userName"></span>
-			</div>
-		</div>
+            <div class="links">
+                <a href="home.html">Hem</a>
+                <a href="calculations.html">Beräkningar</a>
+                <a class="active" href="listProducts.html">Produkter</a>
+				        <a href="changepassword.html">Byt lösenord</a>
+                <a id="logout" href="#logout">Logga ut</a>
+            </div>
+            <div class="greet-user">
+                <span id="userName"></span>
+            </div>
+        </div>
 		<div class="wrap">
 			<h1 class="title">Egenskapade produkter</h1>
 			<div id="activeProducts" class="productList">
