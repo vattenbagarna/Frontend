@@ -395,7 +395,8 @@ export class Pipe {
 
         if (material == null && dim == null && tilt == null) {
             show.openModal(document.getElementById('pipeModal'));
-            pipe.listen();
+            let elem = document.getElementsByClassName("material")[0];
+            pipe.listen(elem);
 
             this.elevation = await this.getElevation(this.latlngs);
 
@@ -414,8 +415,8 @@ export class Pipe {
                 document.getElementById("pipeModal").style.display = "none";
                 document.getElementById("elevation").style.display = "none";
                 document.getElementById('loading').style.display = 'block';
-                this.material = document.getElementById('material').value;
-                let value = document.getElementById("dimension").value;
+                this.material = document.getElementsByClassName('material')[0].value;
+                let value = document.getElementsByClassName("dimension")[0].value;
 
                 value = value.split(",");
                 this.dimension = {
@@ -484,11 +485,14 @@ export class Pipe {
             last: this.last
         };
         polylines.addLayer(this.polyline).addTo(map);
-        this.polyline.bindPopup(popup.pipe(this.material, this.dimension.outer, this.tilt));
+        console.log(this.material);
+        this.polyline.bindPopup(popup.pipe(this.tilt));
         this.polyline.length = getLength(this.latlngs);
         this.polyline.elevation = this.elevation;
         this.polyline.updateElevation = async (latlngs) => {
-            return await this.getElevation(latlngs);
+            let elevation = await this.getElevation(latlngs);
+            this.polyline.bindPopup(popup.pipe((elevation.highest - elevation.first).toFixed(1)));
+            return elevation;
         };
         this.polyline.type = this.type;
         this.polyline.material = this.material;
@@ -513,24 +517,50 @@ export class Pipe {
      */
     updateValues(event) {
         // Get button after popup is open
-        let buttons = document.getElementsByClassName('updateValuesInPipe');
+        let buttons = document.getElementById('pipeSpecifications');
         //console.log(buttons);
+        let elem = document.getElementsByClassName("materialPopup");
+        elem = elem[elem.length - 1];
+        console.log(elem);
+        pipe.listen(elem);
+        elem.value = event.target.material;
+        elem.dispatchEvent(new Event('change'));
+
+        let elem2 = document.getElementsByClassName("dimension");
+        elem2 = elem2[elem2.length - 1];
+        console.log(elem2);
+        console.log(event.target.material);
+
+        let option = document.createElement("option");
+        option.text = event.target.dimension.outer;
+        option.value = `${event.target.dimension.inner},${event.target.dimension.outer}`;
+        elem2.add(option, 0);
+        elem2.options[0].selected = "selected";
+
 
         // Add event listener on click on button
-        buttons[buttons.length - 1].addEventListener('click', () => {
-            // Get new values after click
-            let material = document.getElementById('pipeMaterial').value;
-            let dim = document.getElementById('dimension').value;
+        buttons.addEventListener('click', () => {
+            // Get new value after click
             let tilt = document.getElementById('tilt').value;
+            let material = document.getElementsByClassName("materialPopup");
+            let dimension = document.getElementsByClassName("dimension");
+            material = material[material.length - 1];
+            dimension = dimension[dimension.length - 1];
+            dimension = dimension.value.split(",");
+            event.target.dimension = {
+                inner: dimension[0],
+                outer: dimension[1],
+            };
 
-            event.target.dimension = dim;
+
             event.target.tilt = tilt;
+            event.target.material = material.value;
 
             // Close active popup
             event.target.closePopup();
 
             // Update popup content with new values
-            event.target.setPopupContent(popup.pipe(material, dim, tilt));
+            event.target.setPopupContent(popup.pipe(tilt));
         }), { once: true };
     }
 
@@ -570,6 +600,7 @@ export class Pipe {
             first: firstElevation,
             last: lastElevation
         };
+
         return elevationObj;
     }
 }
