@@ -3,9 +3,11 @@
     <head>
         <meta charset="utf-8">
         <title>Materiallista</title>
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css?family=Fira+Sans:300,400" rel="stylesheet">
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css" integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA==" crossorigin=""/>
         <link rel="stylesheet" href="css/materiallist.css">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 		<link rel="stylesheet" href="css/master.css">
         <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js" integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg==" crossorigin=""></script>
         <script type="module" src="js/map/getKey.js"></script>
@@ -17,16 +19,19 @@
         <div id="mapDiv">
             <div class="map" id="myMaterialMap"></div>
         </div>
-		<table class="materiallist" id="myMaterialTable"></table>
-        <div class="buttons">
-            <a class="link">
-                <div id="backToMap" class="fancy-light-button">
-                    <i class="material-icons">chevron_left</i>
-                </div>
-            </a>
-            <a id="printMateriallist" class="fancy-button">
-                Skriv ut
-            </a>
+        <div class="wrap">
+    		<table class="materiallist" id="myMaterialTable"></table>
+            <div class="buttons">
+                <a class="link">
+                    <div id="backToMap" class="fancy-light-button">
+                        <i class="material-icons">arrow_back</i>
+                        <p>Gå tillbaka</p>
+                    </div>
+                </a>
+                <a id="printMateriallist" class="fancy-button">
+                    Skriv ut
+                </a>
+            </div>
         </div>
     </body>
     <script type="module" src="js/map/loadLeafletMaterialMap.js"></script>

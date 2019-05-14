@@ -108,7 +108,6 @@ map.on("moveend", () => {
             }
 
             var pixelPosition = map.latLngToLayerPoint(marker._latlng);
-            //console.log(pixelPosition);
 
             newDiv = document.createElement("div");
             newP = document.createElement("p");
