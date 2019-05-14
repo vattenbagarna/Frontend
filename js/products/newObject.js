@@ -245,12 +245,30 @@ let newPumpCurve = () => {
             y: height.value
         });
 
+        myLineChart.data.datasets[0].data = myLineChart.data.datasets[0].data.sort(compare);
         velocity.value = "";
         height.value = "";
         height.focus();
 
         myLineChart.update();
     });
+};
+
+/**
+  * Help function for array numeric sort
+  *
+  * @param {JSON} a, first value to compare
+  * @param {JSON} b, second value to compare
+  * @returns {Number} if value is bigger, smaller or equal
+  */
+const compare = ( a, b ) => {
+    if ( parseFloat(a.x) < parseFloat(b.x) ) {
+        return -1;
+    }
+    if ( parseFloat(a.x) > parseFloat(b.x) ) {
+        return 1;
+    }
+    return 0;
 };
 
 /**
