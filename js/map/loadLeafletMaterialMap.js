@@ -137,26 +137,6 @@ map.on("moveend", () => {
 
 let id = new URL(window.location.href).searchParams.get('id');
 
-fetch(`${configuration.apiURL}/proj/data/${id}?token=${token}`)
-    .then((response) => {
-        return response.json();
-    })
-    .then(async (json) => {
-        if (!json.error) {
-            if (json[0].data.length > 0) {
-                load(json[0].data);
-            }
-        } else {
-            if (json.info == "token failed to validate") {
-                localStorage.removeItem('token');
-                document.location.href = "index.html";
-            } else {
-                console.log(json);
-            }
-        }
-    });
-
-
 /**
   * load - Load objects(markers, polylines, polygons) to the map using json
   * data
@@ -370,6 +350,21 @@ let load = async (json) => {
     gridlayers();
     getBounds();
 };
+
+/**
+ * fetch - fetch for map data
+ *
+ * @returns {void}
+ */
+let fetch = async () => {
+    let json = await API.get(`${configuration.apiURL}/proj/data/${id}?token=${token}`);
+
+    if (json[0].data.length > 0) {
+        load(json[0].data);
+    }
+}
+
+fetch();
 
 /**
  * stringToNumber
