@@ -240,17 +240,33 @@ let newPumpCurve = () => {
     });
 
     button.addEventListener('click', () => {
-        myLineChart.data.datasets[0].data.push({
-            x: velocity.value,
-            y: height.value
-        });
+        if (velocity.value != "" && height.value != "") {
+            let duplicate = false;
+            let dupPos = -1;
 
-        myLineChart.data.datasets[0].data = myLineChart.data.datasets[0].data.sort(compare);
-        velocity.value = "";
-        height.value = "";
-        height.focus();
+            for (let i = 0; i < myLineChart.data.datasets[0].data.length; i++) {
+                if (myLineChart.data.datasets[0].data[i].x == velocity.value) {
+                    duplicate = true;
+                    dupPos = i;
+                    break;
+                }
+            }
+            if (!duplicate) {
+                myLineChart.data.datasets[0].data.push({
+                    x: velocity.value,
+                    y: height.value
+                });
+            } else {
+                myLineChart.data.datasets[0].data[dupPos].y = height.value;
+            }
 
-        myLineChart.update();
+            myLineChart.data.datasets[0].data = myLineChart.data.datasets[0].data.sort(compare);
+            velocity.value = "";
+            height.value = "";
+            height.focus();
+
+            myLineChart.update();
+        }
     });
 };
 
