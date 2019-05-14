@@ -362,7 +362,7 @@ let fetch = async () => {
     if (json[0].data.length > 0) {
         load(json[0].data);
     }
-}
+};
 
 fetch();
 
