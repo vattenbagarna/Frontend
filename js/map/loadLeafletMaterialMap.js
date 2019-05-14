@@ -252,18 +252,21 @@ let load = async (json) => {
                             !pumps.hasOwnProperty(json[i].attributes.Pump)) {
                             table.innerHTML +=
                                 `<td>${json[i].attributes.Pump}</td>
-    						<td id="${json[i].attributes.Pump}Amount">Antal: 1</td>
+    						<td id="${json[i].attributes.Pump}Amount">Antal:
+                                ${parseInt(json[i].attributes["Antal pumpar"])}</td>
     						<td>Kategori: Pump</td>
     						<td></td>
     						<td id="${json[i].attributes.Pump}"></td>
     						<td class="right">
     							Kostnad <input type="number" class='number-input' value=''/>
     						</td>`;
-                            pumps[json[i].attributes.Pump] = { antal: 1 };
+                            pumps[json[i].attributes.Pump] = {
+                                antal: parseInt(json[i].attributes["Antal pumpar"]) };
                         } else if (json[i].attributes.Pump != undefined) {
-                            pumps[json[i].attributes.Pump].antal += 1;
+                            pumps[json[i].attributes.Pump].antal += parseInt(
+                                json[i].attributes["Antal pumpar"]);
                             document.getElementById(`${json[i].attributes.Pump}Amount`).innerHTML =
-                                `<td>Antal: ${pumps[json[i].attributes.Pump].antal}</td>`;
+                                `<td>Antal: ${parseInt(pumps[json[i].attributes.Pump].antal)}</td>`;
                         }
                         objects[json[i].attributes.Modell] = { antal: 1 };
                     } else {
@@ -271,9 +274,10 @@ let load = async (json) => {
                         document.getElementById(`${json[i].attributes.Modell}Amount`).innerHTML =
                             `<td>Antal: ${objects[json[i].attributes.Modell].antal}</td>`;
                         if (json[i].attributes.Pump != undefined) {
-                            pumps[json[i].attributes.Pump].antal += 1;
+                            pumps[json[i].attributes.Pump].antal += parseInt(
+                                json[i].attributes["Antal pumpar"]);
                             document.getElementById(`${json[i].attributes.Pump}Amount`).innerHTML =
-                                `<td>Antal: ${pumps[json[i].attributes.Pump].antal}</td>`;
+                                `<td>Antal: ${parseInt(pumps[json[i].attributes.Pump].antal)}</td>`;
                         }
                     }
                 }
