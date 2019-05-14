@@ -43,3 +43,32 @@
 .slim-title {
     font-weight: 200;
 }
+
+.pending-items {
+    display: flex;
+    align-items: center;
+}
+
+.item-image {
+    padding: 1rem;
+}
+
+.item-text-wrap {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.item-title,
+.item-category {
+    margin: 0.2rem 0;
+    font-weight: normal;
+}
+
+.item-title {
+    font-size: 1.4rem;
+}
+
+.item-category {
+    font-size: 1.1rem;
+}

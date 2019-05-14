@@ -33,7 +33,7 @@ let checkAdminSetNav = () => {
             return response.json();
         })
         .then((data) => {
-            if (data.user.isAdmin == 1) {
+            if (data.user.isAdmin == true) {
                 let target = document.getElementById('extraLinks');
                 let element = document.createElement("a");
 
@@ -41,6 +41,7 @@ let checkAdminSetNav = () => {
                 element.href = "admin.html";
                 element.innerText = "Admin";
                 target.appendChild(element);
+                return true;
             }
             return false;
         });

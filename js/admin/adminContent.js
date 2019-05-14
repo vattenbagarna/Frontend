@@ -41,7 +41,10 @@ const appendElementToApp = (elementToAppend, appendTo = adminContent) => {
 * showGlobalProductRequests- Displays the list of products awaiting global requests
 */
 const showGlobalProductRequests = async () => {
-    let pendingRequests = await API.get(configuration.apiURL + "/admin/obj/approve?token=" + token);
+    let pendingRequests = await API.get(configuration.apiURL +
+        "/admin/obj/approve?token=" + token);
+
+    console.log(pendingRequests);
     let mainContent = createElement("div", "main", "main-content");
 
     // Clear content element before we start appending new content
@@ -53,13 +56,15 @@ const showGlobalProductRequests = async () => {
         return false;
     }
 
+    let requestedTitle = createElement("h2", "", "slim-title");
+
+    requestedTitle.innerText = "Förfrågningar för globala produkter";
+    appendElementToApp(requestedTitle, mainContent);
+
     if (pendingRequests.length == 0) {
-        let requestedTitle = createElement("h2", "", "slim-title");
         let message = createElement("div", "msg", "message");
 
-        requestedTitle.innerText = "Förfrågningar för globala produkter";
         message.innerText = "Inga förfrågningar väntar på utvärdering";
-        appendElementToApp(requestedTitle, mainContent);
         appendElementToApp(message, mainContent);
         appendElementToApp(mainContent);
         return true;
@@ -68,14 +73,34 @@ const showGlobalProductRequests = async () => {
     //Just to be sure we don't get hit by an edgecase
     if (pendingRequests.length > 0) {
         for (var i = 0; i < pendingRequests.length; i++) {
-            let pending = createElement("div", "", "pending");
+            let pending = createElement("div", "", "pending-items");
+            let image = createElement("img", "", "item-image");
+            let wrapText = createElement("div", "", "item-text-wrap");
+            let title = createElement("h4", "", "item-title");
+            let category = createElement("h6", "", "item-category");
 
             //TODO: Parse this to display it properly
             //TODO: Add approve button
-            pending.innerText = pendingRequests[i];
+            console.log(pendingRequests[i]);
+
+            image.src = pendingRequests[i].Bild;
+            image.height = 50;
+            title.innerText = pendingRequests[i].Modell;
+            category.innerText = pendingRequests[i].Kategori;
+
+            appendElementToApp(title, wrapText);
+            appendElementToApp(category, wrapText);
+            appendElementToApp(image, pending);
+            appendElementToApp(wrapText, pending);
+            appendElementToApp(pending, mainContent);
         }
+        appendElementToApp(mainContent);
     }
 };
+
+/**
+* Create new user
+*/
 
 /**
 * navSelector - handles what happens when an element is clicked and what should be displayed
@@ -92,7 +117,7 @@ const navSelector = (tabElement) => {
     switch (tabElement.target.name) {
         case "global":
             showGlobalProductRequests();
-            console.log("Globala produkter");
+            // console.log("Globala produkter");
             break;
         case "projects":
             console.log("Alla projekt");
