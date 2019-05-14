@@ -261,9 +261,11 @@ let load = async (json) => {
     						<td class="right">
     							Kostnad <input type="number" class='number-input' value=''/>
     						</td>`;
-                            pumps[json[i].attributes.Pump] = { antal: parseInt(json[i].attributes["Antal pumpar"]) };
+                            pumps[json[i].attributes.Pump] = {
+                                antal: parseInt(json[i].attributes["Antal pumpar"]) };
                         } else if (json[i].attributes.Pump != undefined) {
-                            pumps[json[i].attributes.Pump].antal += parseInt(json[i].attributes["Antal pumpar"]);
+                            pumps[json[i].attributes.Pump].antal += parseInt(
+                                json[i].attributes["Antal pumpar"]);
                             document.getElementById(`${json[i].attributes.Pump}Amount`).innerHTML =
                                 `<td>Antal: ${parseInt(pumps[json[i].attributes.Pump].antal)}</td>`;
                         }
@@ -273,7 +275,8 @@ let load = async (json) => {
                         document.getElementById(`${json[i].attributes.Modell}Amount`).innerHTML =
                             `<td>Antal: ${objects[json[i].attributes.Modell].antal}</td>`;
                         if (json[i].attributes.Pump != undefined) {
-                            pumps[json[i].attributes.Pump].antal += parseInt(json[i].attributes["Antal pumpar"]);
+                            pumps[json[i].attributes.Pump].antal += parseInt(
+                                json[i].attributes["Antal pumpar"]);
                             document.getElementById(`${json[i].attributes.Pump}Amount`).innerHTML =
                                 `<td>Antal: ${parseInt(pumps[json[i].attributes.Pump].antal)}</td>`;
                         }
