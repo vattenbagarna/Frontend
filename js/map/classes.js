@@ -56,6 +56,7 @@ export class Marker {
         } else {
             this.marker.id = this.marker._leaflet_id;
         }
+        attributes.id = this.marker.id;
     }
 
     /**
@@ -125,9 +126,15 @@ export class Marker {
         polylines.eachLayer(async (polyline) => {
             //check if polylines are connected to a marker, by first point and last point.
             if (event.target.id === polyline.connected_with.first) {
+                //Calculates new length of pipe
+                polyline.length = getLength(polyline._latlngs);
+                edit.warning.pressure(polyline);
                 //update elevation for polyline
                 polyline.elevation = await polyline.updateElevation(polyline._latlngs);
             } else if (event.target.id === polyline.connected_with.last) {
+                //Calculates new length of pipe
+                polyline.length = getLength(polyline._latlngs);
+                edit.warning.pressure(polyline);
                 //update elevation for polyline
                 polyline.elevation = await polyline.updateElevation(polyline._latlngs);
             }
@@ -405,13 +412,14 @@ export class Pipe {
             document.getElementById('elevation').style.display = 'block';
             document.getElementById('loading').style.display = 'none';
 
+            //funkar inte om man klickar utanför
             document.getElementById('pipeModal').children[0].children[0].onclick = () => {
                 document.getElementById("pipeModal").style.display = "none";
                 document.getElementById("elevation").style.display = "none";
                 document.getElementById('loading').style.display = 'block';
             };
 
-            document.getElementById("pipeSpecifications").onclick = () => {
+            document.getElementById("pipeSpecifications").addEventListener('click', () => {
                 document.getElementById("pipeModal").style.display = "none";
                 document.getElementById("elevation").style.display = "none";
                 document.getElementById('loading').style.display = 'block';
@@ -426,7 +434,8 @@ export class Pipe {
                 this.tilt = document.getElementById("tilt").value;
 
                 this.createPolyline();
-            };
+                edit.warning.pressure(this.polyline);
+            }, { once: true });
         } else {
             this.elevation = elevation;
             this.material = material;
@@ -449,8 +458,8 @@ export class Pipe {
             this.polyline = new L.polyline(this.latlngs, options.pipe);
             this.polyline.decorator = L.polylineDecorator(this.polyline, {
                 patterns: [{
-                    offset: '28%',
-                    repeat: '25%',
+                    offset: '50%',
+                    repeat: 0,
                     symbol: L.Symbol.arrowHead({
                         pixelSize: 15,
                         polygon: false,
@@ -465,8 +474,8 @@ export class Pipe {
             this.polyline = new L.polyline(this.latlngs, options.stemPipe);
             this.polyline.decorator = L.polylineDecorator(this.polyline, {
                 patterns: [{
-                    offset: '28%',
-                    repeat: '25%',
+                    offset: '50%',
+                    repeat: 0,
                     symbol: L.Symbol.arrowHead({
                         pixelSize: 15,
                         polygon: false,
@@ -491,7 +500,8 @@ export class Pipe {
         this.polyline.updateElevation = async (latlngs) => {
             let elevation = await this.getElevation(latlngs);
 
-            this.polyline.bindPopup(popup.pipe((elevation.highest - elevation.first).toFixed(1)));
+            this.polyline.bindPopup(popup.pipe((elevation.highest - elevation.first).toFixed(
+                1)));
             return elevation;
         };
         this.polyline.type = this.type;
@@ -561,6 +571,7 @@ export class Pipe {
 
             // Update popup content with new values
             event.target.setPopupContent(popup.pipe(tilt));
+            edit.warning.pressure(event.target);
         }), { once: true };
     }
 

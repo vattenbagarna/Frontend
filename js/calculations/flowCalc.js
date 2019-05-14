@@ -218,16 +218,18 @@ function calcAll() {
     let mu = parseFloat(document.getElementById("mu").value);
 
     selectedDim = changeDim(selectedDim);
-    getPumps(wantedFlow, height, selectedDim);
     wantedFlow = checkUnit(wantedFlow);
 
     let lostPress = calculations.calcPressure(wantedFlow, mu, selectedDim, length);
 
     lostPress *= 9.81;
-    let roundPress = lostPress.toFixed(2);
     let velocity = calculations.calcVelocity(wantedFlow, selectedDim);
+    let totalPress = calculations.totalPressure(lostPress, height);
+
+    getPumps(totalPress, selectedDim);
+
     let roundVel = velocity.toFixed(2);
-    let totalPress = totalPressure(lostPress, height);
+    let roundPress = lostPress.toFixed(2);
     let roundTotal = totalPress.toFixed(2);
 
     document.getElementById("flowSpeed").innerText = roundVel;
@@ -241,20 +243,19 @@ function calcAll() {
 /**
  * getPumps - Fetches all the pumps from the database
  *
- * @param {number} Flow
  * @param {number} Height
  * @param {number} Dimension
  *
  * @returns {void}
  */
-function getPumps(wantedFlow, height, selectedDim) {
+function getPumps(height, selectedDim) {
     fetch(configuration.apiURL + "/obj/type/Pump?token=" + localStorage.getItem("token"), {
         method: 'GET'
     })
         .then(function(response) {
             return response.json();
         }).then(function(json) {
-            recommendPump(json, wantedFlow, height, selectedDim);
+            recommendPump(json, height, selectedDim);
         });
 }
 
@@ -309,13 +310,12 @@ function convertUnit(wantedFlow) {
  * recommendPump - Recommends pumps according to calculations
  *
  * @param {object} Pumps
- * @param {number} Flow
  * @param {number} Height
  * @param {number} Dimension
  *
  * @returns {void}
  */
-function recommendPump(pumps, wantedFlow, height, selectedDim) {
+function recommendPump(pumps, height, selectedDim) {
     let found = false;
     let mps = 0;
     let parent;
@@ -485,50 +485,4 @@ function estPumpValue(yValue, pumpCurve) {
     let plus = Math.abs((y1 - yValue) * k);
 
     return x1 + plus;
-}
-
-
-/**
- * calcQPump - Calculates capacity for pump pipes
- *
- * @param {number} Innerdimension
- * @param {number} MU
- * @param {number} Pipelength
- * @param {number} Inpressure
- * @param {number} Height
- * @param {number} Outpressure
- *
- * @return {number} Capacity
- *
- */
-// function calcQPump(di, mu, l, height) {
-//     let dim = di / 1000;
-//     let mu = mu; // mm
-//     let length = l; // m
-//     let viscosity = 1e-6; // m2/s
-//     let rho = 1000; // kg/m3
-//
-//     let deltap = (0.0981 * (height) * rho / 1000) * 100000;
-//
-//     let top = -Math.PI / 2 * Math.pow(dim, 2.5);
-//     let top2 = Math.sqrt(2 * deltap / (length * rho));
-//     let inside = mu / 1000 / (3.7 * dim);
-//     let rightInside = (Math.pow(dim, 1.5) * Math.sqrt(2 * deltap / (length * rho)));
-//     let avgQ = top * top2 * log10(inside + 2.51 * viscosity/ rightInside);
-//
-//     return avgQ*1000;
-// }
-
-/**
- * totalPressure - Calculates total pressure
- *
- * @param {number} pressure
- * @param {number} Height
- *
- * @returns {number} Total pressure
- */
-function totalPressure(lostPress, height) {
-    let total = lostPress + height;
-
-    return total;
 }

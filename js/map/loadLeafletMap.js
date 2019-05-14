@@ -433,6 +433,8 @@ export let loadMap = {
 
                     delete json[i].Bild;
                     delete json[i].creatorID;
+                    delete json[i].isDisabled;
+                    delete json[i].approved;
                     delete json[i]._id;
                     objectData.push(json[i]);
                 } else if (json[i].Kategori != "Pump") {
@@ -453,6 +455,8 @@ export let loadMap = {
 
                     delete json[i].Bild;
                     delete json[i].creatorID;
+                    delete json[i].isDisabled;
+                    delete json[i].approved;
                     delete json[i]._id;
                     objectData.push(json[i]);
                 }
@@ -623,14 +627,12 @@ let getPermission = async () => {
         let image = new Image();
         let iconSize;
 
-        image.src = json[i].Bild;
-
         /**
-         * resizeImage - Save icon object with category and L.icon
-         * 			   - Leaflet icon @see {@link https://leafletjs.com/reference-1.4.0.html#icon}
-         * 			   - The icon size is changed to below W:75 & H:40 but keeps aspect ratio
+         * - Save icon object with category and L.icon
+         * - Leaflet icon @see {@link https://leafletjs.com/reference-1.4.0.html#icon}
+         * - The icon size is changed to below W:75 & H:40 but keeps aspect ratio
          */
-        let resizeImage = () => {
+        image.onload = () => {
             if (json[i].Kategori != 'Förgrening') {
                 iconSize = calculateAspectRatioFit(image.naturalWidth,
                     image.naturalHeight, 75, 40);
@@ -650,8 +652,7 @@ let getPermission = async () => {
 
             icons.push(icon);
         };
-
-        image.onload = await resizeImage();
+        image.src = json[i].Bild;
     }
 
     //fetches the users permission from database to decide which load to use

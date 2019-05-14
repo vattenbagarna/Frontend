@@ -180,6 +180,10 @@ body {
     color: #696969;
 }
 
+.leaflet-popup-content-wrapper {
+    min-width: 170px;
+}
+
 .active {
     border-top: 1px solid #1280c4;
     border-bottom: 1px solid #1280c4;
@@ -278,10 +282,57 @@ body {
     cursor: pointer;
 }
 
+.alert {
+    position: relative;
+    top: 0%;
+    width: 100%;
+    z-index: 9999;
+    padding: 20px;
+    background-color: rgba(244, 67, 54, 0.8);
+    font-size: 18px;
+    color: white;
+    opacity: 1;
+    transition: opacity 0.6s;
+    margin-bottom: 5px;
+}
+
+.warning-icon {
+    border: 2px solid #ff9800;
+    border-radius: 50%;
+}
+
+.alert .info-text {
+    float: right;
+    margin-right: 20px;
+}
+
+.alert.success {
+    background-color: rgba(76, 175, 80, 0.8);
+}
+
+.alert.warning {
+    background-color: rgba(255, 152, 0, 0.8);
+}
+
+.closebtn {
+    margin-right: 40px;
+    color: white;
+    font-weight: bold;
+    float: right;
+    font-size: 22px;
+    line-height: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.closebtn:hover {
+    color: black;
+}
+
 input[type=text],
 input[type="number"],
 select {
-    width: 175px;
+    width: 100%;
     padding: 12px 20px;
     margin: 8px 0;
     display: block;
