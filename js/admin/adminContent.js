@@ -100,7 +100,6 @@ const showGlobalProductRequests = async () => {
                      id +
                     "/1?token=" +
                     token);
-
                 showGlobalProductRequests();
             });
             deny.innerText = "Neka";
@@ -110,7 +109,6 @@ const showGlobalProductRequests = async () => {
                     id +
                     "/0?token=" +
                     token);
-
                 showGlobalProductRequests();
             });
 
@@ -167,7 +165,6 @@ const showGlobalProductRequests = async () => {
                          id +
                         "/1?token=" +
                         token, "application/x-www-form-urlencoded");
-
                     showGlobalProductRequests();
                 });
 
@@ -199,6 +196,7 @@ const showGlobalProductRequests = async () => {
                 let tmpName = createElement("div", "", "item-name");
                 let tmpCategory = createElement("div", "", "item-category");
                 let tmpEnable = createElement("a", "", "small-link item-disable");
+                let tmpDelete = createElement("a", "", "small-link item-disable");
 
                 tmpImage.src = inactiveProducts[i].Bild;
                 tmpImage.height = 50;
@@ -211,7 +209,15 @@ const showGlobalProductRequests = async () => {
                          id +
                         "/0?token=" +
                         token, "application/x-www-form-urlencoded");
-
+                    showGlobalProductRequests();
+                });
+                tmpDelete.innerText = "Radera permanent";
+                tmpDelete.addEventListener("click", async (event, id=tmpId) => {
+                    await API.post(configuration.apiURL +
+                        "/admin/obj/delete/" +
+                         id +
+                        "/?token=" +
+                        token, "application/x-www-form-urlencoded");
                     showGlobalProductRequests();
                 });
 
@@ -219,6 +225,7 @@ const showGlobalProductRequests = async () => {
                 appendElementToApp(tmpName, tmpObj);
                 appendElementToApp(tmpCategory, tmpObj);
                 appendElementToApp(tmpEnable, tmpObj);
+                appendElementToApp(tmpDelete, tmpObj);
                 appendElementToApp(tmpObj, mainContent);
             }
         } else {
