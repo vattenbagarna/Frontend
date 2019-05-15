@@ -7,7 +7,7 @@ import { options } from "./options.js";
 
 import { polylines, markers, polygons, add, getLength, clearHouse } from "./add.js";
 
-import { edit, findNextPolyline } from "./edit.js";
+import { edit, calculateNextPolyline } from "./edit.js";
 
 import { show, mouseCoord } from "./show.js";
 
@@ -362,11 +362,7 @@ export class House {
             // Update popup content with new values
             event.target.setPopupContent(popup.house(addr, type, nop, flow, newColor));
 
-            let nextPolyline = findNextPolyline(event.target);
-
-            if (nextPolyline) {
-                edit.warning.pressure(nextPolyline);
-            }
+            calculateNextPolyline(event.target, 'first');
         }), { once: true };
     }
 }
@@ -552,11 +548,19 @@ export class Pipe {
 
         dimension = dimension[dimension.length - 1];
 
+        for (let i = 0; i < dimension.options.length; i++) {
+            if (dimension.options[i].text == event.target.dimension.outer) {
+                dimension.options[i] = null;
+                break;
+            }
+        }
+
         let option = document.createElement("option");
 
         option.text = event.target.dimension.outer;
         option.value = `${event.target.dimension.inner},${event.target.dimension.outer}`;
         dimension.add(option, 0);
+
         dimension.options[0].selected = "selected";
 
 

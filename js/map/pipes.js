@@ -23,12 +23,12 @@ export let pipe = {
             let option;
 
             for (let i = 0; i < data.length; i++) {
-                if (data[i].outerdim != undefined) {
+                if (data[i].outerdim != null) {
                     option = document.createElement("option");
                     option.text = data[i].outerdim;
                     option.value = `${data[i].innerdim},${data[i].outerdim}`;
 
-                    if (data[i].inches != undefined) {
+                    if (data[i].inches != null) {
                         option.text += ` (${data[i].inches} tum)`;
                     }
                     select.add(option);

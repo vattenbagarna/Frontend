@@ -181,6 +181,8 @@ export const show = {
                 parent.appendChild(div);
 
                 first._icon.classList.remove('warning-icon');
+                first._icon.classList.remove('alert-icon');
+
 
                 first.attributes.Flödeshastighet = result.calculations.mps.toFixed(2);
                 first.setPopupContent(popup.marker(first.attributes) +
@@ -191,7 +193,7 @@ export const show = {
 
                     div.style.opacity = "0";
                     setTimeout(() => div.remove(), 600);
-                }, 4000);
+                }, 3000);
                 break;
             case 1:
                 div.innerHTML =
@@ -207,6 +209,7 @@ export const show = {
 						</div>`;
                 parent.appendChild(div);
 
+                first._icon.classList.remove('alert-icon');
                 first._icon.classList.add('warning-icon');
                 break;
             case 2:
@@ -223,6 +226,7 @@ export const show = {
 						</div>`;
                 parent.appendChild(div);
 
+                first._icon.classList.remove('alert-icon');
                 first._icon.classList.add('warning-icon');
                 break;
             case 3:
@@ -237,7 +241,8 @@ export const show = {
 						</div>`;
                 parent.appendChild(div);
 
-                first._icon.classList.add('warning-icon');
+                first._icon.classList.remove('warning-icon');
+                first._icon.classList.add('alert-icon');
                 break;
             case 4:
                 div.innerHTML =
@@ -251,7 +256,8 @@ export const show = {
 						</div>`;
                 parent.appendChild(div);
 
-                first._icon.classList.add('warning-icon');
+                first._icon.classList.remove('warning-icon');
+                first._icon.classList.add('alert-icon');
                 break;
         }
 

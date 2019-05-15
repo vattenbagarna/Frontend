@@ -169,7 +169,7 @@ let addBranchConnection = (event, target) => {
 
     let find = temp.find(find => find.id == target.connected_with.last);
 
-    if (find != undefined) {
+    if (find != null) {
         branchMarker.marker.capacity += parseFloat(find.capacity);
     }
 

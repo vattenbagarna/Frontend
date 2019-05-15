@@ -70,7 +70,7 @@ let customControl = (iconName) => {
     // Create a new leaflet control extended
     var myCustomControl = L.Control.extend({
         options: {
-            position: 'topleft'
+            position: 'bottomleft'
         },
         // When the customControl have been added to the map
         onAdd: () => {
@@ -227,7 +227,7 @@ let addPipeOnClick = () => {
         // and all polygons but not the map itself
         map.eachLayer((layer) => {
             // On click, call addPipe function from add.js file
-            if (layer._popup != undefined) { layer._popup.options.autoPan = false; }
+            if (layer._popup != null) { layer._popup.options.autoPan = false; }
 
             layer.on("click", add.pipe);
         });
@@ -240,7 +240,7 @@ let addPipeOnClick = () => {
         // On each layer of the map => this means all markers, all polylines
         // and all polygons but not the map itself
         map.eachLayer((layer) => {
-            if (layer._popup != undefined) { layer._popup.options.autoPan = false; }
+            if (layer._popup != null) { layer._popup.options.autoPan = false; }
             // On click on add call addPipe function
             layer.on("click", add.pipe);
         });
@@ -354,7 +354,7 @@ let deleteOnClick = () => {
         // On each layer of the map => this means all markers, all polylines
         // and all polygons but not the map itself
         map.eachLayer((layer) => {
-            if (layer._popup != undefined) { layer._popup.options.autoPan = false; }
+            if (layer._popup != null) { layer._popup.options.autoPan = false; }
             // On click on add call remove function
             layer.on("click", edit.remove);
         });
@@ -409,7 +409,7 @@ export let loadMap = {
         let list = document.getElementsByClassName('obj-list')[0];
 
         for (let i = 0; i < json.length; i++) {
-            if (json[i].Kategori != undefined) {
+            if (json[i].Kategori != null) {
                 if (document.getElementsByClassName(json[i].Kategori).length == 0 &&
                         json[i].Kategori != "Pump") {
                     list.innerHTML +=
@@ -534,11 +534,11 @@ let onLoadWrite = () => {
     //loads the gridlayers, satellite or map
     gridlayers();
     //loads all the custom controls
-    customControl('map');
-    customControl('timeline');
-    customControl('control_camera');
-    customControl('bar_chart');
     customControl('delete');
+    customControl('bar_chart');
+    customControl('control_camera');
+    customControl('timeline');
+    customControl('map');
     //loads search functionality
     add.search();
 
