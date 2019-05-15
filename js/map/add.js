@@ -163,6 +163,16 @@ let addBranchConnection = (event, target) => {
 
     let branchMarker = new Marker(event.latlng, { Kategori: "Förgrening" }, icon.icon);
 
+    branchMarker.marker.on('click', add.pipe);
+
+    let temp = markers.getLayers();
+
+    let find = temp.find(find => find.id == target.connected_with.last);
+
+    if (find != undefined) {
+        branchMarker.marker.capacity += parseFloat(find.capacity);
+    }
+
     newLine = {
         latlngs: secondLatlngs,
         first: branchMarker.marker.id,

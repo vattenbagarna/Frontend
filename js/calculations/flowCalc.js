@@ -2,7 +2,7 @@
 /* global configuration, calculations */
 
 /**
- * showStyling - Displays the boxes
+ * showStyling - Displays the boxes.
  *
  * @returns {void}
  */
@@ -17,7 +17,7 @@ function showStyling() {
 }
 
 /**
- * uncheckButtons - Unchecks the radio buttons
+ * uncheckButtons - Unchecks the radio buttons.
  *
  * @returns {void}
  */
@@ -45,7 +45,7 @@ document.getElementById("material").addEventListener("change", () => {
 showStyling();
 
 /**
- * PEMPipe - Creates the dimensions for the PEM material
+ * PEMPipe - Creates the dimensions for the PEM material.
  *
  * @returns {void}
  */
@@ -81,7 +81,7 @@ function PEMPipe() {
 }
 
 /**
- * PEPipe - Creates the dimensions for the PE material
+ * PEPipe - Creates the dimensions for the PE material.
  *
  * @returns {void}
  */
@@ -132,7 +132,7 @@ function PEPipe() {
 }
 
 /**
- * stainlessPipe - Creates the dimensions for the stainless material
+ * stainlessPipe - Creates the dimensions for the stainless material.
  *
  * @returns {void}
  */
@@ -185,7 +185,7 @@ function stainlessPipe() {
 }
 
 /**
- * enterPressed - Do the calculations when enter is pressed
+ * enterPressed - Do the calculations when enter is pressed.
  *
  * @param {key} Enter
  * @param {event} Event
@@ -199,14 +199,14 @@ function enterPressed(enter, event) {
     }
 }
 
-// Used for selecting unit
+// Used for selecting unit.
 var selectedUnit = document.getElementById("selectUnit");
 
-// Used for selecting pumps
+// Used for selecting pumps.
 var selectedPumps = document.getElementById("pump-suggestions");
 
 /**
- * calcAll - Calculates everything
+ * calcAll - Calculates everything.
  *
  * @returns {void}
  */
@@ -241,7 +241,7 @@ function calcAll() {
 }
 
 /**
- * getPumps - Fetches all the pumps from the database
+ * getPumps - Fetches all the pumps from the database.
  *
  * @param {number} Height
  * @param {number} Dimension
@@ -260,7 +260,7 @@ function getPumps(height, selectedDim) {
 }
 
 /**
- * checkUnit - Changes to the right unit
+ * checkUnit - Changes to the right unit.
  *
  *  @param {number} Flow
  *
@@ -285,7 +285,7 @@ function checkUnit(wantedFlow) {
 }
 
 /**
- * convertUnit - Converts units
+ * convertUnit - Converts units.
  *
  *  @param {number} Flow
  *''
@@ -307,7 +307,7 @@ function convertUnit(wantedFlow) {
 }
 
 /**
- * recommendPump - Recommends pumps according to calculations
+ * recommendPump - Recommends pumps according to calculations.
  *
  * @param {object} Pumps
  * @param {number} Height
@@ -371,7 +371,7 @@ function recommendPump(pumps, height, selectedDim) {
 }
 
 /**
- * resetPumps - Resets the pump suggestions
+ * resetPumps - Resets the pump suggestions.
  *
  * @returns {void}
  */
@@ -382,7 +382,7 @@ function resetPumps() {
 }
 
 /**
- * changeDim - Changes the outer dimension to inner dimension
+ * changeDim - Changes the outer dimension to inner dimension.
  *
  *  @param {number} Dimension
  *

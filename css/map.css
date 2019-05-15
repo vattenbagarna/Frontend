@@ -301,6 +301,11 @@ body {
     border-radius: 50%;
 }
 
+.alert-icon {
+    border: 2px solid #ff9800;
+    border-radius: 50%;
+}
+
 .alert .info-text {
     float: right;
     margin-right: 20px;

@@ -7,7 +7,7 @@ import { options } from "./options.js";
 
 import { polylines, markers, polygons, add, getLength, clearHouse } from "./add.js";
 
-import { edit } from "./edit.js";
+import { edit, findNextPolyline } from "./edit.js";
 
 import { show, mouseCoord } from "./show.js";
 
@@ -35,7 +35,7 @@ export class Marker {
      *
      * @returns {void}
      */
-    constructor(latlng, attributes, icon, id = null) {
+    constructor(latlng, attributes, icon, capacity = null, id = null) {
         this.attributes = attributes;
         this.marker = new L.Marker(latlng, options.marker(icon))
             .on("dragend", this.dragEnd)
@@ -47,6 +47,11 @@ export class Marker {
         this.marker.updateElevation = (event) => { this.getElevation(event); };
         this.marker.disableDragging = () => { this.marker.dragging.disable(); return this.marker; };
         this.marker.enableDragging = () => { this.marker.dragging.enable(); };
+        if (capacity) {
+            this.marker.capacity = capacity;
+        } else {
+            this.marker.capacity = 0;
+        }
 
         // Add marker to markers layer
         markers.addLayer(this.marker).addTo(map);
@@ -173,8 +178,10 @@ export class Marker {
         } else {
             this.marker.elevation = response.results[0].elevation.toFixed(2);
             this.attributes["M ö.h"] = this.marker.elevation;
-            this.marker.bindPopup(popup.marker(this.attributes) +
-                popup.changeCoord(latlngObj));
+            if (this.marker.attributes.Kategori != "Förgrening") {
+                this.marker.bindPopup(popup.marker(this.attributes) +
+                    popup.changeCoord(latlngObj));
+            }
         }
     }
 }
@@ -354,6 +361,12 @@ export class House {
 
             // Update popup content with new values
             event.target.setPopupContent(popup.house(addr, type, nop, flow, newColor));
+
+            let nextPolyline = findNextPolyline(event.target);
+
+            if (nextPolyline) {
+                edit.warning.pressure(nextPolyline);
+            }
         }), { once: true };
     }
 }

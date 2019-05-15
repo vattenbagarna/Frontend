@@ -1,7 +1,7 @@
 const calculations = {
 
     /**
-     * calcPressure - Calculates lost pressure
+     * calcPressure - Calculates lost pressure.
      *
      * @param {number} Flow
      * @param {number} MU (friction)
@@ -43,7 +43,7 @@ const calculations = {
     },
 
     /**
-     * calcVelocity - Calculates velocity
+     * calcVelocity - Calculates velocity.
      *
      * @param {number} Flow
      * @param {number} Dimension
@@ -56,7 +56,7 @@ const calculations = {
     },
 
     /**
-     * square - Calculates X squared
+     * square - Calculates X squared.
      *
      * @param {number} Value to square
      *
@@ -68,7 +68,7 @@ const calculations = {
     },
 
     /**
-     * log10 - Calculates X log10
+     * log10 - Calculates X log10.
      *
      * @param {number} Value to log10
      *
@@ -77,33 +77,6 @@ const calculations = {
      */
     log10: (x) => {
         return Math.LOG10E * Math.log(x);
-    },
-
-    /**
-     * calcQPump - Calculates capacity for pump pipes
-     *
-     * @param {number} Dimension
-     * @param {number} Length
-     * @param {number} Height
-     *
-     * @return {number} Capacity
-     *
-     */
-    calcPump: (dim, length, height) => {
-        dim /= 1000;
-        let mu = 0.1; // mm
-        let viscosity = 1e-6; // m2/s
-        let rho = 1000; // kg/m3
-
-        let deltap = (0.0981 * (height) * rho / 1000) * 100000;
-
-        let top = -Math.PI / 2 * Math.pow(dim, 2.5);
-        let top2 = Math.sqrt(2 * deltap / (length * rho));
-        let inside = mu / 1000 / (3.7 * dim);
-        let rightInside = (Math.pow(dim, 1.5) * Math.sqrt(2 * deltap / (length * rho)));
-        let avgQ = top * top2 * calculations.log10(inside + 2.51 * viscosity / rightInside);
-
-        return avgQ * 1000;
     },
 
     /**
@@ -161,7 +134,7 @@ const calculations = {
     },
 
     /**
-     * totalPressure - Calculates total pressure
+     * totalPressure - Calculates total pressure.
      *
      * @param {number} Pressure
      * @param {number} Height

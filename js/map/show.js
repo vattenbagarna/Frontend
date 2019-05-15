@@ -236,6 +236,8 @@ export const show = {
 							  id: ${first.attributes.id}
 						</div>`;
                 parent.appendChild(div);
+
+                first._icon.classList.add('warning-icon');
                 break;
             case 4:
                 div.innerHTML =
@@ -248,6 +250,8 @@ export const show = {
 							  id: ${first.attributes.id}
 						</div>`;
                 parent.appendChild(div);
+
+                first._icon.classList.add('warning-icon');
                 break;
         }
 
@@ -256,7 +260,7 @@ export const show = {
         close = close[close.length - 1];
 
         close.onclick = function() {
-            let div = this.parentElement;
+            let div = this.parentElement.parentElement;
 
             div.style.opacity = "0";
             setTimeout(() => div.remove(), 600);

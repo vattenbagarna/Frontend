@@ -173,6 +173,7 @@ export const edit = {
                 coordinates: { lat: marker._latlng.lat, lng: marker._latlng.lng },
                 type: "marker",
                 id: marker.id,
+                capacity: marker.capacity,
                 attributes: marker.attributes,
             };
 
@@ -218,7 +219,7 @@ export const edit = {
     },
 
     /**
-         * load - Load objects(markers, polylines, polygons) to the map using json data
+         * load - Load objects(markers, polylines, polygons) to the map using json data.
          *
          * @returns {void}
          */
@@ -236,7 +237,7 @@ export const edit = {
                 case "marker":
                     icon = icons.find(element => element.category == json[i].attributes.Kategori);
                     newObj = new Marker(json[i].coordinates, json[i].attributes, icon.icon,
-                        json[i].id);
+                        json[i].capacity, json[i].id);
                     break;
                     //if polyline
                 case "polyline":
@@ -268,7 +269,7 @@ export const edit = {
     },
 
     /**
-         * warning - Warning message object
+         * warning - Warning message object.
          *
          * @returns {void}
          */
@@ -311,63 +312,133 @@ export const edit = {
             let first = all.find(find => find.id == element.connected_with.first);
             let last = all.find(find => find.id == element.connected_with.last);
 
-
             if (first instanceof L.Polygon) {
                 flow = (first.nop * first.flow) / 86400;
-                last.capacity = parseFloat(flow).toFixed(2);
+
+                last.capacity += parseFloat(flow.toFixed(2));
+
                 let nextPolyline = findNextPolyline(last);
 
                 if (nextPolyline != undefined) {
                     edit.warning.pressure(nextPolyline);
                 }
             } else if (first instanceof L.Marker) {
-                if (first.attributes.Kategori == "Pumpstationer" && first.capacity !=
-                        undefined) {
-                    pressureLoss = calculations.calcPressure(first.capacity, mu,
-                        parseFloat(element.dimension.inner), element.length);
+                if (first.attributes.Kategori == "Pumpstationer" && first.capacity > 0) {
+                    pressureLoss = calculations.calcPressure(parseFloat(first.capacity),
+                        mu, parseFloat(element.dimension.inner), element.length);
 
-                    result.totalPressure = calculations.totalPressure(pressureLoss,
-                        element.tilt);
+                    result.totalPressure = calculations.totalPressure(
+                        pressureLoss, element.tilt);
                     result.totalPressure = parseFloat(result.totalPressure).toFixed(2);
 
-                    let pump = pumps.find(element => element.Modell == first.attributes.Pump);
+                    console.log("first capacity", first.capacity);
 
-                    result.calculations = checkPump(pump, result.totalPressure,
-                        parseFloat(element.dimension.inner));
-                    last.capacity = first.capacity;
+                    if (last.attributes.Kategori != "Förgrening") {
+                        let pump = pumps.find(element => element.Modell == first.attributes
+                            .Pump);
 
-                    show.alert(first, result);
+                        result.calculations = checkPump(pump, result.totalPressure,
+                            parseFloat(element.dimension.inner));
+
+                        show.alert(first, result);
+                    }
 
                     if (last instanceof L.Marker) {
-                        let nextPolyline = findNextPolyline(last);
+                        if (last.attributes.Kategori == "Pumpstationer") {
+                            last.capacity = first.capacity;
+                            let nextPolyline = findNextPolyline(last);
 
-                        if (nextPolyline != undefined) {
-                            console.log(last.capacity);
-                            edit.warning.pressure(nextPolyline);
+                            if (nextPolyline != undefined) {
+                                edit.warning.pressure(nextPolyline);
+                            }
+                        } else if (last.attributes.Kategori == "Förgrening") {
+                            if (last.used == undefined) {
+                                last.used = true;
+                                first.capacity += last.capacity;
+                            }
+                            console.log("new first capacity: ", first.capacity);
+                            let totalPressureLast;
+                            let totalPressure2;
+                            let nextPolyline = findNextPolyline(last);
+
+                            pressureLoss = calculations.calcPressure(parseFloat(first.capacity),
+                                mu, parseFloat(element.dimension.inner), element.length
+                            );
+
+                            result.totalPressure = calculations.totalPressure(
+                                pressureLoss, element.tilt);
+                            result.totalPressure = parseFloat(result.totalPressure).toFixed(
+                                2);
+
+                            pressureLoss = calculations.calcPressure(last.capacity, mu,
+                                parseFloat(nextPolyline.dimension.inner),
+                                nextPolyline.length);
+
+                            totalPressureLast = calculations.totalPressure(pressureLoss,
+                                nextPolyline.tilt);
+                            totalPressureLast = parseFloat(totalPressureLast).toFixed(
+                                2);
+
+                            let pump = pumps.find(element => element.Modell == first.attributes
+                                .Pump);
+
+                            totalPressure2 = parseFloat(result.totalPressure) +
+                                    parseFloat(totalPressureLast);
+
+                            totalPressure2 = parseFloat(totalPressure2.toFixed(2));
+
+                            result.calculations = checkPump(pump, totalPressure2,
+                                parseFloat(element.dimension.inner));
+
+                            result.totalPressure = totalPressure2;
+
+                            show.alert(first, result);
                         }
+                    }
+                } else if (first.attributes.Kategori == "Förgrening") {
+                    let temp = polylines.getLayers();
+
+                    let polyline = temp.find(find => find.connected_with.last == first.id);
+
+                    temp = markers.getLayers();
+
+                    let marker = temp.find(find => find.id == polyline.connected_with.first);
+
+                    if (marker != undefined) {
+                        if (marker.capacity > 0) {
+                            edit.warning.pressure(polyline);
+                        }
+                    }
+
+                    last.capacity = first.capacity;
+
+                    let nextPolyline = findNextPolyline(last);
+
+                    if (nextPolyline != undefined) {
+                        edit.warning.pressure(nextPolyline);
                     }
                 }
             }
-        },
-    }
+        }
+    },
 };
 
 
 /**
- * findNextPolyline - finds polyline that are connected with element as first point
+ * findNextPolyline - finds polyline that are connected with element as first point.
  *
  * @param {L.Marker} element element that is connected with polyline
  *
- * @returns {L.polyline || undefined} returns find polyline or if not found returns undefined
+ * @returns {L.polyline || undefined} returns find polyline or if not found returns undefined.
  */
-let findNextPolyline = (element) => {
+export let findNextPolyline = (element) => {
     let temp = polylines.getLayers();
 
     return temp.find(find => find.connected_with.first == element.id);
 };
 
 /**
- * checkPump - Recommends pumps according to calculations
+ * checkPump - Recommends pumps according to calculations.
  *
  * @param {object} Pumps
  * @param {number} Height
