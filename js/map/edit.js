@@ -291,10 +291,9 @@ export const edit = {
 
         pressure: async (element) => {
             let all = [];
-            let result;
+            let result = {};
             let pressureLoss;
             let flow;
-            let totalPress;
             let mu = 0.1;
             let pumps = await API.get(
                 `${configuration.apiURL}/obj/type/Pump?token=${token}`);
@@ -312,148 +311,59 @@ export const edit = {
             let first = all.find(find => find.id == element.connected_with.first);
             let last = all.find(find => find.id == element.connected_with.last);
 
+
             if (first instanceof L.Polygon) {
                 flow = (first.nop * first.flow) / 86400;
                 last.capacity = parseFloat(flow).toFixed(2);
+                let nextPolyline = findNextPolyline(last);
+
+                if (nextPolyline != undefined) {
+                    edit.warning.pressure(nextPolyline);
+                }
             } else if (first instanceof L.Marker) {
-                console.log(first.capacity);
-                if (first.attributes.Kategori == "Pumpstationer") {
+                if (first.attributes.Kategori == "Pumpstationer" && first.capacity !=
+                        undefined) {
                     pressureLoss = calculations.calcPressure(first.capacity, mu,
                         parseFloat(element.dimension.inner), element.length);
 
-                    totalPress = calculations.totalPressure(pressureLoss, element.tilt);
-                    totalPress = parseFloat(totalPress).toFixed(2);
+                    result.totalPressure = calculations.totalPressure(pressureLoss,
+                        element.tilt);
+                    result.totalPressure = parseFloat(result.totalPressure).toFixed(2);
 
-                    //kolla om pumpen klarar det
                     let pump = pumps.find(element => element.Modell == first.attributes.Pump);
 
-                    result = checkPump(pump, totalPress, parseFloat(element.dimension.inner));
-                    first.calculations = true;
+                    result.calculations = checkPump(pump, result.totalPressure,
+                        parseFloat(element.dimension.inner));
+                    last.capacity = first.capacity;
 
-                    let div = document.createElement('div');
-                    let alerts;
+                    show.alert(first, result);
 
-                    div.classList.add(first.attributes.id);
+                    if (last instanceof L.Marker) {
+                        let nextPolyline = findNextPolyline(last);
 
-                    let parent = document.getElementById('myMap');
-
-                    switch (result.status) {
-                        case 0:
-                            alerts = document.getElementsByClassName(first.attributes.id);
-
-                            for (let i = alerts.length - 1; i >= 0; i--) {
-                                alerts[i].children[0].style.opacity = "0";
-                                setTimeout(() => alerts[i].remove(), 600);
-                            }
-
-                            div.innerHTML =
-                                    `<div class="alert success">
-	  											<span class="closebtn">&times;</span>
-	  											<strong>OK!</strong>
-												Flödeshastighet: ${result.mps.toFixed(2)} m/s
-
-												 <span class="info-text">
-													 ${first.attributes.Modell}
-													 id: ${first.attributes.id}
-												 </span>
-											</div>`;
-                            parent.appendChild(div);
-
-                            first._icon.classList.remove('warning-icon');
-
-                            first.attributes.Flödeshastighet = result.mps.toFixed(2);
-                            first.setPopupContent(popup.marker(first.attributes) +
-                                    popup.changeCoord(first._latlng));
-
-                            setTimeout(() => {
-                                let div = close.parentElement.parentElement;
-
-                                div.style.opacity = "0";
-                                setTimeout(() => div.remove(), 600);
-                            }, 3000);
-                            break;
-                        case 1:
-                            div.innerHTML =
-                                    `<div class="alert warning">
-											<span class="closebtn">&times;</span>
-											<strong>För lågt!</strong>
-											Flödeshastighet: ${result.mps.toFixed(2)} m/s
-
-										 	<span class="info-text">
-												${first.attributes.Modell}
-												id: ${first.attributes.id}
-											</span>
-										</div>`;
-                            parent.appendChild(div);
-
-                            first._icon.classList.add('warning-icon');
-                            break;
-                        case 2:
-                            div.innerHTML =
-                                    `<div class="alert warning">
-											<span class="closebtn">&times;</span>
-											<strong>För högt!</strong>
-											Flödeshastighet: ${result.mps.toFixed(2)} m/s
-
-											<span class="info-text">
-												${first.attributes.Modell}
-												id: ${first.attributes.id}
-											</span>
-										</div>`;
-                            parent.appendChild(div);
-
-                            first._icon.classList.add('warning-icon');
-                            break;
-                        case 3:
-                            div.innerHTML =
-                                    `<div class="alert">
-											<span class="closebtn">&times;</span>
-											<strong>Utanför pumpkurva!</strong>
-											Totaltrycket: ${totalPress},
-											<span class="info-text">
-											   ${first.attributes.Modell}
-										      id: ${first.attributes.id}
-										</div>`;
-                            parent.appendChild(div);
-                            break;
-                    }
-
-                    let close = document.getElementsByClassName("closebtn");
-
-                    close = close[close.length - 1];
-
-                    close.onclick = function() {
-                        let div = this.parentElement;
-
-                        div.style.opacity = "0";
-                        setTimeout(() => div.remove(), 600);
-                    };
-                } //else {
-                //showWarnings(first);
-                //}
-            }
-
-            if (last instanceof L.Marker) {
-                let find;
-
-                polylines.eachLayer((polyline) => {
-                    if (polyline.connected_with.first == last.id) {
-                        find = polyline;
-                    }
-                });
-                if (find != undefined) {
-                    if (last.capacity == undefined && first.capacity != undefined) {
-                        last.capacity = first.capacity;
-                        console.log(first.capacity);
-                        edit.warning.pressure(find);
-                    } else if (last.capacity != undefined) {
-                        edit.warning.pressure(find);
+                        if (nextPolyline != undefined) {
+                            console.log(last.capacity);
+                            edit.warning.pressure(nextPolyline);
+                        }
                     }
                 }
             }
         },
     }
+};
 
+
+/**
+ * findNextPolyline - finds polyline that are connected with element as first point
+ *
+ * @param {L.Marker} element element that is connected with polyline
+ *
+ * @returns {L.polyline || undefined} returns find polyline or if not found returns undefined
+ */
+let findNextPolyline = (element) => {
+    let temp = polylines.getLayers();
+
+    return temp.find(find => find.connected_with.first == element.id);
 };
 
 /**
@@ -503,8 +413,18 @@ let checkPump = (pump, height, dim) => {
             } else if (mps > 3) {
                 result.status = 2;
             }
-        } else {
+        } else if (height > pump.Pumpkurva[0].y) {
+            mps = calculations.calcVelocity(calculations.estPumpValue(height,
+                pump.Pumpkurva), dim);
+            mps /= 1000;
+            result.mps = mps;
             result.status = 3;
+        } else if (height < pump.Pumpkurva[pump.Pumpkurva.length - 1].y) {
+            mps = calculations.calcVelocity(calculations.estPumpValue(height,
+                pump.Pumpkurva), dim);
+            mps /= 1000;
+            result.mps = mps;
+            result.status = 4;
         }
         found = false;
     }

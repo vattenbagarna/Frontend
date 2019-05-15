@@ -187,8 +187,8 @@ function stainlessPipe() {
 /**
  * enterPressed - Do the calculations when enter is pressed
  *
- * @param {key} enter
- * @param {event} event
+ * @param {key} Enter
+ * @param {event} Event
  *
  * @returns {void}
  */
@@ -285,7 +285,7 @@ function checkUnit(wantedFlow) {
 }
 
 /**
- * changeDim - Converts units
+ * convertUnit - Converts units
  *
  *  @param {number} Flow
  *''
@@ -347,8 +347,9 @@ function recommendPump(pumps, height, selectedDim) {
         if (!found) {
             if (height < pumps[i].Pumpkurva[0].y && height >
                 pumps[i].Pumpkurva[pumps[i].Pumpkurva.length - 1].y) {
-                mps = convertUnit(checkUnit(calculations.calcVelocity(estPumpValue(height,
-                    pumps[i].Pumpkurva), selectedDim)));
+                mps = convertUnit(checkUnit(calculations.calcVelocity(
+                    calculations.estPumpValue(height, pumps[i].Pumpkurva),
+                    selectedDim)));
                 if (mps >= 0.6 && mps <= 3) {
                     div = document.createElement("div");
                     div.className = "obj-container";
@@ -429,60 +430,4 @@ function changeDim(selectedDim) {
     };
 
     return innerdim[selectedDim];
-}
-
-/************************ Math functions ************************************/
-
-/**
- * estPumpValue - Estimates the amount of fluid capacity a given pump can
- * give within a previosly unknown interval.
- *
- * @param {number} Height
- * @param {number} Pumpcurve
- *
- * @returns {number} X value
- */
-function estPumpValue(yValue, pumpCurve) {
-    let min1 = 100;
-    let min2 = 100;
-    let both = false;
-    let y1 = 0;
-    let y2 = 0;
-    let x1 = 0;
-    let x2 = 0;
-
-    for (let i = 0; i < pumpCurve.length; i++) {
-        let temp = Math.abs(yValue - pumpCurve[i].y);
-
-        if (temp < min1) {
-            min1 = temp;
-            y1 = pumpCurve[i].y;
-            x1 = pumpCurve[i].x;
-        } else if (temp < min2 && temp != min1) {
-            min2 = temp;
-            y2 = pumpCurve[i].y;
-            x2 = pumpCurve[i].x;
-        }
-        if (i == pumpCurve.length - 1 && !both) {
-            i = 0;
-            both = true;
-        }
-    }
-
-    if (x1 > x2) {
-        let temp = x2;
-
-        x2 = x1;
-        x1 = temp;
-        temp = y2;
-        y2 = y1;
-        y1 = temp;
-    }
-
-    let deltaX = x2 - x1;
-    let deltaY = y2 - y1;
-    let k = deltaX / deltaY;
-    let plus = Math.abs((y1 - yValue) * k);
-
-    return x1 + plus;
 }

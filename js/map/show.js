@@ -7,6 +7,8 @@ import { map } from "./loadLeafletMap.js";
 // Imports polylines and clears the start polyline.
 import { polylines, clearStartPolyline } from "./add.js";
 
+import { popup } from "./popup.js";
+
 // Imports the edit file.
 import { edit } from "./edit.js";
 
@@ -144,6 +146,121 @@ export const show = {
                 }).openTooltip();
             }
         });
+    },
+
+
+    alert: (first, result) => {
+        let div = document.createElement('div');
+        let alerts;
+
+        div.classList.add(first.attributes.id);
+
+        let parent = document.getElementById('myMap');
+
+        alerts = document.getElementsByClassName(first.attributes.id);
+
+        for (let i = alerts.length - 1; i >= 0; i--) {
+            alerts[i].children[0].style.opacity = "0";
+            setTimeout(() => alerts[i].remove(), 600);
+        }
+
+        switch (result.calculations.status) {
+            case 0:
+
+                div.innerHTML =
+                    `<div class="alert success">
+								<span class="closebtn">&times;</span>
+								<strong>OK!</strong>
+								Flödeshastighet: ${result.calculations.mps.toFixed(2)} m/s
+
+								 <span class="info-text">
+									 ${first.attributes.Modell}
+									 id: ${first.attributes.id}
+								 </span>
+							</div>`;
+                parent.appendChild(div);
+
+                first._icon.classList.remove('warning-icon');
+
+                first.attributes.Flödeshastighet = result.calculations.mps.toFixed(2);
+                first.setPopupContent(popup.marker(first.attributes) +
+                    popup.changeCoord(first._latlng));
+
+                setTimeout(() => {
+                    let div = close.parentElement.parentElement;
+
+                    div.style.opacity = "0";
+                    setTimeout(() => div.remove(), 600);
+                }, 4000);
+                break;
+            case 1:
+                div.innerHTML =
+                    `<div class="alert warning">
+							<span class="closebtn">&times;</span>
+							<strong>För låg flödeshastighet!</strong>
+							Flödeshastighet: ${result.calculations.mps.toFixed(2)} m/s
+
+							<span class="info-text">
+								${first.attributes.Modell}
+								id: ${first.attributes.id}
+							</span>
+						</div>`;
+                parent.appendChild(div);
+
+                first._icon.classList.add('warning-icon');
+                break;
+            case 2:
+                div.innerHTML =
+                    `<div class="alert warning">
+							<span class="closebtn">&times;</span>
+							<strong>För hög flödeshastighet!</strong>
+							Flödeshastighet: ${result.calculations.mps.toFixed(2)} m/s
+
+							<span class="info-text">
+								${first.attributes.Modell}
+								id: ${first.attributes.id}
+							</span>
+						</div>`;
+                parent.appendChild(div);
+
+                first._icon.classList.add('warning-icon');
+                break;
+            case 3:
+                div.innerHTML =
+                    `<div class="alert">
+							<span class="closebtn">&times;</span>
+							<strong>För högt tryck!</strong>
+							Totaltrycket: ${result.totalPressure}
+							<span class="info-text">
+							   ${first.attributes.Modell}
+							  id: ${first.attributes.id}
+						</div>`;
+                parent.appendChild(div);
+                break;
+            case 4:
+                div.innerHTML =
+                    `<div class="alert">
+							<span class="closebtn">&times;</span>
+							<strong>För lågt tryck!</strong>
+							Totaltrycket: ${result.totalPressure}
+							<span class="info-text">
+							   ${first.attributes.Modell}
+							  id: ${first.attributes.id}
+						</div>`;
+                parent.appendChild(div);
+                break;
+        }
+
+        let close = document.getElementsByClassName("closebtn");
+
+        close = close[close.length - 1];
+
+        close.onclick = function() {
+            let div = this.parentElement;
+
+            div.style.opacity = "0";
+            setTimeout(() => div.remove(), 600);
+        };
     },
 
     /**
