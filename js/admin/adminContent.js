@@ -35,12 +35,64 @@ const appendElementToApp = (elementToAppend, appendTo = adminContent) => {
 };
 
 /**
+* sendErrorResponse, shows an error to the user based on parameter
+* @param {string} errorToDisplay what the error box should say
+* @param {string} type sets the class to that type of error so css can include color
+* @return void
+*/
+const sendErrorResponse = (errorToDisplay, type="error-msg") => {
+    let errorMsg = document.createElement("div");
+    let errorHolder = document.getElementById("errorHolder");
+
+    //add class and content to the error message box
+    errorMsg.classList += type;
+    errorMsg.innerText = errorToDisplay;
+    errorMsg.addEventListener("click", () => {
+        errorHolder.innerHTML = "";
+    });
+    //Clear error holder and insert a new error
+    errorHolder.innerHTML = "";
+    errorHolder.appendChild(errorMsg);
+};
+
+/**
 * displayInstructions - Default screen on the admin page and it displays information
 * about the different menu options
 */
 const displayInstructions = () => {
-    // TODO: Add default info here
-    console.log("info");
+    let infoTarget =  createElement("div", "main", "main-content");
+    let infoTitle = createElement("h2", "slim-title");
+    let infoText = createElement("div", "", "info-text");
+
+    // Clear content element before we start appending new content
+    adminContent.innerHTML = "";
+
+    infoTitle.innerText = "Hej Administratör!";
+    infoText.innerHTML = `<p>Det här är administationssidan. Här kan du
+    <ul>
+        <li>Aktivera / Avaktivera globala produkter</li>
+        <li>Permanent radera globala produkter</li>
+        <li>Administrera förfrågningar för nya globala produkter</li>
+
+                    <li>Skapa konton för nya användare</li>
+    </ul><p>
+    <h2 class="slim-title">Globala produkter</h2><p>
+    Globala produkter är produkter som är tillgängliga för alla användare att placera
+    ut på kartan när de jobbar på ett projekt. Om produkten är inaktiv så kan den inte
+    placeras ut på kartan av användare i deras projekt. Däremot så finns den kvar i
+    systemet och kan aktiveras med bara
+    ett knapptryck.</p>
+    <h2 class="slim-title">Skapa ny användare</h2><p>
+    Detta systemet är privat och begränsat till Baga och därför kan användare inte
+    skapa egna konton, detta måste göras av en administratör. Klicka på 'Skapa ny användare'
+    skriv in deras epostadress som de ska använda för att logga in. Användarna kan sedan gå
+    in på sidan och klicka registrera. Registrering sker med en engångsnyckel som användaren
+    får skickat till sin mail.
+    </p>`;
+
+    appendElementToApp(infoTitle, infoTarget);
+    appendElementToApp(infoText, infoTarget);
+    appendElementToApp(infoTarget);
 };
 
 /**
@@ -58,9 +110,7 @@ const showGlobalProductRequests = async () => {
     adminContent.innerHTML = "";
 
     if (pendingRequests.error == true) {
-        //TODO: display connection error here
-        console.log("error!");
-        console.log(pendingRequests.error);
+        sendErrorResponse("Kunde inte läsa in produkter");
     }
 
     let requestedTitle = createElement("h2", "", "slim-title");
@@ -239,6 +289,77 @@ const showGlobalProductRequests = async () => {
 };
 
 /**
+* createNewUser - displays the form to create a new user
+*/
+const createNewUser = () => {
+    let userForm = createElement("form", "", "new-user-form");
+    let newUserTitle = createElement("h2", "", "slim-title");
+    let newEmail = createElement("input", "newEmail", "text-input email-create-user");
+    let checkboxWrap = createElement("span", "", "checkbox-wrap");
+    let newIsAdmin = createElement("input", "isAdminChecked", "input-checkbox");
+    let newIsAdminLbl = createElement("label", "isAdminLabel", "checkbox-label");
+    let buttonWrapCreateUser = createElement("div", "", "button-wrap");
+    let createUser = createElement("input", "btCreateUser", "button bt-create-user");
+
+    // Clear content element before we start appending new content
+    adminContent.innerHTML = "";
+
+    //Assign values and data to our elements
+    newUserTitle.innerText = "Skapa ny användare";
+    newEmail.type="email";
+    newEmail.placeholder = "Epostaddress";
+    newIsAdmin.type="checkbox";
+    newIsAdminLbl.innerText = "Användaren ska ha Administrativa rättigheter";
+    createUser.type = "button";
+    createUser.value = "Skapa användare";
+
+    createUser.addEventListener("click", async () => {
+        if (newEmail.value == "" || newEmail.value == undefined) {
+            sendErrorResponse("Vänligen ange en e-postaddress");
+            console.log("No valid email");
+            return false;
+        }
+        let newUserData = {};
+
+        newUserData.username = newEmail.value;
+        newUserData.isAdmin = newIsAdmin.checked ? 1 : 0;
+
+
+        let newAcc = await API.post(
+            configuration.apiURL +
+            "/admin/createaccount/?token=" +
+            token,
+            "application/x-www-form-urlencoded",
+            newUserData);
+
+        if (newAcc.error == true) {
+            sendErrorResponse("Användaren kunde inte skapas.");
+            console.log("ERROR AT:", newAcc);
+            return false;
+        }
+        if (newAcc.error == false) {
+            sendErrorResponse("Kontot har skapats och ett mail har skickats till användaren.",
+                "ok-msg");
+            console.log(newAcc);
+            return true;
+        }
+    });
+
+    appendElementToApp(newUserTitle, userForm);
+    appendElementToApp(newEmail, userForm);
+    appendElementToApp(createElement("br"), userForm);
+    appendElementToApp(createElement("br"), userForm);
+    appendElementToApp(newIsAdmin, checkboxWrap);
+    appendElementToApp(newIsAdminLbl, checkboxWrap);
+    appendElementToApp(checkboxWrap, userForm);
+    appendElementToApp(createElement("br"), userForm);
+    appendElementToApp(createElement("br"), userForm);
+    appendElementToApp(createUser, buttonWrapCreateUser);
+    appendElementToApp(buttonWrapCreateUser, userForm);
+    appendElementToApp(userForm);
+};
+
+/**
 * navSelector - handles what happens when an element is clicked and what should be displayed
 * @param {element} tabElement the html DOM element of the link clicked
 */
@@ -258,7 +379,7 @@ const navSelector = (tabElement) => {
             console.log("Alla projekt");
             break;
         case "new-user":
-            console.log("Ny Användare");
+            createNewUser();
             break;
         case "default":
         default:

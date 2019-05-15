@@ -40,6 +40,30 @@
     background: #f1f1f1;
 }
 
+.new-user-form {
+    width: 80%;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.email-create-user {
+    margin: 1rem auto;
+    width: 75%;
+}
+
+.bt-create-user {
+    width: 100%;
+    margin: 1rem auto;
+    text-align: center;
+}
+
+.checkbox-wrap {
+    display: flex;
+    align-items: center;
+}
+
 .slim-title {
     font-weight: 200;
 }
@@ -78,4 +102,10 @@
 .item-deny,
 .item-disable {
     cursor: pointer;
+}
+
+.error-wrap {
+    width: 80%;
+    margin: auto;
+    padding-top: 2rem;
 }
