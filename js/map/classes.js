@@ -50,6 +50,7 @@ export class Marker {
 
         // Add marker to markers layer
         markers.addLayer(this.marker).addTo(map);
+        this.marker._icon.classList.add("transparent-border");
 
         if (id) {
             this.marker.id = id;
