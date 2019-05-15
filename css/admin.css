@@ -47,6 +47,7 @@
 .pending-items {
     display: flex;
     align-items: center;
+    justify-content: space-evenly;
 }
 
 .item-image {
@@ -71,4 +72,10 @@
 
 .item-category {
     font-size: 1.1rem;
+}
+
+.item-approve,
+.item-deny,
+.item-disable {
+    cursor: pointer;
 }
