@@ -460,7 +460,7 @@ export class Pipe {
                         }
                     })
                 }]
-            }).addTo(map);
+            });
         } else if (this.type == 1) {
             this.polyline = new L.polyline(this.latlngs, options.stemPipe);
             this.polyline.decorator = L.polylineDecorator(this.polyline, {
@@ -476,7 +476,7 @@ export class Pipe {
                         }
                     })
                 }]
-            }).addTo(map);
+            });
         }
 
 
