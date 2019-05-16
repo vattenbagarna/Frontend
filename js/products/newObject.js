@@ -240,17 +240,51 @@ let newPumpCurve = () => {
     });
 
     button.addEventListener('click', () => {
-        myLineChart.data.datasets[0].data.push({
-            x: velocity.value,
-            y: height.value
-        });
+        if (velocity.value != "" && height.value != "") {
+            let duplicate = false;
+            let dupPos = -1;
 
-        velocity.value = "";
-        height.value = "";
-        height.focus();
+            for (let i = 0; i < myLineChart.data.datasets[0].data.length; i++) {
+                if (myLineChart.data.datasets[0].data[i].x == velocity.value) {
+                    duplicate = true;
+                    dupPos = i;
+                    break;
+                }
+            }
+            if (!duplicate) {
+                myLineChart.data.datasets[0].data.push({
+                    x: velocity.value,
+                    y: height.value
+                });
+            } else {
+                myLineChart.data.datasets[0].data[dupPos].y = height.value;
+            }
 
-        myLineChart.update();
+            myLineChart.data.datasets[0].data = myLineChart.data.datasets[0].data.sort(compare);
+            velocity.value = "";
+            height.value = "";
+            height.focus();
+
+            myLineChart.update();
+        }
     });
+};
+
+/**
+  * Help function for array numeric sort
+  *
+  * @param {JSON} a, first value to compare
+  * @param {JSON} b, second value to compare
+  * @returns {Number} if value is bigger, smaller or equal
+  */
+const compare = ( a, b ) => {
+    if ( parseFloat(a.x) < parseFloat(b.x) ) {
+        return -1;
+    }
+    if ( parseFloat(a.x) > parseFloat(b.x) ) {
+        return 1;
+    }
+    return 0;
 };
 
 /**
