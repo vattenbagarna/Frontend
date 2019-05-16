@@ -33,6 +33,10 @@ const API = {
                     return false;
                 }
                 return json;
+            }).catch((error) => {
+                let errors = [error, "error"];
+
+                return errors;
             });
     }
 };

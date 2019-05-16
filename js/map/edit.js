@@ -136,6 +136,36 @@ export const edit = {
     },
 
     /**
+     * notification - Gets status from response and then shows an appropriate
+     * snackbar.
+     *
+     * @returns {void}
+     */
+    notification: (status) => {
+        // Get the snackbar DIV
+        let snackbar = document.getElementById("snackbar");
+
+        if (status == "error") {
+            snackbar.style.backgroundColor = "red";
+            snackbar.innerHTML = "Spara misslyckades. Du har ingen internetuppkoppling";
+        } else if (status == "error2") {
+            snackbar.style.backgroundColor = "red";
+            snackbar.innerHTML = "Spara misslyckades";
+        } else if (status == "success") {
+            snackbar.style.backgroundColor = "green";
+            snackbar.innerHTML = "Spara lyckades";
+        }
+
+        // Add the "show" class to DIV
+        snackbar.className = "show";
+
+        // After 3 seconds, remove the show class from DIV
+        setTimeout(function() {
+            snackbar.className = snackbar.className.replace("show", "");
+        }, 3000);
+    },
+
+    /**
      * save - Saves the objects from the map in a json format.
      *
      * @param {string} version version number the user wants to save the project under
@@ -144,6 +174,7 @@ export const edit = {
     save: async (version) => {
         let json = [];
         let temp;
+        let status;
 
         temp = {
             zoom: map.getZoom(),
@@ -199,8 +230,17 @@ export const edit = {
         if (version == projectInfo.version) {
             let id = new URL(window.location.href).searchParams.get('id');
 
-            await API.post(`${configuration.apiURL}/proj/update/data/${id}?token=${token}`,
+            let response = await API.post(
+                `${configuration.apiURL}/proj/update/data/${id}?token=${token}`,
                 'application/json', JSON.stringify(json));
+
+            if (response[1] == "error") {
+                edit.notification("error");
+            } else if (response[0] == undefined) {
+                edit.notification("error2");
+            } else {
+                edit.notification("success");
+            }
 
             edit.warning.unsavedChanges(false);
         } else {
@@ -210,12 +250,18 @@ export const edit = {
                 `${configuration.apiURL}/proj/insert?token=${token}`,
                 'application/json', JSON.stringify(projectInfo));
 
-            await API.post(
+            let res = await API.post(
                 `${configuration.apiURL}/proj/update/data/${response._id}?token=${token}`,
                 'application/json', JSON.stringify(json));
 
+            if (res[1] == "error") {
+                status = "error";
+            } else {
+                status = "success";
+            }
+
             edit.warning.unsavedChanges(false);
-            document.location.href = `map.html?id=${response._id}`;
+            document.location.href = `map.html?id=${response._id}&savestatus=${status}`;
         }
     },
 
@@ -291,5 +337,4 @@ export const edit = {
             }
         }
     },
-
 };
