@@ -48,7 +48,7 @@ let loadrequiredFields = async () => {
 			</div>
 				<div id="sendButton" class="button-wrap">
 					<br><br>
-					<a id="send" class="button">SKAPA</a>
+					<a id="send" class="button">Skapa</a>
 				</div>`;
 
     document.getElementById('imageFile').addEventListener('change', () => {

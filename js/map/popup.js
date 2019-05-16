@@ -34,7 +34,7 @@ export let popup = {
 		Färg: <br><input type="color" id="houseColor" value="${color}"><br>
 
 	    Personer per hushåll: <input type="text" id="per" value="${nop}"><br>
-	    Vatten per person/dygn: <input type="text" id="cons" value="${flow}"><br>
+	    Flöde per person/dygn: <input type="text" id="cons" value="${flow}"><br>
 	    <input type="button" class="updateValuesInHouse" value="Ändra">
 	    </div>`;
     },
@@ -56,7 +56,7 @@ export let popup = {
     changeCoord: (latlng) => {
         return `
     <li>
-        <label for='cp-2'>Ändra coordinater</label>
+        <label for='cp-2'>Ändra koordinater</label>
         <input type='radio' name='a' id='cp-2'>
         <div class='content'>
 			<b> Latitud </b>
