@@ -91,7 +91,6 @@ export const edit = {
     clearMapsEvents: () => {
         //Gets each polylines and removes the "editing hooks".
         polylines.eachLayer((polyline) => {
-            console.log(polyline._popup._leaflet_id);
             polyline.decorator.addTo(map);
             polyline.decorator.on('click', () => {
                 polyline.openPopup();
