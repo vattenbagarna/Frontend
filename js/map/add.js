@@ -74,7 +74,6 @@ export const add = {
                 first.enableDragging();
                 first = null;
             }
-            pipe = null;
         } else {
             point.id = event.sourceTarget.id;
             if (target.length) {
@@ -95,7 +94,23 @@ export const add = {
      */
     search: () => {
         L.esri.Geocoding.geosearch().addTo(map);
-    }
+    },
+    /**
+     * clearStartPolyline - Set varible pipe equals to null.
+     * 					  - This is called from clearMapsEvents()
+     * 		 			  - This function is used because export varibles is read-only
+     *
+     * @returns {void}
+     */
+    clearStartPolyline: () => {
+        document.getElementById("elevation").style.display = "none";
+        document.getElementById('loading').style.display = 'block';
+        if (pipe != null) {
+            document.getElementById("pipeSpecifications")
+                .removeEventListener('click', pipe.savePipeValues);
+        }
+        pipe = null;
+    },
 };
 
 /**
@@ -198,16 +213,6 @@ let addBranchConnection = (event, target) => {
 };
 
 
-/**
- * clearStartPolyline - Set varible pipe equals to null.
- * 					  - This is called from clearMapsEvents()
- * 		 			  - This function is used because export varibles is read-only
- *
- * @returns {void}
- */
-export let clearStartPolyline = () => {
-    pipe = null;
-};
 
 
 /**

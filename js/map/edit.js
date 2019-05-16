@@ -80,6 +80,7 @@ export const edit = {
         //Turn off click events for markers and polylines.
         map.off("click", add.marker);
         map.off('click', add.polygone);
+        add.clearStartPolyline();
 
         //If polylines has been edited
         if (isEdit == true) {
@@ -310,45 +311,56 @@ export const edit = {
             let first = all.find(find => find.id == element.connected_with.first);
             let last = all.find(find => find.id == element.connected_with.last);
 
-            switch (first.constructor) {
-                case L.Polygon:
-                    flow = (first.nop * first.flow) / 86400;
-                    last.capacity += parseFloat(flow.toFixed(2));
-                    calculateNextPolyline(last, 'first');
-                    break;
-
-                case L.Marker:
-                    if (first.capacity > 0) {
-                        if (first.attributes.Kategori == "Pumpstationer") {
-                            total = calculateTotalPressure(
-                                first.capacity,
-                                element.dimension.inner,
-                                element.length,
-                                element.tilt,
-                            );
-
-                            calculateLast(first, last, pumps, total, element.dimension.inner);
-                        } else if (first.attributes.Kategori == "Förgrening") {
-                            let polyline = findNextPolyline(first, 'last');
-
-                            let temp = markers.getLayers();
-                            let marker = temp.find(find =>
-                                find.id == polyline.connected_with.first);
-
-                            if (marker != null) {
-                                if (marker.attributes.Kategori == "Pumpstationer") {
-                                    edit.warning.pressure(polyline);
-                                }
-                            }
-
-                            last.capacity = first.capacity;
-                            calculateNextPolyline(last, 'first');
-                        } else {
-                            last.capacity = first.capacity;
+            if (first != null) {
+                switch (first.constructor) {
+                    case L.Polygon:
+                        flow = parseFloat((first.nop * first.flow));
+                        flow *= 0.6;
+                        flow /= 3600;
+                        console.log(flow);
+                        flow /= 1000;
+                        if (first.used == null) {
+                            last.capacity += parseFloat(flow);
+                            first.used = true;
                         }
-                    }
+                        calculateNextPolyline(last, 'first');
+                        break;
 
-                    break;
+                    case L.Marker:
+                        if (first.capacity > 0) {
+                            if (first.attributes.Kategori == "Pumpstationer") {
+                                total = calculateTotalPressure(
+                                    first.capacity,
+                                    element.dimension.inner,
+                                    element.length,
+                                    element.tilt,
+                                );
+
+                                calculateLast(first, last, pumps, total, element.dimension
+                                    .inner);
+                            } else if (first.attributes.Kategori == "Förgrening") {
+                                let polyline = findNextPolyline(first, 'last');
+
+                                let temp = markers.getLayers();
+                                let marker = temp.find(find =>
+                                    find.id == polyline.connected_with.first);
+
+                                if (marker != null) {
+                                    if (marker.attributes.Kategori == "Pumpstationer") {
+                                        edit.warning.pressure(polyline);
+                                    }
+                                }
+
+                                last.capacity = first.capacity;
+
+                                calculateNextPolyline(last, 'first');
+                            } else {
+                                last.capacity = first.capacity;
+                            }
+                        }
+
+                        break;
+                }
             }
         }
     },
@@ -378,10 +390,36 @@ export let calculateNextPolyline = (element, value) => {
  * @returns {L.Polyline} if polyline is found
  * @returns {null}		 If polyline is not found
  */
-let findNextPolyline = (element, value) => {
+export let findNextPolyline = (element, value) => {
     let temp = polylines.getLayers();
 
     return temp.find(find => find.connected_with[value] == element.id);
+};
+
+/**
+ * resetMarkers - Removes warnings to pump and reset flow to zero
+ * 				- Set last.used to undefined so houses can be connected again
+ *
+ * @param {L.polyline} element The polyline that we are examine
+ *
+ * @returns {void}
+ */
+export let resetMarkers = (element) => {
+    let temp = markers.getLayers();
+    let last = temp.find(find => find.id == element.connected_with.last);
+
+    if (last != null) {
+        if (last.capacity > 0) {
+            last.capacity = 0;
+            show.hideAlert(last);
+
+            let next = findNextPolyline(last, 'first');
+
+            if (next != null) {
+                resetMarkers(next);
+            }
+        }
+    }
 };
 
 /**
@@ -408,7 +446,7 @@ let calculateTotalPressure = (capacity, dimension, length, height) => {
 
     let result = calculations.totalPressure(parseFloat(loss), parseFloat(height));
 
-    return parseFloat(result.toFixed(2));
+    return parseFloat(result);
 };
 
 
@@ -446,7 +484,7 @@ let calculateLast = (first, last, pumps, total, dimension) => {
                 );
 
                 combinedPressure = parseFloat(total) + parseFloat(total2);
-                combinedPressure = parseFloat(combinedPressure.toFixed(2));
+                combinedPressure = parseFloat(combinedPressure);
 
                 //olika dimensioner??
                 getResults(first, pumps, combinedPressure, dimension);

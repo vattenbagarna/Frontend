@@ -1,16 +1,16 @@
 // Changes material to the selected one
-export let pipe = {
+export let pipes = {
     listen: (elem) => {
         elem.addEventListener("change", () => {
             let data;
 
-            pipe.clear();
+            pipes.clear();
             if (elem.value === "PEM") {
-                data = pipe.PEM();
+                data = pipes.PEM();
             } else if (elem.value === "PE") {
-                data = pipe.PE();
+                data = pipes.PE();
             } else if (elem.value === "Rostfria") {
-                data = pipe.stainless();
+                data = pipes.stainless();
             }
             let newNode = document.createElement('div');
 

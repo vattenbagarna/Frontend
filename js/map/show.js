@@ -5,7 +5,7 @@ export let mouseCoord = null;
 import { map } from "./loadLeafletMap.js";
 
 // Imports polylines and clears the start polyline.
-import { polylines, clearStartPolyline } from "./add.js";
+import { polylines, add } from "./add.js";
 
 import { popup } from "./popup.js";
 
@@ -152,6 +152,7 @@ export const show = {
     alert: (first, result) => {
         let div = document.createElement('div');
         let alerts;
+        let html;
 
         div.classList.add(first.attributes.id);
 
@@ -159,15 +160,16 @@ export const show = {
 
         alerts = document.getElementsByClassName(first.attributes.id);
 
-        for (let i = alerts.length - 1; i >= 0; i--) {
-            alerts[i].children[0].style.opacity = "0";
-            setTimeout(() => alerts[i].remove(), 600);
-        }
+        /*for (let i = alerts.length - 1; i >= 0; i--) {
+            setTimeout(() => {
+                alerts[i].children[0].style.opacity = "0";
+                setTimeout(() => alerts[i].remove(), 600);
+            }, 500);
+        }*/
 
         switch (result.calculations.status) {
             case 0:
-
-                div.innerHTML =
+                html =
                     `<div class="alert success">
 								<span class="closebtn">&times;</span>
 								<strong>OK!</strong>
@@ -178,7 +180,13 @@ export const show = {
 									 id: ${first.attributes.id}
 								 </span>
 							</div>`;
-                parent.appendChild(div);
+                if (alerts.length < 1) {
+                    div.innerHTML = html;
+
+                    parent.appendChild(div);
+                } else {
+                    alerts[0].innerHTML = html;
+                }
 
                 first._icon.classList.remove('warning-icon');
                 first._icon.classList.remove('alert-icon');
@@ -191,29 +199,37 @@ export const show = {
                 setTimeout(() => {
                     let div = close.parentElement.parentElement;
 
-                    div.style.opacity = "0";
-                    setTimeout(() => div.remove(), 600);
-                }, 3000);
+                    if (div != null) {
+                        div.children[0].style.opacity = "0";
+                        setTimeout(() => div.remove(), 600);
+                    }
+                }, 2000);
                 break;
             case 1:
-                div.innerHTML =
+                html =
                     `<div class="alert warning">
-							<span class="closebtn">&times;</span>
-							<strong>För låg flödeshastighet!</strong>
-							Flödeshastighet: ${result.calculations.mps.toFixed(2)} m/s
+				<span class="closebtn">&times;</span>
+				<strong>För låg flödeshastighet!</strong>
+				Flödeshastighet: ${result.calculations.mps.toFixed(2)} m/s
 
-							<span class="info-text">
-								${first.attributes.Modell}
-								id: ${first.attributes.id}
-							</span>
-						</div>`;
-                parent.appendChild(div);
+				<span class="info-text">
+					${first.attributes.Modell}
+					id: ${first.attributes.id}
+				</span>
+			</div>`;
+                if (alerts.length < 1) {
+                    div.innerHTML = html;
+
+                    parent.appendChild(div);
+                } else {
+                    alerts[0].innerHTML = html;
+                }
 
                 first._icon.classList.remove('alert-icon');
                 first._icon.classList.add('warning-icon');
                 break;
             case 2:
-                div.innerHTML =
+                html =
                     `<div class="alert warning">
 							<span class="closebtn">&times;</span>
 							<strong>För hög flödeshastighet!</strong>
@@ -224,13 +240,20 @@ export const show = {
 								id: ${first.attributes.id}
 							</span>
 						</div>`;
-                parent.appendChild(div);
+
+                if (alerts.length < 1) {
+                    div.innerHTML = html;
+
+                    parent.appendChild(div);
+                } else {
+                    alerts[0].innerHTML = html;
+                }
 
                 first._icon.classList.remove('alert-icon');
                 first._icon.classList.add('warning-icon');
                 break;
             case 3:
-                div.innerHTML =
+                html =
                     `<div class="alert">
 							<span class="closebtn">&times;</span>
 							<strong>För högt tryck!</strong>
@@ -239,13 +262,20 @@ export const show = {
 							   ${first.attributes.Modell}
 							  id: ${first.attributes.id}
 						</div>`;
-                parent.appendChild(div);
+
+                if (alerts.length < 1) {
+                    div.innerHTML = html;
+
+                    parent.appendChild(div);
+                } else {
+                    alerts[0].innerHTML = html;
+                }
 
                 first._icon.classList.remove('warning-icon');
                 first._icon.classList.add('alert-icon');
                 break;
             case 4:
-                div.innerHTML =
+                html =
                     `<div class="alert">
 							<span class="closebtn">&times;</span>
 							<strong>För lågt tryck!</strong>
@@ -254,7 +284,13 @@ export const show = {
 							   ${first.attributes.Modell}
 							  id: ${first.attributes.id}
 						</div>`;
-                parent.appendChild(div);
+                if (alerts.length < 1) {
+                    div.innerHTML = html;
+
+                    parent.appendChild(div);
+                } else {
+                    alerts[0].innerHTML = html;
+                }
 
                 first._icon.classList.remove('warning-icon');
                 first._icon.classList.add('alert-icon');
@@ -268,9 +304,23 @@ export const show = {
         close.onclick = function() {
             let div = this.parentElement.parentElement;
 
-            div.style.opacity = "0";
+            div.children[0].style.opacity = "0";
             setTimeout(() => div.remove(), 600);
         };
+    },
+
+    hideAlert: (element) => {
+        let alerts = document.getElementsByClassName(element.attributes.id);
+
+
+        for (let i = alerts.length - 1; i >= 0; i--) {
+            alerts[i].children[0].style.opacity = "0";
+            setTimeout(() => alerts[i].remove(), 600);
+        }
+        if (element._icon != null) {
+            element._icon.classList.remove('warning-icon');
+            element._icon.classList.remove('alert-icon');
+        }
     },
 
     /**
@@ -295,13 +345,13 @@ export const show = {
         // When the user clicks on <span> (x), close the modal
         span.onclick = () => {
             modal.style.display = "none";
-            clearStartPolyline();
+            add.clearStartPolyline();
         };
 
         document.addEventListener('keyup', (event) => {
             if (event.keyCode == 27) {
                 modal.style.display = "none";
-                clearStartPolyline();
+                add.clearStartPolyline();
             } else if (event.keyCode == 13) {
                 event.preventDefault();
                 button.click();
@@ -312,7 +362,7 @@ export const show = {
         window.onclick = (event) => {
             if (event.target == modal) {
                 modal.style.display = "none";
-                clearStartPolyline();
+                add.clearStartPolyline();
             }
         };
 

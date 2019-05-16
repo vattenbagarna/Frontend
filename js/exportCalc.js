@@ -38,8 +38,7 @@ const calculations = {
                 break;
             }
         }
-
-        return newPress / 100000;
+        return newPress / 10000;
     },
 
     /**

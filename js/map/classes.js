@@ -7,13 +7,13 @@ import { options } from "./options.js";
 
 import { polylines, markers, polygons, add, getLength, clearHouse } from "./add.js";
 
-import { edit, calculateNextPolyline } from "./edit.js";
+import { edit, calculateNextPolyline, findNextPolyline, resetMarkers } from "./edit.js";
 
 import { show, mouseCoord } from "./show.js";
 
 import { elevationKey } from "./getKey.js";
 
-import { pipe } from "./pipes.js";
+import { pipes } from "./pipes.js";
 
 export let guideline = null;
 
@@ -40,7 +40,8 @@ export class Marker {
         this.marker = new L.Marker(latlng, options.marker(icon))
             .on("dragend", this.dragEnd)
             .on("drag", edit.moveMarker)
-            .on('popupopen', this.updateCoords);
+            .on('popupopen', this.updateCoords)
+            .on('remove', this.onRemove);
 
         this.getElevation(latlng);
         this.marker.attributes = this.attributes;
@@ -182,6 +183,32 @@ export class Marker {
                 this.marker.bindPopup(popup.marker(this.attributes) +
                     popup.changeCoord(latlngObj));
             }
+        }
+    }
+
+    /**
+     * onRemove - When removing a connected marker make connected polylines into one instead
+     *
+     * @returns {void}
+     */
+    onRemove() {
+        let firstPolyline = findNextPolyline(this, 'last');
+        let lastPolyline = findNextPolyline(this, 'first');
+
+        if (firstPolyline != null && lastPolyline != null) {
+            let newLatlngs = firstPolyline._latlngs;
+
+            newLatlngs.pop();
+            lastPolyline._latlngs.shift();
+
+            for (let i = 0; i < lastPolyline._latlngs.length; i++) {
+                newLatlngs.push(lastPolyline._latlngs[i]);
+            }
+            firstPolyline.setLatLngs(newLatlngs);
+            firstPolyline.decorator.setPaths(newLatlngs);
+
+            firstPolyline.connected_with.last = lastPolyline.connected_with.last;
+            polylines.removeLayer(lastPolyline);
         }
     }
 }
@@ -389,7 +416,6 @@ export class Pipe {
         this.first = id;
     }
 
-
     /**
      * draw - Creates a L.polyline with preconfigured attributes from options.js, popup.js and type
      * 		- @see {@link https://leafletjs.com/reference-1.4.0.html#polyline}
@@ -412,7 +438,7 @@ export class Pipe {
             show.openModal(document.getElementById('pipeModal'));
             let elem = document.getElementsByClassName("material")[0];
 
-            pipe.listen(elem);
+            pipes.listen(elem);
 
             this.elevation = await this.getElevation(this.latlngs);
 
@@ -421,30 +447,10 @@ export class Pipe {
             document.getElementById('elevation').style.display = 'block';
             document.getElementById('loading').style.display = 'none';
 
-            //funkar inte om man klickar utanför
-            document.getElementById('pipeModal').children[0].children[0].onclick = () => {
-                document.getElementById("pipeModal").style.display = "none";
-                document.getElementById("elevation").style.display = "none";
-                document.getElementById('loading').style.display = 'block';
-            };
+            document.getElementById("pipeSpecifications").eventObject = this;
 
-            document.getElementById("pipeSpecifications").addEventListener('click', () => {
-                document.getElementById("pipeModal").style.display = "none";
-                document.getElementById("elevation").style.display = "none";
-                document.getElementById('loading').style.display = 'block';
-                this.material = document.getElementsByClassName('material')[0].value;
-                let value = document.getElementsByClassName("dimension")[0].value;
-
-                value = value.split(",");
-                this.dimension = {
-                    inner: value[0],
-                    outer: value[1],
-                };
-                this.tilt = document.getElementById("tilt").value;
-
-                this.createPolyline();
-                edit.warning.pressure(this.polyline);
-            }, { once: true });
+            document.getElementById("pipeSpecifications")
+                .addEventListener('click', this.savePipeValues, { once: true });
         } else {
             this.elevation = elevation;
             this.material = material;
@@ -454,6 +460,7 @@ export class Pipe {
             this.createPolyline();
         }
     }
+
 
     /**
      * createPolyline - Creates a new polyline depending on what type is choosen with preconfigured
@@ -519,11 +526,35 @@ export class Pipe {
         this.polyline.tilt = this.tilt;
         this.polyline.on('click', add.pipe);
         this.polyline.on('popupopen', this.updateValues);
-        this.polyline.on('remove', () => this.polyline.decorator.remove());
+        this.polyline.on('remove', this.onRemove);
         this.polyline.editingDrag.removeHooks();
         if (mouseCoord != null) {
             map.on('mousemove', show.mouseCoordOnMap);
         }
+    }
+
+    /**
+     * savePipeValues - Description
+     *
+     * @returns {type} Description
+     */
+    savePipeValues() {
+        document.getElementById("pipeModal").style.display = "none";
+        document.getElementById("elevation").style.display = "none";
+        document.getElementById('loading').style.display = 'block';
+        this.eventObject.material = document.getElementsByClassName('material')[0].value;
+        let value = document.getElementsByClassName("dimension")[0].value;
+
+        value = value.split(",");
+        this.eventObject.dimension = {
+            inner: value[0],
+            outer: value[1],
+        };
+        this.eventObject.tilt = document.getElementById("tilt").value;
+
+        this.eventObject.createPolyline();
+        edit.warning.pressure(this.eventObject.polyline);
+        add.clearStartPolyline();
     }
 
     /**
@@ -540,7 +571,7 @@ export class Pipe {
         let material = document.getElementsByClassName("materialPopup");
 
         material = material[material.length - 1];
-        pipe.listen(material);
+        pipes.listen(material);
         material.value = event.target.material;
         material.dispatchEvent(new Event('change'));
 
@@ -630,5 +661,30 @@ export class Pipe {
         };
 
         return elevationObj;
+    }
+
+    /**
+     * onRemove - When removing a connected pipe remove connecteded markers warning
+     * 			- Removes selected polyline decorator (arrow) too
+     *
+     * @returns {void}
+     */
+    onRemove() {
+        let temp = markers.getLayers();
+        let houses = polygons.getLayers();
+        let first = temp.find(find => find.id == this.connected_with.first);
+
+        if (first != null) {
+            show.hideAlert(first);
+        } else {
+            first = houses.find(find => find.id == this.connected_with.first);
+            if (first != null) {
+                first.used = undefined;
+            }
+        }
+
+        resetMarkers(this);
+
+        this.decorator.remove();
     }
 }
