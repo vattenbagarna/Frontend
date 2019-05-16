@@ -2,7 +2,7 @@
 export let isEdit = null;
 let tempPolylineArray = [];
 
-//imports the map object
+//Imports the map object
 import { map, token, icons, projectInfo } from "./loadLeafletMap.js";
 
 import { add, polylines, markers, polygons, getLength } from "./add.js";
@@ -14,6 +14,7 @@ import { popup } from "./popup.js";
 import { Marker, House, Pipe } from "./classes.js";
 
 export const edit = {
+
     /**
      * moveMarker - Moves a marker and connected polyline follows.
      *
@@ -66,7 +67,20 @@ export const edit = {
         });
 
         edit.warning.unsavedChanges(true);
-        isEdit = true;
+        isEdit = true
+        ;
+    },
+
+    /**
+     * removeArrows - Removes the arrows when adding or editing pipes.
+     *
+     * @returns {void}
+     */
+    removeArrows: () => {
+        polylines.eachLayer((polyline) => {
+            polyline.decorator.off('click');
+            polyline.decorator.removeFrom(map);
+        });
     },
 
     /**
@@ -76,6 +90,13 @@ export const edit = {
      */
     clearMapsEvents: () => {
         //Gets each polylines and removes the "editing hooks".
+        polylines.eachLayer((polyline) => {
+            console.log(polyline._popup._leaflet_id);
+            polyline.decorator.addTo(map);
+            polyline.decorator.on('click', () => {
+                polyline.openPopup();
+            });
+        });
 
         //Turn off click events for markers and polylines.
         map.off("click", add.marker);
@@ -84,14 +105,14 @@ export const edit = {
         //If polylines has been edited
         if (isEdit == true) {
             var i = 0;
-            //for each element in polylines
 
+            //For each element in polylines
             polylines.eachLayer(async (polyline) => {
                 polyline.editingDrag.removeHooks();
                 polyline.decorator.addTo(map);
                 polyline.decorator.setPaths(polyline._latlngs);
 
-                //if amount of points has changed
+                //If amount of points has changed
                 if (polyline._latlngs.length != tempPolylineArray[i++]) {
                     //Calculates new length of pipe
                     polyline.length = getLength(polyline._latlngs);
@@ -127,7 +148,7 @@ export const edit = {
      * @returns {void}
      */
     remove: (event) => {
-        //remove polylines, markers and polygons when clicked
+        //Remove polylines, markers and polygons when clicked
         polylines.removeLayer(event.target);
         markers.removeLayer(event.target);
         polygons.removeLayer(event.target);
@@ -152,7 +173,7 @@ export const edit = {
 
         json.push(temp);
 
-        //loop through all polylines and save them in a json format
+        //Loop through all polylines and save them in a json format
         polylines.eachLayer((polyline) => {
             temp = {
                 coordinates: polyline._latlngs,
@@ -169,7 +190,7 @@ export const edit = {
             json.push(temp);
         });
 
-        //loop through all markers and save them in a json format
+        //Loop through all markers and save them in a json format
         markers.eachLayer((marker) => {
             temp = {
                 coordinates: { lat: marker._latlng.lat, lng: marker._latlng.lng },
@@ -220,7 +241,7 @@ export const edit = {
     },
 
     /**
-         * load - Load objects(markers, polylines, polygons) to the map using json data
+         * load - Load objects(markers, polylines, polygons) to the map using json data.
          *
          * @returns {void}
          */
@@ -234,13 +255,13 @@ export const edit = {
         //Loop through json data.
         for (let i = 1; i < json.length; i++) {
             switch (json[i].type) {
-                //if marker add it to the map with its options
+                //If marker add it to the map with its options
                 case "marker":
                     icon = icons.find(element => element.category == json[i].attributes.Kategori);
                     newObj = new Marker(json[i].coordinates, json[i].attributes, icon.icon,
                         json[i].id);
                     break;
-                    //if polyline
+                    //If polyline
                 case "polyline":
                     newObj = new Pipe(json[i].coordinates, ["", ""], json[i].pipeType,
                         json[i].connected_with.first);
@@ -270,7 +291,7 @@ export const edit = {
     },
 
     /**
-         * warning - Warning message object
+         * warning - Warning message object.
          *
          * @returns {void}
          */
