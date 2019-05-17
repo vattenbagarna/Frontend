@@ -407,23 +407,23 @@ export let loadMap = {
      * @returns {void}
      */
     loadProducts: async () => {
-            let json = await API.get(`${configuration.apiURL}/obj/all/local/${id}?token=${token}`);
-            let list = document.getElementsByClassName('obj-list')[0];
+        let json = await API.get(`${configuration.apiURL}/obj/all/local/${id}?token=${token}`);
+        let list = document.getElementsByClassName('obj-list')[0];
 
-            for (let i = 0; i < json.length; i++) {
-                if (json[i].Kategori != null) {
-                    if (document.getElementsByClassName(json[i].Kategori).length == 0 &&
+        for (let i = 0; i < json.length; i++) {
+            if (json[i].Kategori != null) {
+                if (document.getElementsByClassName(json[i].Kategori).length == 0 &&
                         json[i].Kategori != "Pump") {
-                        list.innerHTML +=
+                    list.innerHTML +=
                             `<button class="accordion desc">${json[i].Kategori}</button>
 							<div class="panel"></div>`;
 
-                        let panels = document.getElementsByClassName('panel');
-                        let panel = panels[panels.length - 1];
+                    let panels = document.getElementsByClassName('panel');
+                    let panel = panels[panels.length - 1];
 
-                        let object = document.createElement('div');
+                    let object = document.createElement('div');
 
-                        object.innerHTML =
+                    object.innerHTML =
                             `<div class="obj-container">
 							   <div id="${json[i].Modell}" class="obj ${json[i].Kategori}">
 								   <img src="${json[i].Bild}"/>
@@ -431,21 +431,21 @@ export let loadMap = {
 							   <div class="obj-desc">${json[i].Modell}</div>
 							</div>`;
 
-                        panel.appendChild(object);
+                    panel.appendChild(object);
 
-                        delete json[i].Bild;
-                        delete json[i].creatorID;
-                        delete json[i].isDisabled;
-                        delete json[i].approved;
-                        delete json[i]._id;
-                        objectData.push(json[i]);
-                    } else if (json[i].Kategori != "Pump") {
-                        let elements = document.getElementsByClassName(json[i].Kategori);
-                        let panel = elements[0].parentElement.parentElement.parentElement;
+                    delete json[i].Bild;
+                    delete json[i].creatorID;
+                    delete json[i].isDisabled;
+                    delete json[i].approved;
+                    delete json[i]._id;
+                    objectData.push(json[i]);
+                } else if (json[i].Kategori != "Pump") {
+                    let elements = document.getElementsByClassName(json[i].Kategori);
+                    let panel = elements[0].parentElement.parentElement.parentElement;
 
-                        let object = document.createElement('div');
+                    let object = document.createElement('div');
 
-                        object.innerHTML =
+                    object.innerHTML =
                             `<div class="obj-container">
 							   <div id="${json[i].Modell}" class="obj ${json[i].Kategori}">
 								   <img src="${json[i].Bild}"/>
@@ -453,82 +453,82 @@ export let loadMap = {
 							   <div class="obj-desc">${json[i].Modell}</div>
 							</div>`;
 
-                        panel.appendChild(object);
+                    panel.appendChild(object);
 
-                        delete json[i].Bild;
-                        delete json[i].creatorID;
-                        delete json[i].isDisabled;
-                        delete json[i].approved;
-                        delete json[i]._id;
-                        objectData.push(json[i]);
-                    }
+                    delete json[i].Bild;
+                    delete json[i].creatorID;
+                    delete json[i].isDisabled;
+                    delete json[i].approved;
+                    delete json[i]._id;
+                    objectData.push(json[i]);
                 }
             }
+        }
 
-            objectData.push({ Modell: "Utsläppspunkt", Kategori: "Utsläppspunkt" });
+        objectData.push({ Modell: "Utsläppspunkt", Kategori: "Utsläppspunkt" });
 
-            accordions();
-            show.activeObj();
-            loadClickEvent();
-            addPipeOnClick();
-            addHouseOnClick();
-        },
-        /**
+        accordions();
+        show.activeObj();
+        loadClickEvent();
+        addPipeOnClick();
+        addHouseOnClick();
+    },
+    /**
          * loadData - Get project map json data and calls load function in edit.js
          *
          * @returns {void}
          */
-        loadData: async (editPermission) => {
-                let json = await API.get(
-                    `${configuration.apiURL}/proj/data/${id}?token=${token}`
-                );
+    loadData: async (editPermission) => {
+        let json = await API.get(
+            `${configuration.apiURL}/proj/data/${id}?token=${token}`
+        );
 
-                let urlParam = new URLSearchParams(window.location.search);
-                let myParam = urlParam.get('savestatus');
+        let urlParam = new URLSearchParams(window.location.search);
+        let myParam = urlParam.get('savestatus');
 
-                if (myParam == "error") {
-                    edit.notification("error");
-                } else if (myParam == "success") {
-                    edit.notification("success");
-                }
+        if (myParam == "error") {
+            edit.notification("error");
+        } else if (myParam == "success") {
+            edit.notification("success");
+        }
 
-                let currentState = history.state;
+        let currentState = history.state;
 
-                history.replaceState(currentState, "page 2", `map.html?id=${id}`);
+        history.replaceState(currentState, "page 2", `map.html?id=${id}`);
 
-                if (json[0].data.length > 0) {
-                    edit.load(json[0].data);
-                }
+        if (json[0].data.length > 0) {
+            edit.load(json[0].data);
+        }
 
-                map.on('layeradd', () => {
-                    edit.warning.unsavedChanges(true);
-                });
+        map.on('layeradd', () => {
+            edit.warning.unsavedChanges(true);
+        });
 
-                edit.clearMapsEvents();
-                if (editPermission == true) {
-                    markers.eachLayer((marker) => {
-                        marker.disableDragging();
-                        marker.bindPopup(popup.marker(marker.attributes));
-                        marker.off("popupopen");
-                    });
-                }
-            },
+        edit.clearMapsEvents();
+        if (editPermission == true) {
+            markers.eachLayer((marker) => {
+                marker.disableDragging();
+                marker.bindPopup(popup.marker(marker.attributes));
+                marker.off("popupopen");
+            });
+        }
+    },
 
-            /**
+    /**
              * loadProjectInfo - Get project info and sets project title and saves info for later
              *
              * @returns {void}
              */
-            loadProjectInfo: async () => {
-                let json = await API.get(
-                    `${configuration.apiURL}/proj/info/${id}?token=${token}`
-                );
-                let title = document.getElementsByClassName('projekt-titel')[0];
+    loadProjectInfo: async () => {
+        let json = await API.get(
+            `${configuration.apiURL}/proj/info/${id}?token=${token}`
+        );
+        let title = document.getElementsByClassName('projekt-titel')[0];
 
-                title.innerHTML = `${json[0].name} ${json[0].version}`;
+        title.innerHTML = `${json[0].name} ${json[0].version}`;
 
-                projectInfo = json[0];
-            },
+        projectInfo = json[0];
+    },
 };
 
 /**
