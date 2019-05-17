@@ -229,6 +229,10 @@ body {
     cursor: pointer;
 }
 
+.fancy-light-button:hover {
+    cursor: pointer;
+}
+
 .modal {
     display: none;
     position: fixed;
@@ -424,4 +428,88 @@ ul.accordion2 img {
 
 tr:nth-child(even) {
     background-color: #f2f2f2
+}
+
+.connect-icon {
+    border: 2px solid black;
+    border-radius: 50%;
+}
+
+.transparent-border {
+    border: 2px solid transparent;
+    border-radius: 50%;
+}
+
+.polygon-stroke {
+    stroke: black;
+    stroke-width: 3px;
+}
+
+#snackbar {
+    visibility: hidden;
+    min-width: 250px;
+    margin-left: -125px;
+    color: #fff;
+    text-align: center;
+    border-radius: 2px;
+    padding: 16px;
+    position: fixed;
+    z-index: 9999;
+    left: 50%;
+    bottom: 30px;
+    font-family: 'Fira Sans', sans-serif;
+}
+
+#snackbar.show {
+    visibility: visible;
+    -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+@-webkit-keyframes fadein {
+    from {
+        bottom: 0;
+        opacity: 0;
+    }
+
+    to {
+        bottom: 30px;
+        opacity: 1;
+    }
+}
+
+@keyframes fadein {
+    from {
+        bottom: 0;
+        opacity: 0;
+    }
+
+    to {
+        bottom: 30px;
+        opacity: 1;
+    }
+}
+
+@-webkit-keyframes fadeout {
+    from {
+        bottom: 30px;
+        opacity: 1;
+    }
+
+    to {
+        bottom: 0;
+        opacity: 0;
+    }
+}
+
+@keyframes fadeout {
+    from {
+        bottom: 30px;
+        opacity: 1;
+    }
+
+    to {
+        bottom: 0;
+        opacity: 0;
+    }
 }

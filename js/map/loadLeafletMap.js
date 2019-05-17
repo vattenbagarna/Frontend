@@ -221,6 +221,7 @@ let addHouseOnClick = () => {
 let addPipeOnClick = () => {
     // Adds a click event listener on pipe button
     document.getElementById("pipe").addEventListener("click", () => {
+        edit.removeArrows();
         // Set pipeChoice
         pipeChoice = 0;
         // On each layer of the map => this means all markers, all polylines
@@ -235,6 +236,7 @@ let addPipeOnClick = () => {
 
     // Adds a click event listener on stempipe button
     document.getElementById("stempipe").addEventListener("click", () => {
+        edit.removeArrows();
         // Set pipeChoice
         pipeChoice = 1;
         // On each layer of the map => this means all markers, all polylines
@@ -481,6 +483,19 @@ export let loadMap = {
             `${configuration.apiURL}/proj/data/${id}?token=${token}`
         );
 
+        let urlParam = new URLSearchParams(window.location.search);
+        let myParam = urlParam.get('savestatus');
+
+        if (myParam == "error") {
+            edit.notification("error");
+        } else if (myParam == "success") {
+            edit.notification("success");
+        }
+
+        let currentState = history.state;
+
+        history.replaceState(currentState, "page 2", `map.html?id=${id}`);
+
         if (json[0].data.length > 0) {
             edit.load(json[0].data);
         }
@@ -684,3 +699,7 @@ function calculateAspectRatioFit(srcWidth, srcHeight, maxWidth, maxHeight) {
 
     return { width: srcWidth * ratio, height: srcHeight * ratio };
 }
+
+document.getElementById("showMateriallist").addEventListener('click', () => {
+    document.location.href = "materiallist.html?id=" + id;
+});

@@ -56,6 +56,7 @@ export class Marker {
 
         // Add marker to markers layer
         markers.addLayer(this.marker).addTo(map);
+        this.marker._icon.classList.add("transparent-border");
 
         if (id) {
             this.marker.id = id;
@@ -485,7 +486,7 @@ export class Pipe {
                         }
                     })
                 }]
-            }).addTo(map);
+            });
         } else if (this.type == 1) {
             this.polyline = new L.polyline(this.latlngs, options.stemPipe);
             this.polyline.decorator = L.polylineDecorator(this.polyline, {
@@ -501,7 +502,7 @@ export class Pipe {
                         }
                     })
                 }]
-            }).addTo(map);
+            });
         }
 
 

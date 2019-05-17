@@ -1,6 +1,9 @@
 /* global L */
 let pipe = null;
 let first;
+let firstTarget;
+let markerClicked = false;
+let houseClicked = false;
 
 export let house = null;
 
@@ -74,6 +77,15 @@ export const add = {
                 first.enableDragging();
                 first = null;
             }
+            pipe = null;
+            if (markerClicked) {
+                firstTarget._icon.classList.remove("connect-icon");
+                firstTarget._icon.classList.add("transparent-border");
+                markerClicked = false;
+            } else if (houseClicked) {
+                firstTarget._path.classList.remove("polygon-stroke");
+                houseClicked = false;
+            }
         } else {
             point.id = event.sourceTarget.id;
             if (target.length) {
@@ -83,6 +95,17 @@ export const add = {
                 first = target.disableDragging();
             }
             pipe = new Pipe([event.latlng], ["", ""], pipeChoice, point.id);
+            if (event.target._icon) {
+                target._icon.classList.remove("transparent-border");
+                target._icon.classList.add("connect-icon");
+                firstTarget = target;
+                markerClicked = true;
+            } else if (target.address) {
+                console.log(target);
+                target._path.classList.add("polygon-stroke");
+                firstTarget = target;
+                houseClicked = true;
+            }
         }
     },
 
