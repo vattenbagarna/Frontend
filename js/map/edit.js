@@ -314,11 +314,7 @@ export const edit = {
             if (first != null) {
                 switch (first.constructor) {
                     case L.Polygon:
-                        flow = parseFloat((first.nop * first.flow));
-                        flow *= 0.6;
-                        flow /= 3600;
-                        console.log(flow);
-                        flow /= 1000;
+                        flow = checkFlow(first, flow);
                         if (first.used == null) {
                             last.capacity += parseFloat(flow);
                             first.used = true;
@@ -581,4 +577,76 @@ let checkPump = (pump, pressure, dim) => {
         found = false;
     }
     return result;
+};
+
+/**
+ * checkFlow - Checks flow according to number of people in a sewage system.
+ *
+ * @param {object} first the object connected with another
+ * @param {number} flow  the water flow
+ *
+ * @returns {number} flow according to number of people
+ */
+let checkFlow = (first, flow) => {
+    let nrOf = parseFloat(first.nop);
+
+    if (nrOf <= 10) {
+        flow = 0.7;
+    }
+    if (nrOf <= 20 && nrOf > 10) {
+        flow = 0.9;
+    }
+    if (nrOf <= 30 && nrOf > 20) {
+        flow = 1.1;
+    }
+    if (nrOf <= 40 && nrOf > 30) {
+        flow = 1.3;
+    }
+    if (nrOf <= 50 && nrOf > 40) {
+        flow = 1.5;
+    }
+    if (nrOf <= 60 && nrOf > 50) {
+        flow = 1.6;
+    }
+    if (nrOf <= 70 && nrOf > 60) {
+        flow = 1.7;
+    }
+    if (nrOf <= 80 && nrOf > 70) {
+        flow = 1.8;
+    }
+    if (nrOf <= 90 && nrOf > 80) {
+        flow = 1.9;
+    }
+    if (nrOf <= 100 && nrOf > 90) {
+        flow = 2;
+    }
+    if (nrOf <= 200 && nrOf > 100) {
+        flow = 3;
+    }
+    if (nrOf <= 300 && nrOf > 200) {
+        flow = 4;
+    }
+    if (nrOf <= 400 && nrOf > 300) {
+        flow = 4.9;
+    }
+    if (nrOf <= 500 && nrOf > 400) {
+        flow = 5.4;
+    }
+    if (nrOf <= 600 && nrOf > 500) {
+        flow = 6;
+    }
+    if (nrOf <= 700 && nrOf > 600) {
+        flow = 6.7;
+    }
+    if (nrOf <= 800 && nrOf > 700) {
+        flow = 7;
+    }
+    if (nrOf <= 900 && nrOf > 800) {
+        flow = 7.7;
+    }
+    if (nrOf <= 1000 && nrOf > 900) {
+        flow = 8;
+    }
+
+    return flow / 1000;
 };
