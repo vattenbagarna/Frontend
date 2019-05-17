@@ -190,6 +190,7 @@ export const show = {
 
                 first._icon.classList.remove('warning-icon');
                 first._icon.classList.remove('alert-icon');
+                first._icon.classList.add('transparent-border');
 
 
                 first.attributes.Flödeshastighet = result.calculations.mps.toFixed(2);
@@ -226,6 +227,7 @@ export const show = {
                 }
 
                 first._icon.classList.remove('alert-icon');
+                first._icon.classList.remove('transparent-border');
                 first._icon.classList.add('warning-icon');
                 break;
             case 2:
@@ -250,6 +252,7 @@ export const show = {
                 }
 
                 first._icon.classList.remove('alert-icon');
+                first._icon.classList.remove('transparent-border');
                 first._icon.classList.add('warning-icon');
                 break;
             case 3:
@@ -272,6 +275,7 @@ export const show = {
                 }
 
                 first._icon.classList.remove('warning-icon');
+                first._icon.classList.remove('transparent-border');
                 first._icon.classList.add('alert-icon');
                 break;
             case 4:
@@ -293,6 +297,7 @@ export const show = {
                 }
 
                 first._icon.classList.remove('warning-icon');
+                first._icon.classList.remove('transparent-border');
                 first._icon.classList.add('alert-icon');
                 break;
         }
@@ -320,6 +325,7 @@ export const show = {
         if (element._icon != null) {
             element._icon.classList.remove('warning-icon');
             element._icon.classList.remove('alert-icon');
+            element._icon.classList.add('transparent-border');
         }
     },
 
