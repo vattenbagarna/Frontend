@@ -479,6 +479,19 @@ export let loadMap = {
             `${configuration.apiURL}/proj/data/${id}?token=${token}`
         );
 
+        let urlParam = new URLSearchParams(window.location.search);
+        let myParam = urlParam.get('savestatus');
+
+        if (myParam == "error") {
+            edit.notification("error");
+        } else if (myParam == "success") {
+            edit.notification("success");
+        }
+
+        let currentState = history.state;
+
+        history.replaceState(currentState, "page 2", `map.html?id=${id}`);
+
         if (json[0].data.length > 0) {
             edit.load(json[0].data);
         }

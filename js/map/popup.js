@@ -1,6 +1,9 @@
 export let popup = {
     marker: (attributes) => {
         let temp = "";
+        let temp2 = "";
+        let similarAttributes = ["Kategori", "Modell", "M ö.h"];
+        let i = 0;
 
         for (let key in attributes) {
             switch (key) {
@@ -10,8 +13,15 @@ export let popup = {
                 case 'creatorID':
                 case '_id':
                     break;
+                case similarAttributes[i]:
+                    temp += `<tr><td>
+                    ${similarAttributes[i]}: ${attributes[similarAttributes[i]]}
+                    </td></tr>`;
+                    i = i + 1;
+                    break;
                 default:
-                    temp += `<tr><td>${key}: ${attributes[key]}</td></tr>`;
+                    temp2 += `<tr><td>${key}: ${attributes[key]}</td></tr>`;
+                    break;
             }
         }
 
@@ -21,8 +31,17 @@ export let popup = {
         <input type='radio' name='a' id='cp-1' checked='checked'>
         <div class='content'>
 			<table>
-		        	${temp}
+		        ${temp}
 			</table>
+		</div>
+    </li>
+    <li>
+        <label for='cp-2'>Överig info</label>
+        <input type='radio' name='a' id='cp-2'>
+        <div class='content'>
+			<table>
+                ${temp2}
+            </table>
 		</div>
     </li>`;
     },
@@ -56,8 +75,8 @@ export let popup = {
     changeCoord: (latlng) => {
         return `
     <li>
-        <label for='cp-2'>Ändra koordinater</label>
-        <input type='radio' name='a' id='cp-2'>
+        <label for='cp-3'>Ändra koordinater</label>
+        <input type='radio' name='a' id='cp-3'>
         <div class='content'>
 			<b> Latitud </b>
 			<input type="text" id='latitud' value=${latlng.lat}>
