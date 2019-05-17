@@ -221,6 +221,7 @@ let addHouseOnClick = () => {
 let addPipeOnClick = () => {
     // Adds a click event listener on pipe button
     document.getElementById("pipe").addEventListener("click", () => {
+        edit.removeArrows();
         // Set pipeChoice
         pipeChoice = 0;
         // On each layer of the map => this means all markers, all polylines
@@ -235,6 +236,7 @@ let addPipeOnClick = () => {
 
     // Adds a click event listener on stempipe button
     document.getElementById("stempipe").addEventListener("click", () => {
+        edit.removeArrows();
         // Set pipeChoice
         pipeChoice = 1;
         // On each layer of the map => this means all markers, all polylines
