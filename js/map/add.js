@@ -36,7 +36,11 @@ export const add = {
                 break;
             }
         }
-        new Marker(event.latlng, object, add.activeIcon);
+        new Marker({
+            coordinates: event.latlng,
+            attributes: object,
+            icon: add.activeIcon
+        });
     },
 
     /**
@@ -50,7 +54,11 @@ export const add = {
         if (house != null) {
             house.draw(event.latlng);
         } else {
-            house = new House(event.latlng, ["house"], '#3388ff');
+            house = new House({
+                coordinates: event.latlng,
+                attributes: ["house"],
+                color: '#3388ff'
+            });
         }
     },
 
@@ -72,7 +80,7 @@ export const add = {
             if (target.length) {
                 point = addBranchConnection(event, target);
             }
-            pipe.draw(point.id, event.latlng);
+            pipe.draw({ last: point.id, coordinates: event.latlng });
             if (first) {
                 first.enableDragging();
                 first = null;
@@ -86,7 +94,7 @@ export const add = {
                 firstTarget._path.classList.remove("polygon-stroke");
                 houseClicked = false;
             }
-        } else {
+        } else if (event.target.used == null) {
             point.id = event.sourceTarget.id;
             if (target.length) {
                 point = addBranchConnection(event, target);
@@ -94,14 +102,19 @@ export const add = {
             } else if (target.options.draggable) {
                 first = target.disableDragging();
             }
-            pipe = new Pipe([event.latlng], ["", ""], pipeChoice, point.id);
+            pipe = new Pipe({
+                coordinates: [event.latlng],
+                attributes: ["", ""],
+                pipeType: pipeChoice,
+                first: point.id
+            });
+
             if (event.target._icon) {
                 target._icon.classList.remove("transparent-border");
                 target._icon.classList.add("connect-icon");
                 firstTarget = target;
                 markerClicked = true;
             } else if (target.address) {
-                console.log(target);
                 target._path.classList.add("polygon-stroke");
                 firstTarget = target;
                 houseClicked = true;
@@ -199,7 +212,11 @@ let addBranchConnection = (event, target) => {
     // Creates the marker for branch connector.
     let icon = icons.find(element => element.category == "Förgrening");
 
-    let branchMarker = new Marker(event.latlng, { Kategori: "Förgrening" }, icon.icon);
+    let branchMarker = new Marker({
+        coordinates: event.latlng,
+        attributes: { Kategori: "Förgrening" },
+        icon: icon.icon
+    });
 
     branchMarker.marker.on('click', add.pipe);
 
@@ -218,16 +235,21 @@ let addBranchConnection = (event, target) => {
     };
     target.connected_with.last = branchMarker.marker.id;
 
-    let newPipe = new Pipe(newLine.latlngs, [""], target.type, newLine.first);
+    let newPipe = new Pipe({
+        coordinates: newLine.latlngs,
+        attributes: [""],
+        pipeType: target.type,
+        first: newLine.first
+    });
 
-    newPipe.draw(
-        newLine.last,
-        null,
-        target.elevation,
-        target.material,
-        target.dimension,
-        target.tilt
-    );
+    newPipe.draw({
+        last: newLine.last,
+        coordinates: null,
+        elevation: target.elevation,
+        material: target.material,
+        dimension: target.dimension,
+        titl: target.tilt
+    });
 
     return {
         marker: branchMarker.marker,

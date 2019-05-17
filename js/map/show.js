@@ -193,7 +193,8 @@ export const show = {
                 first._icon.classList.add('transparent-border');
 
 
-                first.attributes.Flödeshastighet = result.calculations.mps.toFixed(2);
+                first.attributes.Flödeshastighet = result.calculations.mps.toFixed(2) + " m/s";
+                first.attributes["Antal personer som högst"] = result.nop;
                 first.setPopupContent(popup.marker(first.attributes) +
                     popup.changeCoord(first._latlng));
 
@@ -304,14 +305,16 @@ export const show = {
 
         let close = document.getElementsByClassName("closebtn");
 
-        close = close[close.length - 1];
+        if (close != null) {
+            close = close[close.length - 1];
 
-        close.onclick = function() {
-            let div = this.parentElement.parentElement;
+            close.onclick = function() {
+                let div = this.parentElement.parentElement;
 
-            div.children[0].style.opacity = "0";
-            setTimeout(() => div.remove(), 600);
-        };
+                div.children[0].style.opacity = "0";
+                setTimeout(() => div.remove(), 600);
+            };
+        }
     },
 
     hideAlert: (element) => {

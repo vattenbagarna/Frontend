@@ -16,6 +16,7 @@ import { elevationKey } from "./getKey.js";
 import { pipes } from "./pipes.js";
 
 export let guideline = null;
+export let mapId = 0;
 
 /**
  * Marker - Class for creation of marker and underlying functionality for each object
@@ -35,35 +36,40 @@ export class Marker {
      *
      * @returns {void}
      */
-    constructor(latlng, attributes, icon, capacity = null, id = null) {
-        this.attributes = attributes;
-        this.marker = new L.Marker(latlng, options.marker(icon))
+    constructor(data) {
+        this.attributes = data.attributes;
+        this.marker = new L.Marker(data.coordinates, options.marker(data.icon))
             .on("dragend", this.dragEnd)
             .on("drag", edit.moveMarker)
             .on('popupopen', this.updateCoords)
             .on('remove', this.onRemove);
 
-        this.getElevation(latlng);
+        this.getElevation(data.coordinates);
         this.marker.attributes = this.attributes;
         this.marker.updateElevation = (event) => { this.getElevation(event); };
         this.marker.disableDragging = () => { this.marker.dragging.disable(); return this.marker; };
         this.marker.enableDragging = () => { this.marker.dragging.enable(); };
-        if (capacity) {
-            this.marker.capacity = capacity;
+
+        if (data.calculation) {
+            this.marker.calculation = data.calculation;
         } else {
-            this.marker.capacity = 0;
+            this.marker.calculation = {};
+            this.marker.calculation.capacity = 0;
+            this.marker.calculation.nop = 0;
+            this.marker.calculation.used = null;
         }
+
 
         // Add marker to markers layer
         markers.addLayer(this.marker).addTo(map);
         this.marker._icon.classList.add("transparent-border");
 
-        if (id) {
-            this.marker.id = id;
+        if (data.id != null) {
+            this.marker.id = data.id;
         } else {
-            this.marker.id = this.marker._leaflet_id;
+            this.marker.id = mapId++;
         }
-        attributes.id = this.marker.id;
+        this.attributes.id = this.marker.id;
     }
 
     /**
@@ -231,12 +237,16 @@ export class House {
      *
      * @returns {void}
      */
-    constructor(latlng, attributes, color) {
+    constructor(data) {
         this.completed = false;
-        this.attributes = attributes;
-        this.polygon = L.polygon([latlng], options.house(color));
+        this.attributes = this.attributes;
+        this.polygon = L.polygon([data.coordinates], options.house(data.color));
 
-        guideline = L.polyline([latlng, latlng], {
+        if (data.id == null) {
+            this.polygon.id = mapId++;
+        }
+
+        guideline = L.polyline([data.coordinates, data.coordinates], {
             dashArray: '5, 10'
         }).addTo(map);
 
@@ -258,8 +268,6 @@ export class House {
 
         let coord = guideline.getLatLngs();
 
-        this.polygon.id = this.polygon._leaflet_id;
-
         coord.shift();
         coord.unshift(latlng);
     }
@@ -275,16 +283,17 @@ export class House {
      *
      * @returns {void}
      */
-    drawFromLoad(latlngs, values) {
-        this.polygon.setLatLngs(latlngs);
-        this.polygon.bindPopup(popup.house(values[0], values[1], values[2], values[3], values[4]));
+    drawFromLoad(data) {
+        this.polygon.setLatLngs(data.coordinates);
+        this.polygon.bindPopup(popup.house(data.popup.address, data.popup.definition,
+            data.popup.nop, data.popup.flow, data.popup.color));
         polygons.addLayer(this.polygon).addTo(map);
 
-        this.polygon.address = values[0];
-        this.polygon.definition = values[1];
-        this.polygon.nop = values[2];
-        this.polygon.flow = values[3];
-        this.polygon.id = this.polygon._leaflet_id;
+        this.polygon.address = data.popup.address;
+        this.polygon.definition = data.popup.definition;
+        this.polygon.nop = data.popup.nop;
+        this.polygon.flow = data.popup.flow;
+        this.polygon.id = data.id;
         this.completed = true;
 
         map.off('mousemove', this.updateGuideLine);
@@ -410,11 +419,11 @@ export class Pipe {
      *
      * @returns {void}
      */
-    constructor(latlngs, attributes, type, id) {
-        this.latlngs = latlngs;
-        this.attribute = attributes;
-        this.type = type;
-        this.first = id;
+    constructor(data) {
+        this.latlngs = data.coordinates;
+        this.attribute = data.attributes;
+        this.type = data.pipeType;
+        this.first = data.first;
     }
 
     /**
@@ -426,16 +435,16 @@ export class Pipe {
      *
      * @param {let} id            		Unique number to last connected_with
      * @param {array} [latlng=null] 	Option to push new point into new polyline
-     * @param {null} [dim=null]			Option to add preconfigured dimension
+     * @param {null} [data.dimension=null]			Option to add preconfigured dimension
      * @param {null} [tilt=null]      	Option to add preconfigured tilt
      *
      * @returns {void}
      **/
-    async draw(id, latlng = null, elevation = null, material = null, dim = null, tilt = null) {
-        this.last = id;
-        if (latlng != null) { this.latlngs.push(latlng); }
+    async draw(data) {
+        this.last = data.last;
+        if (data.coordinates != null) { this.latlngs.push(data.coordinates); }
 
-        if (material == null && dim == null && tilt == null) {
+        if (data.material == null && data.dimension == null && data.tilt == null) {
             show.openModal(document.getElementById('pipeModal'));
             let elem = document.getElementsByClassName("material")[0];
 
@@ -453,15 +462,14 @@ export class Pipe {
             document.getElementById("pipeSpecifications")
                 .addEventListener('click', this.savePipeValues, { once: true });
         } else {
-            this.elevation = elevation;
-            this.material = material;
-            this.dimension = dim;
-            this.tilt = tilt;
+            this.elevation = data.elevation;
+            this.material = data.material;
+            this.dimension = data.dimension;
+            this.tilt = data.tilt;
 
             this.createPolyline();
         }
     }
-
 
     /**
      * createPolyline - Creates a new polyline depending on what type is choosen with preconfigured
@@ -486,7 +494,7 @@ export class Pipe {
                         }
                     })
                 }]
-            });
+            }).addTo(map);
         } else if (this.type == 1) {
             this.polyline = new L.polyline(this.latlngs, options.stemPipe);
             this.polyline.decorator = L.polylineDecorator(this.polyline, {
@@ -502,29 +510,29 @@ export class Pipe {
                         }
                     })
                 }]
-            });
+            }).addTo(map);
         }
-
 
         this.polyline.connected_with = {
             first: this.first,
             last: this.last
         };
         polylines.addLayer(this.polyline).addTo(map);
-        this.polyline.bindPopup(popup.pipe(this.tilt));
+        this.polyline.bindPopup(popup.pipe((this.elevation.highest - this.elevation.first)
+            .toFixed(1)));
         this.polyline.length = getLength(this.latlngs);
         this.polyline.elevation = this.elevation;
         this.polyline.updateElevation = async (latlngs) => {
             let elevation = await this.getElevation(latlngs);
 
-            this.polyline.bindPopup(popup.pipe((elevation.highest - elevation.first).toFixed(
-                1)));
+            this.polyline.bindPopup(popup.pipe((elevation.highest - elevation.first).toFixed(1)));
             return elevation;
         };
         this.polyline.type = this.type;
         this.polyline.material = this.material;
         this.polyline.dimension = this.dimension;
         this.polyline.tilt = this.tilt;
+        this.polyline.decorator.on('click', (event) => this.polyline.openPopup(event._latlng));
         this.polyline.on('click', add.pipe);
         this.polyline.on('popupopen', this.updateValues);
         this.polyline.on('remove', this.onRemove);
@@ -689,3 +697,14 @@ export class Pipe {
         this.decorator.remove();
     }
 }
+
+/**
+ * setMapId - Set value to mapId from load function
+ *
+ * @param {type} value
+ *
+ * @returns {void}
+ */
+export let setMapId = (value) => {
+    mapId = value;
+};

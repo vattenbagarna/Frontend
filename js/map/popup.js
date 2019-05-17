@@ -2,19 +2,21 @@ export let popup = {
     marker: (attributes) => {
         let temp = "";
         let temp2 = "";
-        let similarAttributes = ["Kategori", "Modell", "M ö.h"];
+        let similarAttributes = [
+            "Kategori",
+            "Modell",
+            "id",
+            "M ö.h",
+            "Flödeshastighet",
+            "Antal personer som högst"
+        ];
         let i = 0;
 
         for (let key in attributes) {
             switch (key) {
-                case 'Bild':
-                    temp += `<tr><td><img src="${attributes[key]}"/></td></tr>`;
-                    break;
-                case 'creatorID':
-                case '_id':
-                    break;
                 case similarAttributes[i]:
-                    temp += `<tr><td>
+                    temp +=
+                        `<tr><td>
                     ${similarAttributes[i]}: ${attributes[similarAttributes[i]]}
                     </td></tr>`;
                     i = i + 1;
@@ -36,7 +38,7 @@ export let popup = {
 		</div>
     </li>
     <li>
-        <label for='cp-2'>Överig info</label>
+        <label for='cp-2'>Övrig info</label>
         <input type='radio' name='a' id='cp-2'>
         <div class='content'>
 			<table>
@@ -52,8 +54,10 @@ export let popup = {
 	    Typ: <input type="text" id="houseType" value="${type}"><br>
 		Färg: <br><input type="color" id="houseColor" value="${color}"><br>
 
-	    Personer per hushåll: <input type="text" id="per" value="${nop}"><br>
-	    Flöde per person/dygn: <input type="text" id="cons" value="${flow}"><br>
+	    Personer per hushåll:
+		<input type="text" id="per" value="${nop}"><br>
+	    Flöde per person/dygn:
+		<input class="input-text" disabled type="text" id="cons" value="${flow}"><br>
 	    <input type="button" class="updateValuesInHouse" value="Ändra">
 	    </div>`;
     },
