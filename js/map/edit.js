@@ -2,7 +2,7 @@
 export let isEdit = null;
 let tempPolylineArray = [];
 
-//imports the map object
+//Imports the map object
 import { map, token, icons, projectInfo } from "./loadLeafletMap.js";
 
 import { add, polylines, markers, polygons, getLength } from "./add.js";
@@ -14,6 +14,7 @@ import { popup } from "./popup.js";
 import { Marker, House, Pipe } from "./classes.js";
 
 export const edit = {
+
     /**
      * moveMarker - Moves a marker and connected polyline follows.
      *
@@ -66,7 +67,20 @@ export const edit = {
         });
 
         edit.warning.unsavedChanges(true);
-        isEdit = true;
+        isEdit = true
+        ;
+    },
+
+    /**
+     * removeArrows - Removes the arrows when adding or editing pipes.
+     *
+     * @returns {void}
+     */
+    removeArrows: () => {
+        polylines.eachLayer((polyline) => {
+            polyline.decorator.off('click');
+            polyline.decorator.removeFrom(map);
+        });
     },
 
     /**
@@ -76,6 +90,12 @@ export const edit = {
      */
     clearMapsEvents: () => {
         //Gets each polylines and removes the "editing hooks".
+        polylines.eachLayer((polyline) => {
+            polyline.decorator.addTo(map);
+            polyline.decorator.on('click', () => {
+                polyline.openPopup();
+            });
+        });
 
         //Turn off click events for markers and polylines.
         map.off("click", add.marker);
@@ -84,14 +104,14 @@ export const edit = {
         //If polylines has been edited
         if (isEdit == true) {
             var i = 0;
-            //for each element in polylines
 
+            //For each element in polylines
             polylines.eachLayer(async (polyline) => {
                 polyline.editingDrag.removeHooks();
                 polyline.decorator.addTo(map);
                 polyline.decorator.setPaths(polyline._latlngs);
 
-                //if amount of points has changed
+                //If amount of points has changed
                 if (polyline._latlngs.length != tempPolylineArray[i++]) {
                     //Calculates new length of pipe
                     polyline.length = getLength(polyline._latlngs);
@@ -127,12 +147,42 @@ export const edit = {
      * @returns {void}
      */
     remove: (event) => {
-        //remove polylines, markers and polygons when clicked
+        //Remove polylines, markers and polygons when clicked
         polylines.removeLayer(event.target);
         markers.removeLayer(event.target);
         polygons.removeLayer(event.target);
 
         edit.warning.unsavedChanges(true);
+    },
+
+    /**
+     * notification - Gets status from response and then shows an appropriate
+     * snackbar.
+     *
+     * @returns {void}
+     */
+    notification: (status) => {
+        // Get the snackbar DIV
+        let snackbar = document.getElementById("snackbar");
+
+        if (status == "error") {
+            snackbar.style.backgroundColor = "red";
+            snackbar.innerHTML = "Spara misslyckades. Du har ingen internetuppkoppling";
+        } else if (status == "error2") {
+            snackbar.style.backgroundColor = "red";
+            snackbar.innerHTML = "Spara misslyckades";
+        } else if (status == "success") {
+            snackbar.style.backgroundColor = "green";
+            snackbar.innerHTML = "Spara lyckades";
+        }
+
+        // Add the "show" class to DIV
+        snackbar.className = "show";
+
+        // After 3 seconds, remove the show class from DIV
+        setTimeout(function() {
+            snackbar.className = snackbar.className.replace("show", "");
+        }, 3000);
     },
 
     /**
@@ -144,6 +194,7 @@ export const edit = {
     save: async (version) => {
         let json = [];
         let temp;
+        let status;
 
         temp = {
             zoom: map.getZoom(),
@@ -152,7 +203,7 @@ export const edit = {
 
         json.push(temp);
 
-        //loop through all polylines and save them in a json format
+        //Loop through all polylines and save them in a json format
         polylines.eachLayer((polyline) => {
             temp = {
                 coordinates: polyline._latlngs,
@@ -169,7 +220,7 @@ export const edit = {
             json.push(temp);
         });
 
-        //loop through all markers and save them in a json format
+        //Loop through all markers and save them in a json format
         markers.eachLayer((marker) => {
             temp = {
                 coordinates: { lat: marker._latlng.lat, lng: marker._latlng.lng },
@@ -199,8 +250,17 @@ export const edit = {
         if (version == projectInfo.version) {
             let id = new URL(window.location.href).searchParams.get('id');
 
-            await API.post(`${configuration.apiURL}/proj/update/data/${id}?token=${token}`,
+            let response = await API.post(
+                `${configuration.apiURL}/proj/update/data/${id}?token=${token}`,
                 'application/json', JSON.stringify(json));
+
+            if (response[1] == "error") {
+                edit.notification("error");
+            } else if (response[0] == undefined) {
+                edit.notification("error2");
+            } else {
+                edit.notification("success");
+            }
 
             edit.warning.unsavedChanges(false);
         } else {
@@ -210,17 +270,23 @@ export const edit = {
                 `${configuration.apiURL}/proj/insert?token=${token}`,
                 'application/json', JSON.stringify(projectInfo));
 
-            await API.post(
+            let res = await API.post(
                 `${configuration.apiURL}/proj/update/data/${response._id}?token=${token}`,
                 'application/json', JSON.stringify(json));
 
+            if (res[1] == "error") {
+                status = "error";
+            } else {
+                status = "success";
+            }
+
             edit.warning.unsavedChanges(false);
-            document.location.href = `map.html?id=${response._id}`;
+            document.location.href = `map.html?id=${response._id}&savestatus=${status}`;
         }
     },
 
     /**
-         * load - Load objects(markers, polylines, polygons) to the map using json data
+         * load - Load objects(markers, polylines, polygons) to the map using json data.
          *
          * @returns {void}
          */
@@ -234,13 +300,13 @@ export const edit = {
         //Loop through json data.
         for (let i = 1; i < json.length; i++) {
             switch (json[i].type) {
-                //if marker add it to the map with its options
+                //If marker add it to the map with its options
                 case "marker":
                     icon = icons.find(element => element.category == json[i].attributes.Kategori);
                     newObj = new Marker(json[i].coordinates, json[i].attributes, icon.icon,
                         json[i].id);
                     break;
-                    //if polyline
+                    //If polyline
                 case "polyline":
                     newObj = new Pipe(json[i].coordinates, ["", ""], json[i].pipeType,
                         json[i].connected_with.first);
@@ -270,7 +336,7 @@ export const edit = {
     },
 
     /**
-         * warning - Warning message object
+         * warning - Warning message object.
          *
          * @returns {void}
          */
@@ -291,5 +357,4 @@ export const edit = {
             }
         }
     },
-
 };

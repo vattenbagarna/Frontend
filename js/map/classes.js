@@ -50,6 +50,7 @@ export class Marker {
 
         // Add marker to markers layer
         markers.addLayer(this.marker).addTo(map);
+        this.marker._icon.classList.add("transparent-border");
 
         if (id) {
             this.marker.id = id;
@@ -321,7 +322,6 @@ export class House {
     updateValues(event) {
         // Get button after popup is open
         let buttons = document.getElementsByClassName('updateValuesInHouse');
-        //console.log(buttons);
 
         // Add event listener on click on button
         buttons[buttons.length - 1].addEventListener('click', () => {
@@ -395,7 +395,9 @@ export class Pipe {
 
         if (material == null && dim == null && tilt == null) {
             show.openModal(document.getElementById('pipeModal'));
-            pipe.listen();
+            let elem = document.getElementsByClassName("material")[0];
+
+            pipe.listen(elem);
 
             this.elevation = await this.getElevation(this.latlngs);
 
@@ -414,8 +416,8 @@ export class Pipe {
                 document.getElementById("pipeModal").style.display = "none";
                 document.getElementById("elevation").style.display = "none";
                 document.getElementById('loading').style.display = 'block';
-                this.material = document.getElementById('material').value;
-                let value = document.getElementById("dimension").value;
+                this.material = document.getElementsByClassName('material')[0].value;
+                let value = document.getElementsByClassName("dimension")[0].value;
 
                 value = value.split(",");
                 this.dimension = {
@@ -459,7 +461,7 @@ export class Pipe {
                         }
                     })
                 }]
-            }).addTo(map);
+            });
         } else if (this.type == 1) {
             this.polyline = new L.polyline(this.latlngs, options.stemPipe);
             this.polyline.decorator = L.polylineDecorator(this.polyline, {
@@ -475,7 +477,7 @@ export class Pipe {
                         }
                     })
                 }]
-            }).addTo(map);
+            });
         }
 
 
@@ -484,11 +486,14 @@ export class Pipe {
             last: this.last
         };
         polylines.addLayer(this.polyline).addTo(map);
-        this.polyline.bindPopup(popup.pipe(this.material, this.dimension.outer, this.tilt));
+        this.polyline.bindPopup(popup.pipe(this.tilt));
         this.polyline.length = getLength(this.latlngs);
         this.polyline.elevation = this.elevation;
         this.polyline.updateElevation = async (latlngs) => {
-            return await this.getElevation(latlngs);
+            let elevation = await this.getElevation(latlngs);
+
+            this.polyline.bindPopup(popup.pipe((elevation.highest - elevation.first).toFixed(1)));
+            return elevation;
         };
         this.polyline.type = this.type;
         this.polyline.material = this.material;
@@ -513,24 +518,50 @@ export class Pipe {
      */
     updateValues(event) {
         // Get button after popup is open
-        let buttons = document.getElementsByClassName('updateValuesInPipe');
-        //console.log(buttons);
+        let button = document.getElementById('pipeSpecifications');
+        let material = document.getElementsByClassName("materialPopup");
+
+        material = material[material.length - 1];
+        pipe.listen(material);
+        material.value = event.target.material;
+        material.dispatchEvent(new Event('change'));
+
+        let dimension = document.getElementsByClassName("dimension");
+
+        dimension = dimension[dimension.length - 1];
+
+        let option = document.createElement("option");
+
+        option.text = event.target.dimension.outer;
+        option.value = `${event.target.dimension.inner},${event.target.dimension.outer}`;
+        dimension.add(option, 0);
+        dimension.options[0].selected = "selected";
+
 
         // Add event listener on click on button
-        buttons[buttons.length - 1].addEventListener('click', () => {
-            // Get new values after click
-            let material = document.getElementById('pipeMaterial').value;
-            let dim = document.getElementById('dimension').value;
+        button.addEventListener('click', () => {
+            // Get new value after click
             let tilt = document.getElementById('tilt').value;
+            let material = document.getElementsByClassName("materialPopup");
+            let dimension = document.getElementsByClassName("dimension");
 
-            event.target.dimension = dim;
+            material = material[material.length - 1];
+            dimension = dimension[dimension.length - 1];
+            dimension = dimension.value.split(",");
+            event.target.dimension = {
+                inner: dimension[0],
+                outer: dimension[1],
+            };
+
+
             event.target.tilt = tilt;
+            event.target.material = material.value;
 
             // Close active popup
             event.target.closePopup();
 
             // Update popup content with new values
-            event.target.setPopupContent(popup.pipe(material, dim, tilt));
+            event.target.setPopupContent(popup.pipe(tilt));
         }), { once: true };
     }
 
@@ -570,6 +601,7 @@ export class Pipe {
             first: firstElevation,
             last: lastElevation
         };
+
         return elevationObj;
     }
 }

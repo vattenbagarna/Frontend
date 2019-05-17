@@ -1,15 +1,15 @@
 // Changes material to the selected one
 export let pipe = {
-    listen: () => {
-        document.getElementById("material").addEventListener("change", () => {
+    listen: (elem) => {
+        elem.addEventListener("change", () => {
             let data;
 
             pipe.clear();
-            if (document.getElementById("material").value === "PEM") {
+            if (elem.value === "PEM") {
                 data = pipe.PEM();
-            } else if (document.getElementById("material").value === "PE") {
+            } else if (elem.value === "PE") {
                 data = pipe.PE();
-            } else if (document.getElementById("material").value === "Rostfria") {
+            } else if (elem.value === "Rostfria") {
                 data = pipe.stainless();
             }
             let newNode = document.createElement('div');
@@ -19,7 +19,7 @@ export let pipe = {
 
             let select = document.createElement('select');
 
-            select.id = "dimension";
+            select.className = "dimension";
             let option;
 
             for (let i = 0; i < data.length; i++) {
@@ -35,12 +35,12 @@ export let pipe = {
                 }
             }
             newNode.appendChild(select);
-            let referenceNode = document.getElementById('material');
+            let referenceNode = elem;
 
             referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
         });
-        document.getElementById('material').value = "PEM";
-        document.getElementById('material').dispatchEvent(new Event('change'));
+        elem.value = "PEM";
+        elem.dispatchEvent(new Event('change'));
     },
 
     /**
