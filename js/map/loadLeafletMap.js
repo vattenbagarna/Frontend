@@ -70,7 +70,7 @@ let customControl = (iconName) => {
     // Create a new leaflet control extended
     var myCustomControl = L.Control.extend({
         options: {
-            position: 'topleft'
+            position: 'bottomleft'
         },
         // When the customControl have been added to the map
         onAdd: () => {
@@ -228,7 +228,7 @@ let addPipeOnClick = () => {
         // and all polygons but not the map itself
         map.eachLayer((layer) => {
             // On click, call addPipe function from add.js file
-            if (layer._popup != undefined) { layer._popup.options.autoPan = false; }
+            if (layer._popup != null) { layer._popup.options.autoPan = false; }
 
             layer.on("click", add.pipe);
         });
@@ -242,7 +242,7 @@ let addPipeOnClick = () => {
         // On each layer of the map => this means all markers, all polylines
         // and all polygons but not the map itself
         map.eachLayer((layer) => {
-            if (layer._popup != undefined) { layer._popup.options.autoPan = false; }
+            if (layer._popup != null) { layer._popup.options.autoPan = false; }
             // On click on add call addPipe function
             layer.on("click", add.pipe);
         });
@@ -356,7 +356,7 @@ let deleteOnClick = () => {
         // On each layer of the map => this means all markers, all polylines
         // and all polygons but not the map itself
         map.eachLayer((layer) => {
-            if (layer._popup != undefined) { layer._popup.options.autoPan = false; }
+            if (layer._popup != null) { layer._popup.options.autoPan = false; }
             // On click on add call remove function
             layer.on("click", edit.remove);
         });
@@ -411,7 +411,7 @@ export let loadMap = {
         let list = document.getElementsByClassName('obj-list')[0];
 
         for (let i = 0; i < json.length; i++) {
-            if (json[i].Kategori != undefined) {
+            if (json[i].Kategori != null) {
                 if (document.getElementsByClassName(json[i].Kategori).length == 0 &&
                         json[i].Kategori != "Pump") {
                     list.innerHTML +=
@@ -435,6 +435,8 @@ export let loadMap = {
 
                     delete json[i].Bild;
                     delete json[i].creatorID;
+                    delete json[i].isDisabled;
+                    delete json[i].approved;
                     delete json[i]._id;
                     objectData.push(json[i]);
                 } else if (json[i].Kategori != "Pump") {
@@ -455,6 +457,8 @@ export let loadMap = {
 
                     delete json[i].Bild;
                     delete json[i].creatorID;
+                    delete json[i].isDisabled;
+                    delete json[i].approved;
                     delete json[i]._id;
                     objectData.push(json[i]);
                 }
@@ -545,11 +549,11 @@ let onLoadWrite = () => {
     //loads the gridlayers, satellite or map
     gridlayers();
     //loads all the custom controls
-    customControl('map');
-    customControl('timeline');
-    customControl('control_camera');
-    customControl('bar_chart');
     customControl('delete');
+    customControl('bar_chart');
+    customControl('control_camera');
+    customControl('timeline');
+    customControl('map');
     //loads search functionality
     add.search();
 
@@ -638,14 +642,12 @@ let getPermission = async () => {
         let image = new Image();
         let iconSize;
 
-        image.src = json[i].Bild;
-
         /**
-         * resizeImage - Save icon object with category and L.icon
-         * 			   - Leaflet icon @see {@link https://leafletjs.com/reference-1.4.0.html#icon}
-         * 			   - The icon size is changed to below W:75 & H:40 but keeps aspect ratio
+         * - Save icon object with category and L.icon
+         * - Leaflet icon @see {@link https://leafletjs.com/reference-1.4.0.html#icon}
+         * - The icon size is changed to below W:75 & H:40 but keeps aspect ratio
          */
-        let resizeImage = () => {
+        image.onload = () => {
             if (json[i].Kategori != 'Förgrening') {
                 iconSize = calculateAspectRatioFit(image.naturalWidth,
                     image.naturalHeight, 75, 40);
@@ -665,8 +667,7 @@ let getPermission = async () => {
 
             icons.push(icon);
         };
-
-        image.onload = await resizeImage();
+        image.src = json[i].Bild;
     }
 
     //fetches the users permission from database to decide which load to use

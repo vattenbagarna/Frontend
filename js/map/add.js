@@ -1,7 +1,7 @@
 /* global L */
 let pipe = null;
 let first;
-let sourceTarget;
+let firstTarget;
 let markerClicked = false;
 let houseClicked = false;
 
@@ -79,11 +79,11 @@ export const add = {
             }
             pipe = null;
             if (markerClicked) {
-                sourceTarget.remove("connect-icon");
-                sourceTarget.add("transparent-border");
+                firstTarget._icon.classList.remove("connect-icon");
+                firstTarget._icon.classList.add("transparent-border");
                 markerClicked = false;
             } else if (houseClicked) {
-                sourceTarget.remove("polygon-stroke");
+                firstTarget._path.classList.remove("polygon-stroke");
                 houseClicked = false;
             }
         } else {
@@ -95,14 +95,15 @@ export const add = {
                 first = target.disableDragging();
             }
             pipe = new Pipe([event.latlng], ["", ""], pipeChoice, point.id);
-            if (event.sourceTarget._icon) {
-                sourceTarget = event.sourceTarget._icon.classList;
-                sourceTarget.remove("transparent-border");
-                sourceTarget.add("connect-icon");
+            if (event.target._icon) {
+                target._icon.classList.remove("transparent-border");
+                target._icon.classList.add("connect-icon");
+                firstTarget = target;
                 markerClicked = true;
-            } else if (event.sourceTarget.address) {
-                sourceTarget = event.sourceTarget._path.classList;
-                sourceTarget.add("polygon-stroke");
+            } else if (target.address) {
+                console.log(target);
+                target._path.classList.add("polygon-stroke");
+                firstTarget = target;
                 houseClicked = true;
             }
         }
@@ -116,7 +117,23 @@ export const add = {
      */
     search: () => {
         L.esri.Geocoding.geosearch().addTo(map);
-    }
+    },
+    /**
+     * clearStartPolyline - Set varible pipe equals to null.
+     * 					  - This is called from clearMapsEvents()
+     * 		 			  - This function is used because export varibles is read-only
+     *
+     * @returns {void}
+     */
+    clearStartPolyline: () => {
+        document.getElementById("elevation").style.display = "none";
+        document.getElementById('loading').style.display = 'block';
+        if (pipe != null) {
+            document.getElementById("pipeSpecifications")
+                .removeEventListener('click', pipe.savePipeValues);
+        }
+        pipe = null;
+    },
 };
 
 /**
@@ -184,6 +201,16 @@ let addBranchConnection = (event, target) => {
 
     let branchMarker = new Marker(event.latlng, { Kategori: "Förgrening" }, icon.icon);
 
+    branchMarker.marker.on('click', add.pipe);
+
+    let temp = markers.getLayers();
+
+    let find = temp.find(find => find.id == target.connected_with.last);
+
+    if (find != null) {
+        branchMarker.marker.capacity += parseFloat(find.capacity);
+    }
+
     newLine = {
         latlngs: secondLatlngs,
         first: branchMarker.marker.id,
@@ -209,16 +236,6 @@ let addBranchConnection = (event, target) => {
 };
 
 
-/**
- * clearStartPolyline - Set varible pipe equals to null.
- * 					  - This is called from clearMapsEvents()
- * 		 			  - This function is used because export varibles is read-only
- *
- * @returns {void}
- */
-export let clearStartPolyline = () => {
-    pipe = null;
-};
 
 
 /**

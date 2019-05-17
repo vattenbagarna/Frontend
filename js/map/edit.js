@@ -1,11 +1,11 @@
-/* global configuration, API */
+/* global L, calculations, configuration, API */
 export let isEdit = null;
 let tempPolylineArray = [];
 
 //Imports the map object
 import { map, token, icons, projectInfo } from "./loadLeafletMap.js";
 
-import { add, polylines, markers, polygons, getLength } from "./add.js";
+import { add, polylines, markers, polygons } from "./add.js";
 
 import { show, mouseCoord } from "./show.js";
 
@@ -67,8 +67,7 @@ export const edit = {
         });
 
         edit.warning.unsavedChanges(true);
-        isEdit = true
-        ;
+        isEdit = true;
     },
 
     /**
@@ -100,6 +99,7 @@ export const edit = {
         //Turn off click events for markers and polylines.
         map.off("click", add.marker);
         map.off('click', add.polygone);
+        add.clearStartPolyline();
 
         //If polylines has been edited
         if (isEdit == true) {
@@ -113,8 +113,6 @@ export const edit = {
 
                 //If amount of points has changed
                 if (polyline._latlngs.length != tempPolylineArray[i++]) {
-                    //Calculates new length of pipe
-                    polyline.length = getLength(polyline._latlngs);
                     polyline.elevation = await polyline.updateElevation(polyline._latlngs);
                     polyline.bindTooltip("Längd: " + Math.round(polyline.length * 100) /
                         100 + "m" + "<br>Statisk höjd: " +
@@ -132,7 +130,7 @@ export const edit = {
         //Closes popups and turns off click events for remove and addPipe.
         map.closePopup();
         map.eachLayer((layer) => {
-            if (layer._popup != undefined) { layer._popup.options.autoPan = true; }
+            if (layer._popup != null) { layer._popup.options.autoPan = true; }
 
             layer.off("click", edit.remove);
             layer.off("click", add.pipe);
@@ -167,13 +165,13 @@ export const edit = {
 
         if (status == "error") {
             snackbar.style.backgroundColor = "red";
-            snackbar.innerHTML = "Spara misslyckades. Du har ingen internetuppkoppling";
+            snackbar.innerHTML = "Sparandet misslyckades. Du har ingen internetuppkoppling";
         } else if (status == "error2") {
             snackbar.style.backgroundColor = "red";
-            snackbar.innerHTML = "Spara misslyckades";
+            snackbar.innerHTML = "Sparandet misslyckades";
         } else if (status == "success") {
             snackbar.style.backgroundColor = "green";
-            snackbar.innerHTML = "Spara lyckades";
+            snackbar.innerHTML = "Sparad";
         }
 
         // Add the "show" class to DIV
@@ -226,6 +224,7 @@ export const edit = {
                 coordinates: { lat: marker._latlng.lat, lng: marker._latlng.lng },
                 type: "marker",
                 id: marker.id,
+                capacity: marker.capacity,
                 attributes: marker.attributes,
             };
 
@@ -304,7 +303,7 @@ export const edit = {
                 case "marker":
                     icon = icons.find(element => element.category == json[i].attributes.Kategori);
                     newObj = new Marker(json[i].coordinates, json[i].attributes, icon.icon,
-                        json[i].id);
+                        json[i].capacity, json[i].id);
                     break;
                     //If polyline
                 case "polyline":
@@ -355,6 +354,364 @@ export const edit = {
             } else {
                 window.onbeforeunload = () => {};
             }
+        },
+
+        pressure: async (element) => {
+            let all = [];
+            let total;
+            let flow;
+            let pumps = await API.get(
+                `${configuration.apiURL}/obj/type/Pump?token=${token}`);
+
+            polylines.eachLayer((polyline) => {
+                all.push(polyline);
+            });
+            markers.eachLayer((marker) => {
+                all.push(marker);
+            });
+            polygons.eachLayer((polygon) => {
+                all.push(polygon);
+            });
+
+            let first = all.find(find => find.id == element.connected_with.first);
+            let last = all.find(find => find.id == element.connected_with.last);
+
+            if (first != null) {
+                switch (first.constructor) {
+                    case L.Polygon:
+                        flow = checkFlow(first, flow);
+                        if (first.used == null) {
+                            last.capacity += parseFloat(flow);
+                            first.used = true;
+                        }
+                        calculateNextPolyline(last, 'first');
+                        break;
+
+                    case L.Marker:
+                        if (first.capacity > 0) {
+                            if (first.attributes.Kategori == "Pumpstationer") {
+                                total = calculateTotalPressure(
+                                    first.capacity,
+                                    element.dimension.inner,
+                                    element.length,
+                                    element.tilt,
+                                );
+
+                                calculateLast(first, last, pumps, total, element.dimension
+                                    .inner);
+                            } else if (first.attributes.Kategori == "Förgrening") {
+                                let polyline = findNextPolyline(first, 'last');
+
+                                let temp = markers.getLayers();
+                                let marker = temp.find(find =>
+                                    find.id == polyline.connected_with.first);
+
+                                if (marker != null) {
+                                    if (marker.attributes.Kategori == "Pumpstationer") {
+                                        edit.warning.pressure(polyline);
+                                    }
+                                }
+
+                                last.capacity = first.capacity;
+
+                                calculateNextPolyline(last, 'first');
+                            } else {
+                                last.capacity = first.capacity;
+                            }
+                        }
+
+                        break;
+                }
+            }
         }
     },
+};
+
+
+/**
+ * calculateNextPolyline - if polyline is found run pressure function on new polyline
+ *
+ * @param {L.Marker} element element that is connected with polyline
+ * @param {string}   value   determines if polyline is connected with first or last point
+ */
+export let calculateNextPolyline = (element, value) => {
+    let find = findNextPolyline(element, value);
+
+    if (find != null) {
+        edit.warning.pressure(find);
+    }
+};
+
+/**
+ * findNextPolyline - return next connected polyline that are connected with element
+ *
+ * @param {L.Marker} element element that is connected with polyline
+ * @param {string}   value   determines if polyline is connected with first or last point
+ *
+ * @returns {L.Polyline} if polyline is found
+ * @returns {null}		 If polyline is not found
+ */
+export let findNextPolyline = (element, value) => {
+    let temp = polylines.getLayers();
+
+    return temp.find(find => find.connected_with[value] == element.id);
+};
+
+/**
+ * resetMarkers - Removes warnings to pump and reset flow to zero
+ * 				- Set last.used to undefined so houses can be connected again
+ *
+ * @param {L.polyline} element The polyline that we are examine
+ *
+ * @returns {void}
+ */
+export let resetMarkers = (element) => {
+    let temp = markers.getLayers();
+    let last = temp.find(find => find.id == element.connected_with.last);
+
+    if (last != null) {
+        if (last.capacity > 0) {
+            last.capacity = 0;
+            show.hideAlert(last);
+
+            let next = findNextPolyline(last, 'first');
+
+            if (next != null) {
+                resetMarkers(next);
+            }
+        }
+    }
+};
+
+/**
+ * calculateTotalPressure - Calculates total pressure by first calculate pressure loss by using
+ * 						  - calculations.calcPressure function.
+ * 						  - Secound calculation is total pressure.
+ * 						  - Lastly we send back result with two decimals and in float form
+ *
+ * @param {float}  capacity  Amount of water
+ * @param {string} dimension Inner dimension of selected pipe
+ * @param {string} length    Total length of selected pipe
+ * @param {string} height    Static height of selected pipe
+ *
+ * @returns {float} returns result from the calculations
+ */
+let calculateTotalPressure = (capacity, dimension, length, height) => {
+    let mu = 0.1;
+    let loss = calculations.calcPressure(
+        parseFloat(capacity),
+        parseFloat(mu),
+        parseFloat(dimension),
+        parseFloat(length)
+    );
+
+    let result = calculations.totalPressure(parseFloat(loss), parseFloat(height));
+
+    return parseFloat(result);
+};
+
+
+/**
+ * calculateLast - Manage different scenarios on the last object that are connected to polyline
+ * 				 - Biggest alteration is when the last object is a branch connection
+ *
+ * @param {L.Marker} first     The marker that have the pump inside it
+ * @param {object}   last      The last object that we are handing in the switch case
+ * @param {object}   pumps     All the pumps that the database have
+ * @param {float} 	 total     total pressure that are calculated beforehand
+ * @param {string} 	 dimension Inner dimension of the selected pipe
+ *
+ * @returns {void}
+ */
+let calculateLast = (first, last, pumps, total, dimension) => {
+    let total2;
+    let combinedPressure;
+    let nextPolyline;
+
+    switch (last.constructor) {
+        case L.Marker:
+            if (last.attributes.Kategori == "Pumpstationer") {
+                last.capacity = first.capacity;
+                getResults(first, pumps, total, dimension);
+                calculateNextPolyline(last, 'first');
+            } else if (last.attributes.Kategori == "Förgrening") {
+                nextPolyline = findNextPolyline(last, 'first');
+
+                total2 = calculateTotalPressure(
+                    last.capacity,
+                    nextPolyline.dimension.inner,
+                    nextPolyline.length,
+                    nextPolyline.tilt
+                );
+
+                combinedPressure = parseFloat(total) + parseFloat(total2);
+                combinedPressure = parseFloat(combinedPressure);
+
+                //olika dimensioner??
+                getResults(first, pumps, combinedPressure, dimension);
+            } else {
+                getResults(first, pumps, total, dimension);
+                last.capacity = first.capacity;
+            }
+            break;
+        default:
+            getResults(first, pumps, total, dimension);
+    }
+};
+
+/**
+ * getResults - Checks values against the pump curve by using the checkPump function
+ *
+ * @param {L.Marker} first     The marker that have the pump inside it
+ * @param {object}   pumps     All the pumps that the database have
+ * @param {float} 	 total     total pressure that are calculated beforehand
+ * @param {string} 	 dimension Inner dimension of the selected pipe
+ *
+ * @returns {void}
+ */
+let getResults = (first, pumps, total, dimension) => {
+    let result = {};
+    let pump = pumps.find(element =>
+        element.Modell == first.attributes.Pump);
+
+    result.calculations = checkPump(pump, total, parseFloat(dimension));
+    result.totalPressure = total;
+    show.alert(first, result);
+};
+
+/**
+ * checkPump - Recommends pumps according to calculations.
+ *
+ * @param {object} pump     Selected pump to examine
+ * @param {number} pressure total pressure from previous calculations
+ * @param {number} dim 		Inner dimension of the selected pipe
+ *
+ * @returns {void}
+ */
+let checkPump = (pump, pressure, dim) => {
+    let found = false;
+    let mps = 0;
+    let result = {};
+
+    for (let i = 0; i < pump.Pumpkurva.length; i++) {
+        if (pump.Pumpkurva[i].y == pressure) {
+            mps = calculations.calcVelocity(pump.Pumpkurva[i].x, dim);
+            mps /= 1000;
+            result.mps = mps;
+            if (mps >= 0.6 && mps <= 3) {
+                result.status = 0;
+                found = true;
+                break;
+            } else if (mps < 0.6) {
+                result.status = 1;
+                break;
+            } else if (mps > 3) {
+                result.status = 2;
+                break;
+            }
+        }
+    }
+    if (!found) {
+        if (pressure < pump.Pumpkurva[0].y && pressure >
+            pump.Pumpkurva[pump.Pumpkurva.length - 1].y) {
+            mps = calculations.calcVelocity(calculations.estPumpValue(pressure,
+                pump.Pumpkurva), dim);
+            mps /= 1000;
+            result.mps = mps;
+            if (mps >= 0.6 && mps <= 3) {
+                result.status = 0;
+                found = true;
+            } else if (mps < 0.6) {
+                result.status = 1;
+            } else if (mps > 3) {
+                result.status = 2;
+            }
+        } else if (pressure > pump.Pumpkurva[0].y) {
+            mps = calculations.calcVelocity(calculations.estPumpValue(pressure,
+                pump.Pumpkurva), dim);
+            mps /= 1000;
+            result.mps = mps;
+            result.status = 3;
+        } else if (pressure < pump.Pumpkurva[pump.Pumpkurva.length - 1].y) {
+            mps = calculations.calcVelocity(calculations.estPumpValue(pressure,
+                pump.Pumpkurva), dim);
+            mps /= 1000;
+            result.mps = mps;
+            result.status = 4;
+        }
+        found = false;
+    }
+    return result;
+};
+
+/**
+ * checkFlow - Checks flow according to number of people in a sewage system.
+ *
+ * @param {object} first the object connected with another
+ * @param {number} flow  the water flow
+ *
+ * @returns {number} flow according to number of people
+ */
+let checkFlow = (first, flow) => {
+    let nrOf = parseFloat(first.nop);
+
+    if (nrOf <= 10) {
+        flow = 0.7;
+    }
+    if (nrOf <= 20 && nrOf > 10) {
+        flow = 0.9;
+    }
+    if (nrOf <= 30 && nrOf > 20) {
+        flow = 1.1;
+    }
+    if (nrOf <= 40 && nrOf > 30) {
+        flow = 1.3;
+    }
+    if (nrOf <= 50 && nrOf > 40) {
+        flow = 1.5;
+    }
+    if (nrOf <= 60 && nrOf > 50) {
+        flow = 1.6;
+    }
+    if (nrOf <= 70 && nrOf > 60) {
+        flow = 1.7;
+    }
+    if (nrOf <= 80 && nrOf > 70) {
+        flow = 1.8;
+    }
+    if (nrOf <= 90 && nrOf > 80) {
+        flow = 1.9;
+    }
+    if (nrOf <= 100 && nrOf > 90) {
+        flow = 2;
+    }
+    if (nrOf <= 200 && nrOf > 100) {
+        flow = 3;
+    }
+    if (nrOf <= 300 && nrOf > 200) {
+        flow = 4;
+    }
+    if (nrOf <= 400 && nrOf > 300) {
+        flow = 4.9;
+    }
+    if (nrOf <= 500 && nrOf > 400) {
+        flow = 5.4;
+    }
+    if (nrOf <= 600 && nrOf > 500) {
+        flow = 6;
+    }
+    if (nrOf <= 700 && nrOf > 600) {
+        flow = 6.7;
+    }
+    if (nrOf <= 800 && nrOf > 700) {
+        flow = 7;
+    }
+    if (nrOf <= 900 && nrOf > 800) {
+        flow = 7.7;
+    }
+    if (nrOf <= 1000 && nrOf > 900) {
+        flow = 8;
+    }
+
+    return flow / 1000;
 };
