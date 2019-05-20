@@ -109,3 +109,15 @@
     margin: auto;
     padding-top: 2rem;
 }
+
+.userRow {
+    padding: 1rem 0;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #888;
+}
+
+.orgadm {
+    color: #aaa;
+    border-bottom: none;
+}

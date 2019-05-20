@@ -5,6 +5,7 @@
 const adminContent = document.getElementById("adminContent");
 const navLinks = document.getElementsByClassName('nav-link');
 const token = localStorage.getItem("token");
+const errorHolder = document.getElementById("errorHolder");
 
 /**
 * createElement - Function to quickly create elements with id and class attributes
@@ -42,7 +43,6 @@ const appendElementToApp = (elementToAppend, appendTo = adminContent) => {
 */
 const sendErrorResponse = (errorToDisplay, type="error-msg") => {
     let errorMsg = document.createElement("div");
-    let errorHolder = document.getElementById("errorHolder");
 
     //add class and content to the error message box
     errorMsg.classList += type;
@@ -66,6 +66,7 @@ const displayInstructions = () => {
 
     // Clear content element before we start appending new content
     adminContent.innerHTML = "";
+    errorHolder.innerHTML = "";
 
     infoTitle.innerText = "Hej Administratör!";
     infoText.innerHTML = `<p>Det här är administationssidan. Här kan du
@@ -73,8 +74,8 @@ const displayInstructions = () => {
         <li>Aktivera / Avaktivera globala produkter</li>
         <li>Permanent radera globala produkter</li>
         <li>Administrera förfrågningar för nya globala produkter</li>
-
-                    <li>Skapa konton för nya användare</li>
+        <li>Skapa konton för nya användare</li>
+        <li>Ta bort användare från systemet</li>
     </ul><p>
     <h2 class="slim-title">Globala produkter</h2><p>
     Globala produkter är produkter som är tillgängliga för alla användare att placera
@@ -108,6 +109,7 @@ const showGlobalProductRequests = async () => {
 
     // Clear content element before we start appending new content
     adminContent.innerHTML = "";
+    errorHolder.innerHTML = "";
 
     if (pendingRequests.error == true) {
         sendErrorResponse("Kunde inte läsa in produkter");
@@ -289,6 +291,66 @@ const showGlobalProductRequests = async () => {
 };
 
 /**
+* allUsers - Displays all users in the current system with an option to delete them
+*/
+const allUsers = async () => {
+    let userContent = createElement("div", "", "userContent");
+    let title = createElement("h2", "", "slim-title");
+    let userBox = createElement("div", "", "user-in-list");
+    let users = await API.get(configuration.apiURL + "/user/all?token=" + token);
+
+    // Clear content element before we start appending new content
+    adminContent.innerHTML = "";
+    errorHolder.innerHTML = "";
+
+    // HOW could this scenario possibly happen
+    // if you can see this page, you have an account
+    if (users.length <= 0 ) {
+        let noUsers = createElement("h3");
+
+        noUsers.innerText = "Inga användare hittades";
+        appendElementToApp(noUsers);
+        return false;
+    }
+
+    title.innerText = "Alla användare i systemet";
+
+    for (var i = 0; i < users.length; i++) {
+        let userRow = createElement("div", "", "userRow");
+        let tmpUsername = createElement("div", "", "username");
+        let tmpRemoveWrap = createElement("div", "", "remove-wrap");
+        let tmpRemovalLink = createElement("a", "", "remove");
+        let tmpUserId = users[i].id;
+
+        tmpUsername.innerText = users[i].username;
+        if (i == 0) {
+            tmpRemovalLink.innerHTML = "<i class='orgadm'>Ursprungsadmin går inte att ta bort</i>";
+        } else {
+            tmpRemovalLink.classList.add("small-link");
+            tmpRemovalLink.innerText = "Ta bort användare permanent";
+            tmpRemovalLink.href = "#";
+            tmpRemovalLink.addEventListener("click", async (target, delID = tmpUserId) => {
+                await API.post(
+                    configuration.apiURL +
+                    "/admin/remove/user/" +
+                     delID +
+                     "?token=" +
+                     token);
+                allUsers();
+            });
+        }
+        appendElementToApp(tmpUsername, userRow);
+        appendElementToApp(tmpRemovalLink, tmpRemoveWrap);
+        appendElementToApp(tmpRemoveWrap, userRow);
+        appendElementToApp(userRow, userBox);
+    }
+
+    appendElementToApp(title, userContent);
+    appendElementToApp(userBox, userContent);
+    appendElementToApp(userContent);
+};
+
+/**
 * createNewUser - displays the form to create a new user
 */
 const createNewUser = () => {
@@ -303,6 +365,7 @@ const createNewUser = () => {
 
     // Clear content element before we start appending new content
     adminContent.innerHTML = "";
+    errorHolder.innerHTML = "";
 
     //Assign values and data to our elements
     newUserTitle.innerText = "Skapa ny användare";
@@ -316,21 +379,22 @@ const createNewUser = () => {
     createUser.addEventListener("click", async () => {
         if (newEmail.value == "" || newEmail.value == undefined) {
             sendErrorResponse("Vänligen ange en e-postaddress");
-            console.log("No valid email");
             return false;
         }
         let newUserData = {};
 
-        newUserData.username = newEmail.value;
-        newUserData.isAdmin = newIsAdmin.checked ? 1 : 0;
-
+        newUserData.username = document.getElementById("newEmail").value;
+        newUserData.isAdmin = document.getElementById("isAdminChecked").checked ? 1 : 0;
 
         let newAcc = await API.post(
             configuration.apiURL +
             "/admin/createaccount/?token=" +
             token,
-            "application/x-www-form-urlencoded",
-            newUserData);
+            "application/json",
+            JSON.stringify(newUserData));
+
+        // Clear form as well
+        newEmail.value = "";
 
         if (newAcc.error == true) {
             sendErrorResponse("Användaren kunde inte skapas.");
@@ -340,7 +404,6 @@ const createNewUser = () => {
         if (newAcc.error == false) {
             sendErrorResponse("Kontot har skapats och ett mail har skickats till användaren.",
                 "ok-msg");
-            console.log(newAcc);
             return true;
         }
     });
@@ -376,7 +439,9 @@ const navSelector = (tabElement) => {
             showGlobalProductRequests();
             break;
         case "projects":
-            console.log("Alla projekt");
+            break;
+        case "all-users":
+            allUsers();
             break;
         case "new-user":
             createNewUser();
