@@ -1,4 +1,4 @@
-/* global configuration */
+/* global configuration, API */
 
 "use strict";
 
@@ -28,44 +28,44 @@ const sendLogin = async () => {
         .then(function (response) {
             return response.json();
         }).then(function(data) );*/
-        //Here is the API response, check if it returned an error, if it did
+    //Here is the API response, check if it returned an error, if it did
 
-            //Clear the password field no matter the outcome
-            passwordField.value = "";
-            // give the user an error otherwise set their token in a cookie or something
-            if (data.error) {
-                let errorMsg = document.createElement("div");
+    //Clear the password field no matter the outcome
+    passwordField.value = "";
+    // give the user an error otherwise set their token in a cookie or something
+    if (data.error) {
+        let errorMsg = document.createElement("div");
 
-                //add class and content to the error message box
-                errorMsg.classList += "error-msg";
-                errorMsg.innerText ="Inloggning misslyckades!" +
+        //add class and content to the error message box
+        errorMsg.classList += "error-msg";
+        errorMsg.innerText ="Inloggning misslyckades!" +
             " Kontrollera användarnamn och lösenord.";
-                //Clear error holder and insert a new error
-                errorHolder.innerHTML = "";
-                errorHolder.appendChild(errorMsg);
-            } else {
-            // There was no error and we have now logged in, save token in storage
-            // Using localStorage at the request of the frontend devs
-            // if statement to check if the browser supports storage
-                if (typeof(Storage) !== "undefined") {
-                    localStorage.setItem("token", data.token);
-                    localStorage.setItem("username", data.username);
+        //Clear error holder and insert a new error
+        errorHolder.innerHTML = "";
+        errorHolder.appendChild(errorMsg);
+    } else {
+        // There was no error and we have now logged in, save token in storage
+        // Using localStorage at the request of the frontend devs
+        // if statement to check if the browser supports storage
+        if (typeof(Storage) !== "undefined") {
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("username", data.username);
 
-                    //redirect to main page
-                    window.location = "home.html";
-                } else {
-                // Sorry! No Web Storage support..
-                    let errorMsg = document.createElement("div");
+            //redirect to main page
+            window.location = "home.html";
+        } else {
+            // Sorry! No Web Storage support..
+            let errorMsg = document.createElement("div");
 
-                    //add class and content to the error message box
-                    errorMsg.classList += "error-msg";
-                    errorMsg.innerText ="Inloggningen kan ej fortgå!" +
+            //add class and content to the error message box
+            errorMsg.classList += "error-msg";
+            errorMsg.innerText ="Inloggningen kan ej fortgå!" +
                 " Din webbläsare stödjer inte web storage.";
-                    //Clear error holder and insert a new error
-                    errorHolder.innerHTML = "";
-                    errorHolder.appendChild(errorMsg);
-                }
-            }
+            //Clear error holder and insert a new error
+            errorHolder.innerHTML = "";
+            errorHolder.appendChild(errorMsg);
+        }
+    }
 };
 
 // Check if the user is already logged in

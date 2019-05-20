@@ -1,4 +1,4 @@
-/* global configuration */
+/* global configuration, API */
 
 "use strict";
 
@@ -73,8 +73,9 @@ const sendResetRequest = async () => {
     let data = new URLSearchParams(new FormData(formElement));
 
     console.log(data);
-    let res = await API.post(configuration.apiURL + "/acc/passwordreset", 'application/x-www-form-urlencoded',
-        data);
+    let res = await API.post(configuration.apiURL +
+        "/acc/passwordreset", 'application/x-www-form-urlencoded',
+    data);
     /*fetch(configuration.apiURL + "/acc/passwordreset", {
         body: data,
         method: "POST"
@@ -83,6 +84,7 @@ const sendResetRequest = async () => {
     }).then(function(res) {
 
     });*/
+
     console.log(res);
     if (res.error != undefined && res.error == false) {
         //All is good and we got a good response. Notify the user.

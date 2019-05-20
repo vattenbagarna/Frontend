@@ -4,9 +4,8 @@
   * @param {String} String to modify
   * @return {String} modified string
   */
- const escape_html = (str) => {
-    if (str==='' || typeof str !== "string")
-        return str;
+const escapeHtml = (str) => {
+    if (str==='' || typeof str !== "string") {return str;}
 
     var map = {
         '<': '&lt;',
@@ -21,8 +20,8 @@
         "/": '&#47;'
     };
 
-    return str.replace(/[&<>"'`#§()/]/g, function(m) { return map[m]; });
- }
+    return str.replace(/[<>"'`#§()/]/g, function(m) { return map[m]; });
+};
 
 /**
   * Loops through JSON objects to find all strings to then escape html characters
@@ -31,17 +30,16 @@
   * @return {JSON} Sanitized Json object
   */
 const sanitize = (json) => {
-
     //if param is string
-    if (typeof json === "string"){
-        json = escape_html(json);
+    if (typeof json === "string") {
+        json = escapeHtml(json);
     }
 
     //if param is object
-    if (typeof json === "object"){
+    if (typeof json === "object") {
         for (let value in json) {
             json[value] = sanitize(json[value]);
-            escape_html(value);
+            escapeHtml(value);
         }
     }
 

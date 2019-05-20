@@ -1,4 +1,4 @@
-/* global configuration */
+/* global configuration, API */
 
 "use strict";
 
@@ -87,8 +87,9 @@ const changePassword = async () => {
         return false;
     }
 
-    data = await API.post(configuration.apiURL + "/acc/changepassword", 'application/x-www-form-urlencoded',
-        data);
+    data = await API.post(configuration.apiURL +
+        "/acc/changepassword", 'application/x-www-form-urlencoded',
+    data);
 
     /*fetch(configuration.apiURL + "/acc/changepassword", {
         body: data,

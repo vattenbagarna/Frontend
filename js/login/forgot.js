@@ -1,4 +1,4 @@
-/* global configuration */
+/* global configuration, API */
 
 "use strict";
 
@@ -45,8 +45,9 @@ const sendReset = async () => {
         return false;
     }
 
-    data = await API.post(configuration.apiURL + "/acc/requestreset", 'application/x-www-form-urlencoded',
-        data);
+    data = await API.post(configuration.apiURL +
+        "/acc/requestreset", 'application/x-www-form-urlencoded',
+    data);
     /*fetch(configuration.apiURL + "/acc/requestreset", {
         body: data,
         method: "POST"
