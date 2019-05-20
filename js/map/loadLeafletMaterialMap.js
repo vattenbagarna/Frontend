@@ -135,7 +135,6 @@ map.on("moveend", () => {
 
             var currentDiv = document.getElementById("mapDiv");
 
-            //console.log(marker.attributes.Pump);
             document.body.insertBefore(newDiv, currentDiv);
             document.getElementById(marker.attributes.Modell).innerHTML =
                 `Nummer på kartan: ${numbersObj[marker.attributes.Modell].join(', ')}`;
@@ -151,7 +150,6 @@ map.on("moveend", () => {
 map.on("resize", () => {
     let circleNumbers = document.getElementsByClassName('circleNumbers');
     let i = 0;
-    //console.log(circleNumbers);
 
     markers.eachLayer((marker) => {
         if (marker.attributes.Kategori != "Förgrening" &&
