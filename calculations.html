@@ -53,16 +53,26 @@
 						</span>
 						<span class="form-element-pair">
 							<label for="mu" id="muLabel">Råhetstal</label>
-								<input class="number-input" data-digits-only step="0.001" type="number" id="mu" name="mu" placeholder="0" onkeypress="enterPressed(this, event);">&nbsp; mm
+								<input class="number-input" data-digits-only
+									   step="0.001" type="number" id="mu"
+																  name="mu"
+																  value="0.1" onkeypress="enterPressed(this, event);">&nbsp; mm
 							</span>
-						<span class="form-element-pair radio-bt-txt">
+						<!-- Below has been outcommented becuase there is
+						  currently nothing that changes depending on the
+						  selected radio button.
+							We think the point of the buttons are to know which pipe to use
+							depending on the pressure class when there are
+							several pipes with the same outer dimensions
+						-->
+						<!-- <span class="form-element-pair radio-bt-txt">
 							<label name="pressureChoice"></label>
 							<input type="radio" id="pressure1" name="PN" value="PN6,3">
 						</span>
 						<span class="form-element-pair radio-bt-txt">
 							<label name="pressureChoice"></label>
 							<input type="radio" id="pressure2" name="PN" value="PN10">
-						</span>
+						</span>-->
 						<span class="form-element-pair">
 							<label for="flow" id ="flowLabel">Önskat flöde</label>
 							<span id="flow-wrap">
