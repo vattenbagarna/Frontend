@@ -197,7 +197,7 @@ let load = async (json) => {
             icons.push(icon);
         };
 
-        image.onload = await scaleImage();
+        image.setAttribute = await scaleImage();
     }
 
 

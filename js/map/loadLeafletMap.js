@@ -633,7 +633,7 @@ let onLoadRead = () => {
  * function depending on permission
  *
  * @returns {void}
- */
+ */onLoadRead;
 let getPermission = async () => {
     let json = await API.get(
         `${configuration.apiURL}/obj/categories/icon/all?token=${token}`);
@@ -677,8 +677,10 @@ let getPermission = async () => {
     if (response.permission == "r") {
         //if user has permission r(read) load onLoadRead()
         onLoadRead();
+        edit.notificationRead();
     } else {
         onLoadWrite();
+        edit.notificationWrite();
     }
 };
 

@@ -1,5 +1,5 @@
 /*global L API*/
-import { map, projectInfo } from "./loadLeafletMap.js";
+import { map, projectInfo, objectData, icons } from "./loadLeafletMap.js";
 
 import { popup } from "./popup.js";
 
@@ -69,7 +69,7 @@ export class Marker {
     /**
      * updateCoords - Updates markers coordinates from user input and updates popup content with
      * 			 	- the new coordinates
-     *
+     *updateElevation
      * @param {object} event
      *
      * @returns {void}
@@ -85,38 +85,69 @@ export class Marker {
                 parseFloat(document.getElementById('latitud').value),
                 parseFloat(document.getElementById('longitud').value)
             );
+            let pumpingStations = document.getElementById('pumpingStation').value;
 
-            // Close active popup
-            event.target.closePopup();
-            // Insert new values to active marker
-            event.target.setLatLng(latLng);
-            // Move center to map to new values (coordinates)
-            map.panTo(latLng);
+            if (pumpingStations != event.target.attributes.Modell) {
+                let first = findNextPolyline(event.target, "first");
+                let last = findNextPolyline(event.target, "last");
+                let icon = icons.find(element => element.category == "Pumpstationer");
 
-            //get each polyline
-            polylines.eachLayer((polyline) => {
-                //check if polylines are connected to a marker, by first point and last point.
-                if (event.target.id === polyline.connected_with.first) {
-                    //if polyline is connected with marker change lat lng to match marker
-                    let newLatlng = polyline.getLatLngs();
 
-                    newLatlng.shift();
-                    newLatlng.unshift(latLng);
+                markers.removeLayer(event.target);
 
-                    polyline.setLatLngs(newLatlng);
-                    polyline.decorator.setPaths(newLatlng);
-                } else if (event.target.id === polyline.connected_with.last) {
-                    let newLatlng = polyline.getLatLngs();
+                let object;
 
-                    newLatlng.pop();
-                    newLatlng.push(latLng);
+                for (let i = 0; i < objectData.length; i++) {
+                    if (pumpingStations == objectData[i].Modell) {
+                        object = objectData[i];
 
-                    polyline.setLatLngs(newLatlng);
-                    polyline.decorator.setPaths(newLatlng);
+                        break;
+                    }
                 }
-            });
-            // Update popup content with new values
-            event.target.setPopupContent(popup.marker(this.attributes) + popup.changeCoord(latLng));
+                let newObj = new Marker(event.target._latlng, object, icon.icon);
+                let newPipe = new Pipe([event.target._latlng], ["", ""], last.type, event.target.id);
+
+                console.log(last._latlngs);
+
+                newPipe.draw(last.connected_with.last, last._latlngs[1], last.elevation, last.material, last.dimension, last.tilt);
+
+                last.connected_with.last = newObj.marker.id;
+
+                console.log(newPipe.polyline);
+                let latlng = first.getLatLngs();
+            } else {
+            // Close active popup
+                event.target.closePopup();
+                // Insert new values to active marker
+                event.target.setLatLng(latLng);
+                // Move center to map to new values (coordinates)
+                map.panTo(latLng);
+
+                //get each polyline
+                polylines.eachLayer((polyline) => {
+                //check if polylines are connected to a marker, by first point and last point.
+                    if (event.target.id === polyline.connected_with.first) {
+                    //if polyline is connected with marker change lat lng to match marker
+                        let newLatlng = polyline.getLatLngs();
+
+                        newLatlng.shift();
+                        newLatlng.unshift(latLng);
+
+                        polyline.setLatLngs(newLatlng);
+                        polyline.decorator.setPaths(newLatlng);
+                    } else if (event.target.id === polyline.connected_with.last) {
+                        let newLatlng = polyline.getLatLngs();
+
+                        newLatlng.pop();
+                        newLatlng.push(latLng);
+
+                        polyline.setLatLngs(newLatlng);
+                        polyline.decorator.setPaths(newLatlng);
+                    }
+                });
+                // Update popup content with new values
+                event.target.setPopupContent(popup.marker(this.attributes) + popup.changeCoord(latLng));
+            }
         });
     }
 

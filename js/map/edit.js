@@ -184,6 +184,50 @@ export const edit = {
     },
 
     /**
+     * notificationRead - Notifices the user has reading acces right.
+     *
+     * @returns {void}
+     */
+    notificationRead: () => {
+        // Get the snackbar DIV
+        let snackbar = document.getElementById("snackbar");
+
+        snackbar.style.backgroundColor = "white";
+        snackbar.style.color = "black";
+        snackbar.innerHTML = "Du har läsbehörighet";
+
+        // Add the "show" class to DIV
+        snackbar.className = "show";
+
+        // After 3 seconds, remove the show class from DIV
+        setTimeout(function() {
+            snackbar.className = snackbar.className.replace("show", "");
+        }, 3000);
+    },
+
+    /**
+     * notificationWrite - Notifices the user has write acccess right.
+     *
+     * @returns {void}
+     */
+    notificationWrite: () => {
+        // Get the snackbar DIV
+        let snackbar = document.getElementById("snackbar");
+
+        snackbar.style.backgroundColor = "white";
+        snackbar.style.color = "black";
+        snackbar.innerHTML = "Du har skrivbehörighet";
+
+        // Add the "show" class to DIV
+        snackbar.className = "show";
+
+        // After 3 seconds, remove the show class from DIV
+        setTimeout(function() {
+            snackbar.className = snackbar.className.replace("show", "");
+        }, 3000);
+    },
+
+    /**
      * save - Saves the objects from the map in a json format.
      *
      * @param {string} version version number the user wants to save the project under

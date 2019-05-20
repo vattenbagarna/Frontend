@@ -1,9 +1,18 @@
+import { objectData } from "./loadLeafletMap.js";
+
 export let popup = {
     marker: (attributes) => {
         let temp = "";
         let temp2 = "";
         let similarAttributes = ["Kategori", "Modell", "M ö.h"];
         let i = 0;
+        let option = "";
+
+        for (let i = 0; i < objectData.length; i++) {
+            if (objectData[i].Kategori == "Pumpstationer") {
+                option += `<option>${objectData[i].Modell}</option>`;
+            }
+        }
 
         for (let key in attributes) {
             switch (key) {
@@ -32,6 +41,8 @@ export let popup = {
         <div class='content'>
 			<table>
 		        ${temp}
+            <p>Byt pumpstation</p>
+            <select id="pumpingStation">${option}</select>
 			</table>
 		</div>
     </li>
@@ -82,9 +93,9 @@ export let popup = {
 			<input type="text" id='latitud' value=${latlng.lat}>
         	<b> Longitud </b>
 			<input type="text" id='longitud' value=${latlng.lng}>
-        	<input type="button" class="sendCoords" value="Skicka" >
 		</div>
     </li>
-</ul>`;
+</ul>
+<input type="button" class="sendCoords" value="Ändra" >`;
     }
 };
