@@ -7,10 +7,15 @@ export let popup = {
         let similarAttributes = ["Kategori", "Modell", "M ö.h"];
         let i = 0;
         let option = "";
+        let current;
 
         for (let i = 0; i < objectData.length; i++) {
             if (objectData[i].Kategori == "Pumpstationer") {
-                option += `<option>${objectData[i].Modell}</option>`;
+                if (objectData[i].Modell == attributes.Modell) {
+                    current = `<option>${objectData[i].Modell}</option>`;
+                } else {
+                    option += `<option>${objectData[i].Modell}</option>`;
+                }
             }
         }
 
@@ -23,7 +28,8 @@ export let popup = {
                 case '_id':
                     break;
                 case similarAttributes[i]:
-                    temp += `<tr><td>
+                    temp +=
+                        `<tr><td>
                     ${similarAttributes[i]}: ${attributes[similarAttributes[i]]}
                     </td></tr>`;
                     i = i + 1;
@@ -42,7 +48,7 @@ export let popup = {
 			<table>
 		        ${temp}
             <p>Byt pumpstation</p>
-            <select id="pumpingStation">${option}</select>
+            <select id="pumpingStation">${current}${option}</select>
 			</table>
 		</div>
     </li>

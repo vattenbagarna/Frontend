@@ -88,7 +88,6 @@ export class Marker {
             let pumpingStations = document.getElementById('pumpingStation').value;
 
             if (pumpingStations != event.target.attributes.Modell) {
-                let first = findNextPolyline(event.target, "first");
                 let last = findNextPolyline(event.target, "last");
                 let icon = icons.find(element => element.category == "Pumpstationer");
 
@@ -105,18 +104,20 @@ export class Marker {
                     }
                 }
                 let newObj = new Marker(event.target._latlng, object, icon.icon);
-                let newPipe = new Pipe([event.target._latlng], ["", ""], last.type, event.target.id);
+                let newPipe = new Pipe([event.target._latlng], [""], last.type, newObj.marker.id);
 
-                console.log(last._latlngs);
-
-                newPipe.draw(last.connected_with.last, last._latlngs[1], last.elevation, last.material, last.dimension, last.tilt);
+                newPipe.draw(last.connected_with.last, last._latlngs[1], last.elevation,
+                    last.material, last.dimension, last.tilt);
 
                 last.connected_with.last = newObj.marker.id;
+                let coords = last.getLatLngs();
 
-                console.log(newPipe.polyline);
-                let latlng = first.getLatLngs();
+                coords.pop();
+                coords.push(newObj.marker._latlng);
+                last.setLatLngs(coords);
+                last.decorator.setPaths(coords);
             } else {
-            // Close active popup
+                // Close active popup
                 event.target.closePopup();
                 // Insert new values to active marker
                 event.target.setLatLng(latLng);
@@ -125,9 +126,9 @@ export class Marker {
 
                 //get each polyline
                 polylines.eachLayer((polyline) => {
-                //check if polylines are connected to a marker, by first point and last point.
+                    //check if polylines are connected to a marker, by first point and last point.
                     if (event.target.id === polyline.connected_with.first) {
-                    //if polyline is connected with marker change lat lng to match marker
+                        //if polyline is connected with marker change lat lng to match marker
                         let newLatlng = polyline.getLatLngs();
 
                         newLatlng.shift();
@@ -146,7 +147,8 @@ export class Marker {
                     }
                 });
                 // Update popup content with new values
-                event.target.setPopupContent(popup.marker(this.attributes) + popup.changeCoord(latLng));
+                event.target.setPopupContent(popup.marker(this.attributes) + popup.changeCoord(
+                    latLng));
             }
         });
     }
