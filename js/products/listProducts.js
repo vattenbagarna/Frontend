@@ -86,7 +86,8 @@ let disable = async (id, value) => {
  *
  */
 let remove = async (id) => {
-    await API.get(configuration.apiURL + "/obj/delete/" + id + "?token=" + token);
+    await API.post(configuration.apiURL + "/obj/delete/" + id + "?token=" + token,
+        "application/x-www-form-urlencoded", {});
 
     location.reload();
 };
