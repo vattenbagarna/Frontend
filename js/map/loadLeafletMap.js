@@ -598,6 +598,7 @@ let onLoadRead = () => {
     loadMap.loadProducts();
     loadMap.loadProjectInfo();
 
+    gridlayers();
     //loads the custom controls for read property
     customControl('map');
     customControl('control_camera');
@@ -617,9 +618,9 @@ let onLoadRead = () => {
     backLink.innerHTML = "arrow_back";
     back.appendChild(backLink);
     backLink.style.position = "fixed";
-    backLink.style.bottom = "35px";
+    backLink.style.bottom = "150px";
     backLink.style.zIndex = "9999";
-    backLink.style.fontSize = "60px";
+    backLink.style.fontSize = "50px";
     backLink.style.textDecoration = "none";
     backLink.style.color = "gray";
 
