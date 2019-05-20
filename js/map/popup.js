@@ -15,6 +15,7 @@ export let popup = {
         for (let key in attributes) {
             if (similarAttributes.includes(key)) {
                 let i = similarAttributes.indexOf(key);
+
                 temp +=
                     `<tr><td>
                 ${similarAttributes[i]}: ${attributes[key]}
