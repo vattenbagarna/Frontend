@@ -32,7 +32,7 @@ let getAllUsers = async () => {
 let getProject = async () => {
     let json = await API.get(configuration.apiURL + "/proj/id/" + projectId + "?token=" + token);
 
-    document.getElementById("projectName").value = json[0].name;
+    document.getElementById("projectName").value = unescape(json[0].name);
     document.getElementById("projectVersion").value = json[0].version;
     document.getElementById("peopleperhouse").value = json[0].default.peoplePerHouse;
     document.getElementById("litreperperson").value = json[0].default.litrePerPerson;

@@ -14,18 +14,20 @@ const errorHolder = document.getElementById('error-holder');
 * if the login is sucessfull it will save a token to localStorage and redirect to home.html
 * otherwise it'll show an error to the user.
 */
-const sendLogin = () => {
+const sendLogin = async () => {
     // Get the form data from the html-form
     let data = new URLSearchParams(new FormData(formElement));
 
+    data = await API.post(configuration.apiURL + "/acc/login", 'application/x-www-form-urlencoded',
+        data);
     //Preform an api call with the form data
-    fetch(configuration.apiURL + "/acc/login", {
+    /*fetch(configuration.apiURL + "/acc/login", {
         body: data,
         method: 'POST'
     })
         .then(function (response) {
             return response.json();
-        }).then(function(data) {
+        }).then(function(data) );*/
         //Here is the API response, check if it returned an error, if it did
 
             //Clear the password field no matter the outcome
@@ -64,7 +66,6 @@ const sendLogin = () => {
                     errorHolder.appendChild(errorMsg);
                 }
             }
-        });
 };
 
 // Check if the user is already logged in

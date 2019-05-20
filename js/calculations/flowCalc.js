@@ -247,15 +247,16 @@ function calcAll() {
  *
  * @returns {void}
  */
-function getPumps(wantedFlow, height, selectedDim) {
-    fetch(configuration.apiURL + "/obj/type/Pump?token=" + localStorage.getItem("token"), {
+const getPumps = async (wantedFlow, height, selectedDim) => {
+    /*fetch(configuration.apiURL + "/obj/type/Pump?token=" + localStorage.getItem("token"), {
         method: 'GET'
     })
         .then(function(response) {
             return response.json();
         }).then(function(json) {
-            recommendPump(json, wantedFlow, height, selectedDim);
-        });
+        });*/
+        let json = await API.get(configuration.apiURL + "/obj/type/Pump?token=" + localStorage.getItem("token"));
+        recommendPump(json, wantedFlow, height, selectedDim);
 }
 
 /**

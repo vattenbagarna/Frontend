@@ -300,7 +300,11 @@ let createObject = async () => {
 
         let icon = { Kategori: newCategory.value, Bild: base64Icon };
 
-        fetch(`${configuration.apiURL}/obj/categories/icon/insert?token=${token}`, {
+        await API.post(`${configuration.apiURL}/obj/categories/icon/insert?token=${token}`, 'application/json',
+            JSON.stringify(data));
+
+
+        /*fetch(`${configuration.apiURL}/obj/categories/icon/insert?token=${token}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -311,7 +315,7 @@ let createObject = async () => {
                 if (data.error) {
                     console.log(data);
                 }
-            });
+            });*/
     } else {
         data.Kategori = document.getElementById('Kategori').value;
     }

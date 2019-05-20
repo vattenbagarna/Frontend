@@ -1,4 +1,54 @@
 /**
+  * Take a string and replace with html special characters
+  *
+  * @param {String} String to modify
+  * @return {String} modified string
+  */
+ const escape_html = (str) => {
+    if (str==='' || typeof str !== "string")
+        return str;
+
+    var map = {
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;',
+        "`": '&#96;',
+        "#": '&#35;',
+        "§": '&#xA7;',
+        "(": '&#40;',
+        ")": '&#41;',
+        "/": '&#47;'
+    };
+
+    return str.replace(/[&<>"'`#§()/]/g, function(m) { return map[m]; });
+ }
+
+/**
+  * Loops through JSON objects to find all strings to then escape html characters
+  *
+  * @param {JSON} Json to check for strings in
+  * @return {JSON} Sanitized Json object
+  */
+const sanitize = (json) => {
+
+    //if param is string
+    if (typeof json === "string"){
+        json = escape_html(json);
+    }
+
+    //if param is object
+    if (typeof json === "object"){
+        for (let value in json) {
+            json[value] = sanitize(json[value]);
+            escape_html(value);
+        }
+    }
+
+    return json;
+};
+
+/**
  * API - contains get and post methods to specified url that uses fetch calls.
  * 		 This replaces repeated fetch code with a simple function call instead.
  * 		 API methods needs to be reached across several files
@@ -15,7 +65,7 @@ const API = {
                     document.location.href = "index.html";
                     return false;
                 }
-                return json;
+                return sanitize(json);
             });
     },
 
@@ -32,7 +82,7 @@ const API = {
                     document.location.href = "index.html";
                     return false;
                 }
-                return json;
+                return sanitize(json);
             });
     }
 };
