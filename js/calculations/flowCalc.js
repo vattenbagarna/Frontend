@@ -7,13 +7,13 @@
  * @returns {void}
  */
 function showStyling() {
-    document.getElementById("pressure1").style.display = "block";
-    document.getElementById("pressure2").style.display = "block";
+    // document.getElementById("pressure1").style.display = "block";
+    // document.getElementById("pressure2").style.display = "block";
     document.getElementById("flow").style.display = "block";
     document.getElementById("flow-wrap").style.display = "flex";
     document.getElementById("submit").style.display = "block";
-    document.getElementById("pressure1").previousElementSibling.innerText = "PN 6.3";
-    document.getElementById("pressure2").previousElementSibling.innerText = "PN 10";
+    // document.getElementById("pressure1").previousElementSibling.innerText = "PN 6.3";
+    // document.getElementById("pressure2").previousElementSibling.innerText = "PN 10";
 }
 
 /**
@@ -21,11 +21,11 @@ function showStyling() {
  *
  * @returns {void}
  */
-function uncheckButtons() {
-    document.getElementById("pressure1").checked = false;
-    document.getElementById("pressure2").checked = false;
-}
-uncheckButtons();
+// function uncheckButtons() {
+//     document.getElementById("pressure1").checked = false;
+//     document.getElementById("pressure2").checked = false;
+// }
+// uncheckButtons();
 
 // Changes material to the selected one
 document.getElementById("material").addEventListener("change", () => {

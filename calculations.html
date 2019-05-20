@@ -22,8 +22,8 @@
               <span id="userName"></span>
           </div>
       </div>
+	  <h1 class="title">Beräkningssida</h1>
 		<div class="wrap">
-				<h1 class="title">Beräkningssida</h1>
 			<div class="container">
 				<div class="sub-header">
 					<h3>Spillvatten</h3>
@@ -52,11 +52,11 @@
 							</select>
 						</span>
 						<span class="form-element-pair">
-							<label for="mu" id="muLabel">Råhetstal</label>
+							<label for="mu" id="muLabel">Råhetstal</label><br>
 								<input class="number-input" data-digits-only
-									   step="0.001" type="number" id="mu"
-																  name="mu"
-																  value="0.1" onkeypress="enterPressed(this, event);">&nbsp; mm
+									step="0.001" type="number" id="mu"
+									name="mu"
+									value="0.1" onkeypress="enterPressed(this, event);">&nbsp; mm
 							</span>
 						<!-- Below has been outcommented becuase there is
 						  currently nothing that changes depending on the
@@ -125,6 +125,9 @@
 						</div>
 					</div>
 				</div>
+			</div>
+			<div class="explain-image">
+				<img class="lyfthojd-img" src="img/lyfthojd.png" alt="Lyfthöjd av vatten från en pumpstation">
 			</div>
 		</body>
 		<script src="js/configVariables.js"></script>
