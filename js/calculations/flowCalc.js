@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-/* global configuration, calculations */
+/* global configuration, calculations, API */
 
 /**
  * showStyling - Displays the boxes.
@@ -217,6 +217,8 @@ function calcAll() {
     let wantedFlow = parseFloat(document.getElementById("flow").value);
     let mu = parseFloat(document.getElementById("mu").value);
 
+    checkValidLogin();
+
     selectedDim = changeDim(selectedDim);
     wantedFlow = checkUnit(wantedFlow);
 
@@ -249,6 +251,7 @@ function calcAll() {
  * @returns {void}
  */
 function getPumps(height, selectedDim) {
+    checkValidLogin();
     fetch(configuration.apiURL + "/obj/type/Pump?token=" + localStorage.getItem("token"), {
         method: 'GET'
     })
@@ -316,6 +319,7 @@ function convertUnit(wantedFlow) {
  * @returns {void}
  */
 function recommendPump(pumps, height, selectedDim) {
+    checkValidLogin();
     let found = false;
     let mps = 0;
     let parent;
@@ -431,3 +435,31 @@ function changeDim(selectedDim) {
 
     return innerdim[selectedDim];
 }
+
+
+/**
+* checkValidLogin - makes sure that the user is logged in to see the page
+*/
+const checkValidLogin = async () => {
+    let token = localStorage.getItem("token");
+
+    if (!token) {
+        localStorage.token = "";
+        window.location = "index.html";
+        return false;
+    }
+
+    let req = await API.get(configuration.apiURL + "/admin/user?token=" + token);
+
+    if (req.error) {
+        localStorage.token = "";
+        window.location = "index.html";
+        console.log("request error");
+        console.log(req);
+        return false;
+    }
+
+    return true;
+};
+
+checkValidLogin();
