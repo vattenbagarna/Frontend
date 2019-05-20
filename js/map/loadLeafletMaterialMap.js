@@ -68,7 +68,7 @@ let gridlayers = () => {
  */
 let getBounds = () => {
     markers.eachLayer((marker) => {
-        boundsArray.push(marker._latlng);
+        boundsArray.push({lat: marker._latlng.lat, lng: marker._latlng.lng});
         marker.off("click");
         marker.options.interactive = false;
     });
@@ -120,7 +120,7 @@ map.on("moveend", () => {
                 numbersObj[marker.attributes.Pump].push(i);
             }
 
-            var pixelPosition = map.latLngToLayerPoint(marker._latlng);
+            var pixelPosition = map.latLngToContainerPoint(marker._latlng);
 
             newDiv = document.createElement("div");
             newP = document.createElement("p");
@@ -146,6 +146,23 @@ map.on("moveend", () => {
         }
     });
     map.off("moveend");
+});
+
+map.on("resize", () => {
+    let circleNumbers = document.getElementsByClassName('circleNumbers');
+    let i = 0;
+    //console.log(circleNumbers);
+
+    markers.eachLayer((marker) => {
+        if (marker.attributes.Kategori != "Förgrening" &&
+            marker.attributes.Kategori != "Utsläppspunkt") {
+            let pixelPosition = map.latLngToContainerPoint(marker._latlng);
+
+            circleNumbers[i].style.top = (pixelPosition.y + 10) + "px";
+            circleNumbers[i].style.left = (pixelPosition.x + 15) + "px";
+            i++;
+        }
+    });
 });
 
 let id = new URL(window.location.href).searchParams.get('id');
@@ -366,6 +383,7 @@ let load = async (json) => {
     }
 
     gridlayers();
+
     getBounds();
 };
 
