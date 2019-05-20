@@ -11,20 +11,16 @@ export let popup = {
             "Flödeshastighet",
             "Antal personer som högst",
         ];
-        let i = 0;
 
         for (let key in attributes) {
-            switch (key) {
-                case similarAttributes[i]:
-                    temp +=
-                        `<tr><td>
-                    ${similarAttributes[i]}: ${attributes[similarAttributes[i]]}
-                    </td></tr>`;
-                    i = i + 1;
-                    break;
-                default:
-                    temp2 += `<tr><td>${key}: ${attributes[key]}</td></tr>`;
-                    break;
+            if (similarAttributes.includes(key)) {
+                let i = similarAttributes.indexOf(key);
+                temp +=
+                    `<tr><td>
+                ${similarAttributes[i]}: ${attributes[key]}
+                </td></tr>`;
+            } else {
+                temp2 += `<tr><td>${key}: ${attributes[key]}</td></tr>`;
             }
         }
 
