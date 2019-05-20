@@ -20,10 +20,10 @@ let loadAllProjects = async () => {
             for (let n = 0; n < json[i].access.length; n++) {
                 if (json[i].access[n].permission == "w") {
                     permission +=
-                        `${json[i].access[n].username}`;
+                        `${json[i].access[n].username}<br>`;
                 } else {
                     permission +=
-                        `${json[i].access[n].username}`;
+                        `${json[i].access[n].username}<br>`;
                 }
             }
 
