@@ -22,6 +22,7 @@
 .creators {
     display: flex;
     flex-direction: column;
+    width: 20%;
 }
 
 .creatorname {
@@ -40,4 +41,11 @@
 
 .button-wrap {
     margin: 2rem 0;
+}
+
+.rights {
+    padding: 2px 4px;
+    border-radius: 3px;
+    background: rgba(18, 128, 196, 0.7);
+    color: #fff;
 }
