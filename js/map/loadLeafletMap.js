@@ -702,5 +702,5 @@ function calculateAspectRatioFit(srcWidth, srcHeight, maxWidth, maxHeight) {
 }
 
 document.getElementById("showMateriallist").addEventListener('click', () => {
-    document.location.href = "materiallist.html?id=" + id;
+    document.location.replace("materiallist.html?id=" + id);
 });

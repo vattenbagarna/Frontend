@@ -205,73 +205,79 @@ let load = async (json) => {
     for (let i = 1; i < json.length; i++) {
         let id = "";
         let listName = "";
-        let popup;
         let icon;
+        let temp;
 
         switch (json[i].type) {
             //if marker add it to the map with its options
             case "marker":
                 icon = icons.find(element =>
-                    element.category == json[i].attributes.Kategori);
+                    element.category == json[i].data.attributes.Kategori);
 
-                newObj = new Marker(json[i].coordinates, json[i].attributes, icon.icon,
-                    json[i].id);
+                json[i].data.icon = icon.icon;
+                newObj = new Marker(json[i].data);
 
-                if (json[i].attributes != undefined &&
-                    json[i].attributes.Kategori != "Förgrening" &&
-                    json[i].attributes.Kategori != "Utsläppspunkt") {
-                    if (!objects.hasOwnProperty(json[i].attributes.Modell)) {
+
+                if (json[i].data.attributes != undefined &&
+                    json[i].data.attributes.Kategori != "Förgrening" &&
+                    json[i].data.attributes.Kategori != "Utsläppspunkt") {
+                    if (!objects.hasOwnProperty(json[i].data.attributes.Modell)) {
                         let id;
 
-                        if (json[i].attributes.RSK != undefined) {
-                            id = `<td>RSK: ${json[i].attributes.RSK}</td>`;
-                        } else if (json[i].attributes.ArtikelNr != undefined) {
-                            id = `<td>Artikelnummer: ${json[i].attributes.ArtikelNr}</td>`;
+                        if (json[i].data.attributes.RSK != undefined) {
+                            id = `<td>RSK: ${json[i].data.attributes.RSK}</td>`;
+                        } else if (json[i].data.attributes.ArtikelNr != undefined) {
+                            id = `<td>Artikelnummer: ${json[i].data.attributes.ArtikelNr}</td>`;
                         } else {
                             id = `<td></td>`;
                         }
 
                         table.innerHTML +=
-                            `<td>${json[i].attributes.Modell}</td>
-						<td id="${json[i].attributes.Modell}Amount">Antal: 1</td>
-						<td>Kategori: ${json[i].attributes.Kategori}</td>
+                            `<td>${json[i].data.attributes.Modell}</td>
+						<td id="${json[i].data.attributes.Modell}Amount">Antal: 1</td>
+						<td>Kategori: ${json[i].data.attributes.Kategori}</td>
 						${id}
-						<td id="${json[i].attributes.Modell}"></td>
+						<td id="${json[i].data.attributes.Modell}"></td>
 						<td class="right">
 							Kostnad <input type="number" class='number-input' value=''/>
 						</td>`;
 
-                        if (json[i].attributes.Pump != undefined &&
-                            !pumps.hasOwnProperty(json[i].attributes.Pump)) {
+                        if (json[i].data.attributes.Pump != undefined &&
+                            !pumps.hasOwnProperty(json[i].data.attributes.Pump)) {
                             table.innerHTML +=
-                                `<td>${json[i].attributes.Pump}</td>
-    						<td id="${json[i].attributes.Pump}Amount">Antal:
-                                ${parseInt(json[i].attributes["Antal pumpar"])}</td>
+                                `<td>${json[i].data.attributes.Pump}</td>
+    						<td id="${json[i].data.attributes.Pump}Amount">Antal:
+                                ${parseInt(json[i].data.attributes["Antal pumpar"])}</td>
     						<td>Kategori: Pump</td>
     						<td></td>
-    						<td id="${json[i].attributes.Pump}"></td>
+    						<td id="${json[i].data.attributes.Pump}"></td>
     						<td class="right">
     							Kostnad <input type="number" class='number-input' value=''/>
     						</td>`;
-                            pumps[json[i].attributes.Pump] = {
-                                antal: parseInt(json[i].attributes["Antal pumpar"])
+                            pumps[json[i].data.attributes.Pump] = {
+                                antal: parseInt(json[i].data.attributes["Antal pumpar"])
                             };
                         } else if (json[i].attributes.Pump != undefined) {
-                            pumps[json[i].attributes.Pump].antal += parseInt(
+                            pumps[json[i].data.attributes.Pump].antal += parseInt(
                                 json[i].attributes["Antal pumpar"]);
-                            document.getElementById(`${json[i].attributes.Pump}Amount`).innerHTML =
+                            document.getElementById(`${json[i].data.attributes.Pump}Amount`)
+                                .innerHTML =
                                 `<td>Antal: ${parseInt(pumps[json[i].attributes.Pump].antal)}</td>`;
                         }
-                        objects[json[i].attributes.Modell] = { antal: 1 };
+                        objects[json[i].data.attributes.Modell] = { antal: 1 };
                     } else {
-                        objects[json[i].attributes.Modell].antal += 1;
-                        document.getElementById(`${json[i].attributes.Modell}Amount`).innerHTML =
-                            `<td>Antal: ${objects[json[i].attributes.Modell].antal}</td>`;
-                        if (json[i].attributes.Pump != undefined) {
-                            pumps[json[i].attributes.Pump].antal += parseInt(
-                                json[i].attributes["Antal pumpar"]);
-                            document.getElementById(`${json[i].attributes.Pump}Amount`).innerHTML =
-                                `<td>Antal: ${parseInt(pumps[json[i].attributes.Pump].antal)}</td>`;
+                        objects[json[i].data.attributes.Modell].antal += 1;
+                        document.getElementById(`${json[i].data.attributes.Modell}Amount`)
+                            .innerHTML =
+                            `<td>Antal: ${objects[json[i].data.attributes.Modell].antal}</td>`;
+                        if (json[i].data.attributes.Pump != undefined) {
+                            pumps[json[i].data.attributes.Pump].antal += parseInt(
+                                json[i].data.attributes["Antal pumpar"]);
+                            document.getElementById(`${json[i].data.attributes.Pump}Amount`)
+                                .innerHTML =
+                                `<td>
+								Antal: ${parseInt(pumps[json[i].data.attributes.Pump].antal)}
+								</td>`;
                         }
                     }
                 }
@@ -279,32 +285,32 @@ let load = async (json) => {
                 break;
                 //if polyline
             case "polyline":
-                newObj = new Pipe(json[i].coordinates, ["", ""], json[i].pipeType,
-                    json[i].connected_with.first);
-                newObj.draw(json[i].connected_with.last,
-                    null, json[i].dimension, json[i].tilt);
+                json[i].data.first = json[i].data.connected_with.first;
 
-                id = "Ledning";
+                newObj = new Pipe(json[i].data);
+                json[i].data.last = json[i].data.connected_with.last;
+                json[i].data.coordinates = null;
+                newObj.draw(json[i].data);
 
-                if (json[i].pipeType == 1) { id = "Stamledning"; }
+                if (json[i].data.pipeType == 1) { id = "Stamledning"; }
 
-                listName = id + json[i].material + json[i].dimension.outer;
+                listName = id + json[i].data.material + json[i].data.dimension.outer;
                 if (!pipes.hasOwnProperty(listName)) {
                     table.innerHTML +=
                         `<td>${id}</td>
-                        <td id="${listName}">${Math.round(json[i].length)} m</td>
-                        <td>Material: ${json[i].material}</td>
-                        <td>Dimension: ${json[i].dimension.outer}</td>
+                        <td id="${listName}">${Math.round(json[i].data.length)} m</td>
+                        <td>Material: ${json[i].data.material}</td>
+                        <td>Dimension: ${json[i].data.dimension.outer}</td>
                         <td></td>
                         <td class="right">
                         Kostnad <input type="number" class='number-input' value=''/>
                         </td>`;
 
                     pipes[listName] = {
-                        "material": json[i].material,
-                        "dimension": json[i].dimension,
-                        "length": json[i].length,
-                        "pipeType": json[i].pipeType
+                        "material": json[i].data.material,
+                        "dimension": json[i].data.dimension,
+                        "length": json[i].data.length,
+                        "pipeType": json[i].data.pipeType
                     };
                 } else {
                     pipes[listName].length += json[i].length;
@@ -314,16 +320,12 @@ let load = async (json) => {
 
                 break;
             case "polygon":
-                newObj = new House(json[i].coordinates[0], ["", ""], json[i].color);
-                popup = [
-                    json[i].address,
-                    json[i].definition,
-                    json[i].nop,
-                    json[i].flow,
-                    json[i].color
-                ];
+                temp = json[i].data.coordinates;
 
-                newObj.drawFromLoad(json[i].coordinates, popup);
+                json[i].data.color = json[i].data.popup.color;
+                newObj = new House(json[i].data);
+                json[i].data.coordinates = temp;
+                newObj.drawFromLoad(json[i].data);
                 break;
         }
     }
@@ -436,22 +438,16 @@ export class Marker {
      *
      * @returns {void}
      */
-    constructor(latlng, attributes, icon, id = null) {
-        this.attributes = attributes;
-        this.marker = new L.Marker(latlng, options.marker(icon));
+    constructor(data) {
+        this.attributes = data.attributes;
+        this.marker = new L.Marker(data.coordinates, options.marker(data.icon));
 
         this.marker.attributes = this.attributes;
-        this.marker.disableDragging = () => { this.marker.dragging.disable(); return this.marker; };
-        this.marker.enableDragging = () => { this.marker.dragging.enable(); };
+
 
         // Add marker to markers layer
         markers.addLayer(this.marker).addTo(map);
-
-        if (id) {
-            this.marker.id = id;
-        } else {
-            this.marker.id = this.marker._leaflet_id;
-        }
+        this.attributes.id = this.marker.id;
     }
 }
 
@@ -472,20 +468,12 @@ export class House {
      *
      * @returns {void}
      */
-    constructor(latlng, attributes, color) {
+    constructor(data) {
         this.completed = false;
-        this.attributes = attributes;
-        this.polygon = L.polygon([latlng], options.house(color));
+        this.attributes = this.attributes;
+        this.polygon = L.polygon([data.coordinates], options.house(data.color));
+        this.polygon.used = false;
     }
-
-    /**
-     * draw - Adds new point with coordinates and displays polygon on map.
-     * 		- Updates guideline start position to new coordinates
-     *
-     * @param {array} latlng Coordinates (latitude and longitude) for the new point in polygon
-     *
-     * @returns {void}
-     */
 
     /**
      * drawFromLoad - Draws polygon from saved data
@@ -498,16 +486,18 @@ export class House {
      *
      * @returns {void}
      */
-    drawFromLoad(latlngs, values) {
-        this.polygon.setLatLngs(latlngs);
-        this.polygon.bindPopup(popup.house(values[0], values[1], values[2], values[3], values[4]));
+    drawFromLoad(data) {
+        this.polygon.setLatLngs(data.coordinates);
+        this.polygon.bindPopup(popup.house(data.popup.address, data.popup.definition,
+            data.popup.nop, data.popup.flow, data.popup.color));
         polygons.addLayer(this.polygon).addTo(map);
 
-        this.polygon.address = values[0];
-        this.polygon.definition = values[1];
-        this.polygon.nop = values[2];
-        this.polygon.flow = values[3];
-        this.polygon.id = this.polygon._leaflet_id;
+        this.polygon.address = data.popup.address;
+        this.polygon.definition = data.popup.definition;
+        this.polygon.nop = data.popup.nop;
+        this.polygon.flow = data.popup.flow;
+        this.polygon.id = data.id;
+        this.polygon.used = data.used;
         this.completed = true;
     }
 }
@@ -527,11 +517,11 @@ export class Pipe {
      *
      * @returns {void}
      */
-    constructor(latlngs, attributes, type, id) {
-        this.latlngs = latlngs;
-        this.attribute = attributes;
-        this.type = type;
-        this.first = id;
+    constructor(data) {
+        this.latlngs = data.coordinates;
+        this.attribute = data.attributes;
+        this.type = data.pipeType;
+        this.first = data.first;
     }
 
     /**
@@ -548,11 +538,11 @@ export class Pipe {
      *
      * @returns {void}
      **/
-    draw(id, latlng = null, dimension = null, tilt = null) {
-        this.last = id;
-        if (latlng != null) { this.latlngs.push(latlng); }
-        this.dimension = dimension;
-        this.tilt = tilt;
+    draw(data) {
+        this.elevation = data.elevation;
+        this.material = data.material;
+        this.dimension = data.dimension;
+        this.tilt = data.tilt;
 
         this.createPolyline();
     }

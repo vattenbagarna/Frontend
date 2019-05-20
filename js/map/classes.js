@@ -7,7 +7,7 @@ import { options } from "./options.js";
 
 import { polylines, markers, polygons, add, getLength, clearHouse } from "./add.js";
 
-import { edit, calculateNextPolyline, findNextPolyline, resetMarkers } from "./edit.js";
+import { edit, calculateNextPolyline, checkFlow, findNextPolyline, resetMarkers } from "./edit.js";
 
 import { show, mouseCoord } from "./show.js";
 
@@ -201,6 +201,9 @@ export class Marker {
     onRemove() {
         let firstPolyline = findNextPolyline(this, 'last');
         let lastPolyline = findNextPolyline(this, 'first');
+        let temp = markers.getLayers();
+
+        temp = temp.concat(polygons.getLayers());
 
         if (firstPolyline != null && lastPolyline != null) {
             let newLatlngs = firstPolyline._latlngs;
@@ -216,6 +219,38 @@ export class Marker {
 
             firstPolyline.connected_with.last = lastPolyline.connected_with.last;
             polylines.removeLayer(lastPolyline);
+            if (this.attributes.Kategori == "Förgrening") {
+                let first = temp.find(find => find.id == firstPolyline.connected_with.first);
+                let last = temp.find(find => find.id == firstPolyline.connected_with.last);
+
+                if (first instanceof L.Polygon) {
+                    last.calculation.nop = parseInt(first.nop);
+                    let flow = checkFlow(last.calculation.nop);
+
+                    last.calculation.capacity = parseFloat(flow);
+                    first.used = true;
+                    edit.warning.pressure(firstPolyline);
+                } else {
+                    let next = findNextPolyline(first, 'last');
+
+                    if (next != null) {
+                        let first2 = temp.find(find => find.id == next.connected_with.first);
+
+                        if (first2 != null) {
+                            if (first2 instanceof L.Polygon) {
+                                first.calculation.nop = parseInt(first2.nop);
+                                let flow = checkFlow(first.calculation.nop);
+
+                                last.calculation.capacity = parseFloat(flow);
+                            } else {
+                                first.calculation.nop = first2.calculation.nop;
+                                last.calculation.capacity = first2.calculation.nop;
+                            }
+                        }
+                    }
+                    edit.warning.pressure(firstPolyline);
+                }
+            }
         }
     }
 }
@@ -241,6 +276,7 @@ export class House {
         this.completed = false;
         this.attributes = this.attributes;
         this.polygon = L.polygon([data.coordinates], options.house(data.color));
+        this.polygon.used = false;
 
         if (data.id == null) {
             this.polygon.id = mapId++;
@@ -294,6 +330,7 @@ export class House {
         this.polygon.nop = data.popup.nop;
         this.polygon.flow = data.popup.flow;
         this.polygon.id = data.id;
+        this.polygon.used = data.used;
         this.completed = true;
 
         map.off('mousemove', this.updateGuideLine);
@@ -675,6 +712,7 @@ export class Pipe {
     /**
      * onRemove - When removing a connected pipe remove connecteded markers warning
      * 			- Removes selected polyline decorator (arrow) too
+     * 			- if first is connected to house -> reset house
      *
      * @returns {void}
      */
@@ -688,12 +726,11 @@ export class Pipe {
         } else {
             first = houses.find(find => find.id == this.connected_with.first);
             if (first != null) {
-                first.used = undefined;
+                first.used = false;
             }
         }
 
         resetMarkers(this);
-
         this.decorator.remove();
     }
 }

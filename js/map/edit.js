@@ -244,7 +244,8 @@ export const edit = {
                         nop: polygon.nop,
                         flow: polygon.flow,
                         color: polygon.options.color
-                    }
+                    },
+                    used: polygon.used,
                 }
             };
 
@@ -360,6 +361,8 @@ export const edit = {
             let total;
             let flow;
 
+            if (element == null) {return false;}
+
             polylines.eachLayer((polyline) => {
                 all.push(polyline);
             });
@@ -376,7 +379,7 @@ export const edit = {
             if (first != null) {
                 switch (first.constructor) {
                     case L.Polygon:
-                        if (first.used == null) {
+                        if (first.used == false) {
                             last.calculation.nop += parseInt(first.nop);
                             flow = checkFlow(first.nop);
                             last.calculation.capacity = parseFloat(flow);
@@ -409,8 +412,7 @@ export const edit = {
                                     find.id == polyline.connected_with.first);
 
                                 if (find != null) {
-                                    if (find.attributes.Kategori ==
-                                            "Pumpstationer") {
+                                    if (find.attributes.Kategori == "Pumpstationer") {
                                         edit.warning.pressure(polyline);
                                     }
                                 }
@@ -422,6 +424,8 @@ export const edit = {
                                 last.calculation.nop = first.calculation.nop;
                                 last.calculation.capacity = first.calculation.capacity;
                             }
+                        } else {
+                            edit.hideAlert();
                         }
 
                         break;
@@ -470,19 +474,31 @@ export let findNextPolyline = (element, value) => {
  * @returns {void}
  */
 export let resetMarkers = (element) => {
+    let next;
     let temp = markers.getLayers();
+
+    temp = temp.concat(polygons.getLayers());
+
+    let first = temp.find(find => find.id == element.connected_with.first);
     let last = temp.find(find => find.id == element.connected_with.last);
 
     if (last != null) {
         if (last.calculation.capacity > 0) {
-            last.calculation.nop = 0;
-            last.calculation.capacity = 0;
-            show.hideAlert(last);
+            if (first != null) {
+                if (first instanceof L.Polygon) {
+                    last.calculation.nop -= first.nop;
+                    let flow = checkFlow(last.calculation.nop);
 
-            let next = findNextPolyline(last, 'first');
+                    last.calculation.capacity = parseFloat(flow);
+                } else {
+                    last.calculation.nop -= first.calculation.nop;
+                    let flow = checkFlow(last.calculation.nop);
 
-            if (next != null) {
-                resetMarkers(next);
+                    last.calculation.capacity = parseFloat(flow);
+                }
+                next = findNextPolyline(last, 'first');
+                edit.warning.pressure(next);
+                show.hideAlert(last);
             }
         }
     }
@@ -571,15 +587,20 @@ let calculateLast = (first, last, pumps, total, dimension) => {
             } else if (last.attributes.Kategori == "Förgrening") {
                 nextPolyline = findNextPolyline(last, 'first');
 
+                let flow = checkFlow(last.calculation.nop);
+
+                last.calculation.capacity = parseFloat(flow);
+
                 total2 = calculateTotalPressure(
-                    last.calculation.capacity,
-                    nextPolyline.dimension.inner,
-                    nextPolyline.length,
-                    nextPolyline.tilt
+                    parseFloat(last.calculation.capacity),
+                    parseFloat(nextPolyline.dimension.inner),
+                    parseFloat(nextPolyline.length),
+                    parseFloat(nextPolyline.tilt)
                 );
 
                 combinedPressure = parseFloat(total) + parseFloat(total2);
-                combinedPressure = parseFloat(combinedPressure);
+
+                first.calculation.nop = last.calculation.nop;
 
                 //olika dimensioner??
                 getResults(first, pumps, combinedPressure, dimension);
@@ -688,7 +709,7 @@ let checkPump = (pump, pressure, dim) => {
  *
  * @returns {number} flow according to number of people
  */
-let checkFlow = (nop) => {
+export let checkFlow = (nop) => {
     let nrOf = parseFloat(nop);
     let flow = 0;
 

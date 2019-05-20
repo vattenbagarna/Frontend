@@ -94,7 +94,7 @@ export const add = {
                 firstTarget._path.classList.remove("polygon-stroke");
                 houseClicked = false;
             }
-        } else if (event.target.used == null) {
+        } else if (event.target.used == false || event.target.used == null) {
             point.id = event.sourceTarget.id;
             if (target.length) {
                 point = addBranchConnection(event, target);
@@ -248,7 +248,7 @@ let addBranchConnection = (event, target) => {
         elevation: target.elevation,
         material: target.material,
         dimension: target.dimension,
-        titl: target.tilt
+        tilt: target.tilt
     });
 
     return {

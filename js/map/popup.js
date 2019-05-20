@@ -7,8 +7,9 @@ export let popup = {
             "Modell",
             "id",
             "M ö.h",
+            "Totaltryck",
             "Flödeshastighet",
-            "Antal personer som högst"
+            "Antal personer som högst",
         ];
         let i = 0;
 

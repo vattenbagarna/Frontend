@@ -151,21 +151,28 @@ export const show = {
 
     alert: (first, result) => {
         let div = document.createElement('div');
-        let alerts;
+        let parent = document.getElementById('myMap');
+        let close = document.getElementsByClassName("closebtn");
+        let alerts = document.getElementsByClassName(first.attributes.id);
         let html;
 
+
+
         div.classList.add(first.attributes.id);
+        if (close.length > 0) {
+            close = close[close.length - 1];
+            close.onclick = function() {
+                let div = this.parentElement.parentElement;
 
-        let parent = document.getElementById('myMap');
+                div.children[0].style.opacity = "0";
+                setTimeout(() => div.remove(), 600);
+            };
+        }
 
-        alerts = document.getElementsByClassName(first.attributes.id);
-
-        /*for (let i = alerts.length - 1; i >= 0; i--) {
-            setTimeout(() => {
-                alerts[i].children[0].style.opacity = "0";
-                setTimeout(() => alerts[i].remove(), 600);
-            }, 500);
-        }*/
+        first.attributes.Totaltryck = result.totalPressure.toFixed(2) + " m";
+        first.attributes.Flödeshastighet = result.calculations.mps.toFixed(2) + " m/s";
+        first.attributes["Antal personer som högst"] = result.nop;
+        first.setPopupContent(popup.marker(first.attributes) + popup.changeCoord(first._latlng));
 
         switch (result.calculations.status) {
             case 0:
@@ -191,12 +198,6 @@ export const show = {
                 first._icon.classList.remove('warning-icon');
                 first._icon.classList.remove('alert-icon');
                 first._icon.classList.add('transparent-border');
-
-
-                first.attributes.Flödeshastighet = result.calculations.mps.toFixed(2) + " m/s";
-                first.attributes["Antal personer som högst"] = result.nop;
-                first.setPopupContent(popup.marker(first.attributes) +
-                    popup.changeCoord(first._latlng));
 
                 setTimeout(() => {
                     let div = close.parentElement.parentElement;
@@ -261,7 +262,7 @@ export const show = {
                     `<div class="alert">
 							<span class="closebtn">&times;</span>
 							<strong>För högt tryck!</strong>
-							Totaltrycket: ${result.totalPressure}
+							Totaltrycket: ${result.totalPressure.toFixed(2)} m
 							<span class="info-text">
 							   ${first.attributes.Modell}
 							  id: ${first.attributes.id}
@@ -284,7 +285,7 @@ export const show = {
                     `<div class="alert">
 							<span class="closebtn">&times;</span>
 							<strong>För lågt tryck!</strong>
-							Totaltrycket: ${result.totalPressure}
+							Totaltrycket: ${result.totalPressure.toFixed(2)} m
 							<span class="info-text">
 							   ${first.attributes.Modell}
 							  id: ${first.attributes.id}
@@ -302,28 +303,22 @@ export const show = {
                 first._icon.classList.add('alert-icon');
                 break;
         }
-
-        let close = document.getElementsByClassName("closebtn");
-
-        if (close != null) {
-            close = close[close.length - 1];
-
-            close.onclick = function() {
-                let div = this.parentElement.parentElement;
-
-                div.children[0].style.opacity = "0";
-                setTimeout(() => div.remove(), 600);
-            };
-        }
     },
 
     hideAlert: (element) => {
         let alerts = document.getElementsByClassName(element.attributes.id);
 
+        if (element.attributes.Kategori != "Förgrening") {
+            delete element.attributes.Totaltryck;
+            delete element.attributes.Flödeshastighet;
+            delete element.attributes["Antal personer som högst"];
+            element.setPopupContent(popup.marker(element.attributes) +
+                popup.changeCoord(element._latlng));
+        }
+
 
         for (let i = alerts.length - 1; i >= 0; i--) {
-            alerts[i].children[0].style.opacity = "0";
-            setTimeout(() => alerts[i].remove(), 600);
+            alerts[i].remove();
         }
         if (element._icon != null) {
             element._icon.classList.remove('warning-icon');
