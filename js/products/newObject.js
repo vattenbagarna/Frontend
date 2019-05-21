@@ -13,7 +13,8 @@ let myLineChart;
  * @returns {void}
  */
 let loadrequiredFields = async () => {
-    let json = await API.get(`${configuration.apiURL}/obj/categories?token=${token}`);
+    let json = await API.get(
+        `${configuration.apiURL}/obj/categories?token=${token}`);
     let main = document.getElementsByClassName('main-wrap')[0];
 
     main.innerHTML +=
@@ -334,18 +335,8 @@ let createObject = async () => {
 
         let icon = { Kategori: newCategory.value, Bild: base64Icon };
 
-        fetch(`${configuration.apiURL}/obj/categories/icon/insert?token=${token}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(icon),
-        }).then(res => res.json())
-            .then((data) => {
-                if (data.error) {
-                    console.log(data);
-                }
-            });
+        await API.post(`${configuration.apiURL}/obj/categories/icon/insert?token=${token}`,
+            'application/json', JSON.stringify(icon));
     } else {
         data.Kategori = document.getElementById('Kategori').value;
     }
