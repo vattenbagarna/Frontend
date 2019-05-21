@@ -238,7 +238,8 @@ let createSelect = (value, text, selectCompetence) => {
  * @returns {void}
  */
 let deleteProject = async () => {
-    await API.get(configuration.apiURL + "/proj/delete/" + projectId + "?token=" + token);
+    await API.post(configuration.apiURL + "/proj/delete/" + projectId + "?token=" + token,
+        "application/x-www-form-urlencoded", {});
 
     location.href = "home.html";
 };
