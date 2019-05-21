@@ -43,6 +43,15 @@
     margin: 2rem 0;
 }
 
+.tbl-short {
+    width: 10%;
+}
+
+.tbl-long {
+    min-width: 30%;
+    margin: auto;
+}
+
 .rights {
     padding: 2px 4px;
     border-radius: 3px;
