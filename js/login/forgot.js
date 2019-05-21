@@ -1,4 +1,4 @@
-/* global configuration */
+/* global configuration, API */
 
 "use strict";
 
@@ -33,7 +33,7 @@ const sendErrorResponse = (errorToDisplay, type="error-msg") => {
 * Informs the user if the request has been sent or not.
 * Does not reveal weather or not the email is valid
 */
-const sendReset = () => {
+const sendReset = async () => {
     let data = new URLSearchParams(new FormData(formElement));
     // Get email from form
     let email = emailField.value;
@@ -45,21 +45,18 @@ const sendReset = () => {
         return false;
     }
 
-    fetch(configuration.apiURL + "/acc/requestreset", {
-        body: data,
-        method: "POST"
-    }).then(function (response) {
-        return response.json();
-    }).then(function(data) {
-        if (data.error != undefined && data.error == false) {
-            //All is good and we got a good response. Notify the user.
-            sendErrorResponse("Om mailaddressen är gilitg så har ett mail skickats", "ok-msg");
-            return true;
-        }
-        //Something with the request went wrong
-        sendErrorResponse("Ett fel uppstod när servern försökte kontaktas. " +
-        "Kontrolera internetanslutning och serverstatus och försök igen.");
-    });
+    data = await API.post(configuration.apiURL +
+        "/acc/requestreset", 'application/x-www-form-urlencoded',
+    data);
+
+    if (data.error != undefined && data.error == false) {
+        //All is good and we got a good response. Notify the user.
+        sendErrorResponse("Om mailaddressen är gilitg så har ett mail skickats", "ok-msg");
+        return true;
+    }
+    //Something with the request went wrong
+    sendErrorResponse("Ett fel uppstod när servern försökte kontaktas. " +
+    "Kontrolera internetanslutning och serverstatus och försök igen.");
 
     emailField.value = "";
 };

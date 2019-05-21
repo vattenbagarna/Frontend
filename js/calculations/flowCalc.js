@@ -273,17 +273,12 @@ function calcAll() {
  *
  * @returns {void}
  */
-function getPumps(height, selectedDim) {
-    checkValidLogin();
-    fetch(configuration.apiURL + "/obj/type/Pump?token=" + localStorage.getItem("token"), {
-        method: 'GET'
-    })
-        .then(function(response) {
-            return response.json();
-        }).then(function(json) {
-            recommendPump(json, height, selectedDim);
-        });
-}
+const getPumps = async (height, selectedDim) => {
+    let json = await API.get(configuration.apiURL +
+        "/obj/type/Pump?token=" + localStorage.getItem("token"));
+
+    recommendPump(json, height, selectedDim);
+};
 
 /**
  * checkUnit - Changes to the right unit.
