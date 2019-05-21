@@ -361,7 +361,7 @@ export const edit = {
             let total;
             let flow;
 
-            if (element == null) {return false;}
+            if (element == null) { return false; }
 
             polylines.eachLayer((polyline) => {
                 all.push(polyline);
@@ -393,14 +393,50 @@ export const edit = {
                     case L.Marker:
                         if (first.calculation.capacity > 0) {
                             if (first.attributes.Kategori == "Pumpstationer") {
-                                console.log(first.calculation.nop);
-                                console.log(first.calculation.capacity + "\n");
+                                console.log("antal personer: ", first.calculation.nop);
+                                console.log("flöde: ", first.calculation.capacity);
+                                console.log();
                                 total = calculateTotalPressure(
                                     first.calculation.capacity,
                                     element.dimension.inner,
                                     element.length,
                                     element.tilt,
                                 );
+
+                                if (last instanceof L.Marker) {
+                                    if (last.attributes.Kategori == "Förgrening" &&
+                                            last.calculation.used == null) {
+                                        last.calculation.nop += first.calculation.nop;
+
+                                        let temp = polylines.getLayers();
+                                        let connected = temp.filter(find => find.connected_with
+                                            .last == last.id && find != element);
+
+                                        if (connected != null) {
+                                            connected = connected[0];
+                                            temp = markers.getLayers();
+                                            temp = temp.find(find => find.id == connected
+                                                .connected_with.first);
+                                            if (temp != null) {
+                                                last.calculation.nop += temp.calculation
+                                                    .nop;
+                                            }
+                                        }
+                                        last.calculation.used = true;
+                                        let next = findNextPolyline(last, 'first');
+
+                                        temp = markers.getLayers();
+                                        temp = temp.find(find => find.id == next.connected_with
+                                            .last);
+                                        if (temp != null) {
+                                            temp.calculation.nop += first.calculation.nop;
+                                            let flow = checkFlow(temp.calculation.nop);
+
+                                            temp.calculation.capacity = parseFloat(flow);
+                                            calculateNextPolyline(temp, 'first');
+                                        }
+                                    }
+                                }
 
                                 calculateLast(first, last, pumps, total, element.dimension
                                     .inner);
@@ -425,7 +461,7 @@ export const edit = {
                                 last.calculation.capacity = first.calculation.capacity;
                             }
                         } else {
-                            edit.hideAlert();
+                            show.hideAlert(first);
                         }
 
                         break;
@@ -516,6 +552,7 @@ let checkBranchConnection = (first, last) => {
     if (last.attributes.Kategori == "Förgrening") {
         let next = findNextPolyline(last, 'first');
         let temp = markers.getLayers();
+
 
         let find = temp.find(find =>
             find.id == next.connected_with.last);
@@ -633,6 +670,7 @@ let getResults = (first, pumps, total, dimension) => {
     result.nop = first.calculation.nop;
     result.calculations = checkPump(pump, total, parseFloat(dimension));
     result.totalPressure = total;
+    result.capacity = first.calculation.capacity;
     show.alert(first, result);
 };
 

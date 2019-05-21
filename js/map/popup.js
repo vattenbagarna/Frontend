@@ -10,6 +10,7 @@ export let popup = {
             "Totaltryck",
             "Flödeshastighet",
             "Antal personer som högst",
+            "Flöde",
         ];
 
         for (let key in attributes) {

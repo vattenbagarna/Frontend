@@ -223,32 +223,34 @@ export class Marker {
                 let first = temp.find(find => find.id == firstPolyline.connected_with.first);
                 let last = temp.find(find => find.id == firstPolyline.connected_with.last);
 
-                if (first instanceof L.Polygon) {
-                    last.calculation.nop = parseInt(first.nop);
-                    let flow = checkFlow(last.calculation.nop);
+                if (first != null) {
+                    if (first instanceof L.Polygon) {
+                        last.calculation.nop = parseInt(first.nop);
+                        let flow = checkFlow(last.calculation.nop);
 
-                    last.calculation.capacity = parseFloat(flow);
-                    first.used = true;
-                    edit.warning.pressure(firstPolyline);
-                } else {
-                    let next = findNextPolyline(first, 'last');
+                        last.calculation.capacity = parseFloat(flow);
+                        first.used = true;
+                        edit.warning.pressure(firstPolyline);
+                    } else {
+                        let next = findNextPolyline(first, 'last');
 
-                    if (next != null) {
-                        let first2 = temp.find(find => find.id == next.connected_with.first);
+                        if (next != null) {
+                            let first2 = temp.find(find => find.id == next.connected_with.first);
 
-                        if (first2 != null) {
-                            if (first2 instanceof L.Polygon) {
-                                first.calculation.nop = parseInt(first2.nop);
-                                let flow = checkFlow(first.calculation.nop);
+                            if (first2 != null) {
+                                if (first2 instanceof L.Polygon) {
+                                    first.calculation.nop = parseInt(first2.nop);
+                                    let flow = checkFlow(first.calculation.nop);
 
-                                last.calculation.capacity = parseFloat(flow);
-                            } else {
-                                first.calculation.nop = first2.calculation.nop;
-                                last.calculation.capacity = first2.calculation.nop;
+                                    last.calculation.capacity = parseFloat(flow);
+                                } else {
+                                    first.calculation.nop = first2.calculation.nop;
+                                    last.calculation.capacity = first2.calculation.nop;
+                                }
                             }
                         }
+                        edit.warning.pressure(firstPolyline);
                     }
-                    edit.warning.pressure(firstPolyline);
                 }
             }
         }

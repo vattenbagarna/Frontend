@@ -159,19 +159,11 @@ export const show = {
 
 
         div.classList.add(first.attributes.id);
-        if (close.length > 0) {
-            close = close[close.length - 1];
-            close.onclick = function() {
-                let div = this.parentElement.parentElement;
-
-                div.children[0].style.opacity = "0";
-                setTimeout(() => div.remove(), 600);
-            };
-        }
 
         first.attributes.Totaltryck = result.totalPressure.toFixed(2) + " m";
         first.attributes.Flödeshastighet = result.calculations.mps.toFixed(2) + " m/s";
         first.attributes["Antal personer som högst"] = result.nop;
+        first.attributes.Flöde = result.capacity * 1000 + " l/s";
         first.setPopupContent(popup.marker(first.attributes) + popup.changeCoord(first._latlng));
 
         switch (result.calculations.status) {
@@ -200,11 +192,9 @@ export const show = {
                 first._icon.classList.add('transparent-border');
 
                 setTimeout(() => {
-                    let div = close.parentElement.parentElement;
-
                     if (div != null) {
-                        div.children[0].style.opacity = "0";
-                        setTimeout(() => div.remove(), 600);
+                        alerts[0].children[0].style.opacity = "0";
+                        setTimeout(() => alerts[0].remove(), 600);
                     }
                 }, 2000);
                 break;
@@ -302,6 +292,17 @@ export const show = {
                 first._icon.classList.remove('transparent-border');
                 first._icon.classList.add('alert-icon');
                 break;
+        }
+
+        if (close.length > 0) {
+            for (let i = 0; i < close.length; i++) {
+                close[i].onclick = function() {
+                    let div = this.parentElement.parentElement;
+
+                    div.children[0].style.opacity = "0";
+                    setTimeout(() => div.remove(), 600);
+                };
+            }
         }
     },
 
