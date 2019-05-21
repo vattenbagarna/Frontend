@@ -107,6 +107,22 @@ export const add = {
                 houseClicked = true;
             }
         }
+
+        document.onkeydown = function(event) {
+            event = event || window.event;
+            if (event.key == "Escape" ) {
+                if (markerClicked) {
+                    firstTarget._icon.classList.remove("connect-icon");
+                    firstTarget._icon.classList.add("transparent-border");
+                    markerClicked = false;
+                    pipe = null;
+                } else if (houseClicked) {
+                    firstTarget._path.classList.remove("polygon-stroke");
+                    houseClicked = false;
+                    pipe = null;
+                }
+            }
+        };
     },
 
     /**

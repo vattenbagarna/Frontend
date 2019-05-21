@@ -171,7 +171,14 @@ export class Marker {
 
         let response = await API.get(url);
 
-        if ("target" in event) {
+        if (response.results[0] == undefined) {
+            this.marker.elevation = 0;
+            this.attributes["M ö.h"] = 0;
+            if (this.marker.attributes.Kategori != "Förgrening") {
+                this.marker.bindPopup(popup.marker(this.attributes) +
+                popup.changeCoord(latlngObj));
+            }
+        } else if ("target" in event) {
             event.target.elevation = response.results[0].elevation.toFixed(2);
             this.attributes["M ö.h"] = event.target.elevation;
             event.target.bindPopup(
@@ -633,6 +640,10 @@ export class Pipe {
         let latlngsArray = [];
         let elevationObj = {};
         let samples = 0;
+        let highestElevation;
+        let lowestElevation;
+        let firstElevation;
+        let lastElevation;
 
         for (var i = 0; i < latlngs.length; i++) {
             latlngsArray.push(latlngs[i].lat + "," + latlngs[i].lng);
@@ -649,10 +660,18 @@ export class Pipe {
             samples + "&key=" + elevationKey;
 
         let response = await API.get(url);
-        let highestElevation = Math.max(...response.results.map(o => o.elevation), 0);
-        let lowestElevation = Math.min(...response.results.map(o => o.elevation));
-        let firstElevation = response.results[0].elevation;
-        let lastElevation = response.results[response.results.length - 1].elevation;
+
+        if (response.results[0] == undefined) {
+            highestElevation = 0;
+            lowestElevation = 0;
+            firstElevation = 0;
+            lastElevation = 0;
+        } else {
+            highestElevation = Math.max(...response.results.map(o => o.elevation), 0);
+            lowestElevation = Math.min(...response.results.map(o => o.elevation));
+            firstElevation = response.results[0].elevation;
+            lastElevation = response.results[response.results.length - 1].elevation;
+        }
 
         elevationObj = {
             highest: highestElevation,
