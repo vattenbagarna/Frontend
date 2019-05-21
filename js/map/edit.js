@@ -3,7 +3,7 @@ export let isEdit = null;
 let tempPolylineArray = [];
 
 //Imports the map object
-import { map, token, icons, projectInfo } from "./loadLeafletMap.js";
+import { map, token, pumps, icons, projectInfo, objectData } from "./loadLeafletMap.js";
 
 import { add, polylines, markers, polygons } from "./add.js";
 
@@ -11,7 +11,7 @@ import { show, mouseCoord } from "./show.js";
 
 import { popup } from "./popup.js";
 
-import { Marker, House, Pipe } from "./classes.js";
+import { Marker, House, Pipe, mapId, setMapId } from "./classes.js";
 
 export const edit = {
 
@@ -44,10 +44,11 @@ export const edit = {
                 polyline.decorator.setPaths(newLatlng);
             }
 
-            event.target.setPopupContent(popup.marker(event.target.attributes) + popup.changeCoord({
-                lat: event.latlng.lat,
-                lng: event.latlng.lng
-            }));
+            event.target.setPopupContent(popup.marker(event.target.attributes, objectData) +
+                popup.changeCoord({
+                    lat: event.latlng.lat,
+                    lng: event.latlng.lng
+                }));
 
             edit.warning.unsavedChanges(true);
         });
@@ -77,7 +78,6 @@ export const edit = {
      */
     removeArrows: () => {
         polylines.eachLayer((polyline) => {
-            polyline.decorator.off('click');
             polyline.decorator.removeFrom(map);
         });
     },
@@ -91,9 +91,6 @@ export const edit = {
         //Gets each polylines and removes the "editing hooks".
         polylines.eachLayer((polyline) => {
             polyline.decorator.addTo(map);
-            polyline.decorator.on('click', () => {
-                polyline.openPopup();
-            });
         });
 
         //Turn off click events for markers and polylines.
@@ -184,6 +181,50 @@ export const edit = {
     },
 
     /**
+     * notificationRead - Notifices the user has reading acces right.
+     *
+     * @returns {void}
+     */
+    notificationRead: () => {
+        // Get the snackbar DIV
+        let snackbar = document.getElementById("snackbar");
+
+        snackbar.style.backgroundColor = "white";
+        snackbar.style.color = "black";
+        snackbar.innerHTML = "Du har läsbehörighet";
+
+        // Add the "show" class to DIV
+        snackbar.className = "show";
+
+        // After 3 seconds, remove the show class from DIV
+        setTimeout(function() {
+            snackbar.className = snackbar.className.replace("show", "");
+        }, 5000);
+    },
+
+    /**
+     * notificationWrite - Notifices the user has write acccess right.
+     *
+     * @returns {void}
+     */
+    notificationWrite: () => {
+        // Get the snackbar DIV
+        let snackbar = document.getElementById("snackbar");
+
+        snackbar.style.backgroundColor = "white";
+        snackbar.style.color = "black";
+        snackbar.innerHTML = "Du har skrivbehörighet";
+
+        // Add the "show" class to DIV
+        snackbar.className = "show";
+
+        // After 3 seconds, remove the show class from DIV
+        setTimeout(function() {
+            snackbar.className = snackbar.className.replace("show", "");
+        }, 5000);
+    },
+
+    /**
      * save - Saves the objects from the map in a json format.
      *
      * @param {string} version version number the user wants to save the project under
@@ -196,23 +237,26 @@ export const edit = {
 
         temp = {
             zoom: map.getZoom(),
-            center: map.getCenter()
+            center: map.getCenter(),
+            mapId: mapId
         };
 
         json.push(temp);
-
         //Loop through all polylines and save them in a json format
         polylines.eachLayer((polyline) => {
             temp = {
-                coordinates: polyline._latlngs,
                 type: "polyline",
-                connected_with: polyline.connected_with,
-                elevation: polyline.elevation,
-                length: polyline.length,
-                tilt: polyline.tilt,
-                material: polyline.material,
-                dimension: polyline.dimension,
-                pipeType: polyline.type,
+                data: {
+                    coordinates: polyline._latlngs,
+                    attributes: polyline.attributes,
+                    connected_with: polyline.connected_with,
+                    elevation: polyline.elevation,
+                    length: polyline.length,
+                    tilt: polyline.tilt,
+                    material: polyline.material,
+                    dimension: polyline.dimension,
+                    pipeType: polyline.type,
+                }
             };
 
             json.push(temp);
@@ -221,11 +265,13 @@ export const edit = {
         //Loop through all markers and save them in a json format
         markers.eachLayer((marker) => {
             temp = {
-                coordinates: { lat: marker._latlng.lat, lng: marker._latlng.lng },
                 type: "marker",
-                id: marker.id,
-                capacity: marker.capacity,
-                attributes: marker.attributes,
+                data: {
+                    coordinates: { lat: marker._latlng.lat, lng: marker._latlng.lng },
+                    id: marker.id,
+                    calculation: marker.calculation,
+                    attributes: marker.attributes,
+                }
             };
 
             json.push(temp);
@@ -233,14 +279,19 @@ export const edit = {
 
         polygons.eachLayer((polygon) => {
             temp = {
-                coordinates: polygon._latlngs,
                 type: "polygon",
-                definition: polygon.definition,
-                id: polygon.id,
-                address: polygon.address,
-                nop: polygon.nop,
-                flow: polygon.flow,
-                color: polygon.options.color
+                data: {
+                    coordinates: polygon._latlngs,
+                    id: polygon.id,
+                    popup: {
+                        address: polygon.address,
+                        definition: polygon.definition,
+                        nop: polygon.nop,
+                        flow: polygon.flow,
+                        color: polygon.options.color
+                    },
+                    used: polygon.used,
+                }
             };
 
             json.push(temp);
@@ -292,43 +343,37 @@ export const edit = {
     load: (json) => {
         let icon;
         let newObj;
-        let popup;
+        let temp;
 
         map.setView(json[0].center, json[0].zoom);
+        setMapId(json[0].mapId);
 
         //Loop through json data.
         for (let i = 1; i < json.length; i++) {
             switch (json[i].type) {
                 //If marker add it to the map with its options
                 case "marker":
-                    icon = icons.find(element => element.category == json[i].attributes.Kategori);
-                    newObj = new Marker(json[i].coordinates, json[i].attributes, icon.icon,
-                        json[i].capacity, json[i].id);
+                    icon = icons.find(element =>
+                        element.category == json[i].data.attributes.Kategori);
+                    json[i].data.icon = icon.icon;
+                    newObj = new Marker(json[i].data);
                     break;
                     //If polyline
                 case "polyline":
-                    newObj = new Pipe(json[i].coordinates, ["", ""], json[i].pipeType,
-                        json[i].connected_with.first);
-                    newObj.draw(
-                        json[i].connected_with.last,
-                        null,
-                        json[i].elevation,
-                        json[i].material,
-                        json[i].dimension,
-                        json[i].tilt
-                    );
+                    json[i].data.first = json[i].data.connected_with.first;
+
+                    newObj = new Pipe(json[i].data);
+                    json[i].data.last = json[i].data.connected_with.last;
+                    json[i].data.coordinates = null;
+                    newObj.draw(json[i].data);
                     break;
                 case "polygon":
-                    newObj = new House(json[i].coordinates[0], ["", ""], json[i].color);
-                    popup = [
-                        json[i].address,
-                        json[i].definition,
-                        json[i].nop,
-                        json[i].flow,
-                        json[i].color
-                    ];
+                    temp = json[i].data.coordinates;
 
-                    newObj.drawFromLoad(json[i].coordinates, popup);
+                    json[i].data.color = json[i].data.popup.color;
+                    newObj = new House(json[i].data);
+                    json[i].data.coordinates = temp;
+                    newObj.drawFromLoad(json[i].data);
                     break;
             }
         }
@@ -360,8 +405,8 @@ export const edit = {
             let all = [];
             let total;
             let flow;
-            let pumps = await API.get(
-                `${configuration.apiURL}/obj/type/Pump?token=${token}`);
+
+            if (element == null) { return false; }
 
             polylines.eachLayer((polyline) => {
                 all.push(polyline);
@@ -379,23 +424,60 @@ export const edit = {
             if (first != null) {
                 switch (first.constructor) {
                     case L.Polygon:
-                        flow = checkFlow(first, flow);
-                        if (first.used == null) {
-                            last.capacity += parseFloat(flow);
+                        if (first.used == false) {
+                            last.calculation.nop += parseInt(first.nop);
+                            flow = checkFlow(first.nop);
+                            last.calculation.capacity = parseFloat(flow);
                             first.used = true;
+
+                            checkBranchConnection(first, last);
                         }
                         calculateNextPolyline(last, 'first');
                         break;
 
                     case L.Marker:
-                        if (first.capacity > 0) {
+                        if (first.calculation.capacity > 0) {
                             if (first.attributes.Kategori == "Pumpstationer") {
                                 total = calculateTotalPressure(
-                                    first.capacity,
+                                    first.calculation.capacity,
                                     element.dimension.inner,
                                     element.length,
                                     element.tilt,
                                 );
+
+                                if (last instanceof L.Marker) {
+                                    if (last.attributes.Kategori == "Förgrening" &&
+                                            last.calculation.used == null) {
+                                        last.calculation.nop += first.calculation.nop;
+
+                                        let temp = polylines.getLayers();
+                                        let connected = temp.filter(find => find.connected_with
+                                            .last == last.id && find != element);
+
+                                        if (connected != null) {
+                                            connected = connected[0];
+                                            temp = markers.getLayers();
+                                            temp = temp.find(find => find.id == connected
+                                                .connected_with.first);
+                                            if (temp != null) {
+                                                last.calculation.nop += temp.calculation.nop;
+                                            }
+                                        }
+                                        last.calculation.used = true;
+                                        let next = findNextPolyline(last, 'first');
+
+                                        temp = markers.getLayers();
+                                        temp = temp.find(find => find.id == next.connected_with
+                                            .last);
+                                        if (temp != null) {
+                                            temp.calculation.nop += first.calculation.nop;
+                                            let flow = checkFlow(temp.calculation.nop);
+
+                                            temp.calculation.capacity = parseFloat(flow);
+                                            calculateNextPolyline(temp, 'first');
+                                        }
+                                    }
+                                }
 
                                 calculateLast(first, last, pumps, total, element.dimension
                                     .inner);
@@ -403,21 +485,23 @@ export const edit = {
                                 let polyline = findNextPolyline(first, 'last');
 
                                 let temp = markers.getLayers();
-                                let marker = temp.find(find =>
+                                let find = temp.find(find =>
                                     find.id == polyline.connected_with.first);
 
-                                if (marker != null) {
-                                    if (marker.attributes.Kategori == "Pumpstationer") {
+                                if (find != null) {
+                                    if (find.attributes.Kategori == "Pumpstationer") {
                                         edit.warning.pressure(polyline);
                                     }
                                 }
-
-                                last.capacity = first.capacity;
-
+                                last.calculation.nop = first.calculation.nop;
+                                last.calculation.capacity = first.calculation.capacity;
                                 calculateNextPolyline(last, 'first');
                             } else {
-                                last.capacity = first.capacity;
+                                last.calculation.nop = first.calculation.nop;
+                                last.calculation.capacity = first.calculation.capacity;
                             }
+                        } else {
+                            show.hideAlert(first);
                         }
 
                         break;
@@ -466,18 +550,60 @@ export let findNextPolyline = (element, value) => {
  * @returns {void}
  */
 export let resetMarkers = (element) => {
+    let next;
     let temp = markers.getLayers();
+
+    temp = temp.concat(polygons.getLayers());
+
+    let first = temp.find(find => find.id == element.connected_with.first);
     let last = temp.find(find => find.id == element.connected_with.last);
 
-    if (last != null) {
-        if (last.capacity > 0) {
-            last.capacity = 0;
-            show.hideAlert(last);
+    if (last != null && last instanceof L.Marker) {
+        if (last.calculation.capacity > 0) {
+            if (first != null) {
+                if (first instanceof L.Polygon) {
+                    last.calculation.nop -= parseInt(first.nop);
+                    let flow = checkFlow(last.calculation.nop);
 
-            let next = findNextPolyline(last, 'first');
+                    last.calculation.capacity = parseFloat(flow);
+                } else {
+                    last.calculation.nop = first.calculation.nop;
+                    let flow = checkFlow(last.calculation.nop);
 
-            if (next != null) {
-                resetMarkers(next);
+                    last.calculation.capacity = parseFloat(flow);
+                }
+                next = findNextPolyline(last, 'first');
+                edit.warning.pressure(next);
+                show.hideAlert(last);
+            }
+        }
+    }
+};
+
+/**
+ * checkBranchConnection - checks if last point is a branch connection and increases number of
+ * 						 - people if a pump with capacity is connected to the branch connection
+ *
+ * @param {type} last The element to check if it is a branch connection or not
+ *
+ * @returns {void}
+ */
+let checkBranchConnection = (first, last) => {
+    if (last.attributes.Kategori == "Förgrening") {
+        let next = findNextPolyline(last, 'first');
+        let temp = markers.getLayers();
+
+
+        let find = temp.find(find =>
+            find.id == next.connected_with.last);
+
+        if (last.calculation.used == null) {
+            if (find != null && find.calculation.capacity > 0) {
+                last.calculation.nop += find.calculation.nop;
+                let flow = checkFlow(last.calculation.nop);
+
+                last.calculation.capacity = parseFloat(flow);
+                last.calculation.used = true;
             }
         }
     }
@@ -505,6 +631,7 @@ let calculateTotalPressure = (capacity, dimension, length, height) => {
         parseFloat(length)
     );
 
+    loss *= 9.81;
     let result = calculations.totalPressure(parseFloat(loss), parseFloat(height));
 
     return parseFloat(result);
@@ -531,27 +658,32 @@ let calculateLast = (first, last, pumps, total, dimension) => {
     switch (last.constructor) {
         case L.Marker:
             if (last.attributes.Kategori == "Pumpstationer") {
-                last.capacity = first.capacity;
+                last.calculation.nop = first.calculation.nop;
+                last.calculation.capacity = first.calculation.capacity;
                 getResults(first, pumps, total, dimension);
                 calculateNextPolyline(last, 'first');
             } else if (last.attributes.Kategori == "Förgrening") {
                 nextPolyline = findNextPolyline(last, 'first');
 
+                let flow = checkFlow(last.calculation.nop);
+
+                last.calculation.capacity = parseFloat(flow);
+
                 total2 = calculateTotalPressure(
-                    last.capacity,
-                    nextPolyline.dimension.inner,
-                    nextPolyline.length,
-                    nextPolyline.tilt
+                    parseFloat(last.calculation.capacity),
+                    parseFloat(nextPolyline.dimension.inner),
+                    parseFloat(nextPolyline.length),
+                    parseFloat(nextPolyline.tilt)
                 );
 
                 combinedPressure = parseFloat(total) + parseFloat(total2);
-                combinedPressure = parseFloat(combinedPressure);
 
                 //olika dimensioner??
                 getResults(first, pumps, combinedPressure, dimension);
             } else {
                 getResults(first, pumps, total, dimension);
-                last.capacity = first.capacity;
+                last.calculation.nop = first.calculation.nop;
+                last.calculation.capacity = first.calculation.capacity;
             }
             break;
         default:
@@ -574,8 +706,11 @@ let getResults = (first, pumps, total, dimension) => {
     let pump = pumps.find(element =>
         element.Modell == first.attributes.Pump);
 
+    result.nop = first.calculation.nop;
     result.calculations = checkPump(pump, total, parseFloat(dimension));
     result.totalPressure = total;
+    result.capacity = first.calculation.capacity;
+    first.calculation.status = result.calculations.status;
     show.alert(first, result);
 };
 
@@ -647,13 +782,14 @@ let checkPump = (pump, pressure, dim) => {
 /**
  * checkFlow - Checks flow according to number of people in a sewage system.
  *
- * @param {object} first the object connected with another
- * @param {number} flow  the water flow
+ * @param {object} nop   The number of people
+ * @param {number} flow  The water flow
  *
  * @returns {number} flow according to number of people
  */
-let checkFlow = (first, flow) => {
-    let nrOf = parseFloat(first.nop);
+export let checkFlow = (nop) => {
+    let nrOf = parseFloat(nop);
+    let flow = 0;
 
     if (nrOf <= 10) {
         flow = 0.7;

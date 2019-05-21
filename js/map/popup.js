@@ -1,46 +1,88 @@
 export let popup = {
-    marker: (attributes) => {
-        let temp = "";
-        let temp2 = "";
-        let similarAttributes = ["Kategori", "Modell", "M ö.h"];
-        let i = 0;
+    marker: (attributes, objectData) => {
+        let info = "";
+        let info2 = "";
+        let info3 = "";
+        let similarAttributes = [
+            "Kategori",
+            "Modell",
+            "id",
+            "M ö.h",
+        ];
+
+        let calculationInfo = [
+            "Totaltryck",
+            "Flödeshastighet",
+            "Antal personer som högst",
+            "Flöde",
+        ];
 
         for (let key in attributes) {
-            switch (key) {
-                case 'Bild':
-                    temp += `<tr><td><img src="${attributes[key]}"/></td></tr>`;
-                    break;
-                case 'creatorID':
-                case '_id':
-                    break;
-                case similarAttributes[i]:
-                    temp += `<tr><td>
-                    ${similarAttributes[i]}: ${attributes[similarAttributes[i]]}
-                    </td></tr>`;
-                    i = i + 1;
-                    break;
-                default:
-                    temp2 += `<tr><td>${key}: ${attributes[key]}</td></tr>`;
-                    break;
+            if (similarAttributes.includes(key)) {
+                let i = similarAttributes.indexOf(key);
+
+                info +=
+                    `<tr><td>${similarAttributes[i]}: ${attributes[key]}</td></tr>`;
+            } else if (calculationInfo.includes(key)) {
+                info2 += `<tr><td>${key}: ${attributes[key]}</td></tr>`;
+            } else {
+                info3 += `<tr><td>${key}: ${attributes[key]}</td></tr>`;
             }
         }
 
+        let selectInfo = "";
+        let option = "";
+        let select = document.createElement("select");
+
+        select.id = "pumpingStation";
+        if (attributes.Kategori == "Pumpstationer") {
+            for (let i = 0; i < objectData.length; i++) {
+                if (objectData[i].Kategori == "Pumpstationer") {
+                    if (objectData[i].Modell == attributes.Modell) {
+                        option = document.createElement("option");
+                        option.text = objectData[i].Modell;
+                        select.add(option, select[0]);
+                    } else {
+                        option = document.createElement("option");
+                        option.text = objectData[i].Modell;
+                        select.add(option, select[-1]);
+                    }
+                }
+            }
+
+            let div = document.createElement("div");
+
+            div.innerHTML = `<span>Byt pumpstation</span>`;
+            div.appendChild(select);
+            selectInfo = div.innerHTML;
+        }
+
         return `<ul class='accordion2'>
+        ${selectInfo}
     <li>
         <label for='cp-1'>Info</label>
         <input type='radio' name='a' id='cp-1' checked='checked'>
         <div class='content'>
 			<table>
-		        ${temp}
+		        ${info}
 			</table>
 		</div>
     </li>
-    <li>
-        <label for='cp-2'>Överig info</label>
+	<li>
+        <label for='cp-2'>Beräkningsinfo</label>
         <input type='radio' name='a' id='cp-2'>
         <div class='content'>
 			<table>
-                ${temp2}
+                ${info2}
+            </table>
+		</div>
+    </li>
+    <li>
+        <label for='cp-3'>Övrig info</label>
+        <input type='radio' name='a' id='cp-3'>
+        <div class='content'>
+			<table>
+                ${info3}
             </table>
 		</div>
     </li>`;
@@ -52,8 +94,10 @@ export let popup = {
 	    Typ: <input type="text" id="houseType" value="${type}"><br>
 		Färg: <br><input type="color" id="houseColor" value="${color}"><br>
 
-	    Personer per hushåll: <input type="text" id="per" value="${nop}"><br>
-	    Flöde per person/dygn: <input type="text" id="cons" value="${flow}"><br>
+	    Personer per hushåll:
+		<input type="text" id="per" value="${nop}"><br>
+	    Flöde per person/dygn:
+		<input class="input-text" disabled type="text" id="cons" value="${flow}"><br>
 	    <input type="button" class="updateValuesInHouse" value="Ändra">
 	    </div>`;
     },
@@ -75,16 +119,16 @@ export let popup = {
     changeCoord: (latlng) => {
         return `
     <li>
-        <label for='cp-3'>Ändra koordinater</label>
-        <input type='radio' name='a' id='cp-3'>
+        <label for='cp-4'>Ändra koordinater</label>
+        <input type='radio' name='a' id='cp-4'>
         <div class='content'>
 			<b> Latitud </b>
 			<input type="text" id='latitud' value=${latlng.lat}>
         	<b> Longitud </b>
 			<input type="text" id='longitud' value=${latlng.lng}>
-        	<input type="button" class="sendCoords" value="Skicka" >
 		</div>
     </li>
-</ul>`;
+</ul>
+<input type="button" class="sendCoords" value="Ändra" >`;
     }
 };

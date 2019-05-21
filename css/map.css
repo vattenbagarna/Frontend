@@ -352,6 +352,10 @@ select {
     box-sizing: border-box;
 }
 
+input[type=text]:disabled {
+    background: #dddddd;
+}
+
 input[type=button] {
     width: 100%;
     background-color: #3867d6;

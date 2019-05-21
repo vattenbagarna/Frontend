@@ -2,7 +2,7 @@
 export let mouseCoord = null;
 
 // Imports the map object.
-import { map } from "./loadLeafletMap.js";
+import { map, objectData } from "./loadLeafletMap.js";
 
 // Imports polylines and clears the start polyline.
 import { polylines, add } from "./add.js";
@@ -13,6 +13,7 @@ import { popup } from "./popup.js";
 import { edit } from "./edit.js";
 
 export const show = {
+
     /**
      * activeObj - Shows which object is clicked in the sidebar menu by adding
      * and removing the active class.
@@ -78,7 +79,7 @@ export const show = {
     },
 
     /**
-     * showMouseCoord - Shows the user the latLngs of the mouse on the map.
+     * mouseCoordOnMap - Shows the user the latLngs of the mouse on the map.
      *
      * @param {object} event
      * @returns {void}
@@ -108,7 +109,7 @@ export const show = {
     },
 
     /**
-     * showAllLength - Gets each pipes length and also gets the total length of
+     * polylineLengths - Gets each pipes length and also gets the total length of
      * all pipes.
      *
      * @returns {void}
@@ -148,24 +149,29 @@ export const show = {
         });
     },
 
-
+    /**
+     * alert - Displays warnings when pressure is too high or too low.
+     *
+     * @param {object} first
+     * @param {object} result
+     *
+     * @returns {void}
+     */
     alert: (first, result) => {
         let div = document.createElement('div');
-        let alerts;
+        let parent = document.getElementById('myMap');
+        let close = document.getElementsByClassName("closebtn");
+        let alerts = document.getElementsByClassName(first.attributes.id);
         let html;
 
         div.classList.add(first.attributes.id);
 
-        let parent = document.getElementById('myMap');
-
-        alerts = document.getElementsByClassName(first.attributes.id);
-
-        /*for (let i = alerts.length - 1; i >= 0; i--) {
-            setTimeout(() => {
-                alerts[i].children[0].style.opacity = "0";
-                setTimeout(() => alerts[i].remove(), 600);
-            }, 500);
-        }*/
+        first.attributes.Totaltryck = result.totalPressure.toFixed(2) + " m";
+        first.attributes.Flödeshastighet = result.calculations.mps.toFixed(2) + " m/s";
+        first.attributes["Antal personer som högst"] = result.nop;
+        first.attributes.Flöde = result.capacity * 1000 + " l/s";
+        first.setPopupContent(popup.marker(first.attributes, objectData) +
+            popup.changeCoord(first._latlng));
 
         switch (result.calculations.status) {
             case 0:
@@ -192,17 +198,10 @@ export const show = {
                 first._icon.classList.remove('alert-icon');
                 first._icon.classList.add('transparent-border');
 
-
-                first.attributes.Flödeshastighet = result.calculations.mps.toFixed(2);
-                first.setPopupContent(popup.marker(first.attributes) +
-                    popup.changeCoord(first._latlng));
-
                 setTimeout(() => {
-                    let div = close.parentElement.parentElement;
-
                     if (div != null) {
-                        div.children[0].style.opacity = "0";
-                        setTimeout(() => div.remove(), 600);
+                        alerts[0].children[0].style.opacity = "0";
+                        setTimeout(() => alerts[0].remove(), 600);
                     }
                 }, 2000);
                 break;
@@ -260,7 +259,7 @@ export const show = {
                     `<div class="alert">
 							<span class="closebtn">&times;</span>
 							<strong>För högt tryck!</strong>
-							Totaltrycket: ${result.totalPressure}
+							Totaltrycket: ${result.totalPressure.toFixed(2)} m
 							<span class="info-text">
 							   ${first.attributes.Modell}
 							  id: ${first.attributes.id}
@@ -283,7 +282,7 @@ export const show = {
                     `<div class="alert">
 							<span class="closebtn">&times;</span>
 							<strong>För lågt tryck!</strong>
-							Totaltrycket: ${result.totalPressure}
+							Totaltrycket: ${result.totalPressure.toFixed(2)} m
 							<span class="info-text">
 							   ${first.attributes.Modell}
 							  id: ${first.attributes.id}
@@ -302,25 +301,38 @@ export const show = {
                 break;
         }
 
-        let close = document.getElementsByClassName("closebtn");
+        if (close.length > 0) {
+            for (let i = 0; i < close.length; i++) {
+                close[i].onclick = function() {
+                    let div = this.parentElement.parentElement;
 
-        close = close[close.length - 1];
-
-        close.onclick = function() {
-            let div = this.parentElement.parentElement;
-
-            div.children[0].style.opacity = "0";
-            setTimeout(() => div.remove(), 600);
-        };
+                    div.children[0].style.opacity = "0";
+                    setTimeout(() => div.remove(), 600);
+                };
+            }
+        }
     },
 
+    /**
+     * hideAlert - Hides the warnings.
+     *
+     * @param {object} element
+     * @returns {void}
+     */
     hideAlert: (element) => {
         let alerts = document.getElementsByClassName(element.attributes.id);
 
+        if (element.attributes.Kategori != "Förgrening") {
+            delete element.attributes.Totaltryck;
+            delete element.attributes.Flödeshastighet;
+            delete element.attributes["Antal personer som högst"];
+            element.setPopupContent(popup.marker(element.attributes, objectData) +
+                popup.changeCoord(element._latlng));
+        }
+
 
         for (let i = alerts.length - 1; i >= 0; i--) {
-            alerts[i].children[0].style.opacity = "0";
-            setTimeout(() => alerts[i].remove(), 600);
+            alerts[i].remove();
         }
         if (element._icon != null) {
             element._icon.classList.remove('warning-icon');

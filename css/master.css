@@ -116,7 +116,6 @@ body {
 /*
     Disabled/Inactive button style
 */
-
 .disabled {
     padding: 1rem 1.5rem;
     border: 2px solid #666;
@@ -194,6 +193,9 @@ option {
     /* border-radius: 5px; */
 }
 
+.number-input:disabled {
+    background: #dddddd;
+}
 
 /*
     General table logic layout
@@ -201,7 +203,7 @@ option {
 .table {
     text-align: center;
     display: flex;
-    justify-content:space-around;
+    justify-content: space-around;
     align-items: center;
     border-top: 1px solid rgba(0, 0, 0, 0.5);
     transition: 0.2s;

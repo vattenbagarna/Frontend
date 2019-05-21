@@ -6,6 +6,7 @@ export let projectInfo;
 export let pipeChoice = null;
 export let objectData = [];
 export let icons = [];
+export let pumps = [];
 
 // Imports Google maps javascript api key from getKey.js file
 import { key } from "./getKey.js";
@@ -221,7 +222,6 @@ let addHouseOnClick = () => {
 let addPipeOnClick = () => {
     // Adds a click event listener on pipe button
     document.getElementById("pipe").addEventListener("click", () => {
-        edit.removeArrows();
         // Set pipeChoice
         pipeChoice = 0;
         // On each layer of the map => this means all markers, all polylines
@@ -236,7 +236,6 @@ let addPipeOnClick = () => {
 
     // Adds a click event listener on stempipe button
     document.getElementById("stempipe").addEventListener("click", () => {
-        edit.removeArrows();
         // Set pipeChoice
         pipeChoice = 1;
         // On each layer of the map => this means all markers, all polylines
@@ -461,6 +460,8 @@ export let loadMap = {
                     delete json[i].approved;
                     delete json[i]._id;
                     objectData.push(json[i]);
+                } else {
+                    pumps.push(json[i]);
                 }
             }
         }
@@ -508,7 +509,7 @@ export let loadMap = {
         if (editPermission == true) {
             markers.eachLayer((marker) => {
                 marker.disableDragging();
-                marker.bindPopup(popup.marker(marker.attributes));
+                marker.bindPopup(popup.marker(marker.attributes, objectData));
                 marker.off("popupopen");
             });
         }
@@ -696,8 +697,10 @@ let getPermission = async () => {
     if (response.permission == "r") {
         //if user has permission r(read) load onLoadRead()
         onLoadRead();
+        edit.notificationRead();
     } else {
         onLoadWrite();
+        edit.notificationWrite();
     }
 };
 
@@ -720,5 +723,5 @@ function calculateAspectRatioFit(srcWidth, srcHeight, maxWidth, maxHeight) {
 }
 
 document.getElementById("showMateriallist").addEventListener('click', () => {
-    document.location.href = "materiallist.html?id=" + id;
+    document.location.replace("materiallist.html?id=" + id);
 });
