@@ -234,10 +234,33 @@ function calcAll() {
     let roundPress = lostPress.toFixed(2);
     let roundTotal = totalPress.toFixed(2);
 
-    document.getElementById("flowSpeed").innerText = roundVel;
-    document.getElementById("staticPressure").innerText = height;
-    document.getElementById("pressureLoss").innerText = roundPress;
-    document.getElementById("totalPressure").innerText = roundTotal;
+	if (roundTotal == "NaN" || roundTotal < 0 ||
+		roundPress == "NaN" || roundPress < 0 ||
+		roundVel == "NaN" || roundVel < 0) {
+
+		if (roundTotal == "NaN" || roundTotal < 0) {
+			document.getElementById("totalPressure").innerText = "-";
+		}
+		if (roundPress == "NaN" || roundPress < 0) {
+			document.getElementById("pressureLoss").innerText = "-";
+		}
+		if (roundVel == "NaN" || roundVel < 0) {
+			document.getElementById("flowSpeed").innerText = "-";
+		}
+		if (height == "NaN") {
+			document.getElementById("staticPressure").innerText = "0";
+		} else {
+			document.getElementById("staticPressure").innerText = height;
+		}
+
+		alert("Ger ej ett dugligt värde");
+
+	} else {
+		document.getElementById("flowSpeed").innerText = roundVel;
+		document.getElementById("staticPressure").innerText = height;
+		document.getElementById("pressureLoss").innerText = roundPress;
+		document.getElementById("totalPressure").innerText = roundTotal;
+	}
 
     resetPumps();
 }
