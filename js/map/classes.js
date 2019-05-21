@@ -70,6 +70,22 @@ export class Marker {
             this.marker.id = mapId++;
         }
         this.attributes.id = this.marker.id;
+
+        if (data.calculation) {
+            if (data.calculation.status == 1) {
+                this.marker._icon.classList.add('warning-icon');
+                this.marker._icon.classList.remove('transparent-border');
+            } else if (data.calculation.status == 2) {
+                this.marker._icon.classList.add('warning-icon');
+                this.marker._icon.classList.remove('transparent-border');
+            } else if (data.calculation.status == 3) {
+                this.marker._icon.classList.add('alert-icon');
+                this.marker._icon.classList.remove('transparent-border');
+            } else if (data.calculation.status == 4) {
+                this.marker._icon.classList.add('alert-icon');
+                this.marker._icon.classList.remove('transparent-border');
+            }
+        }
     }
 
     /**

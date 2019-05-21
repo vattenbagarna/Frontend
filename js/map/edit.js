@@ -716,6 +716,7 @@ let getResults = (first, pumps, total, dimension) => {
     result.calculations = checkPump(pump, total, parseFloat(dimension));
     result.totalPressure = total;
     result.capacity = first.calculation.capacity;
+    first.calculation.status = result.calculations.status;
     show.alert(first, result);
 };
 
