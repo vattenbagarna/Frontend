@@ -91,13 +91,6 @@ const changePassword = async () => {
         "/acc/changepassword", 'application/x-www-form-urlencoded',
     data);
 
-    /*fetch(configuration.apiURL + "/acc/changepassword", {
-        body: data,
-        method: "POST"
-    }).then(function (response) {
-        return response.json();
-    }).then(function(data) );*/
-    console.log(data);
     if (data.error != undefined && data.error == false) {
         //All is good and we got a good response. Notify the user.
         sendErrorResponse("Ditt lösenord har uppdaterats", "ok-msg");

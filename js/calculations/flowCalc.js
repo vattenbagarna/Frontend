@@ -248,9 +248,7 @@ function calcAll() {
  *
  * @returns {void}
  */
-
 const getPumps = async (wantedFlow, height, selectedDim) => {
-  
     let json = await API.get(configuration.apiURL +
         "/obj/type/Pump?token=" + localStorage.getItem("token"));
 

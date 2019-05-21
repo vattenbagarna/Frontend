@@ -76,16 +76,7 @@ const sendResetRequest = async () => {
     let res = await API.post(configuration.apiURL +
         "/acc/passwordreset", 'application/x-www-form-urlencoded',
     data);
-    /*fetch(configuration.apiURL + "/acc/passwordreset", {
-        body: data,
-        method: "POST"
-    }).then(function (response) {
-        return response.json();
-    }).then(function(res) {
 
-    });*/
-
-    console.log(res);
     if (res.error != undefined && res.error == false) {
         //All is good and we got a good response. Notify the user.
         sendErrorResponse("Ditt lösenord har uppdaterats!", "ok-msg");

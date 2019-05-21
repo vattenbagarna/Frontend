@@ -1,4 +1,4 @@
-/* global configuration */
+/*global configuration, API*/
 
 /**
  * logout - Destroys local storage token and redirect user to login page
@@ -27,24 +27,21 @@ let setUsername = () => {
 /**
 * checkAdminSetNav - adds admin button in nav bar IFF user is admin
 */
-let checkAdminSetNav = () => {
-    fetch(configuration.apiURL + "/admin/user" + "?token=" + localStorage.getItem('token'))
-        .then((response) => {
-            return response.json();
-        })
-        .then((data) => {
-            if (data.user.isAdmin == true) {
-                let target = document.getElementById('extraLinks');
-                let element = document.createElement("a");
+let checkAdminSetNav = async () => {
+    let data = await API.get(configuration.apiURL +
+        "/admin/user" + "?token=" + localStorage.getItem('token'));
 
-                element.classList += "admin-active";
-                element.href = "admin.html";
-                element.innerText = "Admin";
-                target.appendChild(element);
-                return true;
-            }
-            return false;
-        });
+    if (data.user.isAdmin == true) {
+        let target = document.getElementById('extraLinks');
+        let element = document.createElement("a");
+
+        element.classList += "admin-active";
+        element.href = "admin.html";
+        element.innerText = "Admin";
+        target.appendChild(element);
+        return true;
+    }
+    return false;
 };
 
 

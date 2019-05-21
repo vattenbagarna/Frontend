@@ -48,14 +48,6 @@ const sendReset = async () => {
     data = await API.post(configuration.apiURL +
         "/acc/requestreset", 'application/x-www-form-urlencoded',
     data);
-    /*fetch(configuration.apiURL + "/acc/requestreset", {
-        body: data,
-        method: "POST"
-    }).then(function (response) {
-        return response.json();
-    }).then(function(data) {
-
-    });*/
 
     if (data.error != undefined && data.error == false) {
         //All is good and we got a good response. Notify the user.

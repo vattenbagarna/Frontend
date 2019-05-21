@@ -337,20 +337,6 @@ let createObject = async () => {
 
         await API.post(`${configuration.apiURL}/obj/categories/icon/insert?token=${token}`,
             'application/json', JSON.stringify(icon));
-
-
-        /*fetch(`${configuration.apiURL}/obj/categories/icon/insert?token=${token}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(icon),
-        }).then(res => res.json())
-            .then((data) => {
-                if (data.error) {
-                    console.log(data);
-                }
-            });*/
     } else {
         data.Kategori = document.getElementById('Kategori').value;
     }

@@ -21,13 +21,7 @@ const sendLogin = async () => {
     data = await API.post(configuration.apiURL + "/acc/login", 'application/x-www-form-urlencoded',
         data);
     //Preform an api call with the form data
-    /*fetch(configuration.apiURL + "/acc/login", {
-        body: data,
-        method: 'POST'
-    })
-        .then(function (response) {
-            return response.json();
-        }).then(function(data) );*/
+
     //Here is the API response, check if it returned an error, if it did
 
     //Clear the password field no matter the outcome
