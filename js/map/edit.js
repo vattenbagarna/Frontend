@@ -3,7 +3,7 @@ export let isEdit = null;
 let tempPolylineArray = [];
 
 //Imports the map object
-import { map, token, pumps, icons, projectInfo } from "./loadLeafletMap.js";
+import { map, token, pumps, icons, projectInfo, objectData } from "./loadLeafletMap.js";
 
 import { add, polylines, markers, polygons } from "./add.js";
 
@@ -44,10 +44,11 @@ export const edit = {
                 polyline.decorator.setPaths(newLatlng);
             }
 
-            event.target.setPopupContent(popup.marker(event.target.attributes) + popup.changeCoord({
-                lat: event.latlng.lat,
-                lng: event.latlng.lng
-            }));
+            event.target.setPopupContent(popup.marker(event.target.attributes, objectData) +
+                popup.changeCoord({
+                    lat: event.latlng.lat,
+                    lng: event.latlng.lng
+                }));
 
             edit.warning.unsavedChanges(true);
         });
@@ -177,6 +178,50 @@ export const edit = {
         setTimeout(function() {
             snackbar.className = snackbar.className.replace("show", "");
         }, 3000);
+    },
+
+    /**
+     * notificationRead - Notifices the user has reading acces right.
+     *
+     * @returns {void}
+     */
+    notificationRead: () => {
+        // Get the snackbar DIV
+        let snackbar = document.getElementById("snackbar");
+
+        snackbar.style.backgroundColor = "white";
+        snackbar.style.color = "black";
+        snackbar.innerHTML = "Du har läsbehörighet";
+
+        // Add the "show" class to DIV
+        snackbar.className = "show";
+
+        // After 3 seconds, remove the show class from DIV
+        setTimeout(function() {
+            snackbar.className = snackbar.className.replace("show", "");
+        }, 5000);
+    },
+
+    /**
+     * notificationWrite - Notifices the user has write acccess right.
+     *
+     * @returns {void}
+     */
+    notificationWrite: () => {
+        // Get the snackbar DIV
+        let snackbar = document.getElementById("snackbar");
+
+        snackbar.style.backgroundColor = "white";
+        snackbar.style.color = "black";
+        snackbar.innerHTML = "Du har skrivbehörighet";
+
+        // Add the "show" class to DIV
+        snackbar.className = "show";
+
+        // After 3 seconds, remove the show class from DIV
+        setTimeout(function() {
+            snackbar.className = snackbar.className.replace("show", "");
+        }, 5000);
     },
 
     /**
@@ -451,9 +496,9 @@ export const edit = {
                                     if (find.attributes.Kategori == "Pumpstationer") {
                                         edit.warning.pressure(polyline);
                                     }
+                                    last.calculation.nop = first.calculation.nop;
+                                    last.calculation.capacity = first.calculation.capacity;
                                 }
-                                last.calculation.nop = first.calculation.nop;
-                                last.calculation.capacity = first.calculation.capacity;
 
                                 calculateNextPolyline(last, 'first');
                             } else {
@@ -518,7 +563,7 @@ export let resetMarkers = (element) => {
     let first = temp.find(find => find.id == element.connected_with.first);
     let last = temp.find(find => find.id == element.connected_with.last);
 
-    if (last != null) {
+    if (last != null && last instanceof L.Marker) {
         if (last.calculation.capacity > 0) {
             if (first != null) {
                 if (first instanceof L.Polygon) {

@@ -1,7 +1,7 @@
 /*global configuration, Chart, API */
 let token = localStorage.getItem('token');
 let base64Image = undefined;
-let base64Icon = "../img/exampleIcon.png";
+let base64Icon = undefined;
 let myLineChart;
 
 /**
@@ -143,7 +143,7 @@ let newCategory = () => {
     div.innerHTML =
         `<br><label>Den nya kategorin </label><br>
 		<input class="text-input" id="newCategoryInput" type="text">
-		 <label>Kategori ikon</label><br>
+		 <label>Kategoriikon</label><br>
 		<img id="currentIcon"/>
 	   <input id="iconFile" type="file" name="pic" accept=".png">`;
     document.getElementById('Kategori').after(div);
@@ -271,17 +271,17 @@ let newPumpCurve = () => {
 };
 
 /**
-  * Help function for array numeric sort
-  *
-  * @param {JSON} a, first value to compare
-  * @param {JSON} b, second value to compare
-  * @returns {Number} if value is bigger, smaller or equal
-  */
-const compare = ( a, b ) => {
-    if ( parseFloat(a.x) < parseFloat(b.x) ) {
+ * Help function for array numeric sort
+ *
+ * @param {JSON} a, first value to compare
+ * @param {JSON} b, second value to compare
+ * @returns {Number} if value is bigger, smaller or equal
+ */
+const compare = (a, b) => {
+    if (parseFloat(a.x) < parseFloat(b.x)) {
         return -1;
     }
-    if ( parseFloat(a.x) > parseFloat(b.x) ) {
+    if (parseFloat(a.x) > parseFloat(b.x)) {
         return 1;
     }
     return 0;

@@ -509,7 +509,7 @@ export let loadMap = {
         if (editPermission == true) {
             markers.eachLayer((marker) => {
                 marker.disableDragging();
-                marker.bindPopup(popup.marker(marker.attributes));
+                marker.bindPopup(popup.marker(marker.attributes, objectData));
                 marker.off("popupopen");
             });
         }
@@ -678,8 +678,10 @@ let getPermission = async () => {
     if (response.permission == "r") {
         //if user has permission r(read) load onLoadRead()
         onLoadRead();
+        edit.notificationRead();
     } else {
         onLoadWrite();
+        edit.notificationWrite();
     }
 };
 
