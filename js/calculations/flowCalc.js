@@ -223,6 +223,8 @@ function calcAll() {
     wantedFlow = checkUnit(wantedFlow);
 
     let lostPress = calculations.calcPressure(wantedFlow, mu, selectedDim, length);
+	console.log("selectedDim : ", selectedDim);
+
 
     lostPress *= 9.81;
     let velocity = calculations.calcVelocity(wantedFlow, selectedDim);
@@ -430,7 +432,9 @@ function changeDim(selectedDim) {
     let innerdim = {
         "PO40": 35.2,
         "PO50": 44,
-        "PO60": 55.4,
+        "PO63": 55.4,
+		"PO75": 66.0,
+		"PO90": 79.2,
         "PEO110": 96.8,
         "PEO160": 141,
         "PEO180": 158.6,
