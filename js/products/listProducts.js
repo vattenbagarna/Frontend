@@ -15,6 +15,22 @@ let loadProducts = async () => {
     if (json.length > 0) {
         for (let i = 0; i < json.length; i++) {
             if (json[i].isDisabled == 0) {
+                let toggleGlobal = "";
+
+                if (json[i].requestApprove == 0) {
+                    toggleGlobal = `<a class="tablepart tablelink"
+                    onclick="requestGlobal('${json[i]._id}');"
+                    title="Begär produkten global">
+                        <i class="material-icons">language</i>
+                    </a>`;
+                } else {
+                    toggleGlobal = `<a class="tablepart tablelink"
+                    onclick="withdrawRequest('${json[i]._id}');"
+                    title="Avbryt begäran om global produkt">
+                        <i class="material-icons">schedule</i>
+                    </a>`;
+                }
+
                 activeProducts.innerHTML +=
                     `<div class="table">
 			<h2 class="tablepart">${json[i].Modell}</h2>
@@ -22,7 +38,7 @@ let loadProducts = async () => {
 			<img class="tablepart" src="${json[i].Bild}"/>
 			<a class="tablepart tablelink" href="updateObject.html?id=${json[i]._id}">
 				<i class="material-icons">settings</i>
-			</a>
+			</a>` + toggleGlobal + `
 <a class="tablepart tablelink"
 onclick="disable('${json[i]._id}', 1);">
 				<i class="material-icons">clear</i>
@@ -63,6 +79,36 @@ onclick="remove('${json[i]._id}');">
 loadProducts();
 
 /**
+* requestGlobal - sets flag to request specified product as global
+* @param {string} target - the ID of the object to request global status for
+*/
+let requestGlobal = async (target) => {
+    let res = await API.post(configuration.apiURL +
+        "/obj/approve/" +
+        target +
+        "/1?token=" +
+        token,
+    "application/x-www-form-urlencoded");
+
+    location.reload();
+};
+
+/**
+* withdrawRequest - withdraws request for global status
+* @param {string} target - the ID of the object to withdraw the request of global status for
+*/
+let withdrawRequest = async (target) => {
+    let res = await API.post(configuration.apiURL +
+        "/obj/approve/" +
+        target +
+        "/0?token=" +
+        token,
+    "application/x-www-form-urlencoded");
+
+    location.reload();
+};
+
+/**
  * disable - disable the selected product by calling backend API
  *
  * @param {string} id the id of the product to be disabled
@@ -86,8 +132,10 @@ let disable = async (id, value) => {
  *
  */
 let remove = async (id) => {
+  
     await API.post(configuration.apiURL + "/obj/delete/" + id + "?token=" + token,
         "application/x-www-form-urlencoded", {});
+
 
     location.reload();
 };
