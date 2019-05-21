@@ -209,7 +209,7 @@ option {
 
 .tablepart {
     font-weight: 200;
-    width: 15%;
+    /* width: 20%; */
     margin: auto;
     flex-grow: 0;
 }

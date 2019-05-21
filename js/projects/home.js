@@ -20,18 +20,18 @@ let loadAllProjects = async () => {
             for (let n = 0; n < json[i].access.length; n++) {
                 if (json[i].access[n].permission == "w") {
                     permission +=
-                        `${json[i].access[n].username} <span class=rights>skriva</span><br>`;
+                        `${json[i].access[n].username} <span class=rights>S</span><br>`;
                 } else {
                     permission +=
-                        `${json[i].access[n].username} <span class=rights>Läsa</span><br>`;
+                        `${json[i].access[n].username} <span class=rights>L</span><br>`;
                 }
             }
 
             projectlist.innerHTML +=
                 `<div class="table">
-    						<h2 class="tablepart">${json[i].name}</h2>
-    						<h2 class="tablepart">${json[i].version}</h2>
-    						<div class="creators tablepart">
+    						<h2 class="tablepart tbl-short">${json[i].name}</h2>
+    						<h2 class="tablepart tbl-short">${json[i].version}</h2>
+    						<div class="creators tablepart tbl-long">
                                 <p class="creatorname">Skapare:<br>
                                     ${json[i].creator.username}
                                 </p>
