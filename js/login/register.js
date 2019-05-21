@@ -1,4 +1,4 @@
-/* global configuration */
+/* global configuration, API */
 
 "use strict";
 
@@ -55,7 +55,7 @@ const sendErrorResponse = (errorToDisplay, type="error-msg") => {
 /**
 * sendResetRequest - funtion to send the request to the API
 */
-const sendResetRequest = () => {
+const sendResetRequest = async () => {
     if (!validateFieldList(inputElements)) {
         sendErrorResponse("Vänligen fyll i samtliga fält.");
         pass.value = "";
@@ -73,28 +73,33 @@ const sendResetRequest = () => {
     let data = new URLSearchParams(new FormData(formElement));
 
     console.log(data);
-    fetch(configuration.apiURL + "/acc/passwordreset", {
+    let res = await API.post(configuration.apiURL +
+        "/acc/passwordreset", 'application/x-www-form-urlencoded',
+    data);
+    /*fetch(configuration.apiURL + "/acc/passwordreset", {
         body: data,
         method: "POST"
     }).then(function (response) {
         return response.json();
     }).then(function(res) {
-        console.log(res);
-        if (res.error != undefined && res.error == false) {
-            //All is good and we got a good response. Notify the user.
-            sendErrorResponse("Ditt lösenord har uppdaterats!", "ok-msg");
-            for (var i = 0; i < inputElements.length; i++) {
-                inputElements[i].value = "";
-            }
-            return true;
+
+    });*/
+
+    console.log(res);
+    if (res.error != undefined && res.error == false) {
+        //All is good and we got a good response. Notify the user.
+        sendErrorResponse("Ditt lösenord har uppdaterats!", "ok-msg");
+        for (var i = 0; i < inputElements.length; i++) {
+            inputElements[i].value = "";
         }
-        //Something with the request went wrong
-        sendErrorResponse("Uppdatering av lösenord misslyckades! " +
-        "Kontrollera att din kod är korrekt och att du är ansluten till internet.");
-        pass.value = "";
-        confirm.value = "";
-        return false;
-    });
+        return true;
+    }
+    //Something with the request went wrong
+    sendErrorResponse("Uppdatering av lösenord misslyckades! " +
+    "Kontrollera att din kod är korrekt och att du är ansluten till internet.");
+    pass.value = "";
+    confirm.value = "";
+    return false;
 };
 
 registerButton.addEventListener("click", sendResetRequest);

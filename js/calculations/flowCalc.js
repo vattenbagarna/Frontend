@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-/* global configuration, calculations */
+/* global configuration, calculations, API */
 
 /**
  * showStyling - Displays the boxes.
@@ -248,16 +248,14 @@ function calcAll() {
  *
  * @returns {void}
  */
-function getPumps(height, selectedDim) {
-    fetch(configuration.apiURL + "/obj/type/Pump?token=" + localStorage.getItem("token"), {
-        method: 'GET'
-    })
-        .then(function(response) {
-            return response.json();
-        }).then(function(json) {
-            recommendPump(json, height, selectedDim);
-        });
-}
+
+const getPumps = async (wantedFlow, height, selectedDim) => {
+  
+    let json = await API.get(configuration.apiURL +
+        "/obj/type/Pump?token=" + localStorage.getItem("token"));
+
+    recommendPump(json, wantedFlow, height, selectedDim);
+};
 
 /**
  * checkUnit - Changes to the right unit.

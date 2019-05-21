@@ -1,4 +1,4 @@
-/* global configuration */
+/* global configuration, API */
 
 "use strict";
 
@@ -87,21 +87,25 @@ const changePassword = async () => {
         return false;
     }
 
-    fetch(configuration.apiURL + "/acc/changepassword", {
+    data = await API.post(configuration.apiURL +
+        "/acc/changepassword", 'application/x-www-form-urlencoded',
+    data);
+
+    /*fetch(configuration.apiURL + "/acc/changepassword", {
         body: data,
         method: "POST"
     }).then(function (response) {
         return response.json();
-    }).then(function(data) {
-        if (data.error != undefined && data.error == false) {
-            //All is good and we got a good response. Notify the user.
-            sendErrorResponse("Ditt lösenord har uppdaterats", "ok-msg");
-            return true;
-        }
-        //Something with the request went wrong
-        sendErrorResponse("Ett fel uppstod, kontrollera att du angev rätt lösenord");
-        return false;
-    });
+    }).then(function(data) );*/
+    console.log(data);
+    if (data.error != undefined && data.error == false) {
+        //All is good and we got a good response. Notify the user.
+        sendErrorResponse("Ditt lösenord har uppdaterats", "ok-msg");
+        return true;
+    }
+    //Something with the request went wrong
+    sendErrorResponse("Ett fel uppstod, kontrollera att du angev rätt lösenord");
+    return false;
 };
 
 
