@@ -24,8 +24,8 @@
               <span id="userName"></span>
           </div>
       </div>
+	  <h1 class="title">Beräkningssida</h1>
 		<div class="wrap">
-				<h1 class="title">Beräkningssida</h1>
 			<div class="container">
 				<div class="sub-header">
 					<h3>Spillvatten</h3>
@@ -54,17 +54,27 @@
 							</select>
 						</span>
 						<span class="form-element-pair">
-							<label for="mu" id="muLabel">Råhetstal</label>
-								<input class="number-input" data-digits-only step="0.001" type="number" id="mu" name="mu" placeholder="0" onkeypress="enterPressed(this, event);">&nbsp; mm
+							<label for="mu" id="muLabel">Råhetstal</label><br>
+								<input class="number-input" data-digits-only
+									step="0.001" type="number" id="mu"
+									name="mu"
+									value="0.1" onkeypress="enterPressed(this, event);">&nbsp; mm
 							</span>
-						<span class="form-element-pair radio-bt-txt">
+						<!-- Below has been outcommented becuase there is
+						  currently nothing that changes depending on the
+						  selected radio button.
+							We think the point of the buttons are to know which pipe to use
+							depending on the pressure class when there are
+							several pipes with the same outer dimensions
+						-->
+						<!-- <span class="form-element-pair radio-bt-txt">
 							<label name="pressureChoice"></label>
 							<input type="radio" id="pressure1" name="PN" value="PN6,3">
 						</span>
 						<span class="form-element-pair radio-bt-txt">
 							<label name="pressureChoice"></label>
 							<input type="radio" id="pressure2" name="PN" value="PN10">
-						</span>
+						</span>-->
 						<span class="form-element-pair">
 							<label for="flow" id ="flowLabel">Önskat flöde</label>
 							<span id="flow-wrap">
@@ -118,8 +128,12 @@
 					</div>
 				</div>
 			</div>
+			<div class="explain-image">
+				<img class="lyfthojd-img" src="img/lyfthojd.png" alt="Lyfthöjd av vatten från en pumpstation">
+			</div>
 		</body>
 		<script src="js/configVariables.js"></script>
+		<script src="js/APIMiddleware.js"></script>
 		<script src="js/exportCalc.js"></script>
 		<script src="js/calculations/flowCalc.js"></script>
 	</html>

@@ -7,13 +7,13 @@
  * @returns {void}
  */
 function showStyling() {
-    document.getElementById("pressure1").style.display = "block";
-    document.getElementById("pressure2").style.display = "block";
+    // document.getElementById("pressure1").style.display = "block";
+    // document.getElementById("pressure2").style.display = "block";
     document.getElementById("flow").style.display = "block";
     document.getElementById("flow-wrap").style.display = "flex";
     document.getElementById("submit").style.display = "block";
-    document.getElementById("pressure1").previousElementSibling.innerText = "PN 6.3";
-    document.getElementById("pressure2").previousElementSibling.innerText = "PN 10";
+    // document.getElementById("pressure1").previousElementSibling.innerText = "PN 6.3";
+    // document.getElementById("pressure2").previousElementSibling.innerText = "PN 10";
 }
 
 /**
@@ -21,11 +21,11 @@ function showStyling() {
  *
  * @returns {void}
  */
-function uncheckButtons() {
-    document.getElementById("pressure1").checked = false;
-    document.getElementById("pressure2").checked = false;
-}
-uncheckButtons();
+// function uncheckButtons() {
+//     document.getElementById("pressure1").checked = false;
+//     document.getElementById("pressure2").checked = false;
+// }
+// uncheckButtons();
 
 // Changes material to the selected one
 document.getElementById("material").addEventListener("change", () => {
@@ -217,6 +217,8 @@ function calcAll() {
     let wantedFlow = parseFloat(document.getElementById("flow").value);
     let mu = parseFloat(document.getElementById("mu").value);
 
+    checkValidLogin();
+
     selectedDim = changeDim(selectedDim);
     wantedFlow = checkUnit(wantedFlow);
 
@@ -232,10 +234,33 @@ function calcAll() {
     let roundPress = lostPress.toFixed(2);
     let roundTotal = totalPress.toFixed(2);
 
-    document.getElementById("flowSpeed").innerText = roundVel;
-    document.getElementById("staticPressure").innerText = height;
-    document.getElementById("pressureLoss").innerText = roundPress;
-    document.getElementById("totalPressure").innerText = roundTotal;
+	if (roundTotal == "NaN" || roundTotal < 0 ||
+		roundPress == "NaN" || roundPress < 0 ||
+		roundVel == "NaN" || roundVel < 0) {
+
+		if (roundTotal == "NaN" || roundTotal < 0) {
+			document.getElementById("totalPressure").innerText = "-";
+		}
+		if (roundPress == "NaN" || roundPress < 0) {
+			document.getElementById("pressureLoss").innerText = "-";
+		}
+		if (roundVel == "NaN" || roundVel < 0) {
+			document.getElementById("flowSpeed").innerText = "-";
+		}
+		if (height == "NaN") {
+			document.getElementById("staticPressure").innerText = "0";
+		} else {
+			document.getElementById("staticPressure").innerText = height;
+		}
+
+		alert("Ger ej ett dugligt värde");
+
+	} else {
+		document.getElementById("flowSpeed").innerText = roundVel;
+		document.getElementById("staticPressure").innerText = height;
+		document.getElementById("pressureLoss").innerText = roundPress;
+		document.getElementById("totalPressure").innerText = roundTotal;
+	}
 
     resetPumps();
 }
@@ -248,11 +273,11 @@ function calcAll() {
  *
  * @returns {void}
  */
-const getPumps = async (wantedFlow, height, selectedDim) => {
+const getPumps = async (height, selectedDim) => {
     let json = await API.get(configuration.apiURL +
         "/obj/type/Pump?token=" + localStorage.getItem("token"));
 
-    recommendPump(json, wantedFlow, height, selectedDim);
+    recommendPump(json, height, selectedDim);
 };
 
 /**
@@ -312,6 +337,7 @@ function convertUnit(wantedFlow) {
  * @returns {void}
  */
 function recommendPump(pumps, height, selectedDim) {
+    checkValidLogin();
     let found = false;
     let mps = 0;
     let parent;
@@ -427,3 +453,31 @@ function changeDim(selectedDim) {
 
     return innerdim[selectedDim];
 }
+
+
+/**
+* checkValidLogin - makes sure that the user is logged in to see the page
+*/
+const checkValidLogin = async () => {
+    let token = localStorage.getItem("token");
+
+    if (!token) {
+        localStorage.token = "";
+        window.location = "index.html";
+        return false;
+    }
+
+    let req = await API.get(configuration.apiURL + "/admin/user?token=" + token);
+
+    if (req.error) {
+        localStorage.token = "";
+        window.location = "index.html";
+        console.log("request error");
+        console.log(req);
+        return false;
+    }
+
+    return true;
+};
+
+checkValidLogin();
