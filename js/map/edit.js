@@ -631,6 +631,7 @@ let calculateTotalPressure = (capacity, dimension, length, height) => {
         parseFloat(length)
     );
 
+    loss *= 9.81;
     let result = calculations.totalPressure(parseFloat(loss), parseFloat(height));
 
     return parseFloat(result);
