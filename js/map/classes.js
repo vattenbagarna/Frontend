@@ -269,13 +269,23 @@ export class Marker {
      * @returns {void}
      */
     onRemove() {
-        let firstPolyline = findNextPolyline(this, 'last');
-        let lastPolyline = findNextPolyline(this, 'first');
-        let temp = markers.getLayers();
+        let temp = polylines.getLayers();
+        let firstPolyline = temp.filter(find => find.connected_with.last == this.id);
+        let lastPolyline = temp.filter(find => find.connected_with.first == this.id);
 
+        temp = markers.getLayers();
         temp = temp.concat(polygons.getLayers());
 
-        if (firstPolyline != null && lastPolyline != null) {
+        if (firstPolyline.length > 0 && lastPolyline.length > 0) {
+            let restOf = [];
+
+            for (let i = 1; i < firstPolyline.length; i++) {
+                restOf.push(firstPolyline[i]);
+            }
+
+            firstPolyline = firstPolyline[0];
+            lastPolyline = lastPolyline[0];
+
             let newLatlngs = firstPolyline._latlngs;
 
             newLatlngs.pop();
@@ -287,47 +297,57 @@ export class Marker {
             firstPolyline.setLatLngs(newLatlngs);
             firstPolyline.decorator.setPaths(newLatlngs);
 
-
             firstPolyline.connected_with.last = lastPolyline.connected_with.last;
             polylines.removeLayer(lastPolyline);
-        } else if (firstPolyline != null) {
-            polylines.removeLayer(firstPolyline);
-        } else if (lastPolyline != null) {
-            polylines.removeLayer(lastPolyline);
-        }
 
-        if (this.attributes.Kategori == "Förgrening") {
-            let first = temp.find(find => find.id == firstPolyline.connected_with.first);
-            let last = temp.find(find => find.id == firstPolyline.connected_with.last);
+            for (let i = 0; i < restOf.length; i++) {
+                polylines.removeLayer(restOf[i]);
+            }
 
-            if (first != null) {
-                if (first instanceof L.Polygon) {
-                    last.calculation.nop = parseInt(first.nop);
-                    let flow = checkFlow(last.calculation.nop);
+            if (this.attributes.Kategori == "Förgrening") {
+                let first = temp.find(find => find.id == firstPolyline.connected_with.first);
+                let last = temp.find(find => find.id == firstPolyline.connected_with.last);
 
-                    last.calculation.capacity = parseFloat(flow);
-                    first.used = true;
-                    edit.warning.pressure(firstPolyline);
-                } else {
-                    let next = findNextPolyline(first, 'last');
+                if (first != null) {
+                    if (first instanceof L.Polygon) {
+                        if (this.calculation.nop != last.calculation.nop) {
+                            last.calculation.nop -= parseInt(first.nop);
+                            let flow = checkFlow(last.calculation.nop);
 
-                    if (next != null) {
-                        let first2 = temp.find(find => find.id == next.connected_with.first);
+                            last.calculation.capacity = parseFloat(flow);
+                            first.used = true;
+                        }
+                        edit.warning.pressure(firstPolyline);
+                    } else {
+                        let next = findNextPolyline(first, 'last');
 
-                        if (first2 != null) {
-                            if (first2 instanceof L.Polygon) {
-                                first.calculation.nop = parseInt(first2.nop);
-                                let flow = checkFlow(first.calculation.nop);
+                        if (next != null) {
+                            let first2 = temp.find(find => find.id == next.connected_with.first);
 
-                                last.calculation.capacity = parseFloat(flow);
-                            } else {
-                                first.calculation.nop = first2.calculation.nop;
-                                last.calculation.capacity = first2.calculation.nop;
+                            if (first2 != null) {
+                                if (first2 instanceof L.Polygon) {
+                                    first.calculation.nop = parseInt(first2.nop);
+                                    let flow = checkFlow(first.calculation.nop);
+
+                                    last.calculation.capacity = parseFloat(flow);
+                                } else {
+                                    first.calculation.nop = first2.calculation.nop;
+                                    last.calculation.capacity = first2.calculation.nop;
+                                }
                             }
                         }
+                        edit.warning.pressure(firstPolyline);
                     }
-                    edit.warning.pressure(firstPolyline);
                 }
+            }
+        } else if (firstPolyline.length > 0) {
+            for (let i = 0; i < firstPolyline.length; i++) {
+                polylines.removeLayer(firstPolyline[i]);
+            }
+        } else
+        if (lastPolyline.length > 0) {
+            for (let i = 0; i < lastPolyline.length; i++) {
+                polylines.removeLayer(lastPolyline[i]);
             }
         }
     }
@@ -416,7 +436,6 @@ export class House {
         this.polygon.on('remove', () => {
             let lastPolyline = findNextPolyline(this.polygon, 'first');
 
-            console.log(lastPolyline);
             if (lastPolyline != null) {
                 polylines.removeLayer(lastPolyline);
             }

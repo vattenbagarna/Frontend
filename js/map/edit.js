@@ -438,9 +438,6 @@ export const edit = {
                     case L.Marker:
                         if (first.calculation.capacity > 0) {
                             if (first.attributes.Kategori == "Pumpstationer") {
-                                console.log("antal personer: ", first.calculation.nop);
-                                console.log("flöde: ", first.calculation.capacity);
-                                console.log();
                                 total = calculateTotalPressure(
                                     first.calculation.capacity,
                                     element.dimension.inner,
@@ -463,8 +460,7 @@ export const edit = {
                                             temp = temp.find(find => find.id == connected
                                                 .connected_with.first);
                                             if (temp != null) {
-                                                last.calculation.nop += temp.calculation
-                                                    .nop;
+                                                last.calculation.nop += temp.calculation.nop;
                                             }
                                         }
                                         last.calculation.used = true;
@@ -496,10 +492,9 @@ export const edit = {
                                     if (find.attributes.Kategori == "Pumpstationer") {
                                         edit.warning.pressure(polyline);
                                     }
-                                    last.calculation.nop = first.calculation.nop;
-                                    last.calculation.capacity = first.calculation.capacity;
                                 }
-
+                                last.calculation.nop = first.calculation.nop;
+                                last.calculation.capacity = first.calculation.capacity;
                                 calculateNextPolyline(last, 'first');
                             } else {
                                 last.calculation.nop = first.calculation.nop;
@@ -567,12 +562,12 @@ export let resetMarkers = (element) => {
         if (last.calculation.capacity > 0) {
             if (first != null) {
                 if (first instanceof L.Polygon) {
-                    last.calculation.nop -= first.nop;
+                    last.calculation.nop -= parseInt(first.nop);
                     let flow = checkFlow(last.calculation.nop);
 
                     last.calculation.capacity = parseFloat(flow);
                 } else {
-                    last.calculation.nop -= first.calculation.nop;
+                    last.calculation.nop = first.calculation.nop;
                     let flow = checkFlow(last.calculation.nop);
 
                     last.calculation.capacity = parseFloat(flow);
@@ -681,8 +676,6 @@ let calculateLast = (first, last, pumps, total, dimension) => {
                 );
 
                 combinedPressure = parseFloat(total) + parseFloat(total2);
-
-                first.calculation.nop = last.calculation.nop;
 
                 //olika dimensioner??
                 getResults(first, pumps, combinedPressure, dimension);
