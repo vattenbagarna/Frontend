@@ -223,8 +223,6 @@ function calcAll() {
     wantedFlow = checkUnit(wantedFlow);
 
     let lostPress = calculations.calcPressure(wantedFlow, mu, selectedDim, length);
-	console.log("selectedDim : ", selectedDim);
-
 
     lostPress *= 9.81;
     let velocity = calculations.calcVelocity(wantedFlow, selectedDim);
@@ -258,8 +256,6 @@ function calcAll() {
 		alert("Ger ej ett dugligt värde");
 
 	} else {
-		document.getElementById("flowSpeed").innerText = roundVel;
-		document.getElementById("staticPressure").innerText = height;
 		document.getElementById("pressureLoss").innerText = roundPress;
 		document.getElementById("totalPressure").innerText = roundTotal;
 	}
@@ -387,6 +383,8 @@ function recommendPump(pumps, height, selectedDim) {
 
                     parent = document.getElementById('pump-suggestions');
                     parent.appendChild(div);
+                    parent = document.getElementById('pump-suggestions');
+                    parent.appendChild(div);
                 }
             }
             found = false;
@@ -433,8 +431,8 @@ function changeDim(selectedDim) {
         "PO40": 35.2,
         "PO50": 44,
         "PO63": 55.4,
-		"PO75": 66.0,
-		"PO90": 79.2,
+        "PO75": 66.0,
+        "PO90": 79.2,
         "PEO110": 96.8,
         "PEO160": 141,
         "PEO180": 158.6,
