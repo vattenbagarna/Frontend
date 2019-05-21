@@ -11,7 +11,7 @@ import { edit, calculateNextPolyline, checkFlow, findNextPolyline, resetMarkers 
 
 import { show, mouseCoord } from "./show.js";
 
-import { elevationKey } from "./getKey.js";
+import { key } from "./getKey.js";
 
 import { pipes } from "./pipes.js";
 
@@ -243,7 +243,7 @@ export class Marker {
             latlngObj = { lat: event.lat, lng: event.lng };
         }
         let url = "https://cors-anywhere.herokuapp.com/https://maps.googleapis.com" +
-            "/maps/api/elevation/json?locations=" + latlngString + "&key=" + elevationKey;
+            "/maps/api/elevation/json?locations=" + latlngString + "&key=" + key;
 
         let response = await API.get(url);
 
@@ -778,7 +778,7 @@ export class Pipe {
 
         let url = "https://cors-anywhere.herokuapp.com/https://maps.googleapis.com" +
             "/maps/api/elevation/json?path=" + latlngsArray + "&samples=" +
-            samples + "&key=" + elevationKey;
+            samples + "&key=" + key;
 
         let response = await API.get(url);
         let highestElevation = Math.max(...response.results.map(o => o.elevation), 0);
