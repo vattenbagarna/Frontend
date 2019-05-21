@@ -70,7 +70,7 @@ let customControl = (iconName) => {
     // Create a new leaflet control extended
     var myCustomControl = L.Control.extend({
         options: {
-            position: 'topleft'
+            position: 'bottomleft'
         },
         // When the customControl have been added to the map
         onAdd: () => {
@@ -221,13 +221,14 @@ let addHouseOnClick = () => {
 let addPipeOnClick = () => {
     // Adds a click event listener on pipe button
     document.getElementById("pipe").addEventListener("click", () => {
+        edit.removeArrows();
         // Set pipeChoice
         pipeChoice = 0;
         // On each layer of the map => this means all markers, all polylines
         // and all polygons but not the map itself
         map.eachLayer((layer) => {
             // On click, call addPipe function from add.js file
-            if (layer._popup != undefined) { layer._popup.options.autoPan = false; }
+            if (layer._popup != null) { layer._popup.options.autoPan = false; }
 
             layer.on("click", add.pipe);
         });
@@ -235,12 +236,13 @@ let addPipeOnClick = () => {
 
     // Adds a click event listener on stempipe button
     document.getElementById("stempipe").addEventListener("click", () => {
+        edit.removeArrows();
         // Set pipeChoice
         pipeChoice = 1;
         // On each layer of the map => this means all markers, all polylines
         // and all polygons but not the map itself
         map.eachLayer((layer) => {
-            if (layer._popup != undefined) { layer._popup.options.autoPan = false; }
+            if (layer._popup != null) { layer._popup.options.autoPan = false; }
             // On click on add call addPipe function
             layer.on("click", add.pipe);
         });
@@ -354,7 +356,7 @@ let deleteOnClick = () => {
         // On each layer of the map => this means all markers, all polylines
         // and all polygons but not the map itself
         map.eachLayer((layer) => {
-            if (layer._popup != undefined) { layer._popup.options.autoPan = false; }
+            if (layer._popup != null) { layer._popup.options.autoPan = false; }
             // On click on add call remove function
             layer.on("click", edit.remove);
         });
@@ -409,7 +411,7 @@ export let loadMap = {
         let list = document.getElementsByClassName('obj-list')[0];
 
         for (let i = 0; i < json.length; i++) {
-            if (json[i].Kategori != undefined) {
+            if (json[i].Kategori != null) {
                 if (document.getElementsByClassName(json[i].Kategori).length == 0 &&
                         json[i].Kategori != "Pump") {
                     list.innerHTML +=
@@ -433,6 +435,8 @@ export let loadMap = {
 
                     delete json[i].Bild;
                     delete json[i].creatorID;
+                    delete json[i].isDisabled;
+                    delete json[i].approved;
                     delete json[i]._id;
                     objectData.push(json[i]);
                 } else if (json[i].Kategori != "Pump") {
@@ -453,6 +457,8 @@ export let loadMap = {
 
                     delete json[i].Bild;
                     delete json[i].creatorID;
+                    delete json[i].isDisabled;
+                    delete json[i].approved;
                     delete json[i]._id;
                     objectData.push(json[i]);
                 }
@@ -476,6 +482,19 @@ export let loadMap = {
         let json = await API.get(
             `${configuration.apiURL}/proj/data/${id}?token=${token}`
         );
+
+        let urlParam = new URLSearchParams(window.location.search);
+        let myParam = urlParam.get('savestatus');
+
+        if (myParam == "error") {
+            edit.notification("error");
+        } else if (myParam == "success") {
+            edit.notification("success");
+        }
+
+        let currentState = history.state;
+
+        history.replaceState(currentState, "page 2", `map.html?id=${id}`);
 
         if (json[0].data.length > 0) {
             edit.load(json[0].data);
@@ -519,6 +538,8 @@ export let loadMap = {
  * @returns {void}
  */
 let onLoadWrite = () => {
+    let back = document.getElementById("readBack");
+
     map = L.map("myMap", {
         center: [56.208640, 15.632630],
         editable: true,
@@ -530,11 +551,11 @@ let onLoadWrite = () => {
     //loads the gridlayers, satellite or map
     gridlayers();
     //loads all the custom controls
-    customControl('map');
-    customControl('timeline');
-    customControl('control_camera');
-    customControl('bar_chart');
     customControl('delete');
+    customControl('bar_chart');
+    customControl('control_camera');
+    customControl('timeline');
+    customControl('map');
     //loads search functionality
     add.search();
 
@@ -548,6 +569,22 @@ let onLoadWrite = () => {
 
     //make the blue border appear on mouse icon button on load
     document.getElementById('map').click();
+
+    //create an a tag to go back to home
+    var backLink = document.createElement("a");
+
+    //sets the CSS and attributes for the a tag
+    backLink.setAttribute("class", "material-icons");
+    backLink.setAttribute("href", "/home.html");
+    backLink.innerHTML = "arrow_back";
+    back.appendChild(backLink);
+    backLink.style.position = "fixed";
+    backLink.style.bottom = "240px";
+    backLink.style.left = "353px";
+    backLink.style.zIndex = "9999";
+    backLink.style.fontSize = "50px";
+    backLink.style.textDecoration = "none";
+    backLink.style.color = "gray";
 
     //gets project data and info
     loadMap.loadData(false);
@@ -579,6 +616,7 @@ let onLoadRead = () => {
     loadMap.loadProducts();
     loadMap.loadProjectInfo();
 
+    gridlayers();
     //loads the custom controls for read property
     customControl('map');
     customControl('control_camera');
@@ -598,9 +636,9 @@ let onLoadRead = () => {
     backLink.innerHTML = "arrow_back";
     back.appendChild(backLink);
     backLink.style.position = "fixed";
-    backLink.style.bottom = "35px";
+    backLink.style.bottom = "150px";
     backLink.style.zIndex = "9999";
-    backLink.style.fontSize = "60px";
+    backLink.style.fontSize = "50px";
     backLink.style.textDecoration = "none";
     backLink.style.color = "gray";
 
@@ -623,14 +661,12 @@ let getPermission = async () => {
         let image = new Image();
         let iconSize;
 
-        image.src = json[i].Bild;
-
         /**
-         * resizeImage - Save icon object with category and L.icon
-         * 			   - Leaflet icon @see {@link https://leafletjs.com/reference-1.4.0.html#icon}
-         * 			   - The icon size is changed to below W:75 & H:40 but keeps aspect ratio
+         * - Save icon object with category and L.icon
+         * - Leaflet icon @see {@link https://leafletjs.com/reference-1.4.0.html#icon}
+         * - The icon size is changed to below W:75 & H:40 but keeps aspect ratio
          */
-        let resizeImage = () => {
+        image.onload = () => {
             if (json[i].Kategori != 'Förgrening') {
                 iconSize = calculateAspectRatioFit(image.naturalWidth,
                     image.naturalHeight, 75, 40);
@@ -650,8 +686,7 @@ let getPermission = async () => {
 
             icons.push(icon);
         };
-
-        image.onload = await resizeImage();
+        image.src = json[i].Bild;
     }
 
     //fetches the users permission from database to decide which load to use
@@ -683,3 +718,7 @@ function calculateAspectRatioFit(srcWidth, srcHeight, maxWidth, maxHeight) {
 
     return { width: srcWidth * ratio, height: srcHeight * ratio };
 }
+
+document.getElementById("showMateriallist").addEventListener('click', () => {
+    document.location.href = "materiallist.html?id=" + id;
+});

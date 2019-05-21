@@ -1,16 +1,16 @@
 // Changes material to the selected one
-export let pipe = {
+export let pipes = {
     listen: (elem) => {
         elem.addEventListener("change", () => {
             let data;
 
-            pipe.clear();
+            pipes.clear();
             if (elem.value === "PEM") {
-                data = pipe.PEM();
+                data = pipes.PEM();
             } else if (elem.value === "PE") {
-                data = pipe.PE();
+                data = pipes.PE();
             } else if (elem.value === "Rostfria") {
-                data = pipe.stainless();
+                data = pipes.stainless();
             }
             let newNode = document.createElement('div');
 
@@ -23,12 +23,12 @@ export let pipe = {
             let option;
 
             for (let i = 0; i < data.length; i++) {
-                if (data[i].outerdim != undefined) {
+                if (data[i].outerdim != null) {
                     option = document.createElement("option");
                     option.text = data[i].outerdim;
                     option.value = `${data[i].innerdim},${data[i].outerdim}`;
 
-                    if (data[i].inches != undefined) {
+                    if (data[i].inches != null) {
                         option.text += ` (${data[i].inches} tum)`;
                     }
                     select.add(option);

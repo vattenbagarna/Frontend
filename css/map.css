@@ -180,6 +180,10 @@ body {
     color: #696969;
 }
 
+.leaflet-popup-content-wrapper {
+    min-width: 170px;
+}
+
 .active {
     border-top: 1px solid #1280c4;
     border-bottom: 1px solid #1280c4;
@@ -222,6 +226,10 @@ body {
 }
 
 .fancy-button:hover {
+    cursor: pointer;
+}
+
+.fancy-light-button:hover {
     cursor: pointer;
 }
 
@@ -278,10 +286,62 @@ body {
     cursor: pointer;
 }
 
+.alert {
+    position: relative;
+    top: 0%;
+    width: 100%;
+    z-index: 9999;
+    padding: 20px;
+    background-color: rgba(244, 67, 54, 0.8);
+    font-size: 18px;
+    color: white;
+    opacity: 1;
+    transition: opacity 0.6s;
+    margin-bottom: 5px;
+}
+
+.warning-icon {
+    border: 2px solid #ff9800;
+    border-radius: 50%;
+}
+
+.alert-icon {
+    border: 2px solid #f44336;
+    border-radius: 50%;
+}
+
+.alert .info-text {
+    float: right;
+    margin-right: 20px;
+}
+
+.alert.success {
+    background-color: rgba(76, 175, 80, 0.8);
+}
+
+.alert.warning {
+    background-color: rgba(255, 152, 0, 0.8);
+}
+
+.closebtn {
+    margin-right: 40px;
+    color: white;
+    font-weight: bold;
+    float: right;
+    font-size: 22px;
+    line-height: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.closebtn:hover {
+    color: black;
+}
+
 input[type=text],
 input[type="number"],
 select {
-    width: 175px;
+    width: 100%;
     padding: 12px 20px;
     margin: 8px 0;
     display: block;
@@ -368,4 +428,88 @@ ul.accordion2 img {
 
 tr:nth-child(even) {
     background-color: #f2f2f2
+}
+
+.connect-icon {
+    border: 2px solid black;
+    border-radius: 50%;
+}
+
+.transparent-border {
+    border: 2px solid transparent;
+    border-radius: 50%;
+}
+
+.polygon-stroke {
+    stroke: black;
+    stroke-width: 3px;
+}
+
+#snackbar {
+    visibility: hidden;
+    min-width: 250px;
+    margin-left: -125px;
+    color: #fff;
+    text-align: center;
+    border-radius: 2px;
+    padding: 16px;
+    position: fixed;
+    z-index: 9999;
+    left: 50%;
+    bottom: 30px;
+    font-family: 'Fira Sans', sans-serif;
+}
+
+#snackbar.show {
+    visibility: visible;
+    -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+@-webkit-keyframes fadein {
+    from {
+        bottom: 0;
+        opacity: 0;
+    }
+
+    to {
+        bottom: 30px;
+        opacity: 1;
+    }
+}
+
+@keyframes fadein {
+    from {
+        bottom: 0;
+        opacity: 0;
+    }
+
+    to {
+        bottom: 30px;
+        opacity: 1;
+    }
+}
+
+@-webkit-keyframes fadeout {
+    from {
+        bottom: 30px;
+        opacity: 1;
+    }
+
+    to {
+        bottom: 0;
+        opacity: 0;
+    }
+}
+
+@keyframes fadeout {
+    from {
+        bottom: 30px;
+        opacity: 1;
+    }
+
+    to {
+        bottom: 0;
+        opacity: 0;
+    }
 }

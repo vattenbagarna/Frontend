@@ -81,6 +81,10 @@ const API = {
                     return false;
                 }
                 return sanitize(json);
+            }).catch((error) => {
+                let errors = [error, "error"];
+
+                return errors;
             });
     }
 };
