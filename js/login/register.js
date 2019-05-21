@@ -72,7 +72,6 @@ const sendResetRequest = async () => {
 
     let data = new URLSearchParams(new FormData(formElement));
 
-    console.log(data);
     let res = await API.post(configuration.apiURL +
         "/acc/passwordreset", 'application/x-www-form-urlencoded',
     data);
