@@ -256,8 +256,8 @@ function calcAll() {
 		alert("Ger ej ett dugligt värde");
 
 	} else {
-		document.getElementById("flowSpeed").innerText = roundVel;
 		document.getElementById("staticPressure").innerText = height;
+		document.getElementById("flowSpeed").innerText = roundVel;
 		document.getElementById("pressureLoss").innerText = roundPress;
 		document.getElementById("totalPressure").innerText = roundTotal;
 	}
@@ -430,7 +430,9 @@ function changeDim(selectedDim) {
     let innerdim = {
         "PO40": 35.2,
         "PO50": 44,
-        "PO60": 55.4,
+        "PO63": 55.4,
+        "PO75": 66.0,
+        "PO90": 79.2,
         "PEO110": 96.8,
         "PEO160": 141,
         "PEO180": 158.6,
