@@ -68,7 +68,7 @@ let gridlayers = () => {
  */
 let getBounds = () => {
     markers.eachLayer((marker) => {
-        boundsArray.push({lat: marker._latlng.lat, lng: marker._latlng.lng});
+        boundsArray.push({ lat: marker._latlng.lat, lng: marker._latlng.lng });
         marker.off("click");
         marker.options.interactive = false;
     });
@@ -272,12 +272,14 @@ let load = async (json) => {
                             pumps[json[i].data.attributes.Pump] = {
                                 antal: parseInt(json[i].data.attributes["Antal pumpar"])
                             };
-                        } else if (json[i].attributes.Pump != undefined) {
+                        } else if (json[i].data.attributes.Pump != undefined) {
                             pumps[json[i].data.attributes.Pump].antal += parseInt(
-                                json[i].attributes["Antal pumpar"]);
+                                json[i].data.attributes["Antal pumpar"]);
                             document.getElementById(`${json[i].data.attributes.Pump}Amount`)
                                 .innerHTML =
-                                `<td>Antal: ${parseInt(pumps[json[i].attributes.Pump].antal)}</td>`;
+                                `<td>
+								Antal: ${parseInt(pumps[json[i].data.attributes.Pump].antal)}
+								</td>`;
                         }
                         objects[json[i].data.attributes.Modell] = { antal: 1 };
                     } else {
@@ -307,7 +309,7 @@ let load = async (json) => {
                 json[i].data.coordinates = null;
                 newObj.draw(json[i].data);
 
-                if (json[i].data.pipeType == 1) { id = "Stamledning"; }
+                if (json[i].data.pipeType == 1) { id = "Stamledning"; } else { id = "Ledning"; }
 
                 listName = id + json[i].data.material + json[i].data.dimension.outer;
                 if (!pipes.hasOwnProperty(listName)) {
@@ -315,7 +317,7 @@ let load = async (json) => {
                         `<td>${id}</td>
                         <td id="${listName}">${Math.round(json[i].data.length)} m</td>
                         <td>Material: ${json[i].data.material}</td>
-                        <td>Dimension: ${json[i].data.dimension.outer}</td>
+                        <td>Dimension: <br>${json[i].data.dimension.outer}</td>
                         <td></td>
                         <td class="right">
                         Kostnad <input type="number" class='number-input' value=''/>
@@ -328,7 +330,7 @@ let load = async (json) => {
                         "pipeType": json[i].data.pipeType
                     };
                 } else {
-                    pipes[listName].length += json[i].length;
+                    pipes[listName].length += json[i].data.length;
                     document.getElementById(listName).innerHTML =
                         `<td>${Math.round(pipes[listName].length)} m</td>`;
                 }
@@ -336,8 +338,7 @@ let load = async (json) => {
                 break;
             case "polygon":
                 temp = json[i].data.coordinates;
-
-                json[i].data.color = json[i].data.popup.color;
+                json[i].data.popup.color = `#${json[i].data.popup.color}`;
                 newObj = new House(json[i].data);
                 json[i].data.coordinates = temp;
                 newObj.drawFromLoad(json[i].data);
@@ -487,7 +488,7 @@ export class House {
     constructor(data) {
         this.completed = false;
         this.attributes = this.attributes;
-        this.polygon = L.polygon([data.coordinates], options.house(data.color));
+        this.polygon = L.polygon([data.coordinates], options.house(data.popup.color));
         this.polygon.used = false;
     }
 

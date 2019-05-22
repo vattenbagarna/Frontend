@@ -110,22 +110,19 @@ export class Marker {
             let pumpingStations = document.getElementById('pumpingStation').value;
 
             if (pumpingStations != event.target.attributes.Modell) {
+                let first = findNextPolyline(event.target, "first");
                 let last = findNextPolyline(event.target, "last");
                 let icon = icons.find(element => element.category == "Pumpstationer");
-
+                let object;
 
                 markers.removeLayer(event.target);
-
-                let object;
 
                 for (let i = 0; i < objectData.length; i++) {
                     if (pumpingStations == objectData[i].Modell) {
                         object = objectData[i];
-
                         break;
                     }
                 }
-
                 object.calculation = event.target.attributes.calculation;
 
                 let newObj = new Marker({
@@ -134,31 +131,83 @@ export class Marker {
                     icon: icon.icon
                 });
 
-                if (last != null) {
+                if (first != null && last != null) {
+                    let distanceMin = Infinity;
+                    let segmentMin = null;
+                    let firstLatlngs;
+                    let secondLatlngs;
+
+                    for (let i = 0; i < last._latlngs.length - 1; i++) {
+                        let segment = [last._latlngs[i], last._latlngs[i + 1]];
+                        let distance = L.GeometryUtil.distanceSegment(map, event.target._latlng,
+                            segment[0], segment[1]);
+
+                        if (distance < distanceMin) {
+                            distanceMin = distance;
+                            segmentMin = segment;
+                        }
+                    }
+
+                    firstLatlngs = last._latlngs.splice(0, last._latlngs.indexOf(segmentMin[0]) +
+                        1);
+                    secondLatlngs = last._latlngs.splice(last._latlngs.indexOf(segmentMin[1]),
+                        last._latlngs.length);
+
+                    firstLatlngs.push(event.target._latlng);
+
                     let newPipe = new Pipe({
-                        coordinates: [event.target._latlng],
+                        coordinates: firstLatlngs,
                         attributes: [""],
-                        pipeType: last.type,
-                        first: newObj.marker.id
+                        pipeType: first.type,
+                        first: last.connected_with.first,
                     });
 
                     newPipe.draw({
-                        last: last.connected_with.last,
-                        coordinates: last._latlngs[1],
+                        last: newObj.marker.id,
+                        elevation: first.elevation,
+                        material: first.material,
+                        dimension: first.dimension,
+                        tilt: first.tilt,
+                    });
+
+                    last.connected_with.first = newObj.marker.id;
+
+                    secondLatlngs.unshift(event.target._latlng);
+                    last.setLatLngs(secondLatlngs);
+                    last.decorator.setPaths(secondLatlngs);
+                } else if (first != null) {
+                    let newPipe = new Pipe({
+                        coordinates: first._latlngs,
+                        attributes: [""],
+                        pipeType: first.type,
+                        first: newObj.marker.id,
+                    });
+
+                    newPipe.draw({
+                        last: first.connected_with.last,
+                        elevation: first.elevation,
+                        material: first.material,
+                        dimension: first.dimension,
+                        tilt: first.tilt,
+                    });
+                } else if (last != null) {
+                    let newPipe = new Pipe({
+                        coordinates: last._latlngs,
+                        attributes: [""],
+                        pipeType: last.type,
+                        first: last.connected_with.first
+                    });
+
+                    newPipe.draw({
+                        last: newObj.marker.id,
                         elevation: last.elevation,
                         material: last.material,
                         dimension: last.dimension,
                         tilt: last.tilt,
                     });
-
-                    last.connected_with.last = newObj.marker.id;
-                    let coords = last.getLatLngs();
-
-                    coords.pop();
-                    coords.push(newObj.marker._latlng);
-                    last.setLatLngs(coords);
-                    last.decorator.setPaths(coords);
                 }
+
+                calculateNextPolyline(newObj.marker, 'first');
             } else {
                 // Close active popup
                 event.target.closePopup();
@@ -251,8 +300,8 @@ export class Marker {
             this.marker.elevation = 0;
             this.attributes["M ö.h"] = 0;
             if (this.marker.attributes.Kategori != "Förgrening") {
-                this.marker.bindPopup(popup.marker(this.attributes) +
-                popup.changeCoord(latlngObj));
+                this.marker.bindPopup(popup.marker(this.attributes, objectData) +
+                    popup.changeCoord(latlngObj));
             }
         } else if ("target" in event) {
             event.target.elevation = response.results[0].elevation.toFixed(2);
@@ -380,8 +429,15 @@ export class House {
     constructor(data) {
         this.completed = false;
         this.attributes = this.attributes;
-        this.polygon = L.polygon([data.coordinates], options.house(data.color));
+        this.polygon = L.polygon([data.coordinates], options.house(data.popup.color));
         this.polygon.used = false;
+        this.polygon.on('remove', () => {
+            let lastPolyline = findNextPolyline(this.polygon, 'first');
+
+            if (lastPolyline != null) {
+                polylines.removeLayer(lastPolyline);
+            }
+        });
 
         if (data.id == null) {
             this.polygon.id = mapId++;
@@ -544,9 +600,10 @@ export class House {
             event.target.nop = nop;
             event.target.flow = flow;
             event.target.definition = type;
-
+            event.target.used = false;
             // Update popup content with new values
             event.target.setPopupContent(popup.house(addr, type, nop, flow, newColor));
+
 
             calculateNextPolyline(event.target, 'first');
         }), { once: true };
