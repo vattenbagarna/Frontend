@@ -57,7 +57,7 @@ export const add = {
             house = new House({
                 coordinates: event.latlng,
                 attributes: ["house"],
-                color: '#3388ff'
+                popup: { color: '#3388ff' }
             });
         }
     },
@@ -123,7 +123,7 @@ export const add = {
 
         document.onkeydown = function(event) {
             event = event || window.event;
-            if (event.key == "Escape" ) {
+            if (event.key == "Escape") {
                 if (markerClicked) {
                     firstTarget._icon.classList.remove("connect-icon");
                     firstTarget._icon.classList.add("transparent-border");

@@ -251,7 +251,7 @@ function calcAll() {
         } else {
             document.getElementById("staticPressure").innerText = height;
         }
-
+      
         alert("Ger ej ett dugligt värde");
     } else {
         document.getElementById("staticPressure").innerText = height;
@@ -456,8 +456,8 @@ function changeDim(selectedDim) {
 
 
 /**
-* checkValidLogin - makes sure that the user is logged in to see the page
-*/
+ * checkValidLogin - makes sure that the user is logged in to see the page
+ */
 const checkValidLogin = async () => {
     let token = localStorage.getItem("token");
 
