@@ -1,7 +1,9 @@
 /* global L */
 export let mouseCoord = null;
-
+let hiddenAlerts = [];
+let alertCounter = 0;
 // Imports the map object.
+
 import { map, objectData } from "./loadLeafletMap.js";
 
 // Imports polylines and clears the start polyline.
@@ -163,6 +165,7 @@ export const show = {
         let close = document.getElementsByClassName("closebtn");
         let alerts = document.getElementsByClassName(first.attributes.id);
         let html;
+        let cap = 3;
 
         div.classList.add(first.attributes.id);
 
@@ -177,7 +180,6 @@ export const show = {
             case 0:
                 html =
                     `<div class="alert success">
-								<span class="closebtn">&times;</span>
 								<strong>OK!</strong>
 								Flödeshastighet: ${result.calculations.mps.toFixed(2)} m/s
 
@@ -192,6 +194,16 @@ export const show = {
                     parent.appendChild(div);
                 } else {
                     alerts[0].innerHTML = html;
+                    alertCounter--;
+
+                    if (alertCounter <= cap) {
+                        if (hiddenAlerts.length > 0) {
+                            hiddenAlerts[0].style.display = "block";
+                            hiddenAlerts.shift();
+                            alertCounter++;
+                            console.log(alertCounter);
+                        }
+                    }
                 }
 
                 first._icon.classList.remove('warning-icon');
@@ -199,8 +211,7 @@ export const show = {
                 first._icon.classList.add('transparent-border');
 
                 setTimeout(() => {
-                    if (div != null) {
-                        alerts[0].children[0].style.opacity = "0";
+                    if (alerts[0] != null) {
                         setTimeout(() => alerts[0].remove(), 600);
                     }
                 }, 2000);
@@ -279,7 +290,7 @@ export const show = {
                 break;
             case 4:
                 html =
-                    `<div class="alert">
+                    `<div class="alert alert">
 							<span class="closebtn">&times;</span>
 							<strong>För lågt tryck!</strong>
 							Totaltrycket: ${result.totalPressure.toFixed(2)} m
@@ -300,14 +311,28 @@ export const show = {
                 first._icon.classList.add('alert-icon');
                 break;
         }
+        if (div.children.length > 0) {
+            if (alertCounter > cap && div.children[0].classList[1] != 'success') {
+                div.style.display = "none";
+                hiddenAlerts.push(div);
+            } else if (div.children[0].classList[1] != 'success') {
+                console.log(alertCounter);
+                alertCounter++;
+            }
+        }
 
         if (close.length > 0) {
             for (let i = 0; i < close.length; i++) {
                 close[i].onclick = function() {
-                    let div = this.parentElement.parentElement;
+                    let parent = this.parentElement.parentElement;
 
-                    div.children[0].style.opacity = "0";
-                    setTimeout(() => div.remove(), 600);
+                    if (hiddenAlerts.length > 0) {
+                        hiddenAlerts[0].style.display = "block";
+                        hiddenAlerts.shift();
+                    }
+
+                    parent.children[0].style.opacity = "0";
+                    setTimeout(() => parent.remove(), 600);
                 };
             }
         }
