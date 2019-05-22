@@ -352,6 +352,7 @@ let deleteOnClick = () => {
     // Adds a click event listener on delete button
     document.getElementById("delete").addEventListener("click", (event) => {
         show.activeCustomControl(event);
+        edit.removeArrows();
         // On each layer of the map => this means all markers, all polylines
         // and all polygons but not the map itself
         map.eachLayer((layer) => {
