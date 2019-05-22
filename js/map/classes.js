@@ -206,6 +206,8 @@ export class Marker {
                         tilt: last.tilt,
                     });
                 }
+
+                calculateNextPolyline(newObj.marker, 'first');
             } else {
                 // Close active popup
                 event.target.closePopup();
@@ -429,6 +431,13 @@ export class House {
         this.attributes = this.attributes;
         this.polygon = L.polygon([data.coordinates], options.house(data.popup.color));
         this.polygon.used = false;
+        this.polygon.on('remove', () => {
+            let lastPolyline = findNextPolyline(this.polygon, 'first');
+
+            if (lastPolyline != null) {
+                polylines.removeLayer(lastPolyline);
+            }
+        });
 
         if (data.id == null) {
             this.polygon.id = mapId++;

@@ -64,16 +64,8 @@ tr:nth-child(even) {
     margin: 0 auto;
 }
 
-.fancy-button {
+.print {
     float: right;
-    width: 10%;
-    margin: 0.5rem 0;
-    padding: 1rem;
-    display: flex;
-    align-items: center;
-    border-radius: 8px;
-    background: #1280c4;
-    color: #fff;
 }
 
 .fancy-button:hover {
