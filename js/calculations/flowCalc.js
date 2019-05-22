@@ -256,8 +256,6 @@ function calcAll() {
 		alert("Ger ej ett dugligt värde");
 
 	} else {
-		document.getElementById("pressureLoss").innerText = roundPress;
-		document.getElementById("totalPressure").innerText = roundTotal;
 	}
 
     resetPumps();
@@ -381,8 +379,6 @@ function recommendPump(pumps, height, selectedDim) {
 							<img class="pumpCurve" src="${pumps[i].Bildkurva}"/>
 							<div class="obj-desc">${mps.toFixed(2)} m/s</div>`;
 
-                    parent = document.getElementById('pump-suggestions');
-                    parent.appendChild(div);
                     parent = document.getElementById('pump-suggestions');
                     parent.appendChild(div);
                 }
