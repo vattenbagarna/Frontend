@@ -256,6 +256,10 @@ function calcAll() {
 		alert("Ger ej ett dugligt värde");
 
 	} else {
+		document.getElementById("staticPressure").innerText = height;
+		document.getElementById("flowSpeed").innerText = roundVel;
+		document.getElementById("pressureLoss").innerText = roundPress;
+		document.getElementById("totalPressure").innerText = roundTotal;
 	}
 
     resetPumps();
