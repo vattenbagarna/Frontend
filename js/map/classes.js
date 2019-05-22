@@ -544,9 +544,10 @@ export class House {
             event.target.nop = nop;
             event.target.flow = flow;
             event.target.definition = type;
-
+            event.target.used = false;
             // Update popup content with new values
             event.target.setPopupContent(popup.house(addr, type, nop, flow, newColor));
+
 
             calculateNextPolyline(event.target, 'first');
         }), { once: true };
