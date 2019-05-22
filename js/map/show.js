@@ -1,5 +1,7 @@
 /* global L */
 export let mouseCoord = null;
+let hiddenAlerts = [];
+let visibleAlerts = 0;
 
 // Imports the map object.
 import { map, objectData } from "./loadLeafletMap.js";
@@ -161,11 +163,11 @@ export const show = {
         let div = document.createElement('div');
         let parent = document.getElementById('myMap');
         let close = document.getElementsByClassName("closebtn");
-        let alerts = document.getElementsByClassName(first.attributes.id);
+        let alerts = document.getElementsByClassName(first.id);
         let html;
+        let cap = 3;
 
-        div.classList.add(first.attributes.id);
-
+        first.attributes.id = first.id;
         first.attributes.Totaltryck = result.totalPressure.toFixed(2) + " m";
         first.attributes.Flödeshastighet = result.calculations.mps.toFixed(2) + " m/s";
         first.attributes["Antal personer som högst"] = result.nop;
@@ -183,27 +185,40 @@ export const show = {
 
 								 <span class="info-text">
 									 ${first.attributes.Modell}
-									 id: ${first.attributes.id}
+									 id: ${first.id}
 								 </span>
 							</div>`;
                 if (alerts.length < 1) {
+                    div.classList.add(first.id);
                     div.innerHTML = html;
 
                     parent.appendChild(div);
+
+                    setTimeout(() => {
+                        div.children[0].style.opacity = "0";
+                        setTimeout(() => div.remove(), 600);
+                    }, 2000);
                 } else {
                     alerts[0].innerHTML = html;
+                    if (hiddenAlerts.includes(alerts[0]) == false) {
+                        visibleAlerts--;
+                        if (hiddenAlerts.length > 0) {
+                            hiddenAlerts[0].style.display = "block";
+                            hiddenAlerts.shift();
+                            visibleAlerts++;
+                        }
+                    }
+                    setTimeout(() => {
+                        if (alerts[0] != undefined) {
+                            alerts[0].children[0].style.opacity = "0";
+                            setTimeout(() => alerts[0].remove(), 600);
+                        }
+                    }, 2000);
                 }
 
                 first._icon.classList.remove('warning-icon');
                 first._icon.classList.remove('alert-icon');
                 first._icon.classList.add('transparent-border');
-
-                setTimeout(() => {
-                    if (div != null) {
-                        alerts[0].children[0].style.opacity = "0";
-                        setTimeout(() => alerts[0].remove(), 600);
-                    }
-                }, 2000);
                 break;
             case 1:
                 html =
@@ -214,10 +229,11 @@ export const show = {
 
 				<span class="info-text">
 					${first.attributes.Modell}
-					id: ${first.attributes.id}
+					id: ${first.id}
 				</span>
 			</div>`;
                 if (alerts.length < 1) {
+                    div.classList.add(first.id);
                     div.innerHTML = html;
 
                     parent.appendChild(div);
@@ -238,11 +254,12 @@ export const show = {
 
 							<span class="info-text">
 								${first.attributes.Modell}
-								id: ${first.attributes.id}
+								id: ${first.id}
 							</span>
 						</div>`;
 
                 if (alerts.length < 1) {
+                    div.classList.add(first.id);
                     div.innerHTML = html;
 
                     parent.appendChild(div);
@@ -256,16 +273,18 @@ export const show = {
                 break;
             case 3:
                 html =
-                    `<div class="alert">
+                    `<div class="alert red">
 							<span class="closebtn">&times;</span>
 							<strong>För högt tryck!</strong>
 							Totaltrycket: ${result.totalPressure.toFixed(2)} m
 							<span class="info-text">
-							   ${first.attributes.Modell}
-							  id: ${first.attributes.id}
+								${first.attributes.Modell}
+								id: ${first.id}
+							</span>
 						</div>`;
 
                 if (alerts.length < 1) {
+                    div.classList.add(first.id);
                     div.innerHTML = html;
 
                     parent.appendChild(div);
@@ -279,15 +298,19 @@ export const show = {
                 break;
             case 4:
                 html =
-                    `<div class="alert">
+                    `<div class="alert red">
 							<span class="closebtn">&times;</span>
 							<strong>För lågt tryck!</strong>
 							Totaltrycket: ${result.totalPressure.toFixed(2)} m
 							<span class="info-text">
-							   ${first.attributes.Modell}
-							  id: ${first.attributes.id}
+								${first.attributes.Modell}
+								id: ${first.id}
+							</span>
 						</div>`;
+
+
                 if (alerts.length < 1) {
+                    div.classList.add(first.id);
                     div.innerHTML = html;
 
                     parent.appendChild(div);
@@ -300,11 +323,24 @@ export const show = {
                 first._icon.classList.add('alert-icon');
                 break;
         }
+        if (div.innerHTML.length > 0) {
+            if (visibleAlerts < cap && div.children[0].classList[1] != "success") {
+                visibleAlerts++;
+            } else if (div.children[0].classList[1] != "success") {
+                div.style.display = "none";
+                hiddenAlerts.push(div);
+            }
+        }
 
         if (close.length > 0) {
             for (let i = 0; i < close.length; i++) {
                 close[i].onclick = function() {
                     let div = this.parentElement.parentElement;
+
+                    if (hiddenAlerts.length > 0) {
+                        hiddenAlerts[0].style.display = "block";
+                        hiddenAlerts.shift();
+                    }
 
                     div.children[0].style.opacity = "0";
                     setTimeout(() => div.remove(), 600);
@@ -323,9 +359,11 @@ export const show = {
         let alerts = document.getElementsByClassName(element.attributes.id);
 
         if (element.attributes.Kategori != "Förgrening") {
+            delete element.attributes.Flöde;
             delete element.attributes.Totaltryck;
             delete element.attributes.Flödeshastighet;
             delete element.attributes["Antal personer som högst"];
+            element.attributes.id = element.id;
             element.setPopupContent(popup.marker(element.attributes, objectData) +
                 popup.changeCoord(element._latlng));
         }
