@@ -252,7 +252,7 @@ export class Marker {
             this.attributes["M ö.h"] = 0;
             if (this.marker.attributes.Kategori != "Förgrening") {
                 this.marker.bindPopup(popup.marker(this.attributes) +
-                popup.changeCoord(latlngObj));
+                    popup.changeCoord(latlngObj));
             }
         } else if ("target" in event) {
             event.target.elevation = response.results[0].elevation.toFixed(2);
@@ -380,7 +380,7 @@ export class House {
     constructor(data) {
         this.completed = false;
         this.attributes = this.attributes;
-        this.polygon = L.polygon([data.coordinates], options.house(data.color));
+        this.polygon = L.polygon([data.coordinates], options.house(data.popup.color));
         this.polygon.used = false;
 
         if (data.id == null) {

@@ -288,7 +288,7 @@ export const edit = {
                         definition: polygon.definition,
                         nop: polygon.nop,
                         flow: polygon.flow,
-                        color: polygon.options.color
+                        color: polygon.options.color.replace('#', ''),
                     },
                     used: polygon.used,
                 }
@@ -369,8 +369,7 @@ export const edit = {
                     break;
                 case "polygon":
                     temp = json[i].data.coordinates;
-
-                    json[i].data.color = json[i].data.popup.color;
+                    json[i].data.popup.color = `#${json[i].data.popup.color}`;
                     newObj = new House(json[i].data);
                     json[i].data.coordinates = temp;
                     newObj.drawFromLoad(json[i].data);
