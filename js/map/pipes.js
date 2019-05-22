@@ -14,12 +14,12 @@ export let pipes = {
             }
             let newNode = document.createElement('div');
 
-            newNode.innerHTML = "<label>Ytterdiameter</label>";
+            newNode.innerHTML = "<br><label>Ytterdiameter </label>";
             newNode.id = "Ytterdiameter";
 
             let select = document.createElement('select');
 
-            select.className = "dimension";
+            select.className = "dimension select-input";
             let option;
 
             for (let i = 0; i < data.length; i++) {

@@ -24,6 +24,19 @@ body {
     border-right: 2px solid #1280c4;
 }
 
+.side-header {
+    display: flex;
+    align-items: center;
+}
+
+.arrow {
+    padding: 0.2rem;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: #1280c4;
+}
+
 .map {
     width: 78%;
 }
@@ -32,9 +45,24 @@ body {
     font-weight: 300;
     color: black;
     background: white;
-    height: 3vh;
+    max-height: 3vh;
     margin: 0;
-    padding: 20px;
+    padding: 20px 0;
+}
+
+.buttons {
+    position: static;
+    min-height: 3rem;
+    display: flex;
+    justify-content: space-around;
+    padding: 0.8rem;
+    border-top: 1px #eee solid;
+}
+
+.low-button {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem auto;
 }
 
 .desc {
@@ -44,7 +72,7 @@ body {
 }
 
 .obj-list {
-    height: 78vh;
+    height: 83vh;
     overflow-y: scroll;
     outline: 0;
 }
@@ -194,45 +222,6 @@ body {
     border: 2px solid #1280c4 !important;
 }
 
-.buttons {
-    margin: 0.8rem;
-    border-top: 1px #eee solid;
-}
-
-.fancy-light-button {
-    margin: 0.5rem 0;
-    padding: 0.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border: 2px solid #1280c4;
-    background-color: white;
-    color: black;
-    border-radius: 8px;
-}
-
-.link {
-    text-decoration: none;
-}
-
-.fancy-button {
-    margin: 0.5rem 0;
-    padding: 1rem;
-    display: flex;
-    align-items: center;
-    border-radius: 8px;
-    background: #1280c4;
-    color: #fff;
-}
-
-.fancy-button:hover {
-    cursor: pointer;
-}
-
-.fancy-light-button:hover {
-    cursor: pointer;
-}
-
 .modal {
     display: none;
     position: fixed;
@@ -338,7 +327,7 @@ body {
     color: black;
 }
 
-input[type=text],
+/* input[type=text],
 input[type="number"],
 select {
     width: 100%;
@@ -354,9 +343,9 @@ select {
 
 input[type=text]:disabled {
     background: #dddddd;
-}
+} */
 
-input[type=button] {
+/* input[type=button] {
     width: 100%;
     background-color: #3867d6;
     color: white;
@@ -365,11 +354,11 @@ input[type=button] {
     border: none;
     border-radius: 4px;
     cursor: pointer;
-}
+} */
 
-input[type=button]:hover {
+/* input[type=button]:hover {
     background-color: light#1280c4;
-}
+} */
 
 ul.accordion2 {
     list-style: none;

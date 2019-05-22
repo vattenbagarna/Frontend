@@ -539,8 +539,6 @@ export let loadMap = {
  * @returns {void}
  */
 let onLoadWrite = () => {
-    let back = document.getElementById("readBack");
-
     map = L.map("myMap", {
         center: [56.208640, 15.632630],
         editable: true,
@@ -567,25 +565,6 @@ let onLoadWrite = () => {
     deleteOnClick();
 
     saveBox();
-
-    //make the blue border appear on mouse icon button on load
-    document.getElementById('map').click();
-
-    //create an a tag to go back to home
-    var backLink = document.createElement("a");
-
-    //sets the CSS and attributes for the a tag
-    backLink.setAttribute("class", "material-icons");
-    backLink.setAttribute("href", "/home.html");
-    backLink.innerHTML = "arrow_back";
-    back.appendChild(backLink);
-    backLink.style.position = "fixed";
-    backLink.style.bottom = "240px";
-    backLink.style.left = "353px";
-    backLink.style.zIndex = "9999";
-    backLink.style.fontSize = "50px";
-    backLink.style.textDecoration = "none";
-    backLink.style.color = "gray";
 
     //gets project data and info
     loadMap.loadData(false);
