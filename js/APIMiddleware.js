@@ -13,14 +13,10 @@ const escapeHtml = (str) => {
         '"': '&quot;',
         "'": '&#039;',
         "`": '&#96;',
-        "#": '&#35;',
-        "§": '&#xA7;',
-        "(": '&#40;',
-        ")": '&#41;',
-        "/": '&#47;'
+        "#": '&#35;'
     };
 
-    return str.replace(/[<>"'`#§()/]/g, function(m) { return map[m]; });
+    return str.replace(/[<>"'`#]/g, function(m) { return map[m]; });
 };
 
 /**
