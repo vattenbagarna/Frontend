@@ -235,8 +235,23 @@ function calcAll() {
     let roundTotal = totalPress.toFixed(2);
 
     if (roundTotal == "NaN" || roundTotal < 0 ||
-		roundPress == "NaN" || roundPress < 0 ||
-		roundVel == "NaN" || roundVel < 0) {
+        roundPress == "NaN" || roundPress < 0 ||
+        roundVel == "NaN" || roundVel < 0) {
+        if (roundTotal == "NaN" || roundTotal < 0) {
+            document.getElementById("totalPressure").innerText = "-";
+        }
+        if (roundPress == "NaN" || roundPress < 0) {
+            document.getElementById("pressureLoss").innerText = "-";
+        }
+        if (roundVel == "NaN" || roundVel < 0) {
+            document.getElementById("flowSpeed").innerText = "-";
+        }
+        if (height == "NaN") {
+            document.getElementById("staticPressure").innerText = "0";
+        } else {
+            document.getElementById("staticPressure").innerText = height;
+        }
+
         if (roundTotal == "NaN" || roundTotal < 0) {
             document.getElementById("totalPressure").innerText = "-";
         }
@@ -254,8 +269,8 @@ function calcAll() {
 
         alert("Ger ej ett dugligt värde");
     } else {
-        document.getElementById("flowSpeed").innerText = roundVel;
         document.getElementById("staticPressure").innerText = height;
+        document.getElementById("flowSpeed").innerText = roundVel;
         document.getElementById("pressureLoss").innerText = roundPress;
         document.getElementById("totalPressure").innerText = roundTotal;
     }
@@ -428,7 +443,9 @@ function changeDim(selectedDim) {
     let innerdim = {
         "PO40": 35.2,
         "PO50": 44,
-        "PO60": 55.4,
+        "PO63": 55.4,
+        "PO75": 66.0,
+        "PO90": 79.2,
         "PEO110": 96.8,
         "PEO160": 141,
         "PEO180": 158.6,
@@ -454,8 +471,8 @@ function changeDim(selectedDim) {
 
 
 /**
-* checkValidLogin - makes sure that the user is logged in to see the page
-*/
+ * checkValidLogin - makes sure that the user is logged in to see the page
+ */
 const checkValidLogin = async () => {
     let token = localStorage.getItem("token");
 
