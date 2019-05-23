@@ -267,11 +267,14 @@ export class Marker {
      * @returns {void}
      */
     dragEnd(event) {
-        event.target.elevation = event.target.updateElevation(event);
-        event.target.attributes.id = event.target.id;
-        event.target.attributes["M.ö h"] = event.target.elevation;
-        event.target.setPopupContent(popup.marker(event.target.attributes, objectData) +
-            popup.changeCoord(event.target._latlng));
+        (async () => {
+            event.target.elevation = await event.target.updateElevation(event);
+            console.log(event.target.elevation);
+            event.target.attributes.id = event.target.id;
+            event.target.attributes["M ö.h"] = event.target.elevation;
+            event.target.setPopupContent(popup.marker(event.target.attributes, objectData) +
+                popup.changeCoord(event.target._latlng));
+        })();
         //get each polyline
         polylines.eachLayer(async (polyline) => {
             //check if polylines are connected to a marker, by first point and last point.
