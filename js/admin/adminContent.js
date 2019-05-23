@@ -284,7 +284,7 @@ const showGlobalProductRequests = async () => {
             //No products are active
             let noProducts = createElement("div", "msg", "message");
 
-            noProducts.innerText = "Inga aktiva globala produkter";
+            noProducts.innerText = "Inga inaktiva globala produkter";
             appendElementToApp(noProducts, mainContent);
         }
     }
