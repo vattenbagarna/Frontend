@@ -34,6 +34,7 @@ export let popup = {
         let option = "";
         let select = document.createElement("select");
 
+        select.classList = "select-input";
         select.id = "pumpingStation";
         if (attributes.Kategori == "Pumpstationer") {
             for (let i = 0; i < objectData.length; i++) {
@@ -52,8 +53,10 @@ export let popup = {
 
             let div = document.createElement("div");
 
-            div.innerHTML = `<span>Byt pumpstation</span>`;
+            div.innerHTML = `<span>Byt pumpstation</span> `;
             div.appendChild(select);
+            div.appendChild(document.createElement("br"));
+            div.appendChild(document.createElement("br"));
             selectInfo = div.innerHTML;
         }
 
@@ -104,14 +107,16 @@ export let popup = {
 
     pipe: (tilt) => {
         return `<label>Material</label>
-				<select class="materialPopup">
+				<select class="materialPopup select-input">
 					<option>PEM</option>
 					<option>PE</option>
 					<option>Rostfria</option>
 				</select>
-				<label>Statisk höjd</label>
-				<input type="number" step="0.1" id="tilt" name="tilt" value=${tilt}>
-				<input type="button" id="pipeSpecifications" value="Skicka">`;
+				<br><label>Statisk höjd</label>
+				<input class="number-input" type="number" step="0.1" id="tilt"
+                name="tilt" value=${tilt}><br><br>
+				<input class="button small-button" type="button"
+                id="pipeSpecifications" value="Skicka">`;
     },
 
     branch: `<b>Förgrening<br>`,
@@ -123,12 +128,12 @@ export let popup = {
         <input type='radio' name='a' id='cp-4'>
         <div class='content'>
 			<b> Latitud </b>
-			<input type="text" id='latitud' value=${latlng.lat}>
+			<input class="text-input" type="text" id='latitud' value=${latlng.lat}>
         	<b> Longitud </b>
-			<input type="text" id='longitud' value=${latlng.lng}>
+			<input class="text-input" type="text" id='longitud' value=${latlng.lng}>
 		</div>
     </li>
-</ul>
-<input type="button" class="sendCoords" value="Ändra" >`;
+</ul><br>
+<input type="button" class="sendCoords button small-button" value="Ändra" >`;
     }
 };

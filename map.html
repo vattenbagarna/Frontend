@@ -6,6 +6,7 @@
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css?family=Fira+Sans:300,400" rel="stylesheet">
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"/>
+        <link rel="stylesheet" href="css/master.css">
         <link rel="stylesheet" href="css/map.css">
         <script src="js/vendor/leaflet.js"></script>
         <script type="module" src="js/map/loadLeafletMap.js"></script>
@@ -26,8 +27,11 @@
     <body>
         <div class="wrap-all">
             <div class="sidebar">
-                <div class="wrappa-items">
-                    <h1 class="projekt-titel"></h1>
+                <div class="wrap-items">
+                    <span class="side-header">
+                        <a class="arrow" href="home.html"><span class="material-icons">arrow_back</span></a>
+                        <h2 class="projekt-titel"></h2>
+                    </span>
                     <div class="obj-list">
                         <button class="accordion desc">Verktyg</button>
                         <div class="panel">
@@ -67,15 +71,13 @@
                     </div>
                 </div>
 				<div class="buttons">
-					<a class="link">
-						<div id="showMateriallist" class="fancy-light-button">
+						<span id="showMateriallist" class="button low-button">
 							<span>Visa materiallista</span>
 							<i class="material-icons">chevron_right</i>
-						</div>
-					</a>
-					<a id="save" class="fancy-button">
-						Spara
-					</a>
+						</span>
+                        <a id="save" class="button low-button">
+                            Spara
+                        </a>
 				</div>
             </div>
             <div class="map" id="myMap"></div>
@@ -87,7 +89,7 @@
 				<b>Rör</b>
 				<br></br>
 				<label>Material</label>
-				<select class="material">
+				<select class="material select-input">
 					<option>PEM</option>
 					<option>PE</option>
 					<option>Rostfria</option>
@@ -96,9 +98,11 @@
 					<i class="material-icons loading">autorenew</i>
 				</div>
 				<div class="elevation" id="elevation">
+                    <br>
 					<label>Statisk höjd</label>
-					<input type="number" step="0.1" id="tilt" name="tilt">
-					<input type="button" id="pipeSpecifications" value="Skicka">
+					<input class="number-input" type="number" step="0.1" id="tilt" name="tilt">
+                    <br><br>
+					<input class="button" type="button" id="pipeSpecifications" value="Skicka">
 				</div>
 			</div>
 		</div>
@@ -108,10 +112,12 @@
 				<b>Spara Projekt 1</b>
 				<br></br>
 				<label>Välj version</label>
-				<select id="versions"></select>
-				<label>Lägg till ny version</label>
-				<input autocomplete="off" type="text" id="newVersion" placeholder="tex 2.0"/>
-				<input type="button" id="saveButton" value="Spara">
+				<select class="select-input" id="versions"></select>
+                <br><br>
+				<label>Lägg till ny version</label><br>
+				<input class="text-input" autocomplete="off" type="text" id="newVersion" placeholder="tex 2.0"/>
+                <br><br>
+				<input class="button" type="button" id="saveButton" value="Spara">
 			</div>
 		</div>
         <div id="snackbar"></div>
