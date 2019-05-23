@@ -209,9 +209,10 @@ export const show = {
                         }
                     }
                     setTimeout(() => {
-                        if (alerts[0] != undefined) {
+                        if (alerts[0] != null) {
                             alerts[0].children[0].style.opacity = "0";
-                            setTimeout(() => alerts[0].remove(), 600);
+                            setTimeout(() => { if (alerts[0] != null) { alerts[0].remove(); } },
+                                600);
                         }
                     }, 2000);
                 }
@@ -329,6 +330,7 @@ export const show = {
             } else if (div.children[0].classList[1] != "success") {
                 div.style.display = "none";
                 hiddenAlerts.push(div);
+                console.log(hiddenAlerts);
             }
         }
 

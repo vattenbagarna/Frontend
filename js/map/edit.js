@@ -83,6 +83,7 @@ export const edit = {
         //Gets each polylines and removes the "editing hooks".
         polylines.eachLayer((polyline) => {
             polyline.decorator.addTo(map);
+            polyline.decorator.setPaths(polyline._latlngs);
         });
 
         //Turn off click events for markers and polylines.
@@ -558,9 +559,14 @@ export let resetMarkers = (element) => {
                     let flow = checkFlow(last.calculation.nop);
 
                     last.calculation.capacity = parseFloat(flow);
-                } else {
-                    last.calculation.nop = 0;
-                    last.calculation.capacity = 0;
+                } else if (first instanceof L.Marker) {
+                    if (first.attributes.Kategori != "Förgrening") {
+                        last.calculation.nop = 0;
+                        last.calculation.capacity = 0;
+                    } else {
+                        last.calculation.nop = first.calculation.nop;
+                        last.calculation.capacity = first.calculation.capacity;
+                    }
                 }
                 next = findNextPolyline(last, 'first');
                 edit.warning.pressure(next);

@@ -723,6 +723,6 @@ function calculateAspectRatioFit(srcWidth, srcHeight, maxWidth, maxHeight) {
     return { width: srcWidth * ratio, height: srcHeight * ratio };
 }
 
-document.getElementById("showMateriallist").addEventListener('click', () => {
-    document.location.replace("materiallist.html?id=" + id);
-});
+let link = document.getElementById("showMateriallist").parentElement;
+
+link.href = "materiallist.html?id=" + id;

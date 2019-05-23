@@ -44,6 +44,11 @@ export class Marker {
             .on('popupopen', this.updateCoords)
             .on('remove', this.onRemove);
 
+        if (data.id != null) {
+            this.marker.id = data.id;
+        } else {
+            this.marker.id = mapId++;
+        }
         this.marker.attributes = this.attributes;
         (async () => {
             let elevation = await this.getElevation({
@@ -51,11 +56,6 @@ export class Marker {
                 latlngs: data.coordinates
             });
 
-            if (data.id != null) {
-                this.marker.id = data.id;
-            } else {
-                this.marker.id = mapId++;
-            }
             this.marker.attributes.id = this.marker.id;
             this.marker.elevation = elevation;
             this.marker.attributes["M ö.h"] = elevation;
@@ -337,10 +337,9 @@ export class Marker {
                 restOf.push(firstPolyline[i]);
             }
 
-            firstPolyline = firstPolyline[0];
             lastPolyline = lastPolyline[0];
 
-            let newLatlngs = firstPolyline._latlngs;
+            let newLatlngs = firstPolyline[0]._latlngs;
 
             newLatlngs.pop();
             lastPolyline._latlngs.shift();
@@ -348,10 +347,9 @@ export class Marker {
             for (let i = 0; i < lastPolyline._latlngs.length; i++) {
                 newLatlngs.push(lastPolyline._latlngs[i]);
             }
-            firstPolyline.setLatLngs(newLatlngs);
-            firstPolyline.decorator.setPaths(newLatlngs);
+            firstPolyline[0].setLatLngs(newLatlngs);
 
-            firstPolyline.connected_with.last = lastPolyline.connected_with.last;
+            firstPolyline[0].connected_with.last = lastPolyline.connected_with.last;
             polylines.removeLayer(lastPolyline);
 
             for (let i = 0; i < restOf.length; i++) {
@@ -359,19 +357,52 @@ export class Marker {
             }
 
             if (this.attributes.Kategori == "Förgrening") {
-                let first = temp.find(find => find.id == firstPolyline.connected_with.first);
-                let last = temp.find(find => find.id == firstPolyline.connected_with.last);
+                let first;
+                let last;
+                let restOf = [];
+
+                if (firstPolyline.length > 1) {
+                    first = [];
+                    for (let i = 0; i < firstPolyline.length; i++) {
+                        first = first.concat(temp.filter(find => find.id == firstPolyline[i]
+                            .connected_with.first));
+                    }
+                    let temp2 = first.shift();
+
+                    restOf = first;
+                    first = temp2;
+                } else {
+                    first = temp.find(find => find.id == firstPolyline[0].connected_with.first);
+                }
+
+                last = temp.find(find => find.id == firstPolyline[0].connected_with.last);
 
                 if (first != null) {
                     if (first instanceof L.Polygon) {
                         if (this.calculation.nop != last.calculation.nop) {
-                            last.calculation.nop -= parseInt(first.nop);
+                            if (restOf.length > 0) {
+                                for (let i = 0; i < restOf.length; i++) {
+                                    if (restOf[i] instanceof L.Polygon) {
+                                        last.calculation.nop -= parseInt(restOf[i].nop);
+                                    } else if (restOf[i] instanceof L.Marker) {
+                                        last.calculation.nop -= restOf[i].calculation.nop;
+                                    }
+                                }
+                            } else {
+                                last.calculation.nop -= parseInt(first.nop);
+                            }
+                            let flow = checkFlow(last.calculation.nop);
+
+                            last.calculation.capacity = parseFloat(flow);
+                            first.used = true;
+                        } else {
+                            last.calculation.nop = parseInt(first.nop);
                             let flow = checkFlow(last.calculation.nop);
 
                             last.calculation.capacity = parseFloat(flow);
                             first.used = true;
                         }
-                        edit.warning.pressure(firstPolyline);
+                        edit.warning.pressure(firstPolyline[0]);
                     } else {
                         let next = findNextPolyline(first, 'last');
 
@@ -390,7 +421,7 @@ export class Marker {
                                 }
                             }
                         }
-                        edit.warning.pressure(firstPolyline);
+                        edit.warning.pressure(firstPolyline[0]);
                     }
                 }
             }
@@ -595,6 +626,16 @@ export class House {
                 weight: 1.5
             });
 
+            let next = findNextPolyline(event.target, 'first');
+
+            if (next != null) {
+                let temp = markers.getLayers();
+
+                temp = temp.find(find => find.id == next.connected_with.last);
+                if (temp != null) {
+                    temp.calculation.nop -= event.target.nop;
+                }
+            }
             event.target.nop = nop;
             event.target.flow = flow;
             event.target.definition = type;
