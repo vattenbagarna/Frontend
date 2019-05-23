@@ -25,8 +25,11 @@ body {
 }
 
 .side-header {
+    padding: 20px 0;
     display: flex;
     align-items: center;
+    overflow: hidden;
+    border-bottom: 1px solid #1280c4;
 }
 
 .arrow {
@@ -42,20 +45,23 @@ body {
 }
 
 .projekt-titel {
+    max-height: 3vh;
+    margin: 0;
+    padding-left: 5px;
     font-weight: 300;
     color: black;
     background: white;
-    max-height: 3vh;
-    margin: 0;
-    padding: 20px 0;
 }
 
 .buttons {
-    position: static;
-    min-height: 3rem;
+    position: sticky;
+    bottom: 0;
+    left: 0;
     display: flex;
     justify-content: space-around;
+    min-height: 3rem;
     padding: 0.8rem;
+    background: #fff;
     border-top: 1px #eee solid;
 }
 
@@ -72,7 +78,7 @@ body {
 }
 
 .obj-list {
-    height: 83vh;
+    height: 80vh;
     overflow-y: scroll;
     outline: 0;
 }
