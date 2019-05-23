@@ -179,15 +179,15 @@ export const show = {
             case 0:
                 html =
                     `<div class="alert success">
-								<span class="closebtn">&times;</span>
-								<strong>OK!</strong>
-								Flödeshastighet: ${result.calculations.mps.toFixed(2)} m/s
+                        <span class="closebtn">&times;</span>
+                        <strong>OK!</strong>
+                        Flödeshastighet: ${result.calculations.mps.toFixed(2)} m/s
 
-								 <span class="info-text">
-									 ${first.attributes.Modell}
-									 id: ${first.id}
-								 </span>
-							</div>`;
+                         <span class="info-text">
+                            ${first.attributes.Modell}
+                            id: ${first.id}
+                         </span>
+                    </div>`;
                 if (alerts.length < 1) {
                     div.classList.add(first.id);
                     div.innerHTML = html;
@@ -224,15 +224,15 @@ export const show = {
             case 1:
                 html =
                     `<div class="alert warning">
-				<span class="closebtn">&times;</span>
-				<strong>För låg flödeshastighet!</strong>
-				Flödeshastighet: ${result.calculations.mps.toFixed(2)} m/s
+                        <span class="closebtn">&times;</span>
+                        <strong>För låg flödeshastighet!</strong>
+                        Flödeshastighet: ${result.calculations.mps.toFixed(2)} m/s
 
-				<span class="info-text">
-					${first.attributes.Modell}
-					id: ${first.id}
-				</span>
-			</div>`;
+                        <span class="info-text">
+                            ${first.attributes.Modell}
+                            id: ${first.id}
+                        </span>
+                    </div>`;
                 if (alerts.length < 1) {
                     div.classList.add(first.id);
                     div.innerHTML = html;
@@ -249,15 +249,15 @@ export const show = {
             case 2:
                 html =
                     `<div class="alert warning">
-							<span class="closebtn">&times;</span>
-							<strong>För hög flödeshastighet!</strong>
-							Flödeshastighet: ${result.calculations.mps.toFixed(2)} m/s
+                        <span class="closebtn">&times;</span>
+                        <strong>För hög flödeshastighet!</strong>
+                        Flödeshastighet: ${result.calculations.mps.toFixed(2)} m/s
 
-							<span class="info-text">
-								${first.attributes.Modell}
-								id: ${first.id}
-							</span>
-						</div>`;
+                        <span class="info-text">
+                            ${first.attributes.Modell}
+                            id: ${first.id}
+                        </span>
+                    </div>`;
 
                 if (alerts.length < 1) {
                     div.classList.add(first.id);
@@ -275,14 +275,14 @@ export const show = {
             case 3:
                 html =
                     `<div class="alert red">
-							<span class="closebtn">&times;</span>
-							<strong>För högt tryck!</strong>
-							Totaltrycket: ${result.totalPressure.toFixed(2)} m
-							<span class="info-text">
-								${first.attributes.Modell}
-								id: ${first.id}
-							</span>
-						</div>`;
+                        <span class="closebtn">&times;</span>
+                        <strong>För högt tryck!</strong>
+                        Totaltrycket: ${result.totalPressure.toFixed(2)} m
+                        <span class="info-text">
+                            ${first.attributes.Modell}
+                            id: ${first.id}
+                        </span>
+                    </div>`;
 
                 if (alerts.length < 1) {
                     div.classList.add(first.id);
@@ -300,14 +300,14 @@ export const show = {
             case 4:
                 html =
                     `<div class="alert red">
-							<span class="closebtn">&times;</span>
-							<strong>För lågt tryck!</strong>
-							Totaltrycket: ${result.totalPressure.toFixed(2)} m
-							<span class="info-text">
-								${first.attributes.Modell}
-								id: ${first.id}
-							</span>
-						</div>`;
+                        <span class="closebtn">&times;</span>
+                        <strong>För lågt tryck!</strong>
+                        Totaltrycket: ${result.totalPressure.toFixed(2)} m
+                        <span class="info-text">
+                            ${first.attributes.Modell}
+                            id: ${first.id}
+                        </span>
+                    </div>`;
 
 
                 if (alerts.length < 1) {
@@ -330,7 +330,6 @@ export const show = {
             } else if (div.children[0].classList[1] != "success") {
                 div.style.display = "none";
                 hiddenAlerts.push(div);
-                console.log(hiddenAlerts);
             }
         }
 
