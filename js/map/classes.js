@@ -269,7 +269,6 @@ export class Marker {
     dragEnd(event) {
         (async () => {
             event.target.elevation = await event.target.updateElevation(event);
-            console.log(event.target.elevation);
             event.target.attributes.id = event.target.id;
             event.target.attributes["M ö.h"] = event.target.elevation;
             event.target.setPopupContent(popup.marker(event.target.attributes, objectData) +

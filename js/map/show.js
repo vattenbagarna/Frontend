@@ -341,6 +341,8 @@ export const show = {
                     if (hiddenAlerts.length > 0) {
                         hiddenAlerts[0].style.display = "block";
                         hiddenAlerts.shift();
+                    } else {
+                        visibleAlerts--;
                     }
 
                     div.children[0].style.opacity = "0";
