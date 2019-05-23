@@ -148,6 +148,8 @@ let saveBox = () => {
     document.getElementById("save").addEventListener("click", () => {
         // Show the savebox
         show.openModal(modal);
+        console.log(projectInfo);
+        document.getElementById('projectNameInSave').innerHTML = `Spara ${projectInfo.name}`;
 
         for (let i = select.options.length - 1; i >= 0; i--) {
             select.remove(i);
