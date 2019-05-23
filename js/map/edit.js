@@ -3,13 +3,11 @@ export let isEdit = null;
 let tempPolylineArray = [];
 
 //Imports the map object
-import { map, token, pumps, icons, projectInfo, objectData } from "./loadLeafletMap.js";
+import { map, token, pumps, icons, projectInfo } from "./loadLeafletMap.js";
 
 import { add, polylines, markers, polygons } from "./add.js";
 
 import { show, mouseCoord } from "./show.js";
-
-import { popup } from "./popup.js";
 
 import { Marker, House, Pipe, mapId, setMapId } from "./classes.js";
 
@@ -43,12 +41,6 @@ export const edit = {
                 polyline.setLatLngs(newLatlng);
                 polyline.decorator.setPaths(newLatlng);
             }
-
-            event.target.setPopupContent(popup.marker(event.target.attributes, objectData) +
-                popup.changeCoord({
-                    lat: event.latlng.lat,
-                    lng: event.latlng.lng
-                }));
 
             edit.warning.unsavedChanges(true);
         });
@@ -91,6 +83,7 @@ export const edit = {
         //Gets each polylines and removes the "editing hooks".
         polylines.eachLayer((polyline) => {
             polyline.decorator.addTo(map);
+            polyline.decorator.setPaths(polyline._latlngs);
         });
 
         //Turn off click events for markers and polylines.
@@ -172,11 +165,11 @@ export const edit = {
         }
 
         // Add the "show" class to DIV
-        snackbar.className = "show";
+        snackbar.className = "showSave";
 
         // After 3 seconds, remove the show class from DIV
         setTimeout(function() {
-            snackbar.className = snackbar.className.replace("show", "");
+            snackbar.className = snackbar.className.replace("showSave", "");
         }, 3000);
     },
 
@@ -420,6 +413,7 @@ export const edit = {
             let first = all.find(find => find.id == element.connected_with.first);
             let last = all.find(find => find.id == element.connected_with.last);
 
+
             if (first != null) {
                 switch (first.constructor) {
                     case L.Polygon:
@@ -447,7 +441,8 @@ export const edit = {
                                 if (last instanceof L.Marker) {
                                     if (last.attributes.Kategori == "Förgrening" &&
                                             last.calculation.used == null) {
-                                        last.calculation.nop += first.calculation.nop;
+                                        last.calculation.nop +=
+                                                parseInt(first.calculation.nop);
 
                                         let temp = polylines.getLayers();
                                         let connected = temp.filter(find => find.connected_with
@@ -459,7 +454,8 @@ export const edit = {
                                             temp = temp.find(find => find.id == connected
                                                 .connected_with.first);
                                             if (temp != null) {
-                                                last.calculation.nop += temp.calculation.nop;
+                                                last.calculation.nop +=
+                                                        parseInt(temp.calculation.nop);
                                             }
                                         }
                                         last.calculation.used = true;
@@ -469,7 +465,8 @@ export const edit = {
                                         temp = temp.find(find => find.id == next.connected_with
                                             .last);
                                         if (temp != null) {
-                                            temp.calculation.nop += first.calculation.nop;
+                                            temp.calculation.nop +=
+                                                    parseInt(first.calculation.nop);
                                             let flow = checkFlow(temp.calculation.nop);
 
                                             temp.calculation.capacity = parseFloat(flow);
@@ -498,9 +495,10 @@ export const edit = {
                             } else {
                                 last.calculation.nop = first.calculation.nop;
                                 last.calculation.capacity = first.calculation.capacity;
+                                calculateNextPolyline(last, 'first');
                             }
                         } else {
-                            show.hideAlert(first);
+                            resetMarkers(element);
                         }
 
                         break;
@@ -565,11 +563,14 @@ export let resetMarkers = (element) => {
                     let flow = checkFlow(last.calculation.nop);
 
                     last.calculation.capacity = parseFloat(flow);
-                } else {
-                    last.calculation.nop = first.calculation.nop;
-                    let flow = checkFlow(last.calculation.nop);
-
-                    last.calculation.capacity = parseFloat(flow);
+                } else if (first instanceof L.Marker) {
+                    if (first.attributes.Kategori != "Förgrening") {
+                        last.calculation.nop = 0;
+                        last.calculation.capacity = 0;
+                    } else {
+                        last.calculation.nop = first.calculation.nop;
+                        last.calculation.capacity = first.calculation.capacity;
+                    }
                 }
                 next = findNextPolyline(last, 'first');
                 edit.warning.pressure(next);
@@ -599,7 +600,9 @@ let checkBranchConnection = (first, last) => {
         if (last.calculation.used == null) {
             if (find != null && find.calculation.capacity > 0) {
                 last.calculation.nop += find.calculation.nop;
+                last.calculation.old = [{ id: find.id, nop: find.calculation.nop }];
                 let flow = checkFlow(last.calculation.nop);
+
 
                 last.calculation.capacity = parseFloat(flow);
                 last.calculation.used = true;
@@ -663,6 +666,23 @@ let calculateLast = (first, last, pumps, total, dimension) => {
                 calculateNextPolyline(last, 'first');
             } else if (last.attributes.Kategori == "Förgrening") {
                 nextPolyline = findNextPolyline(last, 'first');
+                if (last.calculation.old != null) {
+                    let index = last.calculation.old.map((e) => { return e.id; }).indexOf(first.id);
+
+                    if (index != -1) {
+                        if (last.calculation.old[index].nop != first.calculation.nop) {
+                            last.calculation.nop -= last.calculation.old[index].nop;
+                            last.calculation.nop += first.calculation.nop;
+                            last.calculation.old[index].nop = first.calculation.nop;
+                            calculateNextPolyline(last, 'first');
+                        }
+                    }
+                } else {
+                    last.calculation.old = [];
+                }
+
+                getConnectedValues(first, last);
+
 
                 let flow = checkFlow(last.calculation.nop);
 
@@ -676,13 +696,12 @@ let calculateLast = (first, last, pumps, total, dimension) => {
                 );
 
                 combinedPressure = parseFloat(total) + parseFloat(total2);
-
-                //olika dimensioner??
                 getResults(first, pumps, combinedPressure, dimension);
             } else {
                 getResults(first, pumps, total, dimension);
                 last.calculation.nop = first.calculation.nop;
                 last.calculation.capacity = first.calculation.capacity;
+                calculateNextPolyline(last, 'first');
             }
             break;
         default:
@@ -711,6 +730,39 @@ let getResults = (first, pumps, total, dimension) => {
     result.capacity = first.calculation.capacity;
     first.calculation.status = result.calculations.status;
     show.alert(first, result);
+};
+
+/**
+ * getConnectedValues - adds all connected pipes to calculation.old attribute so that if new values
+ * 					  - are added branch connection are updated with correct values
+ *
+ * @param {type} first first object connected to polyline
+ * @param {type} last  last object connected to polyline
+ *
+ * @returns {void}
+ */
+let getConnectedValues = (first, last) => {
+    let temp = polylines.getLayers();
+    let connected = temp.filter(find => find.connected_with.last == last.id && find != first);
+
+    temp = markers.getLayers();
+
+    for (let i = 0; i < connected.length; i++) {
+        let tempMarker = temp.find(find => find.id == connected[i].connected_with.first);
+
+        if (tempMarker != null) {
+            let index = last.calculation.old.map((e) => {
+                return e.id;
+            }).indexOf(tempMarker.id);
+
+            if (index == -1) {
+                last.calculation.old.push({
+                    id: tempMarker.id,
+                    nop: tempMarker.calculation.nop
+                });
+            }
+        }
+    }
 };
 
 /**
@@ -790,61 +842,45 @@ export let checkFlow = (nop) => {
     let nrOf = parseFloat(nop);
     let flow = 0;
 
-    if (nrOf <= 10) {
+    if (nrOf == 0) {
+        flow = 0;
+    } else if (nrOf <= 10 && nrOf > 0) {
         flow = 0.7;
-    }
-    if (nrOf <= 20 && nrOf > 10) {
+    } else if (nrOf <= 20 && nrOf > 10) {
         flow = 0.9;
-    }
-    if (nrOf <= 30 && nrOf > 20) {
+    } else if (nrOf <= 30 && nrOf > 20) {
         flow = 1.1;
-    }
-    if (nrOf <= 40 && nrOf > 30) {
+    } else if (nrOf <= 40 && nrOf > 30) {
         flow = 1.3;
-    }
-    if (nrOf <= 50 && nrOf > 40) {
+    } else if (nrOf <= 50 && nrOf > 40) {
         flow = 1.5;
-    }
-    if (nrOf <= 60 && nrOf > 50) {
+    } else if (nrOf <= 60 && nrOf > 50) {
         flow = 1.6;
-    }
-    if (nrOf <= 70 && nrOf > 60) {
+    } else if (nrOf <= 70 && nrOf > 60) {
         flow = 1.7;
-    }
-    if (nrOf <= 80 && nrOf > 70) {
+    } else if (nrOf <= 80 && nrOf > 70) {
         flow = 1.8;
-    }
-    if (nrOf <= 90 && nrOf > 80) {
+    } else if (nrOf <= 90 && nrOf > 80) {
         flow = 1.9;
-    }
-    if (nrOf <= 100 && nrOf > 90) {
+    } else if (nrOf <= 100 && nrOf > 90) {
         flow = 2;
-    }
-    if (nrOf <= 200 && nrOf > 100) {
+    } else if (nrOf <= 200 && nrOf > 100) {
         flow = 3;
-    }
-    if (nrOf <= 300 && nrOf > 200) {
+    } else if (nrOf <= 300 && nrOf > 200) {
         flow = 4;
-    }
-    if (nrOf <= 400 && nrOf > 300) {
+    } else if (nrOf <= 400 && nrOf > 300) {
         flow = 4.9;
-    }
-    if (nrOf <= 500 && nrOf > 400) {
+    } else if (nrOf <= 500 && nrOf > 400) {
         flow = 5.4;
-    }
-    if (nrOf <= 600 && nrOf > 500) {
+    } else if (nrOf <= 600 && nrOf > 500) {
         flow = 6;
-    }
-    if (nrOf <= 700 && nrOf > 600) {
+    } else if (nrOf <= 700 && nrOf > 600) {
         flow = 6.7;
-    }
-    if (nrOf <= 800 && nrOf > 700) {
+    } else if (nrOf <= 800 && nrOf > 700) {
         flow = 7;
-    }
-    if (nrOf <= 900 && nrOf > 800) {
+    } else if (nrOf <= 900 && nrOf > 800) {
         flow = 7.7;
-    }
-    if (nrOf <= 1000 && nrOf > 900) {
+    } else if (nrOf <= 1000 && nrOf > 900) {
         flow = 8;
     }
 

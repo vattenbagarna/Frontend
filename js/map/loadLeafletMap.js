@@ -148,6 +148,7 @@ let saveBox = () => {
     document.getElementById("save").addEventListener("click", () => {
         // Show the savebox
         show.openModal(modal);
+        document.getElementById('projectNameInSave').innerHTML = `Spara ${projectInfo.name}`;
 
         for (let i = select.options.length - 1; i >= 0; i--) {
             select.remove(i);
@@ -702,6 +703,6 @@ function calculateAspectRatioFit(srcWidth, srcHeight, maxWidth, maxHeight) {
     return { width: srcWidth * ratio, height: srcHeight * ratio };
 }
 
-document.getElementById("showMateriallist").addEventListener('click', () => {
-    document.location.replace("materiallist.html?id=" + id);
-});
+let link = document.getElementById("showMateriallist").parentElement;
+
+link.href = "materiallist.html?id=" + id;

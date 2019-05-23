@@ -76,7 +76,7 @@ export const add = {
 
         // If pipe is null create the first point.
         if (pipe != null) {
-            point.id = event.sourceTarget.id;
+            point.id = target.id;
             if (target.length) {
                 point = addBranchConnection(event, target);
             }
@@ -95,7 +95,7 @@ export const add = {
                 houseClicked = false;
             }
         } else if (event.target.used == false || event.target.used == null) {
-            point.id = event.sourceTarget.id;
+            point.id = target.id;
             if (target.length) {
                 point = addBranchConnection(event, target);
                 first = point.marker.disableDragging();
