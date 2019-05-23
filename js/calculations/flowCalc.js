@@ -251,7 +251,7 @@ function calcAll() {
         } else {
             document.getElementById("staticPressure").innerText = height;
         }
-      
+
         alert("Ger ej ett dugligt värde");
     } else {
         document.getElementById("staticPressure").innerText = height;
