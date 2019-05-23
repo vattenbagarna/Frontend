@@ -34,6 +34,11 @@
     color: #fff !important;
 }
 
+.admin-active:hover {
+    background-color: #1280c4 !important;
+    color: #fff !important;
+}
+
 .admin-content {
     margin: 1rem 2rem;
     padding: 1.5rem;
