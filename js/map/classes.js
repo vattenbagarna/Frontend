@@ -59,9 +59,11 @@ export class Marker {
             this.marker.attributes.id = this.marker.id;
             this.marker.elevation = elevation;
             this.marker.attributes["M ö.h"] = elevation;
-            this.marker.bindPopup(
-                popup.marker(this.marker.attributes, objectData) +
-                popup.changeCoord(data.coordinates));
+            if (this.marker.attributes.Kategori != "Förgrening") {
+                this.marker.bindPopup(
+                    popup.marker(this.marker.attributes, objectData) +
+                    popup.changeCoord(data.coordinates));
+            }
         })();
 
 

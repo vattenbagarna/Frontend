@@ -165,11 +165,11 @@ export const edit = {
         }
 
         // Add the "show" class to DIV
-        snackbar.className = "show";
+        snackbar.className = "showSave";
 
         // After 3 seconds, remove the show class from DIV
         setTimeout(function() {
-            snackbar.className = snackbar.className.replace("show", "");
+            snackbar.className = snackbar.className.replace("showSave", "");
         }, 3000);
     },
 
@@ -441,7 +441,8 @@ export const edit = {
                                 if (last instanceof L.Marker) {
                                     if (last.attributes.Kategori == "Förgrening" &&
                                             last.calculation.used == null) {
-                                        last.calculation.nop += first.calculation.nop;
+                                        last.calculation.nop +=
+                                                parseInt(first.calculation.nop);
 
                                         let temp = polylines.getLayers();
                                         let connected = temp.filter(find => find.connected_with
@@ -453,7 +454,8 @@ export const edit = {
                                             temp = temp.find(find => find.id == connected
                                                 .connected_with.first);
                                             if (temp != null) {
-                                                last.calculation.nop += temp.calculation.nop;
+                                                last.calculation.nop +=
+                                                        parseInt(temp.calculation.nop);
                                             }
                                         }
                                         last.calculation.used = true;
@@ -463,7 +465,8 @@ export const edit = {
                                         temp = temp.find(find => find.id == next.connected_with
                                             .last);
                                         if (temp != null) {
-                                            temp.calculation.nop += first.calculation.nop;
+                                            temp.calculation.nop +=
+                                                    parseInt(first.calculation.nop);
                                             let flow = checkFlow(temp.calculation.nop);
 
                                             temp.calculation.capacity = parseFloat(flow);
@@ -492,6 +495,7 @@ export const edit = {
                             } else {
                                 last.calculation.nop = first.calculation.nop;
                                 last.calculation.capacity = first.calculation.capacity;
+                                calculateNextPolyline(last, 'first');
                             }
                         } else {
                             resetMarkers(element);
@@ -596,7 +600,9 @@ let checkBranchConnection = (first, last) => {
         if (last.calculation.used == null) {
             if (find != null && find.calculation.capacity > 0) {
                 last.calculation.nop += find.calculation.nop;
+                last.calculation.old = [{ id: find.id, nop: find.calculation.nop }];
                 let flow = checkFlow(last.calculation.nop);
+
 
                 last.calculation.capacity = parseFloat(flow);
                 last.calculation.used = true;
@@ -660,6 +666,23 @@ let calculateLast = (first, last, pumps, total, dimension) => {
                 calculateNextPolyline(last, 'first');
             } else if (last.attributes.Kategori == "Förgrening") {
                 nextPolyline = findNextPolyline(last, 'first');
+                if (last.calculation.old != null) {
+                    let index = last.calculation.old.map((e) => { return e.id; }).indexOf(first.id);
+
+                    if (index != -1) {
+                        if (last.calculation.old[index].nop != first.calculation.nop) {
+                            last.calculation.nop -= last.calculation.old[index].nop;
+                            last.calculation.nop += first.calculation.nop;
+                            last.calculation.old[index].nop = first.calculation.nop;
+                            calculateNextPolyline(last, 'first');
+                        }
+                    }
+                } else {
+                    last.calculation.old = [];
+                }
+
+                getConnectedValues(first, last);
+
 
                 let flow = checkFlow(last.calculation.nop);
 
@@ -673,13 +696,12 @@ let calculateLast = (first, last, pumps, total, dimension) => {
                 );
 
                 combinedPressure = parseFloat(total) + parseFloat(total2);
-
-                //olika dimensioner??
                 getResults(first, pumps, combinedPressure, dimension);
             } else {
                 getResults(first, pumps, total, dimension);
                 last.calculation.nop = first.calculation.nop;
                 last.calculation.capacity = first.calculation.capacity;
+                calculateNextPolyline(last, 'first');
             }
             break;
         default:
@@ -708,6 +730,39 @@ let getResults = (first, pumps, total, dimension) => {
     result.capacity = first.calculation.capacity;
     first.calculation.status = result.calculations.status;
     show.alert(first, result);
+};
+
+/**
+ * getConnectedValues - adds all connected pipes to calculation.old attribute so that if new values
+ * 					  - are added branch connection are updated with correct values
+ *
+ * @param {type} first first object connected to polyline
+ * @param {type} last  last object connected to polyline
+ *
+ * @returns {void}
+ */
+let getConnectedValues = (first, last) => {
+    let temp = polylines.getLayers();
+    let connected = temp.filter(find => find.connected_with.last == last.id && find != first);
+
+    temp = markers.getLayers();
+
+    for (let i = 0; i < connected.length; i++) {
+        let tempMarker = temp.find(find => find.id == connected[i].connected_with.first);
+
+        if (tempMarker != null) {
+            let index = last.calculation.old.map((e) => {
+                return e.id;
+            }).indexOf(tempMarker.id);
+
+            if (index == -1) {
+                last.calculation.old.push({
+                    id: tempMarker.id,
+                    nop: tempMarker.calculation.nop
+                });
+            }
+        }
+    }
 };
 
 /**
