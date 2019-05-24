@@ -9,7 +9,7 @@ import { add, polylines, markers, polygons } from "./add.js";
 
 import { show, mouseCoord } from "./show.js";
 
-import { Marker, House, Pipe, mapId, setMapId } from "./classes.js";
+import { Marker, House, Pipe, mapId, setMapId, guideline } from "./classes.js";
 
 export const edit = {
 
@@ -126,6 +126,11 @@ export const edit = {
             layer.off("click", add.pipe);
         });
         document.getElementById("myMap").style.cursor = "grab";
+        if (guideline != null) {
+            polygons.eachLayer((polygon) => {
+                polygon.stopDrawing();
+            });
+        }
     },
 
     /**
