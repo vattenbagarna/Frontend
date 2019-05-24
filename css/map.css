@@ -218,6 +218,18 @@ body {
     min-width: 170px;
 }
 
+.leaflet-popup-content-wrapper .select-input,
+.leaflet-popup-content-wrapper .number-input,
+.leaflet-popup-content-wrapper .text-input,
+#versions,
+#newVersion,
+#tilt,
+.material,
+.dimension {
+    box-sizing: border-box;
+    width: 100%;
+}
+
 .active {
     border-top: 1px solid #1280c4;
     border-bottom: 1px solid #1280c4;

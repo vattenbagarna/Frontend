@@ -94,25 +94,25 @@ export let popup = {
     house: (address, type, nop, flow, color) => {
         return `<b id="address">${address}</b><br>
 		<div class="housePopup">
-	    Typ: <input type="text" id="houseType" value="${type}"><br>
+	    Typ:<br> <input type="text" class="text-input" id="houseType" value="${type}"><br>
 		Färg: <br><input type="color" id="houseColor" value="${color}"><br>
 
 	    Personer per hushåll:
-		<input type="text" id="per" value="${nop}"><br>
+		<br><input type="number" class="number-input" id="per" value="${nop}"><br>
 	    Flöde per person/dygn:
-		<input class="input-text" disabled type="text" id="cons" value="${flow}"><br>
-	    <input type="button" class="updateValuesInHouse" value="Ändra">
+		<input class="number-input" disabled type="number" id="cons" value="${flow}"><br><br>
+	    <input type="button" class="updateValuesInHouse button" value="Ändra">
 	    </div>`;
     },
 
     pipe: (tilt) => {
-        return `<label>Material</label>
+        return `<label>Material</label><br>
 				<select class="materialPopup select-input">
 					<option>PEM</option>
 					<option>PE</option>
 					<option>Rostfria</option>
 				</select>
-				<br><label>Statisk höjd</label>
+				<br><label>Statisk höjd</label><br>
 				<input class="number-input" type="number" step="0.1" id="tilt"
                 name="tilt" value=${tilt}><br><br>
 				<input class="button small-button" type="button"
