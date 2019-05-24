@@ -3,7 +3,7 @@
 ### 2019-05-22
 
 # Förord
-Denna Installationsguide är för Baga Aqua Systems Webbsida. Du förväntas ha installerat Baga Aqua Systems API först. Arbetet är utfört av studenter på Blekinge Tekniska Högskola som en del i kursen PA1416 under vårenterminen 2019 åt Baga Water Technology AB. Denna guide är till för att underlätta vid installation av systemet. Läsaren förväntas ha kunskaper om den egna miljön som installationen sker i.
+Denna Installationsguide är för Baga Aqua Systems Webbsida. Du förväntas ha installerat Baga Aqua Systems API först. Arbetet är utfört av studenter på Blekinge Tekniska Högskola som en del i kursen PA1416 under vårenterminen 2019 åt Baga Water Technology AB. Denna guide är till för att underlätta vid installation av systemet. Du förväntas ha kunskaper om den egna miljön som installationen sker i.
 
 # Innehållsförteckning
 - Förord
