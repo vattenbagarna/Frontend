@@ -489,6 +489,12 @@ export class House {
             dashArray: '5, 10'
         }).addTo(map);
 
+        this.polygon.stopDrawing = () => {
+            console.log("sho");
+            this.stopDrawing();
+        };
+
+
         map.on('mousemove', this.updateGuideLine);
         this.stopDrawListener();
     }
@@ -564,6 +570,7 @@ export class House {
         guideline.setLatLngs(coord);
     }
 
+
     /**
      * stopDrawListener - When user clicks the 'esc' button
      * 					- hides guideline and stops adding points to house object on click and
@@ -576,36 +583,45 @@ export class House {
         document.addEventListener("keyup", (event) => {
             // If user keyup is key 'esc'
             if (event.keyCode == 27) {
-                if (guideline != null && this.polygon != null && this.completed == false) {
-                    this.completed = true;
-                    let addr;
-
-                    L.esri.Geocoding.reverseGeocode()
-                        .latlng(this.polygon._latlngs[0][0])
-                        .run((error, result) => {
-                            addr = result.address.Match_addr;
-
-                            this.polygon.bindPopup(popup.house(
-                                addr,
-                                "Hus",
-                                projectInfo.default.peoplePerHouse,
-                                projectInfo.default.litrePerPerson,
-                                "#3388ff",
-                            ));
-
-                            this.polygon.address = addr;
-                        });
-
-                    this.polygon.definition = "Hus";
-                    this.polygon.nop = projectInfo.default.peoplePerHouse;
-                    this.polygon.flow = projectInfo.default.litrePerPerson;
-                    this.polygon.on('popupopen', this.updateValues);
-                    map.off('mousemove', this.updateGuideLine);
-                    guideline.remove();
-                    clearHouse();
-                }
+                this.stopDrawing();
             }
         }), { once: true };
+    }
+
+    /**
+     * stopDrawing - hides guideline and stops adding points to house object on click and
+     * 			   - adds popup content for house with address.
+     * @returns {void}
+     */
+    stopDrawing() {
+        if (guideline != null && this.polygon != null && this.completed == false) {
+            this.completed = true;
+            let addr;
+
+            L.esri.Geocoding.reverseGeocode()
+                .latlng(this.polygon._latlngs[0][0])
+                .run((error, result) => {
+                    addr = result.address.Match_addr;
+
+                    this.polygon.bindPopup(popup.house(
+                        addr,
+                        "Hus",
+                        projectInfo.default.peoplePerHouse,
+                        projectInfo.default.litrePerPerson,
+                        "#3388ff",
+                    ));
+
+                    this.polygon.address = addr;
+                });
+
+            this.polygon.definition = "Hus";
+            this.polygon.nop = projectInfo.default.peoplePerHouse;
+            this.polygon.flow = projectInfo.default.litrePerPerson;
+            this.polygon.on('popupopen', this.updateValues);
+            map.off('mousemove', this.updateGuideLine);
+            guideline.remove();
+            clearHouse();
+        }
     }
 
     /**
