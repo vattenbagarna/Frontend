@@ -185,6 +185,14 @@ export class Marker {
                         tilt: first.tilt,
                     });
 
+
+                    let temp = polygons.getLayers();
+                    let find = temp.find(find => find.id == last.connected_with.first);
+
+                    if (find != null) {
+                        find.used = false;
+                    }
+
                     last.connected_with.first = newObj.marker.id;
 
                     secondLatlngs.unshift(event.target._latlng);
@@ -222,6 +230,7 @@ export class Marker {
                     });
                 }
 
+                calculateNextPolyline(newObj.marker, 'last');
                 calculateNextPolyline(newObj.marker, 'first');
             } else {
                 // Close active popup

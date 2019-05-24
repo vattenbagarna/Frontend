@@ -14,7 +14,7 @@ export let pipes = {
             }
             let newNode = document.createElement('div');
 
-            newNode.innerHTML = "<br><label>Ytterdiameter </label>";
+            newNode.innerHTML = "<br><label>Ytterdiameter </label><br>";
             newNode.id = "Ytterdiameter";
 
             let select = document.createElement('select');
