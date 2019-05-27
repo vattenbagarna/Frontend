@@ -467,17 +467,19 @@ const checkValidLogin = async () => {
         return false;
     }
 
-    let req = await API.get(configuration.apiURL + "/admin/user?token=" + token);
+    let req = await API.get(configuration.apiURL + "/user/validate?token=" + token);
 
     if (req.error) {
-        localStorage.token = "";
-        window.location = "index.html";
-        console.log("request error");
-        console.log(req);
-        return false;
+        if (req.error == true) {
+            localStorage.token = "";
+            window.location = "index.html";
+            console.log("request error");
+            console.log(req);
+            return false;
+        } else {
+            return true;
+        }
     }
-
-    return true;
 };
 
 checkValidLogin();
