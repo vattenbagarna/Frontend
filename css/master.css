@@ -21,6 +21,12 @@ body {
 
 .greet-user {
     padding: 0 1rem;
+    display: flex;
+}
+
+.helpicon {
+    padding: 0 0 0 10px;
+    color: #1280c4;
 }
 
 .topnav .links {
