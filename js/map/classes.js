@@ -738,7 +738,8 @@ export class Pipe {
      */
     async createPolyline() {
         if (this.type == 0) {
-            this.polyline = new L.polyline(this.latlngs, options.pipe);
+            this.polyline = new L.polyline(this.latlngs, options.pipe(this.dimension.strokeWeight));
+
             this.polyline.decorator = L.polylineDecorator(this.polyline, {
                 patterns: [{
                     offset: '50%',
@@ -754,7 +755,9 @@ export class Pipe {
                 }]
             }).addTo(map);
         } else if (this.type == 1) {
-            this.polyline = new L.polyline(this.latlngs, options.stemPipe);
+            this.polyline =
+                new L.polyline(this.latlngs, options.stemPipe(this.dimension.strokeWeight));
+
             this.polyline.decorator = L.polylineDecorator(this.polyline, {
                 patterns: [{
                     offset: '50%',
@@ -817,6 +820,7 @@ export class Pipe {
         this.eventObject.dimension = {
             inner: value[0],
             outer: value[1],
+            strokeWeight: value[2],
         };
         this.eventObject.tilt = document.getElementById("tilt").value;
 

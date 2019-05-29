@@ -15,29 +15,34 @@ export let options = {
         };
     },
 
-    pipe: {
-        id: "pipe",
-        edit_with_drag: true,
-        vertices: {
-            destroy: true,
-            first: false,
-            last: false,
-            insert: true,
-            middle: true,
-        }
+    pipe: (strokeWeight) => {
+        return {
+            id: "pipe",
+            weight: strokeWeight,
+            edit_with_drag: true,
+            vertices: {
+                destroy: true,
+                first: false,
+                last: false,
+                insert: true,
+                middle: true,
+            }
+        };
     },
 
-    stemPipe: {
-        id: "stemPipe",
-        weight: 5,
-        color: "red",
-        edit_with_drag: true,
-        vertices: {
-            destroy: true,
-            first: false,
-            last: false,
-            insert: true,
-            middle: true,
-        }
+    stemPipe: (strokeWeight) => {
+        return {
+            id: "stemPipe",
+            weight: strokeWeight,
+            color: "red",
+            edit_with_drag: true,
+            vertices: {
+                destroy: true,
+                first: false,
+                last: false,
+                insert: true,
+                middle: true,
+            }
+        };
     },
 };
