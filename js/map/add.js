@@ -79,7 +79,7 @@ export const add = {
         target.closePopup();
 
         // If pipe is null create the first point.
-        if (pipe != null) {
+        if (pipe != null && target.id != firstTarget.id) {
             point.id = target.id;
             if (target.length) {
                 point = addBranchConnection(event, target);
@@ -102,6 +102,10 @@ export const add = {
             point.id = target.id;
             if (target.length) {
                 point = addBranchConnection(event, target);
+                point.marker._icon.classList.remove("transparent-border");
+                point.marker._icon.classList.add("connect-icon");
+                firstTarget = point.marker;
+                markerClicked = true;
                 first = point.marker.disableDragging();
             } else if (target.options.draggable) {
                 first = target.disableDragging();
