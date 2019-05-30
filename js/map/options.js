@@ -16,6 +16,9 @@ export let options = {
     },
 
     pipe: (strokeWeight) => {
+        if (strokeWeight == null) {
+            strokeWeight = 3;
+        }
         return {
             id: "pipe",
             weight: strokeWeight,
@@ -31,6 +34,9 @@ export let options = {
     },
 
     stemPipe: (strokeWeight) => {
+        if (strokeWeight == null) {
+            strokeWeight = 3;
+        }
         return {
             id: "stemPipe",
             weight: strokeWeight,
