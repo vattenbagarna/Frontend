@@ -754,7 +754,8 @@ export class Pipe {
      */
     async createPolyline() {
         if (this.type == 0) {
-            this.polyline = new L.polyline(this.latlngs, options.pipe);
+            this.polyline = new L.polyline(this.latlngs, options.pipe(this.dimension.strokeWeight));
+
             this.polyline.decorator = L.polylineDecorator(this.polyline, {
                 patterns: [{
                     offset: '50%',
@@ -770,7 +771,9 @@ export class Pipe {
                 }]
             }).addTo(map);
         } else if (this.type == 1) {
-            this.polyline = new L.polyline(this.latlngs, options.stemPipe);
+            this.polyline =
+                new L.polyline(this.latlngs, options.stemPipe(this.dimension.strokeWeight));
+
             this.polyline.decorator = L.polylineDecorator(this.polyline, {
                 patterns: [{
                     offset: '50%',
@@ -833,6 +836,7 @@ export class Pipe {
         this.eventObject.dimension = {
             inner: value[0],
             outer: value[1],
+            strokeWeight: value[2],
         };
         this.eventObject.tilt = document.getElementById("tilt").value;
 
@@ -873,7 +877,11 @@ export class Pipe {
         let option = document.createElement("option");
 
         option.text = event.target.dimension.outer;
-        option.value = `${event.target.dimension.inner},${event.target.dimension.outer}`;
+        option.value =
+            `${event.target.dimension.inner},
+			${event.target.dimension.outer},
+			${event.target.dimension.strokeWeight}`;
+
         dimension.add(option, 0);
 
         dimension.options[0].selected = "selected";
@@ -892,6 +900,7 @@ export class Pipe {
             event.target.dimension = {
                 inner: dimension[0],
                 outer: dimension[1],
+                strokeWeight: dimension[2]
             };
 
 
@@ -903,6 +912,11 @@ export class Pipe {
 
             // Update popup content with new values
             event.target.setPopupContent(popup.pipe(tilt));
+            if (event.target.type == 0) {
+                event.target.setStyle(options.pipe(event.target.dimension.strokeWeight));
+            } else {
+                event.target.setStyle(options.stemPipe(event.target.dimension.strokeWeight));
+            }
             edit.warning.pressure(event.target);
         }), { once: true };
     }

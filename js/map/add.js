@@ -30,11 +30,15 @@ export const add = {
     marker: (event) => {
         let object = {};
 
-        for (let i = 0; i < objectData.length; i++) {
-            if (add.activeObjName == objectData[i].Modell) {
-                object = objectData[i];
-                break;
+        if (add.activeObjName != "Förgrening") {
+            for (let i = 0; i < objectData.length; i++) {
+                if (add.activeObjName == objectData[i].Modell) {
+                    object = objectData[i];
+                    break;
+                }
             }
+        } else {
+            object = { Kategori: "Förgrening" };
         }
         new Marker({
             coordinates: event.latlng,
