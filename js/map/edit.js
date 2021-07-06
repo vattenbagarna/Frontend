@@ -402,8 +402,9 @@ export const edit = {
             let all = [];
             let total;
             let flow;
+            let checkbox = document.getElementById('toggleCalculations');
 
-            if (element == null) { return false; }
+            if (element == null || checkbox.checked == false) { return false; }
 
             polylines.eachLayer((polyline) => {
                 all.push(polyline);
@@ -453,7 +454,7 @@ export const edit = {
                                         let connected = temp.filter(find => find.connected_with
                                             .last == last.id && find != element);
 
-                                        if (connected != null) {
+                                        if (connected.length > 0) {
                                             connected = connected[0];
                                             temp = markers.getLayers();
                                             temp = temp.find(find => find.id == connected
@@ -466,16 +467,19 @@ export const edit = {
                                         last.calculation.used = true;
                                         let next = findNextPolyline(last, 'first');
 
-                                        temp = markers.getLayers();
-                                        temp = temp.find(find => find.id == next.connected_with
-                                            .last);
-                                        if (temp != null) {
-                                            temp.calculation.nop +=
-                                                    parseInt(first.calculation.nop);
-                                            let flow = checkFlow(temp.calculation.nop);
+                                        if (next != null) {
+                                            temp = markers.getLayers();
+                                            temp = temp.find(find => find.id == next.connected_with
+                                                .last);
+                                            if (temp != null) {
+                                                temp.calculation.nop +=
+                                                        parseInt(first.calculation.nop);
+                                                let flow = checkFlow(temp.calculation.nop);
 
-                                            temp.calculation.capacity = parseFloat(flow);
-                                            calculateNextPolyline(temp, 'first');
+                                                temp.calculation.capacity = parseFloat(
+                                                    flow);
+                                                calculateNextPolyline(temp, 'first');
+                                            }
                                         }
                                     }
                                 }
@@ -585,6 +589,49 @@ export let resetMarkers = (element) => {
     }
 };
 
+
+let checkbox = document.getElementById('toggleCalculations');
+
+checkbox.addEventListener("change", () => {
+    if (checkbox.checked == false) {
+        resetAllMarkers();
+        checkbox.used = true;
+    } else if (checkbox.used != null) {
+        restoreAllMarkers();
+        checkbox.used = null;
+    }
+});
+
+/**
+ * resetAllMarkers - removes alerts on all markers and borders
+ *
+ * @returns {void}
+ */
+let resetAllMarkers = () => {
+    markers.eachLayer((marker) => {
+        show.hideAlert(marker);
+    });
+};
+
+/**
+ * restoreAllMarkers - Add red or yellow border to all markers that should have it
+ *
+ * @returns {void}
+ */
+let restoreAllMarkers = () => {
+    markers.eachLayer((marker) => {
+        if (marker.calculation.status != null) {
+            if (marker.calculation.status == 3 || marker.calculation.status == 4) {
+                marker._icon.classList.remove('transparent-border');
+                marker._icon.classList.add('alert-icon');
+            } else if (marker.calculation.status == 1 || marker.calculation.status == 2) {
+                marker._icon.classList.remove('transparent-border');
+                marker._icon.classList.add('warning-icon');
+            }
+        }
+    });
+};
+
 /**
  * checkBranchConnection - checks if last point is a branch connection and increases number of
  * 						 - people if a pump with capacity is connected to the branch connection
@@ -671,37 +718,45 @@ let calculateLast = (first, last, pumps, total, dimension) => {
                 calculateNextPolyline(last, 'first');
             } else if (last.attributes.Kategori == "Förgrening") {
                 nextPolyline = findNextPolyline(last, 'first');
-                if (last.calculation.old != null) {
-                    let index = last.calculation.old.map((e) => { return e.id; }).indexOf(first.id);
+                if (nextPolyline != null) {
+                    if (last.calculation.old != null) {
+                        let index = last.calculation.old.map((e) => { return e.id; }).indexOf(
+                            first.id);
 
-                    if (index != -1) {
-                        if (last.calculation.old[index].nop != first.calculation.nop) {
-                            last.calculation.nop -= last.calculation.old[index].nop;
-                            last.calculation.nop += first.calculation.nop;
-                            last.calculation.old[index].nop = first.calculation.nop;
-                            calculateNextPolyline(last, 'first');
+                        if (index != -1) {
+                            if (last.calculation.old[index].nop != first.calculation.nop) {
+                                last.calculation.nop -= last.calculation.old[index].nop;
+                                last.calculation.nop += first.calculation.nop;
+                                last.calculation.old[index].nop = first.calculation.nop;
+                                calculateNextPolyline(last, 'first');
+                            }
                         }
+                    } else {
+                        last.calculation.old = [];
                     }
+
+                    getConnectedValues(first, last);
+
+
+                    let flow = checkFlow(last.calculation.nop);
+
+                    last.calculation.capacity = parseFloat(flow);
+
+                    total2 = calculateTotalPressure(
+                        parseFloat(last.calculation.capacity),
+                        parseFloat(nextPolyline.dimension.inner),
+                        parseFloat(nextPolyline.length),
+                        parseFloat(nextPolyline.tilt)
+                    );
+
+                    combinedPressure = parseFloat(total) + parseFloat(total2);
+                    getResults(first, pumps, combinedPressure, dimension);
                 } else {
-                    last.calculation.old = [];
+                    last.calculation.nop = first.calculation.nop;
+                    last.calculation.capacity = first.calculation.capacity;
+                    getResults(first, pumps, total, dimension);
+                    calculateNextPolyline(last, 'first');
                 }
-
-                getConnectedValues(first, last);
-
-
-                let flow = checkFlow(last.calculation.nop);
-
-                last.calculation.capacity = parseFloat(flow);
-
-                total2 = calculateTotalPressure(
-                    parseFloat(last.calculation.capacity),
-                    parseFloat(nextPolyline.dimension.inner),
-                    parseFloat(nextPolyline.length),
-                    parseFloat(nextPolyline.tilt)
-                );
-
-                combinedPressure = parseFloat(total) + parseFloat(total2);
-                getResults(first, pumps, combinedPressure, dimension);
             } else {
                 getResults(first, pumps, total, dimension);
                 last.calculation.nop = first.calculation.nop;
